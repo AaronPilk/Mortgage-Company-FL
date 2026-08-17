@@ -25,7 +25,8 @@
     "db:verify": "./scripts/db-verify.sh",
     "cf:build": "node scripts/check-site-url.mjs && pnpm --filter @tract/web exec opennextjs-cloudflare build",
     "cf:deploy": "pnpm --filter @tract/web exec wrangler deploy",
-    "cf:preview": "pnpm --filter @tract/web exec opennextjs-cloudflare preview"
+    "cf:preview": "pnpm --filter @tract/web exec opennextjs-cloudflare preview",
+    "smoke:routes": "tsx scripts/route-smoke.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
