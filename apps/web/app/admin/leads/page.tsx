@@ -31,6 +31,41 @@ type RequestRow = {
   created_at: string;
 };
 
+type ConsentRow = {
+  lead_id: string;
+  privacy_accepted: boolean;
+  contact_requested: boolean;
+  sms_marketing: boolean;
+  email_marketing: boolean;
+  disclosure_version: string;
+  created_at: string;
+};
+
+type TouchRow = {
+  lead_id: string;
+  touch_kind: string;
+  landing_path: string;
+  utm_source: string | null;
+  created_at: string;
+};
+
+type OutboxRow = {
+  aggregate_id: string;
+  event_type: string;
+  status: string;
+  attempt_count: number;
+  completed_at: string | null;
+};
+
+type PlanRow = {
+  lead_id: string;
+  source: string;
+  version: string;
+  calculation_version: string;
+  summary: string;
+  created_at: string;
+};
+
 export default async function Page() {
   const session = await requireStaff();
   if (!authorize(session, "lead", "read")) {
@@ -88,14 +123,56 @@ export default async function Page() {
     string,
     { status: string; version: number; generated_at: string | null }
   >();
+  const consentByLead = new Map<string, ConsentRow>();
+  const touchesByLead = new Map<string, TouchRow[]>();
+  const outboxByLead = new Map<string, OutboxRow>();
+  const planByLead = new Map<string, PlanRow>();
 
-  if (canSeeVisionContext) {
-    const { data: requestData } = await supabase
-      .from("vision_report_requests")
-      .select("submission_id,lead_id,project_id,report_id,created_at")
-      .order("created_at", { ascending: false })
-      .limit(50);
+  if (canSeeVisionContext && leads.length > 0) {
+    const leadIds = leads.map((lead) => lead.id);
+    const [requestResult, consentResult, touchResult, outboxResult, planResult] = await Promise.all(
+      [
+        supabase
+          .from("vision_report_requests")
+          .select("submission_id,lead_id,project_id,report_id,created_at")
+          .order("created_at", { ascending: false })
+          .limit(50),
+        supabase
+          .from("consent_receipts")
+          .select(
+            "lead_id,privacy_accepted,contact_requested,sms_marketing,email_marketing,disclosure_version,created_at"
+          )
+          .in("lead_id", leadIds)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("attribution_touches")
+          .select("lead_id,touch_kind,landing_path,utm_source,created_at")
+          .in("lead_id", leadIds)
+          .order("occurred_at", { ascending: true }),
+        supabase
+          .from("integration_outbox")
+          .select("aggregate_id,event_type,status,attempt_count,completed_at")
+          .in("aggregate_id", leadIds),
+        supabase
+          .from("lead_plans")
+          .select("lead_id,source,version,calculation_version,summary,created_at")
+          .in("lead_id", leadIds)
+      ]
+    );
+    const requestData = requestResult.data;
     requests = (requestData ?? []) as RequestRow[];
+    for (const consent of (consentResult.data ?? []) as ConsentRow[]) {
+      if (!consentByLead.has(consent.lead_id)) consentByLead.set(consent.lead_id, consent);
+    }
+    for (const touch of (touchResult.data ?? []) as TouchRow[]) {
+      touchesByLead.set(touch.lead_id, [...(touchesByLead.get(touch.lead_id) ?? []), touch]);
+    }
+    for (const outbox of (outboxResult.data ?? []) as OutboxRow[]) {
+      outboxByLead.set(outbox.aggregate_id, outbox);
+    }
+    for (const plan of (planResult.data ?? []) as PlanRow[]) {
+      planByLead.set(plan.lead_id, plan);
+    }
 
     if (requests.length > 0) {
       const [{ data: projectData }, { data: reportData }] = await Promise.all([
@@ -155,6 +232,10 @@ export default async function Page() {
             const request = requestByLead.get(lead.id);
             const project = request === undefined ? undefined : projects.get(request.project_id);
             const report = request === undefined ? undefined : reports.get(request.report_id);
+            const consent = consentByLead.get(lead.id);
+            const touches = touchesByLead.get(lead.id) ?? [];
+            const outbox = outboxByLead.get(lead.id);
+            const plan = planByLead.get(lead.id);
             return (
               <Card as="li" key={lead.id}>
                 <div className="flex flex-wrap items-start justify-between gap-4">
@@ -210,6 +291,63 @@ export default async function Page() {
                         {project.title} · {project.goal.replaceAll("_", " ")}
                       </p>
                     )}
+                  </div>
+                )}
+
+                {canSeeVisionContext && (
+                  <div className="mt-5 border-t border-[var(--border)] pt-5">
+                    <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--purple)]">
+                      Receipt timeline
+                    </p>
+                    <ol className="mt-3 grid gap-3 text-sm sm:grid-cols-2 xl:grid-cols-4">
+                      <li className="rounded-lg bg-[var(--surface-2)] p-3">
+                        <p className="text-[var(--text-muted)]">Consent</p>
+                        <p className="mt-1 font-semibold">
+                          {consent === undefined ? "RLS filtered" : "Recorded"}
+                        </p>
+                        {consent !== undefined && (
+                          <p className="mt-1 text-xs text-[var(--text-muted)]">
+                            Contact requested · SMS{" "}
+                            {consent.sms_marketing ? "opted in" : "not opted in"} · Email{" "}
+                            {consent.email_marketing ? "opted in" : "not opted in"}
+                          </p>
+                        )}
+                      </li>
+                      <li className="rounded-lg bg-[var(--surface-2)] p-3">
+                        <p className="text-[var(--text-muted)]">Attribution</p>
+                        <p className="mt-1 font-semibold">
+                          {touches.length === 0
+                            ? "RLS filtered"
+                            : touches.map((touch) => touch.touch_kind).join(" → ")}
+                        </p>
+                        {touches.length > 0 && (
+                          <p className="mt-1 text-xs text-[var(--text-muted)]">
+                            {touches.at(-1)?.landing_path}
+                            {touches.at(-1)?.utm_source === null
+                              ? ""
+                              : ` · ${touches.at(-1)?.utm_source}`}
+                          </p>
+                        )}
+                      </li>
+                      <li className="rounded-lg bg-[var(--surface-2)] p-3">
+                        <p className="text-[var(--text-muted)]">CRM outbox</p>
+                        <p className="mt-1 font-semibold">{outbox?.status ?? "RLS filtered"}</p>
+                        {outbox !== undefined && (
+                          <p className="mt-1 text-xs text-[var(--text-muted)]">
+                            {outbox.event_type} · {outbox.attempt_count} attempts
+                          </p>
+                        )}
+                      </li>
+                      <li className="rounded-lg bg-[var(--surface-2)] p-3">
+                        <p className="text-[var(--text-muted)]">Planning context</p>
+                        <p className="mt-1 font-semibold">
+                          {plan?.source.replaceAll("_", " ") ?? "No snapshot"}
+                        </p>
+                        {plan !== undefined && (
+                          <p className="mt-1 text-xs text-[var(--text-muted)]">{plan.summary}</p>
+                        )}
+                      </li>
+                    </ol>
                   </div>
                 )}
               </Card>

@@ -19,6 +19,8 @@ export type CrmLead = {
   timeline?: string;
   sourcePath: string;
   tags: string[];
+  /** Approved concise context only; never raw income, debt, credit, or report narrative. */
+  planningSummary?: string;
   consent: {
     smsMarketing: boolean;
     emailMarketing: boolean;

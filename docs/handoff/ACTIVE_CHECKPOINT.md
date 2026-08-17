@@ -1,36 +1,34 @@
 # Active checkpoint
 
-Checkpoint: Phase 2 — conversion engine
+Checkpoint: Phase 3 — images and product presentation
 Active agent: Codex
-Started: 2026-08-17T23:22:00Z
+Started: 2026-08-17T23:46:00Z
 Status: in progress
 
 ## Exact scope
 
-- Build the privacy-conscious mortgage planner without turning it into a loan application.
-- Add local save and explicit send/review behavior for planning results.
-- Preserve first-touch, last-touch and conversion-touch attribution as distinct records.
-- Make general lead creation idempotent under exact client retries and keep consent coupled to the same transaction.
-- Exercise the outbox-to-CRM path with the fixture adapter and prove duplicate suppression.
-- Add useful thank-you and authenticated admin lifecycle views.
-- Reuse the existing Turnstile boundary; do not create or modify remote widgets or credentials.
+- Create the canonical reviewed asset manifest with source, rights, prompt version, dimensions and transformation metadata.
+- Complete the required original home, property, Vision, RendProp, agent and social image fixtures.
+- Implement a visual home hero/product proof panel using HTML for all labels and numbers.
+- Add honest property galleries and labeled Vision before/concept comparisons.
+- Replace the RendProp placeholder with labeled original/cleanup/staged/enhanced/floor-plan demonstration media.
+- Optimize responsive loading, intrinsic sizing, alt text and graceful fallbacks.
+- Add desktop/mobile visual and route verification without remote hotlinks or copied listing media.
 
 ## Allowed files and directories
 
-- `apps/web/app/mortgage/**`, `apps/web/app/contact/**`, `apps/web/app/admin/**` and relevant API routes
-- Relevant `apps/web/components/**`, `apps/web/lib/**`, route registry, navigation, metadata and styles
-- Relevant schema, integration, analytics, domain, database and mortgage-math package files
-- Additive Supabase migrations and RLS tests required for idempotency and lifecycle evidence
-- End-to-end/unit tests and `docs/**`
+- Home, properties, Vision, RendProp and agent presentation routes and components
+- `apps/web/public/images/**`, asset-manifest files and source-review documentation
+- Relevant metadata, Open Graph, styles and responsive image configuration
+- Focused end-to-end/unit/visual tests and `docs/**`
 
 ## Acceptance criteria
 
-- A visitor can model purchase or refinance inputs, see deterministic outputs and save the plan locally without providing contact details.
-- Sending a plan uses explicit consent and an idempotent client submission identifier.
-- The durable operation records one lead, one consent receipt, distinct attribution touches and one outbox event under exact retries.
-- The CRM fixture projection consumes the event without duplicate external records.
-- Thank-you states do not falsely imply successful persistence when infrastructure is unavailable.
-- Authenticated staff can trace relevant lead, consent, attribution and outbox lifecycle state within their RLS scope.
+- Every required fixture has a repository-owned file and manifest entry; no remote placeholder remains.
+- Before/concept pairs preserve the subject and viewpoint closely enough for an honest labeled demonstration.
+- Home and product routes use responsive optimized images with stable dimensions and useful alt text.
+- Visual labels remain HTML, concept and fixture disclosures remain visible and floor plans disclaim measurement use.
+- Desktop and mobile verification covers critical images, fallbacks and layout stability.
 - Unit, end-to-end, production build, OpenNext build and 50-route smoke checks pass.
 
 ## Expected commands
@@ -43,5 +41,6 @@ Status: in progress
 - Vercel projects, deployments, domains or environment settings.
 - Cloudflare deployment configuration, secrets or remote Turnstile widgets.
 - Live CRM, MLS, email or paid AI provider calls.
+- Copied MLS/Zillow media, remote hotlinks or generated images presented as real properties.
 - Mortgage calculations outside `@tract/mortgage-math`.
 - SSNs, full dates of birth, bank credentials, document uploads or other application-only data in marketing forms.

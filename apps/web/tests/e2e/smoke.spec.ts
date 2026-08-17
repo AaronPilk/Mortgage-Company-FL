@@ -117,6 +117,116 @@ test.describe("lead form", () => {
     await page.goto("/contact");
     await expect(page.getByText("This is not an application").first()).toBeVisible();
   });
+
+  test("keeps one submission id across an exact browser retry and sends distinct touches", async ({
+    page
+  }) => {
+    const payloads: Array<Record<string, unknown>> = [];
+    await page.route("**/api/v1/leads", async (route) => {
+      payloads.push(route.request().postDataJSON() as Record<string, unknown>);
+      await route.fulfill({
+        status: 500,
+        contentType: "application/json",
+        body: JSON.stringify({
+          ok: false,
+          error: { code: "INTERNAL_ERROR", message: "Test retry response.", requestId: "test" }
+        })
+      });
+    });
+    await page.goto("/contact?utm_source=phase2-test");
+    await page.locator('input[name="firstName"]').fill("Dana");
+    await page.locator('input[name="lastName"]').fill("Reyes");
+    await page.locator('input[name="email"]').fill("dana@example.com");
+    await page.locator('input[name="phone"]').fill("813-555-0147");
+    await page.locator('input[name="privacyAccepted"]').check();
+    await page.getByRole("button", { name: "Request a call" }).click();
+    await expect(page.locator('form [role="alert"]')).toContainText("Test retry response");
+    await page.getByRole("button", { name: "Request a call" }).click();
+    await expect.poll(() => payloads.length).toBe(2);
+
+    expect(payloads[0]?.submissionId).toBe(payloads[1]?.submissionId);
+    expect(payloads[0]).toEqual(payloads[1]);
+    expect(String(payloads[0]?.submissionId)).toMatch(/^[0-9a-f-]{36}$/i);
+    expect(payloads[0]?.firstTouch).toMatchObject({
+      landingPath: "/contact",
+      utmSource: "phase2-test"
+    });
+    expect(payloads[0]?.lastTouch).toMatchObject({ landingPath: "/contact" });
+    expect(payloads[0]?.conversionTouch).toMatchObject({ landingPath: "/contact" });
+
+    await page.locator('input[name="smsMarketing"]').check();
+    await page.getByRole("button", { name: "Request a call" }).click();
+    await expect.poll(() => payloads.length).toBe(3);
+    expect(payloads[2]?.submissionId).not.toBe(payloads[1]?.submissionId);
+  });
+
+  test("fails honestly when general lead storage is unavailable", async ({ page }) => {
+    await page.goto("/contact");
+    await page.locator('input[name="firstName"]').fill("Dana");
+    await page.locator('input[name="lastName"]').fill("Reyes");
+    await page.locator('input[name="email"]').fill("dana@example.com");
+    await page.locator('input[name="phone"]').fill("813-555-0147");
+    await page.locator('input[name="privacyAccepted"]').check();
+    await page.getByRole("button", { name: "Request a call" }).click();
+    await expect(page.locator('form [role="alert"]')).toContainText("could not save");
+    await expect(page.getByText("We have your request")).toHaveCount(0);
+  });
+});
+
+test.describe("mortgage planner and scenario actions", () => {
+  test("delivers a planning result before the optional contact step and saves locally", async ({
+    page
+  }) => {
+    await page.goto("/mortgage/plan");
+    await expect(page.getByTestId("mortgage-planner")).toBeVisible();
+    await expect(page.locator('input[name="email"]')).toHaveCount(0);
+    await page.getByRole("button", { name: "Continue to timing" }).click();
+    await page.getByLabel("Florida market or ZIP").fill("St. Petersburg");
+    await page.getByRole("button", { name: "Continue to numbers" }).click();
+    await page.getByLabel("Target price or value").fill("500000");
+    await page.getByRole("button", { name: "Show my planning range" }).click();
+    await expect(page.getByTestId("planner-preview")).toContainText("preliminary planning range", {
+      ignoreCase: true
+    });
+    await expect(page.locator('input[name="email"]')).toHaveCount(0);
+    await page.getByRole("button", { name: "Save on this device" }).click();
+    await expect(page.getByTestId("planner-save-status")).toContainText("Nothing was sent");
+    await page.getByRole("button", { name: "Save with TRACT or talk" }).click();
+    await expect(page.locator('input[name="email"]')).toBeVisible();
+    await expect(page.getByText("The result was already available")).toBeVisible();
+  });
+
+  test("offers the complete save, send, compare, talk and property action set", async ({
+    page
+  }) => {
+    for (const path of [
+      "/calculators/mortgage-payment",
+      "/calculators/affordability",
+      "/calculators/refinance-break-even",
+      "/calculators/rent-vs-buy",
+      "/calculators/closing-cost"
+    ]) {
+      await page.goto(path);
+      const actions = page.getByTestId("scenario-actions");
+      await expect(actions.getByRole("button", { name: "Save this scenario" })).toBeVisible();
+      await expect(actions.getByRole("button", { name: "Email me this breakdown" })).toBeVisible();
+      await expect(actions.getByRole("button", { name: "Compare another scenario" })).toBeVisible();
+      await expect(
+        actions.getByRole("button", { name: "Talk through these numbers" })
+      ).toBeVisible();
+      await expect(actions.getByRole("link", { name: "Use a property from TRACT" })).toBeVisible();
+    }
+  });
+
+  test("pairs sliders with precise numeric inputs", async ({ page }) => {
+    await page.goto("/calculators/mortgage-payment");
+    await expect(page.getByLabel("Precise Purchase price")).toBeVisible();
+    await page.getByLabel("Precise Purchase price").fill("510000");
+    await expect(page.locator("#calc-price")).toHaveValue("510000");
+
+    await page.goto("/calculators/affordability");
+    await expect(page.getByLabel("Precise Gross monthly income")).toBeVisible();
+  });
 });
 
 test.describe("application handoff", () => {
@@ -283,6 +393,18 @@ test.describe("lead API", () => {
   test("does not disclose credentials through the health probe", async ({ request }) => {
     const body = await (await request.get("/api/v1/health")).text();
     expect(body).not.toMatch(/key|secret|token|password/i);
+  });
+});
+
+test.describe("outbox worker boundary", () => {
+  test("rejects public drains and exposes no GET worker", async ({ request }) => {
+    const post = await request.post("/api/v1/internal/outbox/drain");
+    expect(post.status()).toBe(401);
+    expect(await post.text()).not.toMatch(/token|secret|supabase|crm/i);
+
+    const get = await request.get("/api/v1/internal/outbox/drain");
+    expect(get.status()).toBe(405);
+    expect(get.headers()["allow"]).toBe("POST");
   });
 });
 

@@ -77,10 +77,10 @@ Seven additive migrations define 24 public tables, enable RLS on every table, cr
 | -------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | Leads                | `leads` and service-only `create_lead_with_receipt` RPC                                     | Dedupe hash is not unique; RPC inserts a lead before outbox conflict handling              |
 | Consent              | Append-oriented `consent_receipts` plus `suppressions`                                      | Live configuration absent; immutability and channel semantics need vertical-slice coverage |
-| Attribution          | `attribution_touches`; browser captures first/last locally                                  | Conversion currently collapses first and last into one stored touch                        |
-| Outbox events        | `integration_outbox`, webhook receipts and retrying processor library                       | No scheduled/queue consumer is deployed                                                    |
-| Properties           | `property_entities`, `listing_records`, `property_facts` and fixture publication constraint | Five fixtures only; no detail route; remote tables unverified                              |
-| Vision projects      | Projects, assumptions, scenarios, reports and public report-token RPC                       | UI is placeholder; no end-to-end persistence or report workflow                            |
+| Attribution          | `attribution_touches`; browser captures and transaction stores first/last/conversion        | Remote rows and retention execution remain unverified                                      |
+| Outbox events        | `integration_outbox`, locked worker RPCs, webhook receipts and bounded retry processor      | Protected drain route exists; no remote scheduler is configured                            |
+| Properties           | Entities, records, facts, seven explicit demo fixtures and stable detail routes             | Live provider remains disabled; remote tables unverified                                   |
+| Vision projects      | Projects, assumptions, scenarios, reports, anonymous request mapping and atomic request RPC | Durable local path verified; production database unconfigured                              |
 | AI jobs              | Jobs, budget reservation, quota policies and kill switches                                  | Disabled and unused; no orchestrator or queue                                              |
 | Usage                | Append-oriented `usage_ledger` and adjustment constraints                                   | No live provider reconciliation                                                            |
 | Content              | Items, sources, revisions and link opportunities                                            | Admin views are not data-backed; no migrated content                                       |
@@ -108,6 +108,7 @@ Only names and requirements are recorded here. Values must remain in the appropr
 
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `TURNSTILE_SECRET_KEY`
+- `OUTBOX_DRAIN_TOKEN`
 - `GHL_PRIVATE_INTEGRATION_TOKEN`
 - `GHL_WEBHOOK_PUBLIC_KEY`
 - `OPENAI_API_KEY`
@@ -126,6 +127,7 @@ Only names and requirements are recorded here. Values must remain in the appropr
 ### Server-only modes, identifiers and policy
 
 - `TURNSTILE_MODE`
+- `TURNSTILE_HOSTNAMES`
 - `GHL_MODE`
 - `GHL_LOCATION_ID`
 - `GHL_API_BASE_URL`
@@ -145,19 +147,19 @@ Only names and requirements are recorded here. Values must remain in the appropr
 - `EMAIL_MODE`
 - `SECURE_APPLICATION_URL`
 
-`GHL_CUSTOM_FIELD_MAP` and `GHL_PIPELINE_MAP` are consumed directly by the application but are not yet part of the Zod server environment schema; Phase 2 should close that validation gap.
+`GHL_CUSTOM_FIELD_MAP` and `GHL_PIPELINE_MAP` are parsed defensively by the server and never exposed to the browser. Their provider identifiers require review when a real GoHighLevel location is connected.
 
 ## What appears unused
 
 - The protected Vercel deployment is not part of the public traffic path.
 - AI ports, usage controls, property-data ports and RendProp contracts are largely uninvoked.
 - Content and audit tables have little or no application write traffic.
-- The outbox processor is library code without a deployed trigger.
+- The protected outbox drain path has no configured remote scheduler or credentials.
 - Accounts are flagged on but do not provide a usable Auth lifecycle.
 
 ## Verify next
 
-1. Build and test the fixture property-to-Vision vertical slice locally.
+1. Complete and review the Phase 3 asset manifest and product presentation locally.
 2. Prove the TRACT Supabase project identity before any remote database action.
 3. Inspect the Cloudflare environment-variable name inventory after project identity is known; do not read or copy values.
 4. Add Storage buckets and RLS through reviewed additive migrations only when the active checkpoint reaches uploads.

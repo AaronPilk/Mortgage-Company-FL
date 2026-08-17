@@ -4,6 +4,8 @@ import {
   ContactNormalizationError,
   HTTP_STATUS_BY_CODE,
   type ApiErrorCode,
+  type LeadAttributionTouch,
+  type PlanningSnapshot,
   apiFailure,
   apiSuccess,
   fieldErrors,
@@ -51,6 +53,49 @@ export const dynamic = "force-dynamic";
 
 const MAX_BODY_BYTES = 16 * 1024;
 const FORM_VERSION = "lead-form@1.0.0";
+
+function databaseTouch(touch: LeadAttributionTouch, touchKind: "first" | "last" | "conversion") {
+  return {
+    touch_kind: touchKind,
+    occurred_at: touch.occurredAt,
+    landing_path: touch.landingPath,
+    referrer_host: touch.referrerHost ?? null,
+    utm_source: touch.utmSource ?? null,
+    utm_medium: touch.utmMedium ?? null,
+    utm_campaign: touch.utmCampaign ?? null,
+    utm_content: touch.utmContent ?? null,
+    utm_term: touch.utmTerm ?? null,
+    gclid: touch.gclid ?? null,
+    gbraid: touch.gbraid ?? null,
+    wbraid: touch.wbraid ?? null,
+    msclkid: touch.msclkid ?? null,
+    fbclid: touch.fbclid ?? null
+  };
+}
+
+function approvedPlanningSummary(snapshot: PlanningSnapshot | undefined): string | null {
+  if (snapshot === undefined) return null;
+  const labels: Record<PlanningSnapshot["source"], string> = {
+    mortgage_planner: "Mortgage planner",
+    mortgage_payment: "Payment calculator",
+    affordability: "Affordability calculator",
+    refinance_break_even: "Refinance break-even calculator",
+    rent_vs_buy: "Rent-versus-buy calculator",
+    closing_cost: "Closing-cost calculator"
+  };
+  const candidateKeys = [
+    "estimatedMonthlyHousingDollars",
+    "totalMonthlyDollars",
+    "estimatedPurchasePriceDollars",
+    "newPaymentDollars",
+    "estimatedCashToCloseDollars"
+  ];
+  const result = snapshot.resultSnapshot;
+  const key = candidateKeys.find((candidate) => typeof result[candidate] === "number");
+  const value = key === undefined ? null : Number(result[key]);
+  const bounded = value !== null && Number.isFinite(value) && value >= 0 && value <= 250_000_000;
+  return `${labels[snapshot.source]} submitted for review${bounded ? ` · $${Math.round(value).toLocaleString("en-US")}` : ""}.`;
+}
 
 function fail(
   code: ApiErrorCode,
@@ -152,7 +197,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       mode: configuration.TURNSTILE_MODE,
       ...(configuration.TURNSTILE_SECRET_KEY === undefined
         ? {}
-        : { secretKey: configuration.TURNSTILE_SECRET_KEY })
+        : { secretKey: configuration.TURNSTILE_SECRET_KEY }),
+      expectedAction: "lead",
+      expectedHostnames: (configuration.TURNSTILE_HOSTNAMES ?? "")
+        .split(",")
+        .map((hostname) => hostname.trim())
+        .filter(Boolean)
     }
   );
   if (!turnstile.ok) {
@@ -205,6 +255,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   const receivedAt = new Date().toISOString();
+  const planningSummary = approvedPlanningSummary(input.planningSnapshot);
   const dedupe = dedupeHash(
     normalized.emailNormalized,
     normalized.phoneE164,
@@ -241,7 +292,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       timeline: input.timeline ?? null,
       estimated_credit_band: input.estimatedCreditBand ?? null,
       message: input.message ?? null,
-      source_path: input.attribution.landingPath,
+      source_path: input.conversionTouch.landingPath,
       dedupe_hash: dedupe
     },
     p_consent: {
@@ -253,40 +304,30 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       // The hash pins the exact wording shown, so a later copy edit cannot make
       // the stored record ambiguous about what the consumer agreed to.
       disclosure_text_sha256: sha256Hex(LEAD_DISCLOSURE_TEXT),
-      source_path: input.attribution.landingPath,
+      source_path: input.conversionTouch.landingPath,
       form_version: FORM_VERSION,
       ip_prefix_hash: context.ipPrefixHash,
       user_agent_family: context.userAgentFamily
     },
-    p_attribution: {
-      occurred_at: receivedAt,
-      landing_path: input.attribution.landingPath,
-      referrer_host: input.attribution.referrerHost ?? null,
-      utm_source: input.attribution.utmSource ?? null,
-      utm_medium: input.attribution.utmMedium ?? null,
-      utm_campaign: input.attribution.utmCampaign ?? null,
-      utm_content: input.attribution.utmContent ?? null,
-      utm_term: input.attribution.utmTerm ?? null,
-      gclid: input.attribution.gclid ?? null,
-      gbraid: input.attribution.gbraid ?? null,
-      wbraid: input.attribution.wbraid ?? null,
-      msclkid: input.attribution.msclkid ?? null,
-      fbclid: input.attribution.fbclid ?? null
-    },
+    p_attribution: [
+      databaseTouch(input.firstTouch, "first"),
+      databaseTouch(input.lastTouch, "last"),
+      databaseTouch(input.conversionTouch, "conversion")
+    ],
     p_outbox: {
       event_type: "lead.received",
-      idempotency_key: leadSyncIdempotencyKey(dedupe, "lead.received"),
+      idempotency_key: leadSyncIdempotencyKey(input.submissionId, "lead.received"),
       // Only marketing-safe fields cross into the CRM projection. The screening
       // in the CRM adapter is a second barrier over this one.
       payload: {
-        externalId: dedupe,
+        externalId: input.submissionId,
         firstName: input.firstName,
         lastName: input.lastName,
         email: normalized.emailNormalized,
         phoneE164: normalized.phoneE164,
         intent: input.intent,
         timeline: input.timeline ?? null,
-        sourcePath: input.attribution.landingPath,
+        sourcePath: input.conversionTouch.landingPath,
         tags: ["web-lead", `intent:${input.intent}`],
         consent: {
           smsMarketing: input.consent.smsMarketing,
@@ -295,14 +336,26 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           receivedAtIso: receivedAt
         },
         attribution: {
-          utmSource: input.attribution.utmSource ?? null,
-          utmMedium: input.attribution.utmMedium ?? null,
-          utmCampaign: input.attribution.utmCampaign ?? null,
-          gclid: input.attribution.gclid ?? null
-        }
+          utmSource: input.lastTouch.utmSource ?? null,
+          utmMedium: input.lastTouch.utmMedium ?? null,
+          utmCampaign: input.lastTouch.utmCampaign ?? null,
+          gclid: input.lastTouch.gclid ?? null
+        },
+        planningSummary
       }
     },
-    p_request_id: context.requestId
+    p_request_id: input.submissionId,
+    p_plan:
+      input.planningSnapshot === undefined
+        ? null
+        : {
+            source: input.planningSnapshot.source,
+            version: input.planningSnapshot.version,
+            calculation_version: input.planningSnapshot.calculationVersion,
+            input_snapshot: input.planningSnapshot.inputSnapshot,
+            result_snapshot: input.planningSnapshot.resultSnapshot,
+            summary: planningSummary
+          }
   });
 
   if (error !== null) {

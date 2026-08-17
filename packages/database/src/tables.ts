@@ -11,6 +11,8 @@ export const TABLES = {
   userRoles: "user_roles",
   auditEvents: "audit_events",
   leads: "leads",
+  leadSubmissionReceipts: "lead_submission_receipts",
+  leadPlans: "lead_plans",
   consentReceipts: "consent_receipts",
   suppressions: "suppressions",
   attributionTouches: "attribution_touches",
@@ -44,6 +46,8 @@ export const FUNCTIONS = {
   recordAuditEvent: "record_audit_event",
   getPublicReport: "get_public_report",
   createVisionReportRequest: "create_vision_report_request",
+  claimIntegrationOutbox: "claim_integration_outbox",
+  completeIntegrationOutbox: "complete_integration_outbox",
   hasRole: "has_role",
   isStaff: "is_staff"
 } as const;

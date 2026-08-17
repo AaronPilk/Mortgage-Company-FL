@@ -141,7 +141,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       mode: configuration.TURNSTILE_MODE,
       ...(configuration.TURNSTILE_SECRET_KEY === undefined
         ? {}
-        : { secretKey: configuration.TURNSTILE_SECRET_KEY })
+        : { secretKey: configuration.TURNSTILE_SECRET_KEY }),
+      expectedAction: "vision_report",
+      expectedHostnames: (configuration.TURNSTILE_HOSTNAMES ?? "")
+        .split(",")
+        .map((hostname) => hostname.trim())
+        .filter(Boolean)
     }
   );
   if (!turnstile.ok) {

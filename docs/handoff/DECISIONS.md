@@ -63,3 +63,35 @@
 - Alternatives: accept an adapter-specific 404; change the public URL shape.
 - Consequences: stable URLs work on the canonical Cloudflare runtime, known keys return 200 and unknown keys return 404; the lookup remains local and bounded.
 - Owner: Codex.
+
+## 2026-08-17 — Key generic lead retries by browser submission UUID
+
+- Decision: persist a service-only submission-to-lead receipt and serialize exact retries with a transaction-scoped advisory lock.
+- Reason: a server request ID changes when a browser repeats an ambiguous request and therefore cannot prevent duplicate leads, consent records or CRM events.
+- Alternatives: deduplicate all matching contacts; rely only on the outbox unique key.
+- Consequences: an unchanged form retry returns the original receipt, while changed contact or consent inputs receive a new submission UUID; intentional later inquiries remain distinct.
+- Owner: Codex.
+
+## 2026-08-17 — Keep planning detail first-party and CRM summaries server-owned
+
+- Decision: store bounded scalar input/result snapshots in `lead_plans`, but construct the CRM planning summary on the server from an allow-listed result field.
+- Reason: income, debt, credit bands and arbitrary visitor text must not enter general analytics or the marketing CRM.
+- Alternatives: send the complete calculator snapshot; omit all planning context.
+- Consequences: operations can trace the submitted scenario under RLS, while GoHighLevel receives only the tool name and one bounded planning result.
+- Owner: Codex.
+
+## 2026-08-17 — Drain CRM events through locked service-only outbox functions
+
+- Decision: add `SKIP LOCKED` claim and owner-matched completion functions plus a token-protected internal route.
+- Reason: the existing row processor had no safe database claim/complete boundary and therefore was not an executable worker path.
+- Alternatives: send to CRM inside the lead request; let a browser update outbox rows.
+- Consequences: concurrent workers cannot claim one row twice, provider failures become bounded retries/dead letters and the consumer still waits only on the first-party transaction. Scheduling remains unconfigured until production infrastructure is identified.
+- Owner: Codex.
+
+## 2026-08-17 — Validate Turnstile action and deployment hostname
+
+- Decision: load the widget only when a public site key exists, assign stable `lead` and `vision_report` actions, validate both action and hostname at Siteverify and reset the single-use token after a visible failure.
+- Reason: checking `success` alone does not bind a token to the intended surface or deployment, and replaying a redeemed token cannot support a form retry.
+- Alternatives: accept any successful widget token; create a new remote widget during recovery.
+- Consequences: live mode now requires `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` and deployment-specific `TURNSTILE_HOSTNAMES`; no widget or credential was created or changed.
+- Owner: Codex.

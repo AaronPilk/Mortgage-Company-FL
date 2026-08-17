@@ -9,7 +9,6 @@ async function main(): Promise<void> {
     "/properties",
     "/calculators/affordability",
     "/vision",
-    "/contact",
     "/mortgage/fha",
     "/privacy",
     "/partners/real-estate-agents",

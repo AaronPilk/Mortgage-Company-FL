@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { ConsentSchema, PreferredContactSchema, TimelineSchema } from "./lead";
+import {
+  ConsentSchema,
+  LeadAttributionTouchSchema,
+  PreferredContactSchema,
+  TimelineSchema
+} from "./lead";
 
 const bounded = (max: number) => z.string().trim().max(max);
 const integerMoney = z.number().int().min(0).max(250_000_000_00);
@@ -13,21 +18,7 @@ export const VisionGoalSchema = z.enum([
   "explore"
 ]);
 
-export const VisionAttributionTouchSchema = z.object({
-  landingPath: bounded(512),
-  referrerHost: bounded(255).optional(),
-  occurredAt: z.string().datetime({ offset: true }),
-  utmSource: bounded(200).optional(),
-  utmMedium: bounded(200).optional(),
-  utmCampaign: bounded(200).optional(),
-  utmContent: bounded(200).optional(),
-  utmTerm: bounded(200).optional(),
-  gclid: bounded(512).optional(),
-  gbraid: bounded(512).optional(),
-  wbraid: bounded(512).optional(),
-  msclkid: bounded(512).optional(),
-  fbclid: bounded(512).optional()
-});
+export const VisionAttributionTouchSchema = LeadAttributionTouchSchema;
 export type VisionAttributionTouch = z.infer<typeof VisionAttributionTouchSchema>;
 
 export const VisionPlanningAssumptionsSchema = z

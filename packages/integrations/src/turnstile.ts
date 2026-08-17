@@ -17,6 +17,8 @@ export type TurnstileConfig = {
   verifyUrl?: string;
   fetchImpl?: typeof fetch;
   timeoutMs?: number;
+  expectedAction?: string;
+  expectedHostnames?: readonly string[];
 };
 
 /** Tokens the fixture adapter treats as failures, so tests can exercise both paths. */
@@ -42,6 +44,9 @@ export async function verifyTurnstile(
   if (config.secretKey === undefined) {
     return { ok: false, mode: config.mode, reason: "unavailable" };
   }
+  if (config.expectedAction === undefined || (config.expectedHostnames?.length ?? 0) === 0) {
+    return { ok: false, mode: config.mode, reason: "unavailable" };
+  }
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), config.timeoutMs ?? 5_000);
@@ -59,8 +64,14 @@ export async function verifyTurnstile(
       }
     );
     if (!response.ok) return { ok: false, mode: config.mode, reason: "unavailable" };
-    const data = (await response.json()) as { success?: boolean };
-    return data.success === true
+    const data = (await response.json()) as {
+      success?: boolean;
+      action?: string;
+      hostname?: string;
+    };
+    return data.success === true &&
+      data.action === config.expectedAction &&
+      config.expectedHostnames?.includes(data.hostname ?? "")
       ? { ok: true, mode: config.mode }
       : { ok: false, mode: config.mode, reason: "rejected" };
   } catch {

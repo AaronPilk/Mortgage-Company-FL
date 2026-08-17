@@ -110,10 +110,43 @@ select public.create_lead_with_receipt(
     'privacy_accepted',true,'contact_requested',true,'sms_marketing',false,
     'email_marketing',true,'disclosure_version','v1','disclosure_text_sha256','abc',
     'source_path','/mortgage/purchase','form_version','1'),
-  jsonb_build_object('landing_path','/mortgage/purchase','utm_source','google'),
+  jsonb_build_array(
+    jsonb_build_object('touch_kind','first','landing_path','/','utm_source','google'),
+    jsonb_build_object('touch_kind','last','landing_path','/mortgage/purchase','utm_source','google'),
+    jsonb_build_object('touch_kind','conversion','landing_path','/mortgage/purchase')
+  ),
   jsonb_build_object('event_type','lead.received','idempotency_key','k1','payload','{}'::jsonb),
-  gen_random_uuid()
+  '00000000-0000-4000-8000-000000000110',
+  jsonb_build_object(
+    'source','mortgage_planner','version','mortgage-planner@1.0.0',
+    'calculation_version','mortgage-math@1.0.0',
+    'input_snapshot',jsonb_build_object('intent','buying'),
+    'result_snapshot',jsonb_build_object('estimatedMonthlyDollars',3100),
+    'summary','Buying in Tampa in three to six months.'
+  )
 );
+
+-- The same browser submission UUID must resolve to the first durable receipt,
+-- even if the retried request body arrives after an ambiguous network failure.
+select public.create_lead_with_receipt(
+  '{}'::jsonb, '{}'::jsonb, '[]'::jsonb,
+  jsonb_build_object('event_type','lead.received','idempotency_key','retry-ignored'),
+  '00000000-0000-4000-8000-000000000110'
+);
+
+select tests.assert(
+  (select count(*) from public.lead_submission_receipts
+   where submission_id = '00000000-0000-4000-8000-000000000110') = 1,
+  'lead request is idempotent by browser submission id');
+select tests.assert(
+  (select count(*) from public.attribution_touches
+   where lead_id = (select lead_id from public.lead_submission_receipts
+     where submission_id = '00000000-0000-4000-8000-000000000110')) = 3,
+  'lead request stores distinct first, last, and conversion touches');
+select tests.assert(
+  (select count(*) from public.lead_plans
+   where submission_id = '00000000-0000-4000-8000-000000000110') = 1,
+  'lead request persists one bounded planning snapshot');
 
 select public.create_vision_report_request(
   '00000000-0000-4000-8000-000000000100',
@@ -165,6 +198,36 @@ select tests.assert(
      where submission_id = '00000000-0000-4000-8000-000000000100')) = 3,
   'Vision report stores distinct first, last, and conversion touches');
 
+create temporary table claimed_outbox as
+select * from public.claim_integration_outbox('fixture-worker-0001', 10);
+
+select tests.assert(
+  (select count(*) from claimed_outbox) = 2,
+  'outbox worker atomically claims the two available lead events');
+select tests.assert(
+  public.complete_integration_outbox(
+    (select id from claimed_outbox order by id::text limit 1),
+    'fixture-worker-0001',
+    'succeeded',
+    null,
+    0,
+    'fixture:contact-1'
+  ),
+  'outbox worker completes its own claimed event');
+select tests.assert(
+  public.complete_integration_outbox(
+    (select id from claimed_outbox order by id::text desc limit 1),
+    'fixture-worker-0001',
+    'retry',
+    'retryable:503',
+    60000,
+    null
+  ),
+  'outbox worker schedules a bounded retry');
+select tests.assert(
+  (select count(*) from public.claim_integration_outbox('fixture-worker-0002', 10)) = 0,
+  'completed and delayed events are not claimed again');
+
 insert into public.vision_projects (id, owner_user_id, title, goal) values
   ('00000000-0000-4000-8000-0000000000a1', '00000000-0000-4000-8000-000000000002', 'My house', 'renovate'),
   ('00000000-0000-4000-8000-0000000000a2', '00000000-0000-4000-8000-000000000006', 'Agent project', 'flip');
@@ -210,6 +273,10 @@ select tests.assert_denied('select count(*) from public.attribution_touches',
   'anonymous has no grant on attribution touches');
 select tests.assert_denied('select count(*) from public.integration_outbox',
   'anonymous has no grant on the integration outbox');
+select tests.assert_denied('select count(*) from public.lead_submission_receipts',
+  'anonymous has no grant on lead submission receipts');
+select tests.assert_denied('select count(*) from public.lead_plans',
+  'anonymous has no grant on lead plans');
 select tests.assert_denied('select count(*) from public.vision_report_requests',
   'anonymous has no grant on Vision report requests');
 select tests.assert(tests.visible_count('select count(*) from public.audit_events') = 0,
@@ -247,6 +314,8 @@ select tests.assert(tests.visible_count('select count(*) from public.leads') = 0
   'consumer cannot read the lead table');
 select tests.assert(tests.visible_count('select count(*) from public.consent_receipts') = 0,
   'consumer cannot read the consent ledger');
+select tests.assert(tests.visible_count('select count(*) from public.lead_plans') = 0,
+  'consumer cannot read lead planning snapshots');
 select tests.assert(tests.visible_count('select count(*) from public.usage_ledger') = 0,
   'consumer cannot read the usage ledger');
 
@@ -279,6 +348,13 @@ select tests.assert_denied(
       gen_random_uuid(),'{}'::jsonb,'{}'::jsonb,'[]'::jsonb,'{}'::jsonb,
       '{}'::jsonb,'{}'::jsonb,'{}'::jsonb)$$,
   'consumer cannot call the Vision report creation function directly');
+select tests.assert_denied(
+  $$select public.claim_integration_outbox('hostile-worker', 25)$$,
+  'consumer cannot claim integration outbox work');
+select tests.assert_denied(
+  $$select public.complete_integration_outbox(
+      gen_random_uuid(),'hostile-worker','succeeded',null,0,'x')$$,
+  'consumer cannot complete integration outbox work');
 
 reset role;
 
@@ -309,6 +385,8 @@ select tests.assert(tests.visible_count('select count(*) from public.vision_repo
   'loan officer cannot read Vision report request mappings');
 select tests.assert(tests.visible_count('select count(*) from public.consent_receipts') = 0,
   'loan officer cannot read the consent ledger');
+select tests.assert(tests.visible_count('select count(*) from public.lead_plans') = 0,
+  'loan officer cannot read an unassigned planning snapshot');
 select tests.assert(tests.visible_count('select count(*) from public.audit_events') = 0,
   'loan officer cannot read the audit log');
 
@@ -369,6 +447,10 @@ select tests.assert(tests.visible_count('select count(*) from public.integration
   'admin can read the outbox');
 select tests.assert(tests.visible_count('select count(*) from public.vision_report_requests') = 1,
   'admin can read Vision report request mappings');
+select tests.assert(tests.visible_count('select count(*) from public.lead_submission_receipts') = 1,
+  'admin can trace the general lead submission receipt');
+select tests.assert(tests.visible_count('select count(*) from public.lead_plans') = 1,
+  'admin can read the general lead planning snapshot');
 
 -- Audit history is append-only for everyone, including an admin.
 select tests.assert_denied(

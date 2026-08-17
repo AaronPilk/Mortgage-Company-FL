@@ -29,6 +29,13 @@ export const ROUTE_REGISTRY: RouteEntry[] = [
     contentGroup: "mortgage"
   },
   {
+    path: "/mortgage/plan",
+    priority: 0.5,
+    changeFrequency: "monthly",
+    indexable: false,
+    contentGroup: "conversion"
+  },
+  {
     path: "/mortgage/purchase",
     priority: 0.9,
     changeFrequency: "monthly",

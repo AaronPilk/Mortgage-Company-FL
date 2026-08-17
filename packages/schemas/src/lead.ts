@@ -61,6 +61,68 @@ export const LeadSourceContextSchema = z.object({
 });
 export type LeadSourceContext = z.infer<typeof LeadSourceContextSchema>;
 
+export const LeadAttributionTouchSchema = LeadSourceContextSchema.omit({
+  firstTouchId: true,
+  lastTouchId: true
+}).extend({
+  occurredAt: z.string().datetime({ offset: true })
+});
+export type LeadAttributionTouch = z.infer<typeof LeadAttributionTouchSchema>;
+
+const snapshotValue = z.union([z.string().max(300), z.number().finite(), z.boolean(), z.null()]);
+const snapshotRecord = z
+  .record(z.string().min(1).max(80), snapshotValue)
+  .superRefine((value, context) => {
+    if (Object.keys(value).length > 40) {
+      context.addIssue({ code: z.ZodIssueCode.custom, message: "Snapshot has too many fields." });
+    }
+    const prohibited = [
+      "ssn",
+      "socialsecurity",
+      "dateofbirth",
+      "dob",
+      "bankaccount",
+      "routingnumber",
+      "cardnumber",
+      "passport",
+      "driverslicense",
+      "document",
+      "fileupload"
+    ];
+    for (const key of Object.keys(value)) {
+      const normalized = key.replace(/[_-]/g, "").toLowerCase();
+      if (prohibited.some((entry) => normalized.includes(entry))) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [key],
+          message: "This field does not belong in a marketing planning snapshot."
+        });
+      }
+    }
+  });
+
+/**
+ * A bounded, first-party planning snapshot. It deliberately allows only scalar
+ * values: no documents, free-form narratives, provider payloads, or nested loan
+ * application data can cross this marketing endpoint.
+ */
+export const PlanningSnapshotSchema = z.object({
+  source: z.enum([
+    "mortgage_planner",
+    "mortgage_payment",
+    "affordability",
+    "refinance_break_even",
+    "rent_vs_buy",
+    "closing_cost"
+  ]),
+  version: z.string().min(1).max(64),
+  calculationVersion: z.string().min(1).max(64),
+  inputSnapshot: snapshotRecord,
+  resultSnapshot: snapshotRecord,
+  summary: z.string().trim().min(1).max(500)
+});
+export type PlanningSnapshot = z.infer<typeof PlanningSnapshotSchema>;
+
 /**
  * Consent is modeled as two independent things: a request to be contacted about
  * this inquiry, and separate opt-ins for marketing channels. Bundling them would
@@ -76,6 +138,7 @@ export const ConsentSchema = z.object({
 export type ConsentInput = z.infer<typeof ConsentSchema>;
 
 export const CreateLeadSchema = z.object({
+  submissionId: z.string().uuid(),
   intent: LeadIntentSchema,
   firstName: z.string().trim().min(1).max(80),
   lastName: z.string().trim().min(1).max(80),
@@ -92,8 +155,11 @@ export const CreateLeadSchema = z.object({
   estimatedCreditBand: CreditBandSchema.optional(),
   /** Free-text context from the consumer. Length-bounded and never parsed as instructions. */
   message: bounded(1500).optional(),
+  planningSnapshot: PlanningSnapshotSchema.optional(),
   consent: ConsentSchema,
-  attribution: LeadSourceContextSchema,
+  firstTouch: LeadAttributionTouchSchema,
+  lastTouch: LeadAttributionTouchSchema,
+  conversionTouch: LeadAttributionTouchSchema,
   turnstileToken: z.string().min(1).max(4096),
   /** Must arrive empty. A populated value is a bot signal. */
   honeypot: z.string().max(0).optional()

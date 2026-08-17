@@ -5,6 +5,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button, Card } from "@/components/ui";
 import { FIRST_TOUCH_STORAGE_KEY, LAST_TOUCH_STORAGE_KEY, safeLandingPath } from "@tract/analytics";
+import {
+  attributionTouch,
+  currentAttributionTouch,
+  readStoredTouch
+} from "@/lib/attribution-browser";
+import { resetTurnstile } from "@/lib/turnstile-browser";
+import type { LeadAttributionTouch } from "@tract/schemas";
 import type { ListingSummary } from "@tract/integrations";
 import { dollarsToCents, formatRate, formatUsd, visionPlanningPreview } from "@tract/mortgage-math";
 
@@ -24,46 +31,11 @@ type PlannerValues = {
   valueRangePercent: number;
 };
 
-type StoredTouch = {
-  landingPath?: string;
-  referrerHost?: string;
-  occurredAt?: string;
-  params?: Record<string, string>;
-};
-
 type FormState =
   | { kind: "idle" }
   | { kind: "submitting" }
   | { kind: "error"; message: string; fields: Record<string, string[]> }
   | { kind: "success"; receiptId: string };
-
-function readStoredTouch(key: string): StoredTouch {
-  try {
-    const raw = window.localStorage.getItem(key);
-    return raw === null ? {} : (JSON.parse(raw) as StoredTouch);
-  } catch {
-    return {};
-  }
-}
-
-function touchPayload(touch: StoredTouch, fallbackPath: string) {
-  const params = touch.params ?? {};
-  return {
-    landingPath: safeLandingPath(touch.landingPath ?? fallbackPath),
-    ...(touch.referrerHost === undefined ? {} : { referrerHost: touch.referrerHost }),
-    occurredAt: touch.occurredAt ?? new Date().toISOString(),
-    ...(params.utm_source === undefined ? {} : { utmSource: params.utm_source }),
-    ...(params.utm_medium === undefined ? {} : { utmMedium: params.utm_medium }),
-    ...(params.utm_campaign === undefined ? {} : { utmCampaign: params.utm_campaign }),
-    ...(params.utm_content === undefined ? {} : { utmContent: params.utm_content }),
-    ...(params.utm_term === undefined ? {} : { utmTerm: params.utm_term }),
-    ...(params.gclid === undefined ? {} : { gclid: params.gclid }),
-    ...(params.gbraid === undefined ? {} : { gbraid: params.gbraid }),
-    ...(params.wbraid === undefined ? {} : { wbraid: params.wbraid }),
-    ...(params.msclkid === undefined ? {} : { msclkid: params.msclkid }),
-    ...(params.fbclid === undefined ? {} : { fbclid: params.fbclid })
-  };
-}
 
 function dollars(cents: number): number {
   return Math.round(cents / 100);
@@ -104,7 +76,13 @@ export function VisionPlanner({
     valueRangePercent: 5
   });
   const [formState, setFormState] = useState<FormState>({ kind: "idle" });
-  const submissionRef = useRef<{ id: string; fingerprint: string } | null>(null);
+  const submissionRef = useRef<{
+    id: string;
+    fingerprint: string;
+    firstTouch: LeadAttributionTouch;
+    lastTouch: LeadAttributionTouch;
+    conversionTouch: LeadAttributionTouch;
+  } | null>(null);
   const errorRef = useRef<HTMLDivElement>(null);
   const baseId = useId();
   const idFor = (name: string) => `${baseId}-${name}`;
@@ -150,13 +128,17 @@ export function VisionPlanner({
     setFormState({ kind: "submitting" });
 
     const form = new FormData(event.currentTarget);
-    const fallbackPath = safeLandingPath(window.location.pathname);
-    const firstTouch = touchPayload(readStoredTouch(FIRST_TOUCH_STORAGE_KEY), fallbackPath);
-    const lastTouch = touchPayload(readStoredTouch(LAST_TOUCH_STORAGE_KEY), fallbackPath);
-    const conversionTouch = touchPayload(
-      { landingPath: fallbackPath, occurredAt: new Date().toISOString() },
-      fallbackPath
-    );
+    const preferredContact = form.get("preferredContact")
+      ? String(form.get("preferredContact"))
+      : undefined;
+    const timeline = form.get("timeline") ? String(form.get("timeline")) : undefined;
+    const consent = {
+      privacyAccepted: form.get("privacyAccepted") === "on",
+      contactRequested: true as const,
+      smsMarketing: form.get("smsMarketing") === "on",
+      emailMarketing: form.get("emailMarketing") === "on",
+      disclosureVersion
+    };
     const core = {
       listingKey: listing.listingKey,
       goal,
@@ -164,15 +146,26 @@ export function VisionPlanner({
       firstName: String(form.get("firstName") ?? ""),
       lastName: String(form.get("lastName") ?? ""),
       email: String(form.get("email") ?? ""),
-      phone: String(form.get("phone") ?? "")
+      phone: String(form.get("phone") ?? ""),
+      preferredContact,
+      timeline,
+      consent
     };
     const fingerprint = JSON.stringify(core);
     if (submissionRef.current === null || submissionRef.current.fingerprint !== fingerprint) {
-      submissionRef.current = { id: window.crypto.randomUUID(), fingerprint };
+      const fallbackPath = safeLandingPath(window.location.pathname);
+      submissionRef.current = {
+        id: window.crypto.randomUUID(),
+        fingerprint,
+        firstTouch: attributionTouch(readStoredTouch(FIRST_TOUCH_STORAGE_KEY), fallbackPath),
+        lastTouch: attributionTouch(readStoredTouch(LAST_TOUCH_STORAGE_KEY), fallbackPath),
+        conversionTouch: currentAttributionTouch(window.location.pathname)
+      };
     }
+    const submission = submissionRef.current;
 
     const payload = {
-      submissionId: submissionRef.current.id,
+      submissionId: submission.id,
       listingKey: listing.listingKey,
       propertyTitle: `${listing.address.city ?? "Florida"} planning demo`,
       propertyAddress: {
@@ -187,20 +180,12 @@ export function VisionPlanner({
       lastName: core.lastName,
       email: core.email,
       phone: core.phone,
-      preferredContact: form.get("preferredContact")
-        ? String(form.get("preferredContact"))
-        : undefined,
-      timeline: form.get("timeline") ? String(form.get("timeline")) : undefined,
-      consent: {
-        privacyAccepted: form.get("privacyAccepted") === "on",
-        contactRequested: true,
-        smsMarketing: form.get("smsMarketing") === "on",
-        emailMarketing: form.get("emailMarketing") === "on",
-        disclosureVersion
-      },
-      firstTouch,
-      lastTouch,
-      conversionTouch,
+      preferredContact,
+      timeline,
+      consent,
+      firstTouch: submission.firstTouch,
+      lastTouch: submission.lastTouch,
+      conversionTouch: submission.conversionTouch,
       turnstileToken: String(form.get("cf-turnstile-response") ?? "no-challenge-configured"),
       honeypot: String(form.get("company") ?? "")
     };
@@ -223,6 +208,7 @@ export function VisionPlanner({
         message: result.error.message,
         fields: result.error.fields ?? {}
       });
+      resetTurnstile();
       queueMicrotask(() => errorRef.current?.focus());
     } catch {
       setFormState({
@@ -230,6 +216,7 @@ export function VisionPlanner({
         message: "We could not reach the server, so the report request was not confirmed as saved.",
         fields: {}
       });
+      resetTurnstile();
       queueMicrotask(() => errorRef.current?.focus());
     }
   }
@@ -633,6 +620,7 @@ export function VisionPlanner({
                   <div
                     className="mt-6 cf-turnstile"
                     data-sitekey={turnstileSiteKey}
+                    data-action="vision_report"
                     data-theme="light"
                   />
                 )}

@@ -195,7 +195,8 @@ export class GhlCrmAdapter implements CrmPort {
       tract_utm_source: input.attribution.utmSource ?? "",
       tract_utm_medium: input.attribution.utmMedium ?? "",
       tract_utm_campaign: input.attribution.utmCampaign ?? "",
-      tract_gclid: input.attribution.gclid ?? ""
+      tract_gclid: input.attribution.gclid ?? "",
+      tract_plan_summary: input.planningSummary ?? ""
     })
       .filter(([key, value]) => value !== "" && this.config.customFieldMap[key] !== undefined)
       .map(([key, value]) => ({ id: this.config.customFieldMap[key] as string, value }));

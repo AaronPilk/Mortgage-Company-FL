@@ -30,16 +30,32 @@ Phase 0 exit decision: complete. Error 1102 is operationally resolved for the cu
 
 ## 2026-08-17 — Phase 1 completion
 
-| Command/check                                      | Result | Relevant output / unresolved issue                                                                 |
-| -------------------------------------------------- | ------ | -------------------------------------------------------------------------------------------------- |
-| `pnpm check`                                       | Pass   | Formatting, lint, 10-package typecheck, 172 tests, content lint and 40-page production build       |
-| `pnpm db:verify` on disposable PostgreSQL 17       | Pass   | Eight migrations; idempotent Vision retry; three attribution touches; RLS on every public table    |
-| `pnpm test:e2e`                                    | Pass   | 64/64 desktop/mobile checks including the complete property-to-Vision UI and honest no-DB failure  |
-| `pnpm cf:build`                                    | Pass   | OpenNext 1.20.2 built the dynamic property-detail route and report API                             |
-| `wrangler deploy --dry-run`                        | Pass   | 7,599.37 KiB uncompressed / 1,486.55 KiB gzip; no deployment                                      |
-| `pnpm smoke:routes` against OpenNext preview       | Pass   | 50 requests, zero failures, 12.9 ms average and 57.6 ms maximum                                   |
-| Direct OpenNext property route and asset probes    | Pass   | Known detail 200, unknown detail 404, generated image 200                                         |
-| Static-route adapter regression and forward fix    | Pass   | OpenNext preview exposed `NoFallbackError`; route changed to dynamic SSR and reverified            |
-| Secret-pattern scan and `git diff --check`         | Pass   | No credential-shaped value detected; no diff whitespace errors                                    |
+| Command/check                                   | Result | Relevant output / unresolved issue                                                                |
+| ----------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------- |
+| `pnpm check`                                    | Pass   | Formatting, lint, 10-package typecheck, 172 tests, content lint and 40-page production build      |
+| `pnpm db:verify` on disposable PostgreSQL 17    | Pass   | Eight migrations; idempotent Vision retry; three attribution touches; RLS on every public table   |
+| `pnpm test:e2e`                                 | Pass   | 64/64 desktop/mobile checks including the complete property-to-Vision UI and honest no-DB failure |
+| `pnpm cf:build`                                 | Pass   | OpenNext 1.20.2 built the dynamic property-detail route and report API                            |
+| `wrangler deploy --dry-run`                     | Pass   | 7,599.37 KiB uncompressed / 1,486.55 KiB gzip; no deployment                                      |
+| `pnpm smoke:routes` against OpenNext preview    | Pass   | 50 requests, zero failures, 12.9 ms average and 57.6 ms maximum                                   |
+| Direct OpenNext property route and asset probes | Pass   | Known detail 200, unknown detail 404, generated image 200                                         |
+| Static-route adapter regression and forward fix | Pass   | OpenNext preview exposed `NoFallbackError`; route changed to dynamic SSR and reverified           |
+| Secret-pattern scan and `git diff --check`      | Pass   | No credential-shaped value detected; no diff whitespace errors                                    |
 
 Phase 1 exit decision: complete locally. The full workflow functions without MLS or paid AI. Durable persistence is verified against disposable PostgreSQL and remains intentionally unapplied/unconfigured in production pending proof of the TRACT Supabase project.
+
+## 2026-08-17 — Phase 2 completion
+
+| Command/check                                 | Result           | Relevant output / unresolved issue                                                                                                                        |
+| --------------------------------------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm lint`, typecheck, unit and content lint | Pass             | 10-package typecheck; 177 unit/integration tests; 38 pages and 40 registered routes                                                                       |
+| `pnpm db:verify` on disposable PostgreSQL 17  | Pass             | Ten migrations; exact lead retry; three touches; plan snapshot; outbox claim/complete/retry; RLS                                                          |
+| `pnpm test:e2e`                               | Pass             | 76/76 desktop/mobile checks for planner, calculator actions, stable retry and fail-closed behavior                                                        |
+| `pnpm cf:build`                               | Pass             | OpenNext 1.20.2 built planner, general lead contract and protected outbox route                                                                           |
+| `wrangler deploy --dry-run`                   | Pass             | 7,722.21 KiB uncompressed / 1,514.40 KiB gzip; no deployment                                                                                              |
+| `pnpm smoke:routes` against OpenNext preview  | Pass             | 50 requests, zero failures, 14.1 ms average and 220.3 ms maximum                                                                                          |
+| Fixture CRM exact replay                      | Pass             | Two projections with one idempotency key leave exactly one fixture CRM contact                                                                            |
+| Turnstile contract                            | Pass             | Live mode fails closed without config and validates action plus approved hostname                                                                         |
+| `pnpm deploy:preflight`                       | Expected refusal | Four requirements remain: `HASH_PEPPER`, `SUPABASE_SERVICE_ROLE_KEY`, production `TURNSTILE_MODE` and `NEXT_PUBLIC_TURNSTILE_SITE_KEY`; no values printed |
+
+Phase 2 exit decision: complete locally. Production persistence, Turnstile, CRM and outbox scheduling remain disabled until the real TRACT Supabase project and deployment configuration are proven.
