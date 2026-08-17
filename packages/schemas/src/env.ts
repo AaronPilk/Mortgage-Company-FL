@@ -51,7 +51,7 @@ export const ServerEnvSchema = z
 
     MLS_PROVIDER: z
       .enum(["disabled", "fixture", "stellar", "bridge", "mlsgrid"])
-      .default("fixture"),
+      .default("disabled"),
     MLS_BASE_URL: optionalString,
     MLS_ACCESS_TOKEN: optionalString,
     MLS_ATTRIBUTION_TEXT: optionalString,

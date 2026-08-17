@@ -300,7 +300,7 @@ describe("listing provider", () => {
   });
 
   it("refuses to display fixture records when fixtures are not allowed", async () => {
-    const listing = await new FixtureListingProvider().getByKey("FX-TPA-0001");
+    const listing = await new FixtureListingProvider().getByKey("FX-STP-0001");
     expect(listing).not.toBeNull();
     if (listing !== null) {
       expect(isDisplayable(listing, true)).toBe(true);
@@ -310,10 +310,12 @@ describe("listing provider", () => {
 
   it("unpublishes records that vanished from the provider or lost display status", async () => {
     const page = await new FixtureListingProvider().search({ market: "FL", limit: 10 });
-    const stale = recordsToUnpublish(page.items, new Set(["FX-TPA-0001", "FX-ORL-0002"]));
-    expect(stale.map((item) => item.listingKey)).toContain("FX-JAX-0003");
-    // A closed record is unpublished even if the provider still returns it.
-    expect(stale.map((item) => item.listingKey)).toContain("FX-SRQ-0005");
+    const currentKeys = new Set(page.items.map((item) => item.listingKey));
+    currentKeys.delete("FX-JAX-0005");
+    const closed = { ...page.items[0]!, standardStatus: "closed" as const };
+    const stale = recordsToUnpublish([closed, ...page.items.slice(1)], currentKeys);
+    expect(stale.map((item) => item.listingKey)).toContain("FX-JAX-0005");
+    expect(stale.map((item) => item.listingKey)).toContain("FX-STP-0001");
   });
 
   it("never fetches a pasted link and blocks private hosts and odd schemes", () => {

@@ -555,3 +555,165 @@ export function flipScenario(input: FlipInput): FlipResult {
     calculationVersion: CALCULATION_VERSION
   };
 }
+
+/* ------------------------------------------------------------------ *
+ * TRACT Vision deterministic planning preview
+ * ------------------------------------------------------------------ */
+
+export type VisionPlanningInput = {
+  purchasePriceCents: Cents;
+  downPaymentCents: Cents;
+  annualRateBasisPoints: BasisPoints;
+  termMonths: number;
+  annualPropertyTaxCents: Cents;
+  annualInsuranceCents: Cents;
+  monthlyHoaCents?: Cents;
+  acquisitionCostsCents: Cents;
+  improvementBudgetCents: Cents;
+  contingencyRateBasisPoints: BasisPoints;
+  expectedAfterImprovementValueCents: Cents;
+  costRangeBasisPoints?: BasisPoints;
+  valueRangeBasisPoints?: BasisPoints;
+};
+
+export type VisionPlanningCase = {
+  key: "conservative" | "planning" | "upside";
+  improvementCostCents: Cents;
+  postImprovementValueCents: Cents;
+  cashRequiredCents: Cents;
+  valueLessDebtCents: Cents;
+  valueLessDebtAndProjectCashCents: Cents;
+};
+
+export type VisionPlanningResult = {
+  loanAmountCents: Cents;
+  monthlyHousing: ReturnType<typeof monthlyHousingCost>;
+  monthlyPaymentSensitivity: {
+    lowerRateBasisPoints: BasisPoints;
+    lowerTotalMonthlyCents: Cents;
+    planningRateBasisPoints: BasisPoints;
+    planningTotalMonthlyCents: Cents;
+    higherRateBasisPoints: BasisPoints;
+    higherTotalMonthlyCents: Cents;
+  };
+  cases: [VisionPlanningCase, VisionPlanningCase, VisionPlanningCase];
+  assumptions: {
+    costRangeBasisPoints: BasisPoints;
+    valueRangeBasisPoints: BasisPoints;
+    contingencyRateBasisPoints: BasisPoints;
+  };
+  calculationVersion: string;
+};
+
+/**
+ * A transparent range for the pre-contact Vision preview. The three cases are
+ * arithmetic transforms of visitor-editable assumptions; none is a valuation,
+ * construction bid, lending decision, or prediction.
+ */
+export function visionPlanningPreview(input: VisionPlanningInput): VisionPlanningResult {
+  const purchasePriceCents = assertNonNegativeCents(input.purchasePriceCents, "purchasePriceCents");
+  const downPaymentCents = assertNonNegativeCents(input.downPaymentCents, "downPaymentCents");
+  if (downPaymentCents > purchasePriceCents) {
+    throw new RangeError("downPaymentCents must not exceed purchasePriceCents");
+  }
+
+  const improvementBudgetCents = assertNonNegativeCents(
+    input.improvementBudgetCents,
+    "improvementBudgetCents"
+  );
+  const expectedAfterImprovementValueCents = assertNonNegativeCents(
+    input.expectedAfterImprovementValueCents,
+    "expectedAfterImprovementValueCents"
+  );
+  const acquisitionCostsCents = assertNonNegativeCents(
+    input.acquisitionCostsCents,
+    "acquisitionCostsCents"
+  );
+  const contingencyRateBasisPoints = assertBasisPoints(
+    input.contingencyRateBasisPoints,
+    "contingencyRateBasisPoints"
+  );
+  const costRangeBasisPoints = assertBasisPoints(
+    input.costRangeBasisPoints ?? 1_500,
+    "costRangeBasisPoints"
+  );
+  const valueRangeBasisPoints = assertBasisPoints(
+    input.valueRangeBasisPoints ?? 500,
+    "valueRangeBasisPoints"
+  );
+  if (costRangeBasisPoints > 10_000 || valueRangeBasisPoints > 10_000) {
+    throw new RangeError("Vision ranges must not exceed 100 percent");
+  }
+
+  const annualRateBasisPoints = assertBasisPoints(
+    input.annualRateBasisPoints,
+    "annualRateBasisPoints"
+  );
+  const loanAmountCents = purchasePriceCents - downPaymentCents;
+  const housingAt = (rate: BasisPoints) =>
+    monthlyHousingCost({
+      loanAmountCents,
+      annualRateBasisPoints: rate,
+      termMonths: input.termMonths,
+      annualPropertyTaxCents: input.annualPropertyTaxCents,
+      annualHomeownersInsuranceCents: input.annualInsuranceCents,
+      monthlyHoaCents: input.monthlyHoaCents ?? 0
+    });
+
+  const monthlyHousing = housingAt(annualRateBasisPoints);
+  const lowerRateBasisPoints = Math.max(0, annualRateBasisPoints - 100);
+  const higherRateBasisPoints = annualRateBasisPoints + 100;
+  const costWithContingency = (base: Cents): Cents =>
+    base + annualRateOfCents(base, contingencyRateBasisPoints);
+  const makeCase = (
+    key: VisionPlanningCase["key"],
+    costBasisPoints: BasisPoints,
+    valueBasisPoints: BasisPoints
+  ): VisionPlanningCase => {
+    const improvementCostCents = costWithContingency(
+      annualRateOfCents(improvementBudgetCents, costBasisPoints)
+    );
+    const postImprovementValueCents = annualRateOfCents(
+      expectedAfterImprovementValueCents,
+      valueBasisPoints
+    );
+    const cashRequiredCents = sumCents([
+      downPaymentCents,
+      acquisitionCostsCents,
+      improvementCostCents
+    ]);
+    const valueLessDebtCents = postImprovementValueCents - loanAmountCents;
+    return {
+      key,
+      improvementCostCents,
+      postImprovementValueCents,
+      cashRequiredCents,
+      valueLessDebtCents,
+      valueLessDebtAndProjectCashCents: valueLessDebtCents - cashRequiredCents
+    };
+  };
+
+  return {
+    loanAmountCents,
+    monthlyHousing,
+    monthlyPaymentSensitivity: {
+      lowerRateBasisPoints,
+      lowerTotalMonthlyCents: housingAt(lowerRateBasisPoints).totalMonthlyCents,
+      planningRateBasisPoints: annualRateBasisPoints,
+      planningTotalMonthlyCents: monthlyHousing.totalMonthlyCents,
+      higherRateBasisPoints,
+      higherTotalMonthlyCents: housingAt(higherRateBasisPoints).totalMonthlyCents
+    },
+    cases: [
+      makeCase("conservative", 10_000 + costRangeBasisPoints, 10_000 - valueRangeBasisPoints),
+      makeCase("planning", 10_000, 10_000),
+      makeCase("upside", 10_000 - costRangeBasisPoints, 10_000 + valueRangeBasisPoints)
+    ],
+    assumptions: {
+      costRangeBasisPoints,
+      valueRangeBasisPoints,
+      contingencyRateBasisPoints
+    },
+    calculationVersion: CALCULATION_VERSION
+  };
+}

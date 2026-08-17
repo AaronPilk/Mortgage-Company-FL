@@ -23,6 +23,7 @@ export const TABLES = {
   visionAssumptions: "vision_assumptions",
   visionScenarios: "vision_scenarios",
   visionReports: "vision_reports",
+  visionReportRequests: "vision_report_requests",
   aiJobs: "ai_jobs",
   usageLedger: "usage_ledger",
   quotaPolicies: "quota_policies",
@@ -42,6 +43,7 @@ export const FUNCTIONS = {
   reserveAiBudget: "reserve_ai_budget",
   recordAuditEvent: "record_audit_event",
   getPublicReport: "get_public_report",
+  createVisionReportRequest: "create_vision_report_request",
   hasRole: "has_role",
   isStaff: "is_staff"
 } as const;

@@ -119,7 +119,7 @@ describe("parseServerEnv", () => {
     const env = parseServerEnv({});
     expect(env.GHL_MODE).toBe("disabled");
     expect(env.AI_MODE).toBe("disabled");
-    expect(env.MLS_PROVIDER).toBe("fixture");
+    expect(env.MLS_PROVIDER).toBe("disabled");
     expect(env.FEATURE_VISION).toBe(false);
   });
 

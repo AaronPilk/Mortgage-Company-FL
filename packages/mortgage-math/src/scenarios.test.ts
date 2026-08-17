@@ -9,7 +9,8 @@ import {
   flipScenario,
   refinanceBreakEven,
   rentVsBuy,
-  rentalCashFlow
+  rentalCashFlow,
+  visionPlanningPreview
 } from "./scenarios";
 import { disclosureFor } from "./disclosure";
 
@@ -268,6 +269,63 @@ describe("flipScenario", () => {
       sellingCostRateBasisPoints: 700
     });
     expect(result.estimatedGrossProfitCents).toBeLessThan(0);
+  });
+});
+
+describe("Vision planning preview", () => {
+  const input = {
+    purchasePriceCents: 400_000_00,
+    downPaymentCents: 80_000_00,
+    annualRateBasisPoints: 650,
+    termMonths: 360,
+    annualPropertyTaxCents: 5_000_00,
+    annualInsuranceCents: 4_000_00,
+    monthlyHoaCents: 0,
+    acquisitionCostsCents: 12_000_00,
+    improvementBudgetCents: 75_000_00,
+    contingencyRateBasisPoints: 1_000,
+    expectedAfterImprovementValueCents: 520_000_00
+  };
+
+  it("keeps every output deterministic and identifies the calculation version", () => {
+    const first = visionPlanningPreview(input);
+    const second = visionPlanningPreview(input);
+
+    expect(first).toEqual(second);
+    expect(first.calculationVersion).toBe("mortgage-math@1.0.0");
+    expect(first.loanAmountCents).toBe(320_000_00);
+    expect(first.cases.map((scenario) => scenario.key)).toEqual([
+      "conservative",
+      "planning",
+      "upside"
+    ]);
+  });
+
+  it("shows a higher payment at a rate one percentage point higher", () => {
+    const result = visionPlanningPreview(input);
+    expect(result.monthlyPaymentSensitivity.lowerRateBasisPoints).toBe(550);
+    expect(result.monthlyPaymentSensitivity.higherRateBasisPoints).toBe(750);
+    expect(result.monthlyPaymentSensitivity.lowerTotalMonthlyCents).toBeLessThan(
+      result.monthlyPaymentSensitivity.planningTotalMonthlyCents
+    );
+    expect(result.monthlyPaymentSensitivity.higherTotalMonthlyCents).toBeGreaterThan(
+      result.monthlyPaymentSensitivity.planningTotalMonthlyCents
+    );
+  });
+
+  it("puts higher costs and lower value in the conservative case", () => {
+    const result = visionPlanningPreview(input);
+    const [conservative, planning, upside] = result.cases;
+    expect(conservative.improvementCostCents).toBeGreaterThan(planning.improvementCostCents);
+    expect(conservative.postImprovementValueCents).toBeLessThan(planning.postImprovementValueCents);
+    expect(upside.improvementCostCents).toBeLessThan(planning.improvementCostCents);
+    expect(upside.postImprovementValueCents).toBeGreaterThan(planning.postImprovementValueCents);
+  });
+
+  it("rejects a down payment larger than the purchase price", () => {
+    expect(() =>
+      visionPlanningPreview({ ...input, downPaymentCents: input.purchasePriceCents + 1 })
+    ).toThrow(/must not exceed/);
   });
 });
 

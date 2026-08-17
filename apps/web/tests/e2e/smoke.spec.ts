@@ -126,6 +126,52 @@ test.describe("application handoff", () => {
   });
 });
 
+test.describe("property-to-Vision planning loop", () => {
+  test("offers seven stable synthetic examples without calling them listings", async ({ page }) => {
+    await page.goto("/properties");
+    await expect(page.getByText("Demo catalog · not live listings")).toBeVisible();
+    await expect(page.getByRole("link", { name: /Open planning demo for/ })).toHaveCount(7);
+    const body = await page.locator("body").innerText();
+    expect(body).toContain("Not a real property or MLS listing");
+    expect(body).not.toContain("Courtesy of");
+  });
+
+  test("opens a stable property detail and seeds Vision", async ({ page }) => {
+    await page.goto("/properties/FX-STP-0001");
+    await expect(page.getByText("Synthetic planning example · not for sale")).toBeVisible();
+    await page.getByRole("link", { name: "Model this example in Vision" }).click();
+    await expect(page).toHaveURL(/\/vision\?property=FX-STP-0001/);
+    await expect(page.getByTestId("vision-planner")).toBeVisible();
+    await expect(page.getByTestId("vision-preview")).toContainText("Report preview");
+  });
+
+  test("recalculates the visible preview before the contact gate", async ({ page }) => {
+    await page.goto("/vision?property=FX-STP-0001");
+    const preview = page.getByTestId("vision-preview");
+    const before = await preview.innerText();
+    await page.getByTestId("vision-improvement-budget").fill("125000");
+    await expect(preview).not.toHaveText(before);
+    await expect(preview).toContainText("Conservative", { ignoreCase: true });
+    await expect(
+      page.getByRole("heading", { name: "Ask TRACT to review this scenario" })
+    ).toBeVisible();
+  });
+
+  test("fails honestly when durable report storage is not configured", async ({ page }) => {
+    await page.goto("/vision?property=FX-STP-0001");
+    await page.locator('input[name="firstName"]').fill("Dana");
+    await page.locator('input[name="lastName"]').fill("Reyes");
+    await page.locator('input[name="email"]').fill("dana@example.com");
+    await page.locator('input[name="phone"]').fill("813-555-0147");
+    await page.locator('input[name="privacyAccepted"]').check();
+    await page.getByTestId("vision-request-submit").click();
+    const error = page.getByTestId("vision-request-error");
+    await expect(error).toBeVisible();
+    await expect(error).toContainText("could not save");
+    await expect(page.getByTestId("vision-request-success")).toHaveCount(0);
+  });
+});
+
 test.describe("indexation and crawl control", () => {
   test("keeps protected routes out of the sitemap", async ({ request }) => {
     const response = await request.get("/sitemap.xml");
@@ -237,6 +283,20 @@ test.describe("lead API", () => {
   test("does not disclose credentials through the health probe", async ({ request }) => {
     const body = await (await request.get("/api/v1/health")).text();
     expect(body).not.toMatch(/key|secret|token|password/i);
+  });
+});
+
+test.describe("Vision report API", () => {
+  test("rejects cross-origin requests and exposes no GET handler", async ({ request }) => {
+    const rejected = await request.post("/api/v1/vision/report-requests", {
+      headers: { "Content-Type": "application/json", Origin: "https://evil.example" },
+      data: {}
+    });
+    expect(rejected.status()).toBe(403);
+
+    const get = await request.get("/api/v1/vision/report-requests");
+    expect(get.status()).toBe(405);
+    expect(get.headers()["allow"]).toBe("POST");
   });
 });
 

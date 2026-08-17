@@ -1,108 +1,146 @@
 import type { Metadata } from "next";
-import { ButtonLink, Card, Disclosure, Section, SectionHeading } from "@/components/ui";
+import Image from "next/image";
+import Link from "next/link";
+import { Badge, ButtonLink, Card, Disclosure, Section, SectionHeading } from "@/components/ui";
 import { pageMetadata } from "@/lib/metadata";
 import { publicFeatures } from "@/lib/env";
-import { fixturesAllowed, listings } from "@/lib/listings";
-import { isDisplayable } from "@tract/integrations";
+import { demoListings } from "@/lib/listings";
 import { formatUsd } from "@tract/mortgage-math";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Property search",
-  description: "Search properties and model the financing.",
+  title: "Property planning lab",
+  description: "Explore synthetic Florida property examples and model the financing.",
   path: "/properties",
   noIndex: true
 });
 
 export const dynamic = "force-dynamic";
 
-/**
- * Property search.
- *
- * Requires both the feature flag and a configured provider. Fixture records
- * carry `isFixture` and are filtered out unless fixtures are explicitly allowed,
- * which they are not in production — the database enforces the same rule.
- *
- * Filter permutations are noindex. A crawlable URL for every combination of
- * price, beds, and bounds is thin content at scale.
- */
 export default async function PropertiesPage() {
-  const features = publicFeatures();
-
-  if (!features.propertySearch) {
-    return (
-      <Section width="narrow">
-        <SectionHeading
-          as="h1"
-          eyebrow="Properties"
-          title="Property search is not connected yet"
-          description="Listing data requires an executed agreement with the MLS or an approved aggregator."
-        />
-        <Card>
-          <p className="text-[var(--text-muted)]">
-            We will not scrape a portal or republish listing data without the rights to do so, so
-            this stays switched off until a data agreement is in place. Financing questions do not
-            have to wait on it.
-          </p>
-          <div className="mt-5">
-            <ButtonLink href="/contact" variant="secondary">
-              Talk about financing a property you have found
-            </ButtonLink>
-          </div>
-        </Card>
-      </Section>
-    );
-  }
-
-  const provider = listings();
-  const page = await provider.search({
+  const demoPage = await demoListings().search({
     market: "FL",
-    limit: 12,
-    status: ["active", "coming_soon"]
+    limit: 20,
+    status: ["active", "coming_soon", "pending"]
   });
-  const visible = page.items.filter((listing) => isDisplayable(listing, fixturesAllowed()));
+  const liveSearchEnabled = publicFeatures().propertySearch;
 
   return (
-    <Section>
-      <SectionHeading as="h1" eyebrow="Properties" title="Property search" />
-      <p className="mb-6 text-sm text-[var(--text-muted)]">
-        Data as of {new Date(page.dataAsOf).toLocaleString("en-US")}.
-      </p>
-      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {visible.map((listing) => (
-          <Card as="li" key={`${listing.provider}:${listing.listingKey}`}>
-            <p className="text-lg font-semibold text-[var(--text)]">
-              {listing.listPriceCents === undefined
-                ? "Price on request"
-                : formatUsd(listing.listPriceCents)}
-            </p>
-            <p className="mt-1 text-sm text-[var(--text)]">
-              {listing.address.line1}, {listing.address.city}, {listing.address.state}{" "}
-              {listing.address.postalCode}
-            </p>
+    <>
+      <Section pad="head" orbs>
+        <SectionHeading
+          as="h1"
+          eyebrow="Property planning lab"
+          title="Start with a property. Make every assumption visible."
+          gradientWord="every assumption visible."
+          description="These synthetic examples let you try the property-to-Vision workflow without an MLS account, a paid AI call, or a claim that the example is for sale."
+        />
+        <div className="flex flex-wrap gap-3">
+          <Badge tone="warning">Demo catalog · not live listings</Badge>
+          <Badge tone={liveSearchEnabled ? "success" : "neutral"}>
+            Live search {liveSearchEnabled ? "configured" : "not connected"}
+          </Badge>
+        </div>
+      </Section>
+
+      <Section pad="tight">
+        {!liveSearchEnabled && (
+          <Card className="mb-8 border-[var(--purple)] bg-[var(--purple-subtle)]">
+            <h2 className="text-lg font-semibold">Live property search remains off</h2>
             <p className="mt-2 text-sm text-[var(--text-muted)]">
-              {listing.bedrooms} bd · {listing.bathrooms} ba · {listing.livingAreaSqft} sq ft
+              TRACT will connect a live feed only after an executed data agreement defines display
+              rights, attribution, refresh, and withdrawal rules. The cards below are a separate
+              planning demo and are not stored or published as listings.
             </p>
-            {/* Attribution is required by the display agreement and is never omitted. */}
-            <p className="mt-3 text-xs text-[var(--text-muted)]">{listing.attributionText}</p>
-            {listing.modificationTimestamp !== undefined && (
-              <p className="text-xs text-[var(--text-muted)]">
-                Updated {new Date(listing.modificationTimestamp).toLocaleDateString("en-US")}
-              </p>
-            )}
           </Card>
-        ))}
-      </ul>
-      {visible.length === 0 && (
-        <Card>
-          <p className="text-[var(--text-muted)]">
-            No listings are available to display right now.
-          </p>
-        </Card>
-      )}
-      <Disclosure
-        headline="Listing information comes from a third party."
-        body="Availability, price, and details are supplied by the listing source and can change or be withdrawn without notice. Confirm anything material with the listing agent."
-      />
-    </Section>
+        )}
+
+        <ul className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {demoPage.items.map((listing) => {
+            const address = [
+              listing.address.line1,
+              listing.address.city,
+              listing.address.state,
+              listing.address.postalCode
+            ]
+              .filter(Boolean)
+              .join(", ");
+            return (
+              <li key={listing.listingKey}>
+                <Link
+                  href={`/properties/${encodeURIComponent(listing.listingKey)}`}
+                  className="group block h-full rounded-2xl focus-visible:outline-offset-4"
+                  aria-label={`Open planning demo for ${address}`}
+                >
+                  <Card interactive className="h-full overflow-hidden p-0">
+                    <div className="relative aspect-[8/5] overflow-hidden bg-[var(--surface-2)]">
+                      {listing.primaryImage !== undefined && (
+                        <Image
+                          src={listing.primaryImage.url}
+                          alt={`Generated illustration for the ${listing.address.city} planning example`}
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                          className="object-cover transition duration-500 group-hover:scale-[1.03]"
+                        />
+                      )}
+                      <div className="absolute left-4 top-4">
+                        <Badge tone="warning">Synthetic example</Badge>
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <p className="text-2xl font-bold text-[var(--text)]">
+                        {listing.listPriceCents === undefined
+                          ? "Price assumption needed"
+                          : formatUsd(listing.listPriceCents)}
+                      </p>
+                      <h2 className="mt-2 text-base font-semibold text-[var(--text)]">{address}</h2>
+                      <p className="mt-3 text-sm text-[var(--text-muted)]">
+                        {[
+                          listing.bedrooms === undefined ? null : `${listing.bedrooms} bd`,
+                          listing.bathrooms === undefined ? null : `${listing.bathrooms} ba`,
+                          listing.livingAreaSqft === undefined
+                            ? null
+                            : `${listing.livingAreaSqft.toLocaleString("en-US")} sq ft`,
+                          listing.lotSizeAcres === undefined
+                            ? null
+                            : `${listing.lotSizeAcres} acres`
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </p>
+                      <p className="mt-4 text-sm leading-6 text-[var(--text-muted)]">
+                        {listing.description}
+                      </p>
+                      <p className="mt-5 text-sm font-semibold text-[var(--purple)]">
+                        Open planning details <span aria-hidden="true">→</span>
+                      </p>
+                      <p className="mt-4 border-t border-[var(--border)] pt-4 text-xs text-[var(--text-muted)]">
+                        {listing.attributionText}
+                      </p>
+                    </div>
+                  </Card>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </Section>
+
+      <Section pad="tight" width="narrow">
+        <Disclosure
+          headline="A demo catalog, not a property feed."
+          body="Every address, price, characteristic, image, renovation allowance, and value assumption on these cards is synthetic. Nothing is represented as available, accurate for a real parcel, or sourced from an MLS."
+          excludes={[
+            "Property availability or seller intent",
+            "MLS status or broker attribution",
+            "Appraisal, inspection, zoning, insurance, or construction conclusions"
+          ]}
+        />
+        <div className="mt-8 text-center">
+          <ButtonLink href="/contact" variant="secondary">
+            Discuss a real property you found
+          </ButtonLink>
+        </div>
+      </Section>
+    </>
   );
 }

@@ -28,6 +28,14 @@ export function listings(): ListingProvider {
   }
 }
 
+/**
+ * Explicitly synthetic catalog for the planning lab. It is intentionally not
+ * selected through MLS_PROVIDER and never writes to the listing-record table.
+ */
+export function demoListings(): ListingProvider {
+  return new FixtureListingProvider();
+}
+
 export function fixturesAllowed(): boolean {
   return env().NODE_ENV !== "production";
 }

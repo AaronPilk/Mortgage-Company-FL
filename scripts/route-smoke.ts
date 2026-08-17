@@ -14,7 +14,7 @@ async function main(): Promise<void> {
     "/privacy",
     "/partners/real-estate-agents",
     "/api/v1/health",
-    "/"
+    "/properties/FX-STP-0001"
   ];
   const routes = [...ROUTE_REGISTRY.map((entry) => entry.path), "/api/v1/health", ...repeats];
 

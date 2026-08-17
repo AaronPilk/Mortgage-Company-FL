@@ -26,10 +26,32 @@ export type ListingSummary = {
   livingAreaSqft?: number;
   propertyType?: string;
   primaryImage?: { url: string; width?: number; height?: number; attribution?: string };
+  /** Additional licensed images, or locally generated images on explicit demo records. */
+  images?: { url: string; width?: number; height?: number; attribution?: string }[];
+  /** Plain-language context supplied by the provider. Never generated from a listing photo. */
+  description?: string;
+  highlights?: string[];
+  lotSizeAcres?: number;
+  yearBuilt?: number;
+  /**
+   * Synthetic seed values used only by the clearly-labelled planning demo.
+   * A live provider must not populate these without a documented source.
+   */
+  demoPlanningSeed?: {
+    goal: "renovate" | "expand" | "build" | "flip" | "long_term_rental" | "explore";
+    improvementBudgetCents: number;
+    expectedAfterImprovementValueCents: number;
+    annualPropertyTaxCents: number;
+    annualInsuranceCents: number;
+    monthlyHoaCents: number;
+  };
   /** Required by the MLS display agreement. Never omitted from a rendered card. */
   attributionText: string;
   modificationTimestamp?: string;
-  /** True when the record came from local fixtures. Must never render in production. */
+  /**
+   * True when the record came from local fixtures. It must never enter a
+   * publishable listing feed. A separately-labelled planning demo may render it.
+   */
   isFixture: boolean;
 };
 

@@ -39,3 +39,27 @@
 - Alternatives: block all product work indefinitely on unavailable historical Ray IDs or increase Worker CPU limits without evidence.
 - Consequences: no limit is raised and no production setting changes. A recurrence immediately reopens Phase 0 and stops feature work.
 - Owner: Codex.
+
+## 2026-08-17 — Separate the public planning demo from the live listing provider
+
+- Decision: expose seven explicitly synthetic property examples through a dedicated demo provider while changing the live MLS provider default to `disabled`.
+- Reason: Phase 1 needs a useful no-credential loop, but fixture rows must never enter the publishable listing feed or be represented as active inventory.
+- Alternatives: hide the entire workflow until MLS approval; serve fixtures through the production MLS mode.
+- Consequences: every demo address, image and assumption is labeled synthetic; the database still rejects fixture publication; production readiness no longer defaults to a fixture MLS provider.
+- Owner: Codex.
+
+## 2026-08-17 — Persist anonymous Vision requests through one idempotent transaction
+
+- Decision: add a service-role-only `create_vision_report_request` RPC keyed by a client-stable submission UUID.
+- Reason: lead, consent, distinct attribution, project, scenario, report and outbox state must agree, including after an ambiguous network retry.
+- Alternatives: chain client table writes; call the existing lead RPC and write Vision records afterward.
+- Consequences: exact retries return the first receipt, concurrent retries serialize on that submission only, and no public role can call the function or read the request mapping.
+- Owner: Codex.
+
+## 2026-08-17 — Render fixture detail routes dynamically on OpenNext
+
+- Decision: use dynamic server rendering for `/properties/[listingKey]` rather than `generateStaticParams` with `dynamicParams = false`.
+- Reason: the Next production server served the static paths, but OpenNext preview returned 404 and `NoFallbackError` for a generated path.
+- Alternatives: accept an adapter-specific 404; change the public URL shape.
+- Consequences: stable URLs work on the canonical Cloudflare runtime, known keys return 200 and unknown keys return 404; the lookup remains local and bounded.
+- Owner: Codex.

@@ -115,6 +115,56 @@ select public.create_lead_with_receipt(
   gen_random_uuid()
 );
 
+select public.create_vision_report_request(
+  '00000000-0000-4000-8000-000000000100',
+  jsonb_build_object(
+    'first_name','Vision','last_name','Visitor','email_normalized','vision@example.com',
+    'phone_e164','+18135550148','source_path','/vision','dedupe_hash','vision-hash'),
+  jsonb_build_object(
+    'privacy_accepted',true,'contact_requested',true,'sms_marketing',false,
+    'email_marketing',false,'disclosure_version','vision-v1',
+    'disclosure_text_sha256','vision-copy-hash','source_path','/vision','form_version','1'),
+  jsonb_build_array(
+    jsonb_build_object('touch_kind','first','occurred_at',now(),'landing_path','/properties'),
+    jsonb_build_object('touch_kind','last','occurred_at',now(),'landing_path','/vision'),
+    jsonb_build_object('touch_kind','conversion','occurred_at',now(),'landing_path','/vision')
+  ),
+  jsonb_build_object(
+    'title','Synthetic bungalow planning report','goal','renovate','data_as_of',now(),
+    'assumptions',jsonb_build_object('purchasePriceCents',38900000,'downPaymentCents',7780000)),
+  jsonb_build_object(
+    'scenario_name','Planning range','scenario_type','vision_planning_preview',
+    'input_snapshot','{}'::jsonb,'result_snapshot','{}'::jsonb,
+    'calculation_version','mortgage-math@1.0.0'),
+  jsonb_build_object(
+    'facts_snapshot',jsonb_build_object('listingKey','FX-STP-0001','isFixture',true),
+    'assumptions_snapshot','{}'::jsonb,'calculations_snapshot','{}'::jsonb,
+    'narrative_snapshot',jsonb_build_object('kind','deterministic_preview'),
+    'limitations',jsonb_build_array('Planning illustration only.'),
+    'citation_manifest',jsonb_build_array(jsonb_build_object('kind','visitor_input'))),
+  jsonb_build_object('payload',jsonb_build_object('externalId','vision-fixture'))
+);
+
+-- An exact retry must return the original receipt and create nothing else.
+select public.create_vision_report_request(
+  '00000000-0000-4000-8000-000000000100',
+  '{}'::jsonb, '{}'::jsonb, '[]'::jsonb, '{}'::jsonb,
+  '{}'::jsonb, '{}'::jsonb, '{}'::jsonb
+);
+
+select tests.assert(
+  (select count(*) from public.vision_report_requests
+   where submission_id = '00000000-0000-4000-8000-000000000100') = 1,
+  'Vision report request is idempotent by submission id');
+select tests.assert(
+  (select count(*) from public.leads where intent = 'vision_report') = 1,
+  'Vision report retry does not duplicate the lead');
+select tests.assert(
+  (select count(*) from public.attribution_touches
+   where lead_id = (select lead_id from public.vision_report_requests
+     where submission_id = '00000000-0000-4000-8000-000000000100')) = 3,
+  'Vision report stores distinct first, last, and conversion touches');
+
 insert into public.vision_projects (id, owner_user_id, title, goal) values
   ('00000000-0000-4000-8000-0000000000a1', '00000000-0000-4000-8000-000000000002', 'My house', 'renovate'),
   ('00000000-0000-4000-8000-0000000000a2', '00000000-0000-4000-8000-000000000006', 'Agent project', 'flip');
@@ -160,6 +210,8 @@ select tests.assert_denied('select count(*) from public.attribution_touches',
   'anonymous has no grant on attribution touches');
 select tests.assert_denied('select count(*) from public.integration_outbox',
   'anonymous has no grant on the integration outbox');
+select tests.assert_denied('select count(*) from public.vision_report_requests',
+  'anonymous has no grant on Vision report requests');
 select tests.assert(tests.visible_count('select count(*) from public.audit_events') = 0,
   'anonymous sees no audit events');
 select tests.assert(tests.visible_count('select count(*) from public.ai_jobs') = 0,
@@ -185,6 +237,8 @@ select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002
 
 select tests.assert(tests.visible_count('select count(*) from public.vision_projects') = 1,
   'consumer sees only their own Vision project');
+select tests.assert(tests.visible_count('select count(*) from public.vision_report_requests') = 0,
+  'consumer cannot read anonymous Vision report requests');
 select tests.assert(
   tests.visible_count($$select count(*) from public.vision_projects
     where id = '00000000-0000-4000-8000-0000000000a2'$$) = 0,
@@ -220,6 +274,11 @@ select tests.assert_denied(
 select tests.assert_denied(
   $$select public.create_lead_with_receipt('{}'::jsonb,'{}'::jsonb,'{}'::jsonb,'{}'::jsonb, gen_random_uuid())$$,
   'consumer cannot call the lead creation function directly');
+select tests.assert_denied(
+  $$select public.create_vision_report_request(
+      gen_random_uuid(),'{}'::jsonb,'{}'::jsonb,'[]'::jsonb,'{}'::jsonb,
+      '{}'::jsonb,'{}'::jsonb,'{}'::jsonb)$$,
+  'consumer cannot call the Vision report creation function directly');
 
 reset role;
 
@@ -244,8 +303,10 @@ reset role;
 set role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000003', false);
 
-select tests.assert(tests.visible_count('select count(*) from public.leads') = 1,
+select tests.assert(tests.visible_count('select count(*) from public.leads') = 2,
   'loan officer can read leads');
+select tests.assert(tests.visible_count('select count(*) from public.vision_report_requests') = 0,
+  'loan officer cannot read Vision report request mappings');
 select tests.assert(tests.visible_count('select count(*) from public.consent_receipts') = 0,
   'loan officer cannot read the consent ledger');
 select tests.assert(tests.visible_count('select count(*) from public.audit_events') = 0,
@@ -260,7 +321,7 @@ reset role;
 set role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000005', false);
 
-select tests.assert(tests.visible_count('select count(*) from public.consent_receipts') = 1,
+select tests.assert(tests.visible_count('select count(*) from public.consent_receipts') = 2,
   'compliance reviewer can read the consent ledger');
 select tests.assert(tests.visible_count('select count(*) from public.audit_events') = 1,
   'compliance reviewer can read the audit log');
@@ -302,10 +363,12 @@ reset role;
 set role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
 
-select tests.assert(tests.visible_count('select count(*) from public.leads') = 1,
+select tests.assert(tests.visible_count('select count(*) from public.leads') = 2,
   'admin can read leads');
-select tests.assert(tests.visible_count('select count(*) from public.integration_outbox') = 1,
+select tests.assert(tests.visible_count('select count(*) from public.integration_outbox') = 2,
   'admin can read the outbox');
+select tests.assert(tests.visible_count('select count(*) from public.vision_report_requests') = 1,
+  'admin can read Vision report request mappings');
 
 -- Audit history is append-only for everyone, including an admin.
 select tests.assert_denied(
