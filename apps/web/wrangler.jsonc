@@ -1,44 +1,10 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "tract-web",
+  "name": "mortgage-company-fl",
   "main": ".open-next/worker.js",
-
-  // Pinned deliberately. Bumping this is a reviewed change, because a
-  // compatibility date change can alter runtime behaviour under your feet.
   "compatibility_date": "2026-08-01",
   "compatibility_flags": ["nodejs_compat"],
-
-  "assets": {
-    "directory": ".open-next/assets",
-    "binding": "ASSETS"
-  },
-
-  "observability": {
-    "enabled": true
-  },
-
-  // Secrets are NEVER listed here. Set them with:
-  //   npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY --env production
-  // Only non-sensitive values belong in vars.
-  "vars": {
-    "NEXT_PUBLIC_BRAND_NAME": "TRACT Mortgage"
-  },
-
-  "env": {
-    "preview": {
-      "name": "tract-web-preview",
-      "vars": {
-        "NEXT_PUBLIC_BRAND_NAME": "TRACT Mortgage (preview)"
-      }
-    },
-    "production": {
-      "name": "tract-web-production"
-      // Bindings are added here as each service is provisioned. Declaring a
-      // binding before the resource exists is a deploy-time trap.
-      //
-      // "r2_buckets":  [{ "binding": "UPLOADS", "bucket_name": "tract-uploads" }],
-      // "queues":      { "producers": [{ "binding": "AI_JOBS", "queue": "tract-ai-jobs" }] },
-      // "kv_namespaces": [{ "binding": "RATE_LIMIT", "id": "..." }]
-    }
-  }
+  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
+  "observability": { "enabled": true },
+  "vars": { "NEXT_PUBLIC_BRAND_NAME": "TRACT Mortgage" }
 }
