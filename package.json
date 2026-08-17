@@ -1,0 +1,39 @@
+{
+  "name": "tract-platform",
+  "private": true,
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=20.11.0"
+  },
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "eslint .",
+    "typecheck": "turbo run typecheck",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "pnpm --filter @tract/web test:e2e",
+    "format": "prettier --check .",
+    "format:write": "prettier --write .",
+    "content:lint": "tsx scripts/content-lint.ts",
+    "check": "pnpm format && pnpm lint && pnpm typecheck && pnpm test && pnpm content:lint && pnpm build",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:types": "supabase gen types typescript --local > packages/database/src/generated.ts",
+    "deploy:preflight": "tsx scripts/deploy-preflight.ts",
+    "db:verify": "./scripts/db-verify.sh"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.2.0",
+    "eslint": "^10.8.1",
+    "globals": "^17.11.0",
+    "prettier": "^3.9.6",
+    "tsx": "^4.23.12",
+    "turbo": "^2.10.10",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.67.0",
+    "vitest": "^4.1.10"
+  }
+}
