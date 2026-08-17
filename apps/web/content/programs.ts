@@ -812,6 +812,532 @@ export const PROGRAMS: Program[] = [
     sources: [CFPB_MORTGAGE],
     requiresLenderPath: true,
     loanTypeForSchema: null
+  },
+  {
+    slug: "dscr",
+    navLabel: "DSCR",
+    h1: "DSCR loans for Florida rental property",
+    title: "DSCR Loans in Florida",
+    description:
+      "How a debt service coverage ratio is calculated, what it replaces, and where a DSCR loan costs an investor more than an agency loan would.",
+    eyebrow: "Investors",
+    summary:
+      "A DSCR loan qualifies the property rather than the person. The lender compares the rent the property produces against the payment the loan would require, and the resulting ratio stands in for the tax returns, pay stubs, and debt-to-income calculation an agency loan runs on. That trade has a price, and it is not always the right one.",
+    mayFit: [
+      "You already have several financed properties and have reached the financed-property count an agency loan allows",
+      "Your returns show depreciation and expense deductions that make your personal income look far thinner than your portfolio actually performs",
+      "You are taking title in an LLC and want the financing structure to match",
+      "The property has a signed lease or a documented rent history that supports the payment"
+    ],
+    exploreAlternativesIf: [
+      "You will occupy any unit of the property — this structure is written as business-purpose credit on non-owner-occupied property",
+      "Your documented personal income supports the loan comfortably, in which case an agency investment loan is usually cheaper",
+      "The property is vacant, mid-renovation, or has no market rent an appraiser can support yet",
+      "You expect to sell or refinance within a year or two and have not looked at the prepayment terms these programs commonly carry"
+    ],
+    howItWorks: [
+      {
+        heading: "The ratio replaces the income calculation",
+        body: "A debt service coverage ratio divides the property's monthly rent by the property's monthly debt service — commonly principal, interest, taxes, insurance, and any association dues. Above one means the rent covers the payment; below one means it does not. That single figure does the work that pay stubs, tax returns, and your debt-to-income ratio would do on an agency loan. Whether the numerator is the signed lease, the appraiser's market rent opinion, or the lower of the two — and whether the denominator includes escrows — varies by lender and program."
+      },
+      {
+        heading: "Rent is documented, not assumed",
+        body: "Underwriting wants evidence. On agency loans, rental income is supported by an executed lease, Schedule E history, or an appraiser's market rent analysis on Form 1007 or 1025, and DSCR programs generally borrow the same evidence set even though they use it differently. Where a lease exceeds market rent, many lenders use the lower figure. Short-term rental income is treated differently again, and some lenders will not use it at all."
+      },
+      {
+        heading: "The loan is usually business-purpose credit",
+        body: "Under Regulation Z, credit extended to acquire, improve, or maintain rental property that is not owner-occupied is deemed to be for business purposes, and business-purpose credit is exempt from Regulation Z. That exemption is what makes this structure possible — and it is also why the consumer protections that attach to a primary-residence mortgage, including the ability-to-repay requirement, generally do not attach here. Occupancy is a representation you make, not a preference you can revise later."
+      },
+      {
+        heading: "Pricing reflects the file you did not provide",
+        body: "Nobody gives up the income documentation for free. Minimum ratio, down payment, reserves, prepayment terms, and pricing are set by each lender and investor rather than by an agency selling guide, which is why quotes on the identical file can differ far more than they would on a conforming loan. Comparing lenders is not a formality on this product."
+      }
+    ],
+    variables: [
+      {
+        label: "The ratio itself",
+        body: "Where your rent-to-payment ratio lands drives both eligibility and pricing. Minimums vary by lender, investor, and property type, and many programs price in tiers rather than applying one cutoff, so a stronger ratio can improve terms rather than merely pass a test."
+      },
+      {
+        label: "How the rent is evidenced",
+        body: "A signed lease with a payment history reads differently from an appraiser's market rent opinion on a vacant unit. Short-term rental history is its own conversation and not every lender will consider it."
+      },
+      {
+        label: "Down payment and reserves",
+        body: "Both are set by the investor rather than an agency guide, and both move pricing. Reserves are frequently the constraint investors discover late, after the down payment is already committed."
+      },
+      {
+        label: "Prepayment terms",
+        body: "Many programs in this space carry a prepayment penalty, often stepping down over the first few years. If you plan to sell or refinance soon, that structure can matter more to your total cost than the rate does."
+      },
+      {
+        label: "Entity and title",
+        body: "Closing in an LLC is common here and changes how title, insurance, and any personal guaranty are structured. Confirm the details with your closing agent and your own counsel before you commit to the structure."
+      }
+    ],
+    faqs: [
+      {
+        question: "What ratio do I need?",
+        answer:
+          "There is no universal threshold, and any page that publishes one is describing a single lender's program rather than the market. Each lender and investor sets its own minimum, many price in tiers instead of applying a hard cutoff, and some will look at properties below break-even with compensating factors. What it actually depends on: the property type, the down payment, your reserves, your credit profile, and which investors that lender sells to. That is why we price a file against several programs rather than quote a number."
+      },
+      {
+        question: "Does my personal income matter at all?",
+        answer:
+          "Usually not for the qualifying calculation — that is the point of the product. It can still matter indirectly. Credit profile, reserves, and experience owning rentals are commonly reviewed, and some lenders ask for a personal guaranty even when title is held in an entity."
+      },
+      {
+        question: "Is this more expensive than a conventional investment property loan?",
+        answer:
+          "Frequently yes, because you are paying for documentation you did not provide and because these loans are sold to private investors rather than to Fannie Mae or Freddie Mac. But not always, and not by a fixed amount. If your tax returns support the loan, the agency path is worth pricing first. If they do not, the real comparison is between this and no financing at all."
+      },
+      {
+        question: "Can I use projected short-term rental income?",
+        answer:
+          "Some lenders will, some will use only long-term market rent, and some will not finance a short-term rental at all. Local rules add a second layer: Florida municipalities regulate short-term rentals differently and those rules change. Verify the rules for the specific address before you underwrite a strategy that depends on them."
+      }
+    ],
+    relatedCalculators: [{ href: "/calculators/mortgage-payment", label: "Estimate a payment" }],
+    relatedPrograms: ["investment-property", "bank-statement", "conventional"],
+    sources: [
+      {
+        publisher: "Consumer Financial Protection Bureau",
+        title: "Regulation Z § 1026.3 — Exempt transactions",
+        url: "https://www.consumerfinance.gov/rules-policy/regulations/1026/3/"
+      },
+      {
+        publisher: "Consumer Financial Protection Bureau",
+        title: "Official interpretations to § 1026.3 — non-owner-occupied rental property",
+        url: "https://www.consumerfinance.gov/rules-policy/regulations/1026/interp-3/"
+      },
+      {
+        publisher: "Fannie Mae",
+        title: "Selling Guide B3-3.8-01, Rental Income",
+        url: "https://selling-guide.fanniemae.com/sel/b3-3.8-01/rental-income"
+      }
+    ],
+    requiresLenderPath: true,
+    loanTypeForSchema: null
+  },
+  {
+    slug: "bank-statement",
+    navLabel: "Bank statement",
+    h1: "Bank statement loans for self-employed borrowers",
+    title: "Bank Statement Loans in Florida",
+    description:
+      "How deposit-based income calculation works, what an expense factor does to your qualifying income, and when tax returns are still the better path.",
+    eyebrow: "Situations",
+    summary:
+      "A bank statement loan calculates qualifying income from deposits into your business or personal accounts rather than from the net income reported on your tax returns. It exists for one specific problem: a profitable business whose entirely legitimate deductions make the owner look, on paper, like they earn a fraction of what they actually take in.",
+    mayFit: [
+      "You are self-employed and your returns show net income well below what the business produces",
+      "Your deductions are legitimate and you have no intention of changing how you file in order to borrow",
+      "You have a settled business with consistent deposits you can document over a meaningful period",
+      "An agency loan already came back short on income and you want the next option priced honestly"
+    ],
+    exploreAlternativesIf: [
+      "Your tax returns already support the loan — there is no reason to pay for a workaround you do not need",
+      "Your business is new enough that there is not yet a deposit history to average",
+      "Your deposits are heavily mixed with personal transfers, loan proceeds, or one-time events that underwriting will strip out anyway",
+      "You could reach the same loan amount by paying down a revolving balance, which is usually cheaper than changing loan type"
+    ],
+    howItWorks: [
+      {
+        heading: "Deposits replace the tax return, not the verification",
+        body: "Regulation Z's ability-to-repay standard requires a creditor to verify the income or assets it relies on using third-party records that provide reasonably reliable evidence, and it names financial institution records among the acceptable forms. A bank statement loan is not an unverified loan. It substitutes one third-party record for another; what changes is which number the underwriter ends up using."
+      },
+      {
+        heading: "Underwriting scrubs the deposits before it averages them",
+        body: "Transfers between your own accounts, loan proceeds, tax refunds, asset sales, and other non-revenue items are removed. What survives is treated as gross business revenue across the period reviewed — commonly twelve or twenty-four months of statements, though the period and the treatment vary by lender."
+      },
+      {
+        heading: "An expense factor turns revenue into income",
+        body: "Because statements show money in rather than profit, lenders apply an expense factor: a percentage assumed to be the cost of running the business, subtracted before qualifying income is set. Some programs use a fixed factor, some vary it by industry, and some will accept a letter from your accountant supporting a lower one. This one assumption usually moves your approvable loan amount more than the interest rate does."
+      },
+      {
+        heading: "Everything else is underwritten normally",
+        body: "Credit, assets, reserves, the property, and the appraisal are reviewed the way they would be on any other loan. The bank statement treatment addresses how income is calculated and nothing else, which is worth saying plainly because the product is often described as though it relaxed everything."
+      }
+    ],
+    variables: [
+      {
+        label: "The expense factor",
+        body: "The assumed cost of doing business, subtracted before your qualifying income is set. A few percentage points of difference can change the loan amount materially, which makes the program choice as consequential as the lender choice."
+      },
+      {
+        label: "Which accounts, and how many months",
+        body: "Business accounts and personal accounts are treated differently, and lenders differ on the review period. A seasonal business can look very different over twelve months than over twenty-four."
+      },
+      {
+        label: "Deposit consistency",
+        body: "Steady deposits read as stable income. Large irregular deposits invite documentation requests and are sometimes excluded from the average entirely."
+      },
+      {
+        label: "Ownership percentage",
+        body: "If you own part of a business rather than all of it, many programs prorate deposits to your ownership share. Partners are regularly surprised by this."
+      },
+      {
+        label: "What you can actually document",
+        body: "An accountant's letter, a current business licence, and a profit-and-loss statement are commonly requested. Which programs a lender offers, and on what terms, varies and changes."
+      }
+    ],
+    faqs: [
+      {
+        question: "Is this the same as a stated income loan?",
+        answer:
+          "No. Stated income meant taking the borrower's word for the number. Here the deposits are evidenced with statements issued by the financial institution and the calculation is performed by an underwriter. It is a different income calculation, not the absence of one."
+      },
+      {
+        question: "How much more does it cost than a conventional loan?",
+        answer:
+          "It generally prices above an agency loan, because these loans are held in portfolio or sold to private investors who each set their own terms rather than delivered to Fannie Mae or Freddie Mac. How much above depends on the lender, your credit profile, the down payment, and market conditions at the time. The comparison worth running is not rate against rate — it is total cost against the loan amount each path actually supports."
+      },
+      {
+        question: "Should I just report more income next year instead?",
+        answer:
+          "Sometimes that is the right answer, and sometimes it is expensive tax advice wearing a mortgage costume. Reporting more income raises your tax bill; the question is whether the financing savings exceed the additional tax over the years you expect to hold the loan. That is a conversation with your accountant, and we are glad to be in it."
+      },
+      {
+        question: "Can I use personal statements if business revenue lands in my personal account?",
+        answer:
+          "Often yes, though the treatment differs and the scrub tends to be stricter, because a personal account mixes revenue with transfers and gifts. Bring the accounts as they actually are. Reorganising them a month before an application rarely helps and sometimes makes the history harder to read."
+      }
+    ],
+    relatedCalculators: [
+      { href: "/calculators/affordability", label: "See an affordability range" }
+    ],
+    relatedPrograms: ["self-employed", "dscr", "jumbo"],
+    sources: [
+      {
+        publisher: "Consumer Financial Protection Bureau",
+        title: "Regulation Z § 1026.43 — Minimum standards for transactions secured by a dwelling",
+        url: "https://www.ecfr.gov/current/title-12/chapter-X/part-1026/subpart-E/section-1026.43"
+      },
+      {
+        publisher: "Fannie Mae",
+        title:
+          "Selling Guide B3-3.5-01, Underwriting Factors and Documentation for a Self-Employed Borrower",
+        url: "https://selling-guide.fanniemae.com/sel/b3-3.5-01/underwriting-factors-and-documentation-self-employed-borrower"
+      }
+    ],
+    requiresLenderPath: true,
+    loanTypeForSchema: null
+  },
+  {
+    slug: "renovation",
+    navLabel: "Renovation",
+    h1: "Renovation loans in Florida",
+    title: "Renovation Loans in Florida",
+    description:
+      "How FHA 203(k) and conventional renovation loans finance repairs into the mortgage, and where the draw process actually slows a project down.",
+    eyebrow: "Program",
+    summary:
+      "A renovation loan sizes the mortgage against what a property will be worth once the work is finished rather than what it is worth today, and places the repair money in an escrow account at closing. It is the answer to a house that will not appraise in its current condition — and the process around it is considerably more structured than most buyers expect.",
+    mayFit: [
+      "The house you want needs work you cannot fund out of pocket after closing",
+      "The property will not pass an appraisal as-is and the seller will not make the repairs",
+      "You already own the home and want repairs financed at mortgage terms rather than on a card or a personal loan",
+      "You are buying a dated property in a location you want, and the renovation is the entire point of the purchase"
+    ],
+    exploreAlternativesIf: [
+      "The work is cosmetic and small enough to pay for after closing without a structured draw process",
+      "You need to close quickly — bids, plans, and contractor approval add time before underwriting can even finish",
+      "You intend to do the work yourself, which programs restrict",
+      "The property is effectively a teardown, which is construction financing rather than renovation financing"
+    ],
+    howItWorks: [
+      {
+        heading: "The appraisal is written subject to the work",
+        body: "An appraiser values the property as completed, based on the specific scope of work in your file. That after-improved value is what the loan is sized against, which is the whole reason the structure exists. Change the scope and the value opinion has to be revisited with it."
+      },
+      {
+        heading: "The repair money goes into escrow, not to you",
+        body: "At closing, the renovation portion of the loan is set aside in an escrow account the lender controls. It is not disbursed to you at the table and it is not working capital."
+      },
+      {
+        heading: "Funds release in draws against inspected work",
+        body: "Contractors are paid in stages. HUD describes the FHA 203(k) sequence directly: a consultant inspects each phase and certifies the work, then the lender issues a two-party check payable to the borrower and the contractor, repeating until the project is complete and the remaining escrow is released. On the Standard 203(k) a HUD-approved consultant prepares the work write-up and cost estimate; on the Limited version a consultant is optional. Fannie Mae's HomeStyle Renovation and Freddie Mac's CHOICERenovation run on the same principle with their own procedures — Freddie describes CHOICERenovation as financing purchase and renovation in a single closing so there is no separate interim construction loan to pay off."
+      },
+      {
+        heading: "There is a clock on completion",
+        body: "Fannie Mae's HomeStyle Renovation guidance requires the work to be finished within a defined period after closing, with a limited extension available on request, and lenders deliver the loan with recourse until it is done. That is why your contractor's capacity and willingness to work on a schedule are underwritten rather than assumed."
+      }
+    ],
+    variables: [
+      {
+        label: "Scope of work and the bid",
+        body: "The written scope drives the appraisal, the escrow amount, and the timeline. Vague or incomplete bids are the single most common cause of delay on these files."
+      },
+      {
+        label: "Which program",
+        body: "FHA 203(k) comes in a Limited and a Standard version with different ceilings and different consultant requirements, and HUD updates those figures. HomeStyle Renovation and CHOICERenovation are the conventional equivalents. Eligible property types, occupancy, and allowable improvements differ across all of them."
+      },
+      {
+        label: "Your contractor",
+        body: "Licensing, insurance, financial capacity, and experience working against a draw schedule are all reviewed. A contractor who has never been paid in inspected stages is a genuine risk to your timeline."
+      },
+      {
+        label: "Contingency reserve",
+        body: "Programs require a reserve for overruns, funded from the loan. It protects the project and it also raises the amount you borrow and the payment you carry."
+      },
+      {
+        label: "As-completed value",
+        body: "If the appraiser's after-improved opinion does not support the total, the gap is yours to cover in cash or the scope has to shrink. This is where over-improving for a neighbourhood shows up."
+      }
+    ],
+    faqs: [
+      {
+        question: "Can I do the work myself to save money?",
+        answer:
+          "Programs restrict self-help work and generally expect licensed contractors, with any exception documented in advance rather than discovered at draw time. Planning to swing the hammer yourself and sort out the paperwork later is a reliable way to stall a file."
+      },
+      {
+        question: "How much can I finance for the repairs?",
+        answer:
+          "It depends on the program and on the after-improved appraised value. HUD sets separate ceilings for the Limited and Standard versions of 203(k) and updates them; the conventional programs work from a share of the completed value. We check the current published figures for the program you are actually using rather than printing a number that ages badly."
+      },
+      {
+        question: "Is this slower than a normal purchase?",
+        answer:
+          "Usually, yes. Bids, plans, contractor approval, and a subject-to appraisal all have to happen before underwriting can clear the file. Negotiate that time into your contract rather than discovering it during the inspection period."
+      },
+      {
+        question: "Can I use a renovation loan on an investment property?",
+        answer:
+          "It depends on the program. Freddie Mac describes CHOICERenovation as available for primary residences, second homes, and one-to-four unit investment properties; FHA financing is for owner-occupied primary residences. Which of these a given lender actually offers varies, so confirm it before you go under contract."
+      }
+    ],
+    relatedCalculators: [{ href: "/calculators/mortgage-payment", label: "Estimate a payment" }],
+    relatedPrograms: ["construction", "fha", "conventional"],
+    sources: [
+      {
+        publisher: "U.S. Department of Housing and Urban Development",
+        title: "203(k) Rehabilitation Mortgage Insurance Program types",
+        url: "https://www.hud.gov/hud-partners/single-family-203k"
+      },
+      {
+        publisher: "Fannie Mae",
+        title: "Selling Guide B5-3.2-01, HomeStyle Renovation Mortgages",
+        url: "https://selling-guide.fanniemae.com/sel/b5-3.2-01/homestyle-renovation-mortgages"
+      },
+      {
+        publisher: "Freddie Mac",
+        title: "CHOICERenovation Mortgages",
+        url: "https://sf.freddiemac.com/working-with-us/origination-underwriting/mortgage-products/choicerenovation"
+      }
+    ],
+    requiresLenderPath: true,
+    loanTypeForSchema: "Renovation mortgage"
+  },
+  {
+    slug: "construction",
+    navLabel: "Construction",
+    h1: "Construction-to-permanent financing in Florida",
+    title: "Construction Loans in Florida",
+    description:
+      "How a single-close construction loan converts to a permanent mortgage, how draws and interest during the build work, and what a two-close structure costs you.",
+    eyebrow: "Program",
+    summary:
+      "Construction-to-permanent financing pays for a house that does not exist yet and then becomes the mortgage on it. The structure matters more than the headline rate: whether you close once or twice determines how many sets of closing costs you pay, how much rate risk you carry through the build, and whether you have to be underwritten again when the house is finished.",
+    mayFit: [
+      "You are building on a lot you already own or are acquiring as part of the same transaction",
+      "You want one closing rather than a construction loan followed by a separate refinance",
+      "You have a builder with a fixed-price contract, complete plans, and a realistic schedule",
+      "You want the permanent terms settled before the first shovel goes in the ground"
+    ],
+    exploreAlternativesIf: [
+      "You are buying a finished spec home from a builder — that is an ordinary purchase transaction",
+      "The work is repair or remodel of an existing house, which is renovation financing",
+      "Your builder is unwilling to work within a draw schedule and an inspection process",
+      "Your plans and budget are not settled — the loan is sized against the cost breakdown, so a moving budget is a moving loan"
+    ],
+    howItWorks: [
+      {
+        heading: "One closing or two, and the choice is structural",
+        body: "In a single-closing transaction the construction financing and the permanent mortgage close at the same time on the same set of documents, and the loan converts to permanent financing when the house is complete. In a two-closing structure the interim construction loan is its own transaction, later paid off by a separate permanent mortgage: a second closing, a second set of costs, and a second underwrite at whatever terms exist on that day. Fannie Mae and Freddie Mac both address single-close and two-close paths, and they are not interchangeable."
+      },
+      {
+        heading: "The loan is sized against cost or completed value, whichever is lower",
+        body: "Fannie Mae's single-closing guidance sets the property value used for loan-to-value at the lesser of the total acquisition cost — land plus construction — or the appraised value of the completed property. This is where borrowers are most often surprised: an expensive build in a modest neighbourhood is limited by the appraisal, and the difference between the two figures comes out of your own funds."
+      },
+      {
+        heading: "Money releases in draws against verified progress",
+        body: "You do not receive the loan amount at closing. The lender disburses in stages as work is completed and verified, typically with a title update at each draw to confirm no liens have attached. Interest is commonly charged only on what has actually been advanced, which is why Regulation Z carries a dedicated appendix for multiple-advance construction loans where the amounts or timing of advances are unknown at consummation — it also addresses how interest reserves are handled."
+      },
+      {
+        heading: "Conversion is the part to understand before you sign",
+        body: "On a single close, the loan modifies to its permanent terms when the house is finished. How the permanent rate is established, whether a float-down exists, and whether credit documents must be refreshed before conversion all vary by lender and program — Fannie Mae's guidance addresses requalification and credit document aging for exactly this reason. Ask what happens at conversion before construction starts, not after."
+      }
+    ],
+    variables: [
+      {
+        label: "Single close versus two close",
+        body: "Drives closing costs, rate exposure through the build, and whether you are underwritten again at the end. It is the first question, not a detail to settle later."
+      },
+      {
+        label: "How the permanent rate is set",
+        body: "Extended locks, float-downs, and rate-set-at-conversion are all real structures with different costs. Over a build measured in months rather than weeks, the difference between them is not small."
+      },
+      {
+        label: "Builder qualification",
+        body: "Lenders review the builder's licence, insurance, financial capacity, and track record. A builder who cannot be approved ends the conversation regardless of how strong your own file is."
+      },
+      {
+        label: "Cost breakdown and contingency",
+        body: "The line-item budget drives the draw schedule. Programs expect a contingency for overruns, and anything beyond it is generally funded by you rather than by the loan."
+      },
+      {
+        label: "Land equity",
+        body: "If you already own the lot, its value can often count toward your equity. Fannie Mae's single-closing guidance treats a borrower who already owns the lot differently from one acquiring it, and how long you have owned it matters."
+      }
+    ],
+    faqs: [
+      {
+        question: "What do I pay each month during construction?",
+        answer:
+          "Commonly interest on the amount drawn to date, which rises as the build progresses. Whether an interest reserve is built into the loan instead varies by lender. Regulation Z's appendix for multiple-advance loans exists precisely because these payments cannot be stated exactly at closing, so expect an estimate with disclosed assumptions rather than a fixed schedule."
+      },
+      {
+        question: "Can I act as my own general contractor?",
+        answer:
+          "Rarely, and it is entirely program- and lender-specific. Most programs expect a licensed general contractor with a documented track record, because the lender is releasing money against a schedule and needs someone accountable for it."
+      },
+      {
+        question: "What happens if the build runs over budget?",
+        answer:
+          "The contingency absorbs part of it. Beyond that, overruns are generally yours to fund in cash — the loan amount was established at closing, and increasing it means re-underwriting if it is possible at all. This is the strongest practical argument for a fixed-price contract rather than a cost-plus one."
+      },
+      {
+        question: "Can I build on a lot I already own free and clear?",
+        answer:
+          "Frequently yes, and the lot equity commonly serves as part or all of your down payment. Fannie Mae's single-closing guidance handles the already-owned-lot case as a refinance rather than a purchase, which changes the paperwork more than it changes the outcome."
+      }
+    ],
+    relatedCalculators: [{ href: "/calculators/mortgage-payment", label: "Estimate a payment" }],
+    relatedPrograms: ["land", "renovation", "conventional"],
+    sources: [
+      {
+        publisher: "Fannie Mae",
+        title:
+          "Selling Guide B5-3.1-02, Conversion of Construction-to-Permanent Financing: Single-Closing Transactions",
+        url: "https://selling-guide.fanniemae.com/sel/b5-3.1-02/conversion-construction-permanent-financing-single-closing-transactions"
+      },
+      {
+        publisher: "Freddie Mac",
+        title: "Construction to Permanent Mortgages",
+        url: "https://sf.freddiemac.com/working-with-us/origination-underwriting/mortgage-products/construction-to-permanent-mortgages"
+      },
+      {
+        publisher: "Consumer Financial Protection Bureau",
+        title: "Regulation Z Appendix D — Multiple-Advance Construction Loans",
+        url: "https://www.consumerfinance.gov/rules-policy/regulations/1026/interp-d/"
+      }
+    ],
+    requiresLenderPath: true,
+    loanTypeForSchema: "Construction-to-permanent mortgage"
+  },
+  {
+    slug: "land",
+    navLabel: "Land and lot",
+    h1: "Land and lot loans in Florida",
+    title: "Land and Lot Loans in Florida",
+    description:
+      "Why financing vacant land prices differently from financing a house, what raw and improved land mean to a lender, and when to skip the lot loan entirely.",
+    eyebrow: "Program",
+    summary:
+      "A loan on vacant land is not a mortgage on a home, and lenders do not treat it as one. Land produces no income, costs money to hold, and is far harder to sell after a default, so it is financed on shorter terms, with more money down, and usually by institutions holding the loan on their own books rather than delivering it to an agency.",
+    mayFit: [
+      "You have found a homesite you want to hold before you are ready to build",
+      "You are buying acreage adjacent to property you already own",
+      "The location is the opportunity and the timing of construction is genuinely unsettled",
+      "You have substantial funds for the down payment and reserves to carry the payment while the parcel sits"
+    ],
+    exploreAlternativesIf: [
+      "You intend to build soon — construction-to-permanent financing that includes land acquisition avoids paying to finance the same dirt twice",
+      "The parcel has no recorded legal access, no utilities, or an unresolved zoning or wetland question; those are underwriting problems before they are financing problems",
+      "You are relying on refinancing this loan into construction financing later and have not confirmed that path exists",
+      "The seller is willing to finance the parcel and you have not compared that against an institutional loan"
+    ],
+    howItWorks: [
+      {
+        heading: "Regulators treat land as a different risk class",
+        body: "The interagency guidelines for real estate lending policies that federal banking regulators apply set supervisory loan-to-value limits by loan category, and raw land is listed separately with a lower limit than owner-occupied one-to-four family residential property. That is not a single conservative lender; it is the framework the lender's own examiners work from, and it is the structural reason land requires more money down than a house does."
+      },
+      {
+        heading: "Raw, unimproved, and improved are not interchangeable words",
+        body: "A recorded lot in a platted subdivision with paved access, power at the street, and water and sewer available is a fundamentally different loan from acreage with no road frontage and no utilities. The further a parcel sits from buildable, the shorter the term, the larger the down payment, and the smaller the set of institutions willing to look at it."
+      },
+      {
+        heading: "The loan usually stays on the lender's own books",
+        body: "Vacant land is generally not eligible for delivery to Fannie Mae or Freddie Mac the way a mortgage on a dwelling is. These are typically portfolio products at banks and credit unions, and each institution writes its own rules. That is precisely why terms differ so widely between them and why shopping is worth real effort here rather than being a formality."
+      },
+      {
+        heading: "Terms are shorter than a mortgage, and often do not fully amortize",
+        body: "Lot loans commonly run considerably shorter than a thirty-year mortgage, and some carry a balloon rather than amortizing to zero. Plan the exit — build, refinance, or sell — before you close, because the structure of the loan already assumes you have one."
+      }
+    ],
+    variables: [
+      {
+        label: "Improvement level",
+        body: "Utilities, paved access, and recorded plat status move a parcel between lender categories, and the category changes essentially every term of the loan."
+      },
+      {
+        label: "Legal access and easements",
+        body: "A parcel without recorded legal access is not financeable at most institutions, however it looks on a map. Confirm access from the title work, not from the listing."
+      },
+      {
+        label: "Zoning and land use",
+        body: "What the county permits you to build governs the value an appraiser can support. In Florida, wetland delineation and environmental review are frequently the gating item rather than zoning itself."
+      },
+      {
+        label: "Appraisal comparables",
+        body: "Land appraisals rely on fewer and less similar sales than home appraisals do. Values are therefore less predictable, which is part of why lenders price the risk the way they do."
+      },
+      {
+        label: "Your exit plan",
+        body: "Whether you intend to build, hold, or sell determines whether a lot loan is even the right instrument. Building within the year usually points to the construction path instead."
+      }
+    ],
+    faqs: [
+      {
+        question: "How much do I need to put down on land?",
+        answer:
+          "More than on a house, and how much more depends on the parcel and the institution. The supervisory guidelines examiners apply set a lower loan-to-value limit for raw land than for a one-to-four family home, and individual lenders commonly require more equity than the supervisory figure. Anyone quoting a single number without knowing whether the parcel has utilities and recorded legal access is guessing."
+      },
+      {
+        question: "Can I get a thirty-year fixed loan on a lot?",
+        answer:
+          "Usually not. Lot loans are typically written on shorter terms and some carry a balloon rather than fully amortizing. That is a function of who holds the loan and how regulators classify the collateral, not a judgement about your credit."
+      },
+      {
+        question: "Should I buy the lot now and build later?",
+        answer:
+          "It depends on how far off the build is. Financing the land and then financing construction separately means two transactions and two sets of costs; construction-to-permanent financing that includes the land acquisition means one. If you are ready to build, the combined path is usually cheaper. If the parcel is the opportunity and the build is years away, a lot loan is doing a job the construction loan cannot."
+      },
+      {
+        question: "Does owning the lot outright help when I finally build?",
+        answer:
+          "Frequently yes. Lot equity can count toward the equity in a construction-to-permanent transaction, and Fannie Mae's single-closing guidance addresses the case where the borrower already owns the lot. How the equity is credited depends on how and when you acquired the land, so bring the purchase documents to the conversation."
+      }
+    ],
+    relatedCalculators: [],
+    relatedPrograms: ["construction", "investment-property", "purchase"],
+    sources: [
+      {
+        publisher: "Office of the Comptroller of the Currency",
+        title:
+          "12 CFR part 34, appendix A to subpart D — Interagency Guidelines for Real Estate Lending Policies",
+        url: "https://www.ecfr.gov/current/title-12/chapter-I/part-34/subpart-D/appendix-Appendix%20A%20to%20Subpart%20D%20of%20Part%2034"
+      },
+      {
+        publisher: "Fannie Mae",
+        title:
+          "Selling Guide B5-3.1-02, Conversion of Construction-to-Permanent Financing: Single-Closing Transactions",
+        url: "https://selling-guide.fanniemae.com/sel/b5-3.1-02/conversion-construction-permanent-financing-single-closing-transactions"
+      }
+    ],
+    requiresLenderPath: true,
+    loanTypeForSchema: null
   }
 ];
 

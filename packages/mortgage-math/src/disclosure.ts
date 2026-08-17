@@ -55,6 +55,30 @@ export const CALCULATOR_DISCLOSURES: Record<string, CalculatorDisclosure> = {
     headline: "A scenario model, not investment advice.",
     body: "Rent, vacancy, expenses, and resale values are estimates you supply or that come from third-party data with its own limitations. No return is projected, promised, or implied.",
     excludes: [...SHARED_EXCLUSIONS, "Income tax, depreciation, and entity structure"]
+  },
+  amortization: {
+    version: DISCLOSURE_VERSION,
+    headline: "A schedule built from your inputs, not a loan document.",
+    body: "This is an estimate, not an offer of credit, a rate quote, a preapproval, or a commitment to lend. A real schedule depends on the note, the payment posting date, escrow changes, and how a servicer applies extra principal. Confirm anything that matters with your servicer.",
+    excludes: [...SHARED_EXCLUSIONS, "Escrow changes and servicer payment-posting rules"]
+  },
+  debt_to_income: {
+    version: DISCLOSURE_VERSION,
+    headline: "Two ratios, not an approval.",
+    body: "This is an estimate, not an offer of credit, a rate quote, a preapproval, or a commitment to lend. The 28 and 43 figures are common reference points, not thresholds any lender must apply. How income and debts are counted varies by program and by lender.",
+    excludes: [...SHARED_EXCLUSIONS, "How a lender documents and counts income"]
+  },
+  dscr: {
+    version: DISCLOSURE_VERSION,
+    headline: "A ratio, not an underwriting decision.",
+    body: "This is an estimate, not an offer of credit, a rate quote, a preapproval, or a commitment to lend. The reference bands shown are how the ratio is commonly described in the market. They are general reference only, they are not TRACT underwriting, and no lender is bound by them.",
+    excludes: [...SHARED_EXCLUSIONS, "Vacancy, management, repairs, and capital reserves"]
+  },
+  rate_impact: {
+    version: DISCLOSURE_VERSION,
+    headline: "Comparison rates you chose, not rates on offer.",
+    body: "This is an estimate, not an offer of credit, a rate quote, a preapproval, or a commitment to lend. Every rate shown is a value you entered for comparison. No rate here is quoted or available, and the rate anyone receives depends on the lender, the program, and the market at the time of lock.",
+    excludes: SHARED_EXCLUSIONS
   }
 };
 

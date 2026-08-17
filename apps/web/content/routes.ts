@@ -105,6 +105,41 @@ export const ROUTE_REGISTRY: RouteEntry[] = [
     indexable: true,
     contentGroup: "mortgage"
   },
+  {
+    path: "/mortgage/dscr",
+    priority: 0.75,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "mortgage"
+  },
+  {
+    path: "/mortgage/bank-statement",
+    priority: 0.75,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "mortgage"
+  },
+  {
+    path: "/mortgage/renovation",
+    priority: 0.75,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "mortgage"
+  },
+  {
+    path: "/mortgage/construction",
+    priority: 0.75,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "mortgage"
+  },
+  {
+    path: "/mortgage/land",
+    priority: 0.75,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "mortgage"
+  },
 
   // Calculators
   {
@@ -144,6 +179,41 @@ export const ROUTE_REGISTRY: RouteEntry[] = [
   },
   {
     path: "/calculators/closing-cost",
+    priority: 0.8,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "calculators"
+  },
+  {
+    path: "/calculators/amortization",
+    priority: 0.8,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "calculators"
+  },
+  {
+    path: "/calculators/debt-to-income",
+    priority: 0.8,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "calculators"
+  },
+  {
+    path: "/calculators/investment-property-cash-flow",
+    priority: 0.8,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "calculators"
+  },
+  {
+    path: "/calculators/dscr",
+    priority: 0.8,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "calculators"
+  },
+  {
+    path: "/calculators/rate-impact",
     priority: 0.8,
     changeFrequency: "monthly",
     indexable: true,
