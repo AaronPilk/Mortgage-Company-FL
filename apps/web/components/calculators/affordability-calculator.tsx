@@ -51,10 +51,10 @@ function Field({
   return (
     <div>
       <div className="flex items-baseline justify-between gap-3">
-        <label htmlFor={id} className="text-sm font-semibold text-ink">
+        <label htmlFor={id} className="text-sm font-semibold text-[var(--text)]">
           {label}
         </label>
-        <output htmlFor={id} className="text-sm font-semibold tabular-nums text-purple-800">
+        <output htmlFor={id} className="text-sm font-semibold tabular-nums text-[var(--purple)]">
           {format(value)}
         </output>
       </div>
@@ -66,9 +66,9 @@ function Field({
         step={step}
         value={value}
         onChange={(event) => onChange(Number(event.target.value))}
-        className="mt-2 w-full accent-purple-700"
+        className="mt-2 w-full accent-[var(--purple)]"
       />
-      {hint !== undefined && <p className="mt-1 text-xs text-muted">{hint}</p>}
+      {hint !== undefined && <p className="mt-1 text-xs text-[var(--text-muted)]">{hint}</p>}
     </div>
   );
 }
@@ -125,9 +125,9 @@ export function AffordabilityCalculator() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1.05fr_1fr]">
-      <div className="rounded-[--radius-lg] border border-line bg-white p-6 shadow-[--shadow-card]">
+      <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-6 shadow-[var(--shadow-card)]">
         <h3 className="text-lg font-semibold">Your inputs</h3>
-        <p className="mt-1 text-xs text-muted">
+        <p className="mt-1 text-xs text-[var(--text-muted)]">
           Nothing you enter here leaves your device. There is no credit inquiry of any kind.
         </p>
         <div className="mt-6 space-y-6">
@@ -175,14 +175,14 @@ export function AffordabilityCalculator() {
             hint="An assumption, not a quote. No rate is being offered."
           />
           <div>
-            <label htmlFor="aff-term" className="text-sm font-semibold text-ink">
+            <label htmlFor="aff-term" className="text-sm font-semibold text-[var(--text)]">
               Loan term
             </label>
             <select
               id="aff-term"
               value={termMonths}
               onChange={(event) => setTermMonths(Number(event.target.value))}
-              className="mt-2 w-full rounded-[--radius-sm] border border-line bg-white px-3 py-2.5 text-sm"
+              className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--bg)] px-3 py-2.5 text-sm"
             >
               <option value={360}>30 years</option>
               <option value={240}>20 years</option>
@@ -221,9 +221,9 @@ export function AffordabilityCalculator() {
             format={usd}
           />
 
-          <fieldset className="rounded-[--radius-md] border border-line p-4">
+          <fieldset className="rounded-xl border border-[var(--border)] p-4">
             <legend className="px-2 text-sm font-semibold">Qualifying ratios</legend>
-            <p className="mb-4 text-xs text-muted">
+            <p className="mb-4 text-xs text-[var(--text-muted)]">
               These are illustrative defaults, not any lender&rsquo;s actual limits. Real limits
               vary by program, lender overlay, credit profile, and reserves.
             </p>
@@ -255,7 +255,7 @@ export function AffordabilityCalculator() {
 
       <div>
         <div
-          className="rounded-[--radius-lg] border border-line bg-purple-950 p-6 text-white"
+          className="rounded-2xl border border-[var(--border)] bg-purple-950 p-6 text-white"
           aria-live="polite"
         >
           <p className="text-sm font-semibold uppercase tracking-widest text-purple-300">
@@ -298,7 +298,7 @@ export function AffordabilityCalculator() {
             </div>
           </dl>
 
-          <div className="mt-6 rounded-[--radius-sm] bg-purple-900 p-4">
+          <div className="mt-6 rounded-lg bg-purple-900 p-4">
             <p className="text-sm font-semibold text-purple-100">
               {result.bindingConstraint === "back_end"
                 ? "Your total debt ratio is the binding constraint"

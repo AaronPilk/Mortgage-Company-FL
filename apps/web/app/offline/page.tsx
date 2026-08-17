@@ -20,13 +20,13 @@ export default function OfflinePage() {
   return (
     <Section width="narrow">
       <h1 className="text-4xl font-bold">You are offline</h1>
-      <p className="mt-4 text-lg text-muted">
+      <p className="mt-4 text-lg text-[var(--text-muted)]">
         This page could not load because your device is not connected. Anything you were in the
         middle of submitting has not been sent.
       </p>
-      <div className="mt-8 rounded-[--radius-lg] border border-line bg-white p-6">
+      <div className="mt-8 rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-6">
         <h2 className="text-xl font-semibold">Reach us directly</h2>
-        <p className="mt-2 text-muted">
+        <p className="mt-2 text-[var(--text-muted)]">
           Once you are back online, the contact page has every way to get in touch. Our calculators
           work entirely in your browser, so they will run again as soon as this page reloads.
         </p>

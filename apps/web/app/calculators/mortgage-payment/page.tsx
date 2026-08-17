@@ -12,11 +12,12 @@ export const metadata: Metadata = pageMetadata({
 
 export default function PaymentCalculatorPage() {
   return (
-    <Section>
+    <Section orbs>
       <SectionHeading
         as="h1"
         eyebrow="Calculator"
         title="Estimate a monthly payment"
+        gradientWord="monthly payment"
         description="Most calculators show principal and interest and stop there. In Florida that can understate the real payment by a third or more."
       />
       <PaymentCalculator />

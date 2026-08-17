@@ -12,11 +12,12 @@ export const metadata: Metadata = pageMetadata({
 
 export default function Page() {
   return (
-    <Section>
+    <Section orbs>
       <SectionHeading
         as="h1"
         eyebrow="Calculator"
         title="Is a refinance worth the cost?"
+        gradientWord="worth the cost"
         description="Break-even is the honest test. A lower payment achieved by restarting a thirty-year term can cost more overall, so both figures are shown."
       />
       <RefinanceCalculator />

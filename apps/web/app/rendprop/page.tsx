@@ -14,18 +14,19 @@ export default function RendPropPage() {
   const features = publicFeatures();
 
   return (
-    <Section width="narrow">
+    <Section width="narrow" orbs>
       <SectionHeading
         as="h1"
         eyebrow="RendProp"
         title="Listing media from a phone walkthrough"
+        gradientWord="phone walkthrough"
         description="A guided capture workflow that produces a shareable tour — with any enhanced or staged imagery clearly labeled."
       />
 
       {!features.rendProp && (
-        <Card className="border-purple-300 bg-purple-50">
-          <h2 className="text-lg font-semibold text-purple-900">In development</h2>
-          <p className="mt-3 text-sm text-muted">
+        <Card className="border-[var(--purple)] bg-[var(--purple-subtle)]">
+          <h2 className="text-lg font-semibold text-[var(--text)]">In development</h2>
+          <p className="mt-3 text-sm text-[var(--text-muted)]">
             RendProp is not available yet. The capture guidance, processing pipeline, and rights
             workflow are specified; the media providers are not connected.
           </p>

@@ -19,29 +19,30 @@ const PUBLISHED: { href: string; title: string; body: string }[] = [];
 
 export default function ResourcesPage() {
   return (
-    <Section>
+    <Section orbs>
       <SectionHeading
         as="h1"
         eyebrow="Resources"
         title="Guides worth the time"
+        gradientWord="worth the time"
         description="Each one is written against primary sources, reviewed by a named person, and dated."
       />
 
       {PUBLISHED.length === 0 ? (
         <Card>
-          <h2 className="text-lg font-semibold text-purple-900">Guides are being written</h2>
-          <p className="mt-3 text-muted">
+          <h2 className="text-lg font-semibold text-[var(--text)]">Guides are being written</h2>
+          <p className="mt-3 text-[var(--text-muted)]">
             We are not publishing thin articles to fill a page. Each guide is written against
             primary sources, reviewed, and dated before it goes up, and the first set is in review
             now.
           </p>
-          <p className="mt-3 text-muted">
+          <p className="mt-3 text-[var(--text-muted)]">
             In the meantime, the{" "}
-            <Link className="text-purple-700 underline underline-offset-2" href="/mortgage">
+            <Link className="text-[var(--purple)] underline underline-offset-2" href="/mortgage">
               loan program pages
             </Link>{" "}
             and the{" "}
-            <Link className="text-purple-700 underline underline-offset-2" href="/calculators">
+            <Link className="text-[var(--purple)] underline underline-offset-2" href="/calculators">
               calculators
             </Link>{" "}
             cover most of what people ask us first.
@@ -52,8 +53,8 @@ export default function ResourcesPage() {
           {PUBLISHED.map((item) => (
             <Card as="li" key={item.href}>
               <Link href={item.href}>
-                <h2 className="text-lg font-semibold text-purple-900">{item.title}</h2>
-                <p className="mt-2 text-sm text-muted">{item.body}</p>
+                <h2 className="text-lg font-semibold text-[var(--text)]">{item.title}</h2>
+                <p className="mt-2 text-sm text-[var(--text-muted)]">{item.body}</p>
               </Link>
             </Card>
           ))}

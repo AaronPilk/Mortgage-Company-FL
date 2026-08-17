@@ -153,20 +153,21 @@ export function LeadForm({
     return (
       <div
         role="status"
-        className="rounded-[--radius-lg] border border-line bg-white p-8 shadow-[--shadow-card]"
+        className="rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-8 shadow-[var(--shadow-card)]"
       >
-        <h2 className="text-2xl font-bold text-purple-900">We have your request</h2>
-        <p className="mt-3 text-muted">
+        <h2 className="text-2xl font-bold text-[var(--text)]">We have your request</h2>
+        <p className="mt-3 text-[var(--text-muted)]">
           A licensed mortgage professional will reach out. Nothing has been submitted to a lender,
           no credit inquiry has been made, and you are not obligated to anything.
         </p>
-        <p className="mt-4 text-sm text-muted">
-          Reference <span className="font-mono text-ink">{state.receiptId.slice(0, 8)}</span> — keep
+        <p className="mt-4 text-sm text-[var(--text-muted)]">
+          Reference{" "}
+          <span className="font-mono text-[var(--text)]">{state.receiptId.slice(0, 8)}</span> — keep
           this if you need to follow up.
         </p>
-        <p className="mt-6 text-sm text-muted">
+        <p className="mt-6 text-sm text-[var(--text-muted)]">
           In the meantime, the{" "}
-          <a className="text-purple-700 underline underline-offset-2" href="/calculators">
+          <a className="text-[var(--purple)] underline underline-offset-2" href="/calculators">
             calculators
           </a>{" "}
           run entirely in your browser if you want to explore scenarios.
@@ -179,18 +180,18 @@ export function LeadForm({
     state.kind === "error" ? state.fields[field]?.[0] : undefined;
 
   const inputClass =
-    "mt-1.5 w-full rounded-[--radius-sm] border border-line bg-white px-3 py-2.5 text-base " +
-    "min-h-[44px] focus:border-purple-600";
+    "mt-1.5 w-full rounded-lg border border-[var(--border)] bg-[var(--bg)] px-3 py-2.5 text-base " +
+    "min-h-[44px] focus:border-[var(--purple)]";
 
   return (
     <form
       onSubmit={handleSubmit}
       noValidate
-      className="rounded-[--radius-lg] border border-line bg-white p-6 shadow-[--shadow-card] sm:p-8"
+      className="rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-6 shadow-[var(--shadow-card)] sm:p-8"
       data-form-id={formId}
     >
       <h2 className="text-2xl font-bold">{heading}</h2>
-      <p className="mt-2 text-sm text-muted">
+      <p className="mt-2 text-sm text-[var(--text-muted)]">
         This is not an application. We do not pull your credit from this form.
       </p>
 
@@ -199,7 +200,7 @@ export function LeadForm({
           ref={errorSummaryRef}
           tabIndex={-1}
           role="alert"
-          className="mt-6 rounded-[--radius-sm] border border-danger/40 bg-danger/5 p-4"
+          className="mt-6 rounded-lg border border-danger/40 bg-danger/5 p-4"
         >
           <p className="font-semibold text-danger">{state.message}</p>
           {Object.keys(state.fields).length > 0 && (
@@ -289,7 +290,7 @@ export function LeadForm({
         </div>
         <div>
           <label htmlFor={fieldId("timeline")} className="text-sm font-semibold">
-            Timeline <span className="font-normal text-muted">(optional)</span>
+            Timeline <span className="font-normal text-[var(--text-muted)]">(optional)</span>
           </label>
           <select id={fieldId("timeline")} name="timeline" className={inputClass}>
             <option value="">Not sure yet</option>
@@ -302,7 +303,8 @@ export function LeadForm({
         </div>
         <div>
           <label htmlFor={fieldId("preferredContact")} className="text-sm font-semibold">
-            Best way to reach you <span className="font-normal text-muted">(optional)</span>
+            Best way to reach you{" "}
+            <span className="font-normal text-[var(--text-muted)]">(optional)</span>
           </label>
           <select id={fieldId("preferredContact")} name="preferredContact" className={inputClass}>
             <option value="">No preference</option>
@@ -315,7 +317,8 @@ export function LeadForm({
 
       <div className="mt-5">
         <label htmlFor={fieldId("message")} className="text-sm font-semibold">
-          Anything we should know? <span className="font-normal text-muted">(optional)</span>
+          Anything we should know?{" "}
+          <span className="font-normal text-[var(--text-muted)]">(optional)</span>
         </label>
         <textarea
           id={fieldId("message")}
@@ -324,7 +327,7 @@ export function LeadForm({
           maxLength={1500}
           className={inputClass}
         />
-        <p className="mt-1 text-xs text-muted">
+        <p className="mt-1 text-xs text-[var(--text-muted)]">
           Please do not include your Social Security number, account numbers, or documents. Those
           belong in the secure application system, not a web form.
         </p>
@@ -336,7 +339,7 @@ export function LeadForm({
         <input id={fieldId("company")} name="company" tabIndex={-1} autoComplete="off" />
       </div>
 
-      <fieldset className="mt-7 space-y-3 border-t border-line pt-6">
+      <fieldset className="mt-7 space-y-3 border-t border-[var(--border)] pt-6">
         <legend className="sr-only">Consent</legend>
 
         <label className="flex gap-3 text-sm">
@@ -344,31 +347,31 @@ export function LeadForm({
             type="checkbox"
             name="privacyAccepted"
             required
-            className="mt-1 size-4 shrink-0 accent-purple-700"
+            className="mt-1 size-4 shrink-0 accent-[var(--purple)]"
           />
           <span>
             {disclosureText}{" "}
-            <a className="text-purple-700 underline underline-offset-2" href="/privacy">
+            <a className="text-[var(--purple)] underline underline-offset-2" href="/privacy">
               Privacy policy
             </a>
             .
           </span>
         </label>
 
-        <label className="flex gap-3 text-sm text-muted">
+        <label className="flex gap-3 text-sm text-[var(--text-muted)]">
           <input
             type="checkbox"
             name="smsMarketing"
-            className="mt-1 size-4 shrink-0 accent-purple-700"
+            className="mt-1 size-4 shrink-0 accent-[var(--purple)]"
           />
           <span>{smsConsentText}</span>
         </label>
 
-        <label className="flex gap-3 text-sm text-muted">
+        <label className="flex gap-3 text-sm text-[var(--text-muted)]">
           <input
             type="checkbox"
             name="emailMarketing"
-            className="mt-1 size-4 shrink-0 accent-purple-700"
+            className="mt-1 size-4 shrink-0 accent-[var(--purple)]"
           />
           <span>{emailConsentText}</span>
         </label>

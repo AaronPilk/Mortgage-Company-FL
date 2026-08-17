@@ -38,7 +38,7 @@ export default async function PropertiesPage() {
           description="Listing data requires an executed agreement with the MLS or an approved aggregator."
         />
         <Card>
-          <p className="text-muted">
+          <p className="text-[var(--text-muted)]">
             We will not scrape a portal or republish listing data without the rights to do so, so
             this stays switched off until a data agreement is in place. Financing questions do not
             have to wait on it.
@@ -64,28 +64,28 @@ export default async function PropertiesPage() {
   return (
     <Section>
       <SectionHeading as="h1" eyebrow="Properties" title="Property search" />
-      <p className="mb-6 text-sm text-muted">
+      <p className="mb-6 text-sm text-[var(--text-muted)]">
         Data as of {new Date(page.dataAsOf).toLocaleString("en-US")}.
       </p>
       <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {visible.map((listing) => (
           <Card as="li" key={`${listing.provider}:${listing.listingKey}`}>
-            <p className="text-lg font-semibold text-purple-900">
+            <p className="text-lg font-semibold text-[var(--text)]">
               {listing.listPriceCents === undefined
                 ? "Price on request"
                 : formatUsd(listing.listPriceCents)}
             </p>
-            <p className="mt-1 text-sm text-ink">
+            <p className="mt-1 text-sm text-[var(--text)]">
               {listing.address.line1}, {listing.address.city}, {listing.address.state}{" "}
               {listing.address.postalCode}
             </p>
-            <p className="mt-2 text-sm text-muted">
+            <p className="mt-2 text-sm text-[var(--text-muted)]">
               {listing.bedrooms} bd · {listing.bathrooms} ba · {listing.livingAreaSqft} sq ft
             </p>
             {/* Attribution is required by the display agreement and is never omitted. */}
-            <p className="mt-3 text-xs text-muted">{listing.attributionText}</p>
+            <p className="mt-3 text-xs text-[var(--text-muted)]">{listing.attributionText}</p>
             {listing.modificationTimestamp !== undefined && (
-              <p className="text-xs text-muted">
+              <p className="text-xs text-[var(--text-muted)]">
                 Updated {new Date(listing.modificationTimestamp).toLocaleDateString("en-US")}
               </p>
             )}
@@ -94,7 +94,9 @@ export default async function PropertiesPage() {
       </ul>
       {visible.length === 0 && (
         <Card>
-          <p className="text-muted">No listings are available to display right now.</p>
+          <p className="text-[var(--text-muted)]">
+            No listings are available to display right now.
+          </p>
         </Card>
       )}
       <Disclosure

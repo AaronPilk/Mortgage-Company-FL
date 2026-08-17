@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Wordmark } from "./wordmark";
+import { ThemeToggle } from "./theme-toggle";
 import { ButtonLink, LicenseFact } from "./ui";
 import { businessIdentity, isPreLaunch } from "@/lib/site";
 
@@ -18,7 +19,7 @@ const FOOTER_GROUPS = [
       { href: "/mortgage/purchase", label: "Buying a home" },
       { href: "/mortgage/refinance", label: "Refinancing" },
       { href: "/mortgage/first-time-home-buyers", label: "First-time buyers" },
-      { href: "/mortgage/self-employed", label: "Self-employed borrowers" },
+      { href: "/mortgage/self-employed", label: "Self-employed" },
       { href: "/mortgage/investment-property", label: "Investment property" }
     ]
   },
@@ -35,11 +36,11 @@ const FOOTER_GROUPS = [
   {
     heading: "Tools",
     links: [
-      { href: "/calculators/mortgage-payment", label: "Payment calculator" },
+      { href: "/calculators/mortgage-payment", label: "Payment" },
       { href: "/calculators/affordability", label: "Affordability" },
       { href: "/calculators/refinance-break-even", label: "Refinance break-even" },
       { href: "/calculators/rent-vs-buy", label: "Rent vs buy" },
-      { href: "/calculators/closing-cost", label: "Closing costs" }
+      { href: "/calculators/closing-cost", label: "Cash to close" }
     ]
   },
   {
@@ -64,33 +65,48 @@ const LEGAL_LINKS = [
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-white/90 backdrop-blur">
-      <div className="container-wide flex items-center justify-between gap-6 py-4">
+    <header className="glass sticky top-0 z-40">
+      <div className="container-wide flex items-center justify-between gap-6 py-3.5">
         <Link href="/" aria-label={`${businessIdentity.brandName} home`}>
           <Wordmark />
         </Link>
-        <nav aria-label="Primary" className="hidden items-center gap-6 lg:flex">
+
+        <nav aria-label="Primary" className="hidden items-center gap-1 lg:flex">
           {PRIMARY_NAV.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="text-sm font-medium text-ink hover:text-purple-700"
+              className="rounded-lg px-3.5 py-2 text-sm font-medium transition-colors hover:bg-[var(--purple-subtle)] hover:text-[var(--purple)]"
             >
               {item.label}
             </Link>
           ))}
         </nav>
-        <div className="flex items-center gap-3">
-          <ButtonLink href="/contact" variant="primary" data-cta="header-consultation">
+
+        <div className="flex items-center gap-2.5">
+          <ThemeToggle />
+          <ButtonLink
+            href="/contact"
+            data-cta="header-consultation"
+            className="!min-h-[42px] !px-5"
+          >
             Talk to us
           </ButtonLink>
         </div>
       </div>
-      <nav aria-label="Primary mobile" className="border-t border-line lg:hidden">
-        <ul className="container-wide flex gap-5 overflow-x-auto py-3 text-sm">
+
+      <nav
+        aria-label="Primary mobile"
+        className="lg:hidden"
+        style={{ borderTop: "1px solid var(--border)" }}
+      >
+        <ul className="container-wide flex gap-1 overflow-x-auto py-2 text-sm">
           {PRIMARY_NAV.map((item) => (
             <li key={item.href} className="shrink-0">
-              <Link href={item.href} className="font-medium text-ink hover:text-purple-700">
+              <Link
+                href={item.href}
+                className="block rounded-lg px-3 py-1.5 font-medium hover:text-[var(--purple)]"
+              >
                 {item.label}
               </Link>
             </li>
@@ -111,34 +127,48 @@ export function SiteHeader() {
 export function PreLaunchNotice() {
   if (!isPreLaunch()) return null;
   return (
-    <div role="status" className="bg-purple-900 px-4 py-2.5 text-center text-sm text-white">
-      This site is in pre-launch. {businessIdentity.brandName} is not yet accepting mortgage
-      applications, and nothing here is an offer of credit or a rate quote.
+    <div
+      role="status"
+      className="relative px-4 py-2.5 text-center text-sm font-medium text-white"
+      style={{ background: "linear-gradient(90deg, var(--purple-dark), var(--purple))" }}
+    >
+      {businessIdentity.brandName} is pre-launch — not yet accepting mortgage applications, and
+      nothing here is an offer of credit or a rate quote.
     </div>
   );
 }
 
 export function SiteFooter() {
   return (
-    <footer className="mt-20 border-t border-line bg-white">
-      <div className="container-wide py-14">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
+    <footer
+      className="relative mt-24"
+      style={{ borderTop: "1px solid var(--border)", background: "var(--surface)" }}
+    >
+      <div className="container-wide py-16">
+        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-5">
           <div>
             <Wordmark />
-            <p className="mt-4 max-w-xs text-sm text-muted">
+            <p className="mt-5 max-w-xs text-sm" style={{ color: "var(--text-muted)" }}>
               A Florida mortgage brokerage. We help buyers and homeowners compare financing paths
               with clear tools and direct guidance.
             </p>
           </div>
           {FOOTER_GROUPS.map((group) => (
             <nav key={group.heading} aria-label={group.heading}>
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-purple-900">
+              <h2
+                className="text-xs font-bold uppercase tracking-[0.14em]"
+                style={{ color: "var(--purple)" }}
+              >
                 {group.heading}
               </h2>
               <ul className="mt-4 space-y-2.5">
                 {group.links.map((link) => (
                   <li key={link.href}>
-                    <Link href={link.href} className="text-sm text-muted hover:text-purple-700">
+                    <Link
+                      href={link.href}
+                      className="text-sm transition-colors hover:text-[var(--purple)]"
+                      style={{ color: "var(--text-muted)" }}
+                    >
                       {link.label}
                     </Link>
                   </li>
@@ -148,17 +178,20 @@ export function SiteFooter() {
           ))}
         </div>
 
-        <div className="mt-12 space-y-3 border-t border-line pt-8">
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+        <div className="rule-glow my-12" />
+
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center gap-x-8 gap-y-2">
             <LicenseFact label="Company NMLS ID" value={businessIdentity.nmlsId} />
             <LicenseFact
               label="Florida mortgage broker license"
               value={businessIdentity.companyLicenseId}
             />
           </div>
-          <p className="text-sm text-muted">
+          <p className="text-sm">
             <a
-              className="text-purple-700 underline underline-offset-2"
+              className="font-medium underline underline-offset-4"
+              style={{ color: "var(--purple)" }}
               href="https://www.nmlsconsumeraccess.org/"
               rel="noopener noreferrer"
               target="_blank"
@@ -171,18 +204,22 @@ export function SiteFooter() {
             here is the Opportunity form, never "Equal Housing Lender", because
             that would misstate what this company is.
           */}
-          <p className="text-sm font-medium text-ink">Equal Housing Opportunity.</p>
-          <p className="max-w-3xl text-xs leading-relaxed text-muted">
+          <p className="text-sm font-semibold">Equal Housing Opportunity.</p>
+          <p className="max-w-3xl text-xs leading-relaxed" style={{ color: "var(--text-muted)" }}>
             {businessIdentity.brandName} is a mortgage brokerage. We arrange, but do not make,
             mortgage loans. All figures shown on this site are estimates based on information you
             provide and are not an offer of credit, a rate quote, a preapproval, or a commitment to
             lend. Loan approval, terms, and availability depend on the lender, the loan program, the
             property, and a complete review of your application.
           </p>
-          <ul className="flex flex-wrap gap-x-5 gap-y-2 pt-2">
+          <ul className="flex flex-wrap gap-x-6 gap-y-2 pt-3">
             {LEGAL_LINKS.map((link) => (
               <li key={link.href}>
-                <Link href={link.href} className="text-xs text-muted underline underline-offset-2">
+                <Link
+                  href={link.href}
+                  className="text-xs underline underline-offset-4 hover:text-[var(--purple)]"
+                  style={{ color: "var(--text-muted)" }}
+                >
                   {link.label}
                 </Link>
               </li>

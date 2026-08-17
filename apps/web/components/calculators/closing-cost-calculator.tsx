@@ -41,7 +41,7 @@ export function ClosingCostCalculator() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1.05fr_1fr]">
-      <div className="rounded-[--radius-lg] border border-line bg-white p-6 shadow-[--shadow-card]">
+      <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-6 shadow-[var(--shadow-card)]">
         <h3 className="text-lg font-semibold">Your transaction</h3>
         <div className="mt-5 grid gap-5 sm:grid-cols-2">
           <NumberInput
@@ -109,7 +109,7 @@ export function ClosingCostCalculator() {
 
       <div>
         <div
-          className="rounded-[--radius-lg] border border-line bg-purple-950 p-6 text-white"
+          className="rounded-2xl border border-[var(--border)] bg-purple-950 p-6 text-white"
           aria-live="polite"
         >
           <p className="text-sm font-semibold uppercase tracking-widest text-purple-300">

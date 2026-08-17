@@ -20,11 +20,12 @@ export const metadata: Metadata = pageMetadata({
  */
 export default function FloridaPage() {
   return (
-    <Section width="narrow">
+    <Section width="narrow" orbs>
       <SectionHeading
         as="h1"
         eyebrow="Florida"
         title="What makes a Florida mortgage different"
+        gradientWord="different"
         description="The loan is usually the ordinary part. The carrying cost is where Florida diverges."
       />
       <Prose>
@@ -72,8 +73,10 @@ export default function FloridaPage() {
       </Prose>
 
       <Card className="mt-10">
-        <h2 className="text-lg font-semibold text-purple-900">Why there are no city pages here</h2>
-        <p className="mt-3 text-sm text-muted">
+        <h2 className="text-lg font-semibold text-[var(--text)]">
+          Why there are no city pages here
+        </h2>
+        <p className="mt-3 text-sm text-[var(--text-muted)]">
           A page that swaps a city name into the same paragraphs helps nobody. When we publish
           county-level material it will carry that county&rsquo;s actual millage, insurance context,
           flood exposure, and program availability, with sources and a named reviewer — or it will

@@ -40,7 +40,7 @@ export function RefinanceCalculator() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1.05fr_1fr]">
-      <div className="rounded-[--radius-lg] border border-line bg-white p-6 shadow-[--shadow-card]">
+      <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-6 shadow-[var(--shadow-card)]">
         <h3 className="text-lg font-semibold">Your current loan</h3>
         <div className="mt-5 grid gap-5 sm:grid-cols-2">
           <NumberInput
@@ -102,11 +102,11 @@ export function RefinanceCalculator() {
             type="checkbox"
             checked={financeCosts}
             onChange={(event) => setFinanceCosts(event.target.checked)}
-            className="mt-1 size-4 accent-purple-700"
+            className="mt-1 size-4 accent-[var(--purple)]"
           />
           <span>
             Roll the costs into the new loan
-            <span className="mt-1 block text-xs text-muted">
+            <span className="mt-1 block text-xs text-[var(--text-muted)]">
               This does not make the costs disappear. It moves them into the balance, where you pay
               interest on them for the life of the loan.
             </span>
@@ -116,7 +116,7 @@ export function RefinanceCalculator() {
 
       <div>
         <div
-          className="rounded-[--radius-lg] border border-line bg-purple-950 p-6 text-white"
+          className="rounded-2xl border border-[var(--border)] bg-purple-950 p-6 text-white"
           aria-live="polite"
         >
           <p className="text-sm font-semibold uppercase tracking-widest text-purple-300">
@@ -151,7 +151,7 @@ export function RefinanceCalculator() {
           </dl>
 
           {interestIncrease > 0 && (
-            <div className="mt-5 rounded-[--radius-sm] bg-purple-900 p-4">
+            <div className="mt-5 rounded-lg bg-purple-900 p-4">
               <p className="text-sm font-semibold text-purple-100">The tradeoff</p>
               <p className="mt-1.5 text-sm text-purple-200">
                 This scenario lowers the payment but increases total interest by roughly{" "}

@@ -1,5 +1,16 @@
 import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
+
+/**
+ * Self-hosted by next/font: no request to a third party, no entry in the CSP,
+ * and no layout shift while the face loads.
+ */
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter"
+});
 import { PreLaunchNotice, SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { AttributionCapture } from "@/components/attribution-capture";
 import { JsonLd } from "@/components/json-ld";
@@ -27,7 +38,20 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-US">
+    <html lang="en-US" suppressHydrationWarning className={inter.variable}>
+      <head>
+        {/*
+          Applies the stored theme before first paint. Without this the page
+          renders light and then snaps to dark, which is worse than not
+          offering the choice at all. Kept tiny and dependency-free on purpose.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{var t=localStorage.getItem('tract.theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches&&false)){document.documentElement.classList.add('dark')}}catch(e){}"
+          }}
+        />
+      </head>
       <body className="flex min-h-dvh flex-col">
         <a className="skip-link" href="#main">
           Skip to main content

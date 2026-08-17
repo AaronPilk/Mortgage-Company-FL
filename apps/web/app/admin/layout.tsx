@@ -37,7 +37,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     return (
       <div className="container-narrow py-20">
         <h1 className="text-3xl font-bold">Not available</h1>
-        <p className="mt-4 text-muted">{session.message}</p>
+        <p className="mt-4 text-[var(--text-muted)]">{session.message}</p>
       </div>
     );
   }
@@ -51,7 +51,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               <li key={item.href} className="shrink-0">
                 <Link
                   href={item.href}
-                  className="block rounded-[--radius-sm] px-3 py-2 text-sm font-medium text-ink hover:bg-purple-50"
+                  className="block rounded-lg px-3 py-2 text-sm font-medium text-[var(--text)] hover:bg-[var(--purple-subtle)]"
                 >
                   {item.label}
                 </Link>

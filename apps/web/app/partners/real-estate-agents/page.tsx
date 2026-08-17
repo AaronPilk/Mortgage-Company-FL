@@ -30,19 +30,20 @@ const VALUE = [
 export default function AgentPartnerPage() {
   const features = publicFeatures();
   return (
-    <Section>
+    <Section orbs>
       <SectionHeading
         as="h1"
         eyebrow="For agents"
         title="A financing partner who communicates"
+        gradientWord="communicates"
         description="Built around service and education, not around anything that would resemble payment for referrals."
       />
 
       <div className="grid gap-6 lg:grid-cols-3">
         {VALUE.map((item) => (
           <Card key={item.heading}>
-            <h2 className="text-lg font-semibold text-purple-900">{item.heading}</h2>
-            <p className="mt-3 text-sm text-muted">{item.body}</p>
+            <h2 className="text-lg font-semibold text-[var(--text)]">{item.heading}</h2>
+            <p className="mt-3 text-sm text-[var(--text-muted)]">{item.body}</p>
           </Card>
         ))}
       </div>
@@ -53,9 +54,9 @@ export default function AgentPartnerPage() {
         business, and a partner page is exactly where that line gets blurred.
         Stating it plainly sets the expectation before the first conversation.
       */}
-      <Card className="mt-8 border-purple-300 bg-purple-50">
-        <h2 className="text-lg font-semibold text-purple-900">How we work with agents</h2>
-        <p className="mt-3 text-sm text-muted">
+      <Card className="mt-8 border-[var(--purple)] bg-[var(--purple-subtle)]">
+        <h2 className="text-lg font-semibold text-[var(--text)]">How we work with agents</h2>
+        <p className="mt-3 text-sm text-[var(--text-muted)]">
           We do not pay for referrals, and we do not accept payment for sending business your way.
           There are no per-lead fees, no per-closing payments, and no arrangements priced against
           production volume. Federal law prohibits those, and honestly, a relationship that needs
@@ -76,8 +77,8 @@ export default function AgentPartnerPage() {
           turnstileSiteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
         />
         <Card>
-          <h2 className="text-lg font-semibold text-purple-900">RendProp listing media</h2>
-          <p className="mt-3 text-sm text-muted">
+          <h2 className="text-lg font-semibold text-[var(--text)]">RendProp listing media</h2>
+          <p className="mt-3 text-sm text-[var(--text-muted)]">
             A guided phone-capture workflow that turns a walkthrough into a shareable tour with
             clear labeling for any enhanced or staged imagery. It is in development and is not
             available yet — and we will not describe it as survey-grade or claim measurement

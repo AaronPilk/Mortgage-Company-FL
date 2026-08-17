@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Card, Disclosure, Section, SectionHeading } from "@/components/ui";
+import { Card, CtaPanel, Disclosure, Section, SectionHeading } from "@/components/ui";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = pageMetadata({
@@ -40,27 +40,51 @@ const CALCULATORS = [
 
 export default function CalculatorsIndexPage() {
   return (
-    <Section>
-      <SectionHeading
-        as="h1"
-        eyebrow="Tools"
-        title="Calculators that show their work"
-        description="Every one of these runs entirely on your device. Nothing you type is sent anywhere, stored, or used to contact you."
-      />
-      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {CALCULATORS.map((calculator) => (
-          <Card as="li" key={calculator.href}>
-            <Link href={calculator.href} className="block">
-              <h2 className="text-lg font-semibold text-purple-900">{calculator.title}</h2>
-              <p className="mt-2 text-sm text-muted">{calculator.body}</p>
-            </Link>
-          </Card>
-        ))}
-      </ul>
-      <Disclosure
-        headline="These are illustrations, not quotes."
-        body="Results come from values you enter. They are not an offer of credit, a rate quote, a preapproval, or a statement that any lender will approve a scenario. Your actual figures come from a lender's Loan Estimate."
-      />
-    </Section>
+    <>
+      <Section orbs>
+        <SectionHeading
+          as="h1"
+          eyebrow="Tools"
+          title="Calculators that show their work"
+          gradientWord="show their work"
+          description="Every one of these runs entirely on your device. Nothing you type is sent anywhere, stored, or used to contact you."
+        />
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {CALCULATORS.map((calculator) => (
+            <Card as="li" key={calculator.href} interactive className="!p-0">
+              <Link href={calculator.href} className="block h-full p-6">
+                <h2 className="text-lg font-semibold text-[var(--text)]">{calculator.title}</h2>
+                <p className="mt-2 text-sm leading-relaxed text-[var(--text-muted)]">
+                  {calculator.body}
+                </p>
+                <span
+                  aria-hidden="true"
+                  className="mt-4 inline-block text-sm font-semibold"
+                  style={{ color: "var(--purple)" }}
+                >
+                  Open calculator →
+                </span>
+              </Link>
+            </Card>
+          ))}
+        </ul>
+        <Disclosure
+          headline="These are illustrations, not quotes."
+          body="Results come from values you enter. They are not an offer of credit, a rate quote, a preapproval, or a statement that any lender will approve a scenario. Your actual figures come from a lender's Loan Estimate."
+        />
+      </Section>
+
+      <Section pad="tight" className="pb-16 sm:pb-24">
+        <CtaPanel
+          title="Numbers are a starting point, not an answer"
+          body="Once you have a range you like, a licensed mortgage professional can tell you what a lender will actually do with it. No application, no credit pull."
+          primary={{
+            href: "/contact",
+            label: "Talk to a mortgage professional",
+            cta: "calculators-hub"
+          }}
+        />
+      </Section>
+    </>
   );
 }

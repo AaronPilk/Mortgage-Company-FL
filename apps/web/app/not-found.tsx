@@ -5,7 +5,7 @@ export default function NotFound() {
   return (
     <Section width="narrow">
       <h1 className="text-4xl font-bold">We could not find that page</h1>
-      <p className="mt-4 text-lg text-muted">
+      <p className="mt-4 text-lg text-[var(--text-muted)]">
         The link may be out of date, or the page may have moved. Here are the places people usually
         want.
       </p>
@@ -17,7 +17,7 @@ export default function NotFound() {
           { href: "/contact", label: "Talk to someone" }
         ].map((item) => (
           <li key={item.href}>
-            <Link className="text-purple-700 underline underline-offset-2" href={item.href}>
+            <Link className="text-[var(--purple)] underline underline-offset-2" href={item.href}>
               {item.label}
             </Link>
           </li>

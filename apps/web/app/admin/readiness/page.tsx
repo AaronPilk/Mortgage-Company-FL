@@ -33,9 +33,9 @@ const STATE_LABEL: Record<State, string> = {
 const STATE_TONE: Record<State, string> = {
   blocked: "bg-danger/10 text-danger",
   in_progress: "bg-warning/10 text-warning",
-  ready: "bg-purple-100 text-purple-800",
+  ready: "bg-[var(--purple-subtle)] text-[var(--purple)]",
   approved: "bg-success/10 text-success",
-  not_applicable: "bg-canvas text-muted"
+  not_applicable: "bg-[var(--bg)] text-[var(--text-muted)]"
 };
 
 function technicalGates(): Gate[] {
@@ -181,7 +181,7 @@ export default async function ReadinessPage() {
     return (
       <div>
         <h1 className="text-3xl font-bold">Launch readiness</h1>
-        <p className="mt-4 text-muted">{session.message}</p>
+        <p className="mt-4 text-[var(--text-muted)]">{session.message}</p>
       </div>
     );
   }
@@ -192,7 +192,7 @@ export default async function ReadinessPage() {
   return (
     <div>
       <h1 className="text-3xl font-bold">Launch readiness</h1>
-      <p className="mt-2 max-w-3xl text-muted">
+      <p className="mt-2 max-w-3xl text-[var(--text-muted)]">
         Every gate that must be satisfied before this brokerage conducts regulated activity or runs
         paid mortgage advertising. Items owned by counsel, compliance, or the principal loan
         originator cannot be satisfied by shipping code, and a green technical column is not
@@ -203,7 +203,7 @@ export default async function ReadinessPage() {
         <p className="font-semibold text-danger">
           {blocking.length} blocking {blocking.length === 1 ? "item" : "items"}
         </p>
-        <p className="mt-2 text-sm text-muted">
+        <p className="mt-2 text-sm text-[var(--text-muted)]">
           While any licensing gate is blocked: the site stays in its pre-launch state, no
           application may be accepted, no credit may be pulled, no rate or term may be quoted or
           negotiated, no preapproval may be issued, and no paid mortgage advertising may run.
@@ -214,7 +214,7 @@ export default async function ReadinessPage() {
         <table className="w-full border-collapse text-sm">
           <caption className="sr-only">Launch gates by area, with owner and current state</caption>
           <thead>
-            <tr className="border-b border-line text-left">
+            <tr className="border-b border-[var(--border)] text-left">
               <th scope="col" className="py-3 pr-4 font-semibold">
                 Area
               </th>
@@ -232,10 +232,10 @@ export default async function ReadinessPage() {
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-line">
+          <tbody className="divide-y divide-[var(--border)]">
             {gates.map((gate) => (
               <tr key={`${gate.area}-${gate.item}`}>
-                <td className="py-3 pr-4 align-top text-muted">{gate.area}</td>
+                <td className="py-3 pr-4 align-top text-[var(--text-muted)]">{gate.area}</td>
                 <td className="py-3 pr-4 align-top font-medium">{gate.item}</td>
                 <td className="py-3 pr-4 align-top">
                   <span
@@ -244,8 +244,10 @@ export default async function ReadinessPage() {
                     {STATE_LABEL[gate.state]}
                   </span>
                 </td>
-                <td className="py-3 pr-4 align-top text-muted">{gate.owner.replace(/_/g, " ")}</td>
-                <td className="py-3 align-top text-muted">{gate.note}</td>
+                <td className="py-3 pr-4 align-top text-[var(--text-muted)]">
+                  {gate.owner.replace(/_/g, " ")}
+                </td>
+                <td className="py-3 align-top text-[var(--text-muted)]">{gate.note}</td>
               </tr>
             ))}
           </tbody>

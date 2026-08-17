@@ -12,11 +12,12 @@ export const metadata: Metadata = pageMetadata({
 
 export default function Page() {
   return (
-    <Section>
+    <Section orbs>
       <SectionHeading
         as="h1"
         eyebrow="Calculator"
         title="What could you comfortably carry?"
+        gradientWord="comfortably carry"
         description="This shows what a set of ratios implies. It is an illustration of arithmetic, not a preapproval, and it does not evaluate your credit."
       />
       <AffordabilityCalculator />

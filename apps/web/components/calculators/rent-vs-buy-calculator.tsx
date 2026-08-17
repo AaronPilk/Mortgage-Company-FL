@@ -68,7 +68,7 @@ export function RentVsBuyCalculator() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1.05fr_1fr]">
-      <div className="rounded-[--radius-lg] border border-line bg-white p-6 shadow-[--shadow-card]">
+      <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-6 shadow-[var(--shadow-card)]">
         <h3 className="text-lg font-semibold">Renting</h3>
         <div className="mt-5 grid gap-5 sm:grid-cols-2">
           <NumberInput
@@ -159,7 +159,7 @@ export function RentVsBuyCalculator() {
         </div>
 
         <h3 className="mt-8 text-lg font-semibold">Your assumptions</h3>
-        <p className="mt-1 text-xs text-muted">
+        <p className="mt-1 text-xs text-[var(--text-muted)]">
           These two are guesses about the future. They move the result more than anything else on
           this page, so try a pessimistic set as well as an optimistic one.
         </p>
@@ -193,7 +193,7 @@ export function RentVsBuyCalculator() {
 
       <div>
         <div
-          className="rounded-[--radius-lg] border border-line bg-purple-950 p-6 text-white"
+          className="rounded-2xl border border-[var(--border)] bg-purple-950 p-6 text-white"
           aria-live="polite"
         >
           <p className="text-sm font-semibold uppercase tracking-widest text-purple-300">
@@ -228,7 +228,7 @@ export function RentVsBuyCalculator() {
             />
           </dl>
 
-          <div className="mt-5 rounded-[--radius-sm] bg-purple-900 p-4">
+          <div className="mt-5 rounded-lg bg-purple-900 p-4">
             <p className="text-sm text-purple-200">
               This is a cash comparison, not a recommendation. It deliberately omits tax treatment,
               which is individual and belongs with a tax professional. Change appreciation by a

@@ -12,11 +12,12 @@ export const metadata: Metadata = pageMetadata({
 
 export default function Page() {
   return (
-    <Section>
+    <Section orbs>
       <SectionHeading
         as="h1"
         eyebrow="Calculator"
         title="How much cash do you actually need?"
+        gradientWord="actually need"
         description="The down payment is only part of it. This itemizes everything you bring on closing day and everything credited back to you."
       />
       <ClosingCostCalculator />

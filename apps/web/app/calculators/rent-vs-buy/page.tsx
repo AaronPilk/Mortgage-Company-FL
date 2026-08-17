@@ -12,11 +12,12 @@ export const metadata: Metadata = pageMetadata({
 
 export default function Page() {
   return (
-    <Section>
+    <Section orbs>
       <SectionHeading
         as="h1"
         eyebrow="Calculator"
         title="Rent or buy, on your assumptions"
+        gradientWord="your assumptions"
         description="There is no verdict button here. The assumptions drive the answer, so they are all editable and all visible."
       />
       <RentVsBuyCalculator />

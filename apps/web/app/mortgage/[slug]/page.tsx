@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
+  ArrowIcon,
   ButtonLink,
   Card,
+  CheckIcon,
+  CtaPanel,
   Disclosure,
   Eyebrow,
   Faq,
-  Prose,
   Section,
   SectionHeading
 } from "@/components/ui";
@@ -96,71 +98,91 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
         )}
       />
 
-      <Section width="narrow" className="pb-0">
-        <nav aria-label="Breadcrumb" className="mb-6 text-sm text-muted">
-          <Link href="/" className="hover:text-purple-700">
+      <Section width="narrow" pad="head" orbs>
+        <nav aria-label="Breadcrumb" className="mb-6 text-sm text-[var(--text-muted)]">
+          <Link href="/" className="hover:text-[var(--purple)]">
             Home
           </Link>
           <span aria-hidden="true"> / </span>
-          <Link href="/mortgage" className="hover:text-purple-700">
+          <Link href="/mortgage" className="hover:text-[var(--purple)]">
             Mortgage
           </Link>
           <span aria-hidden="true"> / </span>
           <span aria-current="page">{program.navLabel}</span>
         </nav>
         <Eyebrow>{program.eyebrow}</Eyebrow>
-        <h1 className="text-4xl font-bold sm:text-5xl">{program.h1}</h1>
-        <p className="mt-6 text-lg text-muted">{program.summary}</p>
+        <h1 className="text-4xl sm:text-5xl">{program.h1}</h1>
+        <p className="mt-6 text-lg text-[var(--text-muted)]">{program.summary}</p>
       </Section>
 
-      <Section width="narrow" className="py-10">
+      <Section width="narrow" pad="tight">
         <div className="grid gap-6 sm:grid-cols-2">
-          <Card>
-            <h2 className="text-lg font-semibold text-purple-900">This may fit if</h2>
-            <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-muted">
+          <Card className="border-t-2 !border-t-[var(--purple)]">
+            <h2 className="text-lg font-semibold text-[var(--text)]">This may fit if</h2>
+            <ul className="mt-4 space-y-2.5 text-sm text-[var(--text-muted)]">
               {program.mayFit.map((item) => (
-                <li key={item}>{item}</li>
+                <li key={item} className="flex gap-2.5">
+                  <CheckIcon />
+                  <span>{item}</span>
+                </li>
               ))}
             </ul>
           </Card>
           <Card>
-            <h2 className="text-lg font-semibold text-purple-900">Look at alternatives if</h2>
-            <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-muted">
+            <h2 className="text-lg font-semibold text-[var(--text)]">Look at alternatives if</h2>
+            <ul className="mt-4 space-y-2.5 text-sm text-[var(--text-muted)]">
               {program.exploreAlternativesIf.map((item) => (
-                <li key={item}>{item}</li>
+                <li key={item} className="flex gap-2.5">
+                  <ArrowIcon />
+                  <span>{item}</span>
+                </li>
               ))}
             </ul>
           </Card>
         </div>
       </Section>
 
-      <Section width="narrow" className="py-10">
-        <h2 className="text-3xl font-bold">How it works</h2>
-        <Prose>
-          {program.howItWorks.map((step) => (
-            <div key={step.heading}>
-              <h3>{step.heading}</h3>
-              <p>{step.body}</p>
-            </div>
+      <Section width="narrow" pad="tight">
+        <h2 className="text-3xl">How it works</h2>
+        <ol className="mt-8 space-y-6">
+          {program.howItWorks.map((step, index) => (
+            <li key={step.heading} className="flex gap-5">
+              <span
+                aria-hidden="true"
+                className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-sm font-bold"
+                style={{ background: "var(--purple-subtle)", color: "var(--purple)" }}
+              >
+                {index + 1}
+              </span>
+              <div>
+                <h3 className="text-xl font-semibold">{step.heading}</h3>
+                <p className="mt-1.5 leading-relaxed text-[var(--text-muted)]">{step.body}</p>
+              </div>
+            </li>
           ))}
-        </Prose>
+        </ol>
       </Section>
 
-      <Section width="narrow" className="py-10">
-        <h2 className="text-3xl font-bold">What moves the outcome</h2>
-        <dl className="mt-6 divide-y divide-line rounded-[--radius-lg] border border-line bg-white">
+      <Section width="narrow" pad="tight">
+        <h2 className="text-3xl">What moves the outcome</h2>
+        <dl className="mt-8 grid gap-4 sm:grid-cols-2">
           {program.variables.map((variable) => (
-            <div key={variable.label} className="p-5">
-              <dt className="font-semibold text-purple-900">{variable.label}</dt>
-              <dd className="mt-1 text-sm text-muted">{variable.body}</dd>
+            <div
+              key={variable.label}
+              className="surface hover-float rounded-2xl p-5 hover:border-[var(--purple)]"
+            >
+              <dt className="font-semibold text-[var(--text)]">{variable.label}</dt>
+              <dd className="mt-1.5 text-sm leading-relaxed text-[var(--text-muted)]">
+                {variable.body}
+              </dd>
             </div>
           ))}
         </dl>
       </Section>
 
       {program.relatedCalculators.length > 0 && (
-        <Section width="narrow" className="py-10">
-          <h2 className="text-3xl font-bold">Run the numbers</h2>
+        <Section width="narrow" pad="tight">
+          <h2 className="text-3xl">Run the numbers</h2>
           <ul className="mt-6 flex flex-wrap gap-3">
             {program.relatedCalculators.map((calculator) => (
               <li key={calculator.href}>
@@ -173,14 +195,14 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
         </Section>
       )}
 
-      <Section width="narrow" className="py-10">
-        <SectionHeading title="Questions people actually ask" as="h2" />
+      <Section width="narrow" pad="tight">
+        <SectionHeading title="Questions people actually ask" gradientWord="actually" as="h2" />
         <Faq items={program.faqs} />
       </Section>
 
-      <Section width="narrow" className="py-10">
-        <h2 className="text-2xl font-bold">Sources</h2>
-        <p className="mt-2 text-sm text-muted">
+      <Section width="narrow" pad="tight">
+        <h2 className="text-2xl">Sources</h2>
+        <p className="mt-2 text-sm text-[var(--text-muted)]">
           Program rules change. These are the primary sources this page is written against and the
           ones we check before advising anyone.
         </p>
@@ -188,27 +210,30 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
           {program.sources.map((source) => (
             <li key={source.url} className="text-sm">
               <a
-                className="text-purple-700 underline underline-offset-2"
+                className="font-medium text-[var(--purple)] underline underline-offset-4"
                 href={source.url}
                 rel="noopener noreferrer"
                 target="_blank"
               >
                 {source.title}
               </a>
-              <span className="text-muted"> — {source.publisher}</span>
+              <span className="text-[var(--text-muted)]"> — {source.publisher}</span>
             </li>
           ))}
         </ul>
-        <p className="mt-4 text-sm text-muted">Last reviewed 17 August 2026.</p>
+        <p className="mt-4 text-sm text-[var(--text-muted)]">Last reviewed 17 August 2026.</p>
       </Section>
 
       {related.length > 0 && (
-        <Section width="narrow" className="py-10">
-          <h2 className="text-2xl font-bold">Related</h2>
-          <ul className="mt-4 grid gap-4 sm:grid-cols-3">
+        <Section width="narrow" pad="tight">
+          <h2 className="text-2xl">Related</h2>
+          <ul className="mt-6 grid gap-4 sm:grid-cols-3">
             {related.map((entry) => (
-              <Card as="li" key={entry.slug}>
-                <Link href={`/mortgage/${entry.slug}`} className="font-semibold text-purple-800">
+              <Card as="li" key={entry.slug} interactive className="!p-0">
+                <Link
+                  href={`/mortgage/${entry.slug}`}
+                  className="block p-5 font-semibold text-[var(--purple)]"
+                >
                   {entry.navLabel}
                 </Link>
               </Card>
@@ -217,19 +242,16 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
         </Section>
       )}
 
-      <Section width="narrow" className="py-10">
-        <Card className="bg-purple-950 text-white">
-          <h2 className="text-2xl font-bold text-white">Talk it through with someone licensed</h2>
-          <p className="mt-3 text-purple-100">
-            The page above is education. Your actual options depend on your full picture, and that
-            takes a conversation. No credit pull, no application, no obligation.
-          </p>
-          <div className="mt-6">
-            <ButtonLink href="/contact" variant="secondary" data-cta={`program-${program.slug}`}>
-              Talk to a mortgage professional
-            </ButtonLink>
-          </div>
-        </Card>
+      <Section width="narrow" pad="tight">
+        <CtaPanel
+          title="Talk it through with someone licensed"
+          body="The page above is education. Your actual options depend on your full picture, and that takes a conversation. No credit pull, no application, no obligation."
+          primary={{
+            href: "/contact",
+            label: "Talk to a mortgage professional",
+            cta: `program-${program.slug}`
+          }}
+        />
         <Disclosure
           headline="This page is educational, not an offer."
           body="TRACT Mortgage is a mortgage brokerage and arranges, but does not make, mortgage loans. Nothing here is a rate quote, a preapproval, a commitment to lend, or a statement that you qualify for any program. Program terms are set by the agency, insurer, or investor and by each lender's own overlays, and they change."

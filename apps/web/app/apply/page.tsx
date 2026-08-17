@@ -21,7 +21,7 @@ export default function ApplyPage() {
   const destination = env().SECURE_APPLICATION_URL;
 
   return (
-    <Section width="narrow">
+    <Section width="narrow" orbs>
       <SectionHeading
         as="h1"
         eyebrow="Apply"
@@ -62,7 +62,7 @@ export default function ApplyPage() {
         {features.secureApplication && destination !== undefined ? (
           <>
             <h2 className="text-xl font-semibold">Continue to the secure application</h2>
-            <p className="mt-2 text-sm text-muted">
+            <p className="mt-2 text-sm text-[var(--text-muted)]">
               You are leaving this website. Your information is entered directly into the secure
               system, not through this page.
             </p>
@@ -75,7 +75,7 @@ export default function ApplyPage() {
         ) : (
           <>
             <h2 className="text-xl font-semibold">Applications are not open yet</h2>
-            <p className="mt-2 text-sm text-muted">
+            <p className="mt-2 text-sm text-[var(--text-muted)]">
               The secure application system is not connected yet, and we will not collect
               application information any other way in the meantime. Start with a conversation and
               we will let you know the moment it is available.

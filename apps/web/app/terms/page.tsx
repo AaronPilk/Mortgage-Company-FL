@@ -18,11 +18,11 @@ export const metadata: Metadata = pageMetadata({
 export default function Page() {
   return (
     <Section width="narrow">
-      <p className="mb-4 rounded-[--radius-sm] border border-warning/40 bg-warning/5 px-4 py-3 text-sm text-warning">
+      <p className="mb-4 rounded-lg border border-warning/40 bg-warning/5 px-4 py-3 text-sm text-warning">
         Draft. This page requires review by qualified counsel before launch.
       </p>
       <h1 className="text-4xl font-bold">Website terms</h1>
-      <p className="mt-3 text-sm text-muted">Last updated 17 August 2026.</p>
+      <p className="mt-3 text-sm text-[var(--text-muted)]">Last updated 17 August 2026.</p>
       <div className="mt-8">
         <Prose>
           <h2>Nothing here is an offer of credit</h2>

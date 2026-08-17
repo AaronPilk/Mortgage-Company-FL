@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc -p tsconfig.json",
-    "test:e2e": "playwright test",
+    "test:e2e": "NEXT_PUBLIC_SITE_URL=http://127.0.0.1:3100 next build && playwright test",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"
   },

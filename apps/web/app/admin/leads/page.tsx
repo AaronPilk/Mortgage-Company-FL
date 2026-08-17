@@ -7,7 +7,9 @@ export default async function Page() {
     return (
       <div>
         <h1 className="text-3xl font-bold">Leads</h1>
-        <p className="mt-4 text-muted">Your role does not include access to this view.</p>
+        <p className="mt-4 text-[var(--text-muted)]">
+          Your role does not include access to this view.
+        </p>
       </div>
     );
   }
@@ -16,7 +18,7 @@ export default async function Page() {
     <div>
       <h1 className="text-3xl font-bold">Leads</h1>
       <Card className="mt-6">
-        <p className="text-muted">
+        <p className="text-[var(--text-muted)]">
           Server-paginated lead list with masked contact details until an explicit reveal, a
           per-lead timeline of receipt, consent, sync, assignment, and handoff, and an audit record
           on every material change. Bulk export is disabled by default. Requires a configured

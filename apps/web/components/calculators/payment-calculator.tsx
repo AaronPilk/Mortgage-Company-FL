@@ -41,10 +41,10 @@ function NumericField({
   return (
     <div>
       <div className="flex items-baseline justify-between gap-3">
-        <label htmlFor={id} className="text-sm font-semibold text-ink">
+        <label htmlFor={id} className="text-sm font-semibold text-[var(--text)]">
           {label}
         </label>
-        <output htmlFor={id} className="text-sm font-semibold tabular-nums text-purple-800">
+        <output htmlFor={id} className="text-sm font-semibold tabular-nums text-[var(--purple)]">
           {format(value)}
         </output>
       </div>
@@ -56,9 +56,9 @@ function NumericField({
         step={step}
         value={value}
         onChange={(event) => onChange(Number(event.target.value))}
-        className="mt-2 w-full accent-purple-700"
+        className="mt-2 w-full accent-[var(--purple)]"
       />
-      {hint !== undefined && <p className="mt-1 text-xs text-muted">{hint}</p>}
+      {hint !== undefined && <p className="mt-1 text-xs text-[var(--text-muted)]">{hint}</p>}
     </div>
   );
 }
@@ -127,7 +127,7 @@ export function PaymentCalculator() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1.05fr_1fr]">
-      <div className="rounded-[--radius-lg] border border-line bg-white p-6 shadow-[--shadow-card]">
+      <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-6 shadow-[var(--shadow-card)]">
         <h3 className="text-lg font-semibold">Your inputs</h3>
         <div className="mt-6 space-y-6">
           <NumericField
@@ -162,14 +162,14 @@ export function PaymentCalculator() {
             hint="An assumption you control. This is not a quoted rate and no rate is being offered."
           />
           <div>
-            <label htmlFor="calc-term" className="text-sm font-semibold text-ink">
+            <label htmlFor="calc-term" className="text-sm font-semibold text-[var(--text)]">
               Loan term
             </label>
             <select
               id="calc-term"
               value={termMonths}
               onChange={(event) => setTermMonths(Number(event.target.value))}
-              className="mt-2 w-full rounded-[--radius-sm] border border-line bg-white px-3 py-2.5 text-sm"
+              className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--bg)] px-3 py-2.5 text-sm"
             >
               <option value={360}>30 years</option>
               <option value={240}>20 years</option>
@@ -227,7 +227,7 @@ export function PaymentCalculator() {
 
       <div>
         <div
-          className="rounded-[--radius-lg] border border-line bg-purple-950 p-6 text-white"
+          className="rounded-2xl border border-[var(--border)] bg-purple-950 p-6 text-white"
           aria-live="polite"
         >
           <p className="text-sm font-semibold uppercase tracking-widest text-purple-300">

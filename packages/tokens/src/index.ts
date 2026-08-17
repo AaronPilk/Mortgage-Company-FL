@@ -1,49 +1,60 @@
 /**
  * Design tokens.
  *
- * CSS custom properties are the canonical runtime for the web. These typed
- * exports exist so a later Expo application can consume the same values without
- * forcing every visual component through one cross-platform abstraction.
+ * CSS custom properties in apps/web/app/globals.css are the canonical runtime.
+ * These typed exports mirror them so a later Expo client consumes the same
+ * values without forcing every visual component through one cross-platform
+ * abstraction.
  */
 
-export const color = {
-  purple950: "#21103d",
-  purple900: "#2f1755",
-  purple800: "#45217a",
-  purple700: "#5b2ea6",
-  purple600: "#7446c8",
-  purple500: "#8c65dd",
-  purple300: "#c9b7f2",
-  purple100: "#f0eafd",
-  purple50: "#f8f5ff",
-  ink: "#17131d",
-  muted: "#645d6f",
-  line: "#e8e2ee",
-  surface: "#ffffff",
-  canvas: "#fbfafe",
-  success: "#1f7a55",
+export const light = {
+  bg: "#ffffff",
+  surface: "#f4f4f8",
+  surface2: "#ebebf2",
+  text: "#0a0a0a",
+  textMuted: "#616873",
+  purple: "#7c3aed",
+  purpleDark: "#5b21b6",
+  purpleLight: "#a855f7"
+} as const;
+
+export const dark = {
+  bg: "#09090f",
+  surface: "#13131f",
+  surface2: "#1c1c2e",
+  text: "#f0f0f8",
+  textMuted: "#9ca3af",
+  purple: "#9b5ef5",
+  purpleDark: "#7c3aed",
+  purpleLight: "#c084fc"
+} as const;
+
+export const status = {
+  success: "#0f7a4f",
   warning: "#a45d07",
   danger: "#b4233a"
 } as const;
 
 export const radius = {
   sm: "0.5rem",
-  md: "0.875rem",
-  lg: "1.25rem",
-  xl: "1.75rem"
+  md: "0.75rem",
+  lg: "1rem",
+  xl: "1.5rem",
+  xl2: "2rem"
 } as const;
 
 export const contentWidth = {
-  narrow: "44rem",
-  default: "72rem",
+  narrow: "46rem",
+  default: "74rem",
   wide: "88rem"
 } as const;
 
-export type ColorToken = keyof typeof color;
+export const fontStack =
+  'Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
 
 /**
  * Relative luminance and contrast ratio, used by a unit test to prove the
- * shipped text pairings meet WCAG AA rather than asserting it in a doc.
+ * shipped text pairings meet WCAG AA rather than asserting it in a document.
  */
 export function relativeLuminance(hex: string): number {
   const value = hex.replace("#", "");

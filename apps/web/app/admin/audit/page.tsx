@@ -7,7 +7,9 @@ export default async function Page() {
     return (
       <div>
         <h1 className="text-3xl font-bold">Audit</h1>
-        <p className="mt-4 text-muted">Your role does not include access to this view.</p>
+        <p className="mt-4 text-[var(--text-muted)]">
+          Your role does not include access to this view.
+        </p>
       </div>
     );
   }
@@ -16,7 +18,7 @@ export default async function Page() {
     <div>
       <h1 className="text-3xl font-bold">Audit</h1>
       <Card className="mt-6">
-        <p className="text-muted">
+        <p className="text-[var(--text-muted)]">
           Append-only privileged action history. Readable by admin and compliance reviewer roles
           only; there is no update or delete path from anywhere in the application.
         </p>

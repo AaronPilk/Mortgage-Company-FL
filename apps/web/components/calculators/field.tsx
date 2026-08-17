@@ -30,11 +30,11 @@ export function NumberInput({
 }) {
   return (
     <div>
-      <label htmlFor={id} className="text-sm font-semibold text-ink">
+      <label htmlFor={id} className="text-sm font-semibold text-[var(--text)]">
         {label}
       </label>
-      <div className="mt-1.5 flex items-center gap-2 rounded-[--radius-sm] border border-line bg-white px-3 focus-within:border-purple-600">
-        {prefix !== undefined && <span className="text-sm text-muted">{prefix}</span>}
+      <div className="mt-1.5 flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--bg)] px-3 focus-within:border-[var(--purple)]">
+        {prefix !== undefined && <span className="text-sm text-[var(--text-muted)]">{prefix}</span>}
         <input
           id={id}
           type="number"
@@ -46,7 +46,7 @@ export function NumberInput({
           className="min-h-[44px] w-full bg-transparent py-2 text-base outline-none"
         />
       </div>
-      {hint !== undefined && <p className="mt-1 text-xs text-muted">{hint}</p>}
+      {hint !== undefined && <p className="mt-1 text-xs text-[var(--text-muted)]">{hint}</p>}
     </div>
   );
 }

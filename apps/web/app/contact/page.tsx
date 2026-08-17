@@ -18,11 +18,12 @@ export const metadata: Metadata = pageMetadata({
 
 export default function ContactPage() {
   return (
-    <Section>
+    <Section orbs>
       <SectionHeading
         as="h1"
         eyebrow="Contact"
         title="Tell us what you are working on"
+        gradientWord="working on"
         description="A licensed mortgage professional will get back to you to understand your situation and lay out what your options actually are."
       />
       <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
@@ -36,8 +37,8 @@ export default function ContactPage() {
         />
         <div className="space-y-6">
           <Card>
-            <h2 className="text-lg font-semibold text-purple-900">What happens next</h2>
-            <ol className="mt-4 list-decimal space-y-3 pl-5 text-sm text-muted">
+            <h2 className="text-lg font-semibold text-[var(--text)]">What happens next</h2>
+            <ol className="mt-4 list-decimal space-y-3 pl-5 text-sm text-[var(--text-muted)]">
               <li>A licensed mortgage professional reviews what you sent and reaches out.</li>
               <li>
                 You have a conversation about your situation. No credit is pulled and no application
@@ -50,8 +51,8 @@ export default function ContactPage() {
             </ol>
           </Card>
           <Card>
-            <h2 className="text-lg font-semibold text-purple-900">What we will not do</h2>
-            <ul className="mt-4 list-disc space-y-2 pl-5 text-sm text-muted">
+            <h2 className="text-lg font-semibold text-[var(--text)]">What we will not do</h2>
+            <ul className="mt-4 list-disc space-y-2 pl-5 text-sm text-[var(--text-muted)]">
               <li>Pull your credit without your explicit permission</li>
               <li>Quote you a rate before we understand your situation</li>
               <li>Tell you that you are approved for anything before a lender says so</li>
@@ -59,8 +60,8 @@ export default function ContactPage() {
             </ul>
           </Card>
           <Card>
-            <h2 className="text-lg font-semibold text-purple-900">Licensing</h2>
-            <p className="mt-3 text-sm text-muted">
+            <h2 className="text-lg font-semibold text-[var(--text)]">Licensing</h2>
+            <p className="mt-3 text-sm text-[var(--text-muted)]">
               {businessIdentity.brandName} is a Florida mortgage brokerage. Our license identifiers
               appear in the footer and can be verified on NMLS Consumer Access.
             </p>

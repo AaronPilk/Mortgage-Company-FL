@@ -21,18 +21,19 @@ export default function VisionPage() {
   const features = publicFeatures();
 
   return (
-    <Section width="narrow">
+    <Section width="narrow" orbs>
       <SectionHeading
         as="h1"
         eyebrow="TRACT Vision"
         title="Model a property before you commit"
+        gradientWord="before you commit"
         description="Renovation, addition, rental, and flip scenarios — with the sources and assumptions visible, not hidden behind a score."
       />
 
       {!features.vision && (
-        <Card className="border-purple-300 bg-purple-50">
-          <h2 className="text-lg font-semibold text-purple-900">Not available yet</h2>
-          <p className="mt-3 text-sm text-muted">
+        <Card className="border-[var(--purple)] bg-[var(--purple-subtle)]">
+          <h2 className="text-lg font-semibold text-[var(--text)]">Not available yet</h2>
+          <p className="mt-3 text-sm text-[var(--text-muted)]">
             Vision is in development. It is switched off rather than running on sample data, because
             a workspace that presents synthetic figures as analysis is worse than one that is
             honestly unavailable.

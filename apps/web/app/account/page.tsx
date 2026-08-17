@@ -18,7 +18,7 @@ export default function AccountPage() {
     <Section width="narrow">
       <SectionHeading as="h1" eyebrow="Account" title="Saved scenarios and reports" />
       <Card>
-        <p className="text-muted">
+        <p className="text-[var(--text-muted)]">
           {features.accounts
             ? "Sign in to see scenarios you have saved. Nothing sensitive is stored here — saved calculator scenarios contain only the inputs you chose."
             : "Accounts are not enabled in this environment."}
