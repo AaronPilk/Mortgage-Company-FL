@@ -332,6 +332,13 @@ export const ROUTE_REGISTRY: RouteEntry[] = [
     contentGroup: "vision"
   },
   {
+    path: "/vision/start",
+    priority: 0.4,
+    changeFrequency: "monthly",
+    indexable: false,
+    contentGroup: "vision"
+  },
+  {
     path: "/rendprop",
     priority: 0.5,
     changeFrequency: "monthly",

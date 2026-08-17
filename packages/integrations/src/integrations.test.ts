@@ -309,7 +309,9 @@ describe("listing provider", () => {
   });
 
   it("unpublishes records that vanished from the provider or lost display status", async () => {
-    const page = await new FixtureListingProvider().search({ market: "FL", limit: 10 });
+    // The limit covers the whole fixture corpus: this asserts on which records
+    // are stale, not on which ones fit a page.
+    const page = await new FixtureListingProvider().search({ market: "FL", limit: 100 });
     const stale = recordsToUnpublish(page.items, new Set(["FX-TPA-0001", "FX-ORL-0002"]));
     expect(stale.map((item) => item.listingKey)).toContain("FX-JAX-0003");
     // A closed record is unpublished even if the provider still returns it.

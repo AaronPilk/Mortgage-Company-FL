@@ -21,6 +21,7 @@ export default defineConfig({
       "@tract/integrations": r("packages/integrations/src/index.ts"),
       "@tract/database": r("packages/database/src/index.ts"),
       "@tract/testing": r("packages/testing/src/index.ts"),
+      "@tract/vision-model": r("packages/vision-model/src/index.ts"),
       // `server-only` is a build-time guard that makes importing a server
       // module from a client component a hard error. It has no runtime in a
       // plain Node test process, so it is stubbed rather than the modules

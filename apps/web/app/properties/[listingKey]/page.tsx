@@ -1,0 +1,279 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { isDisplayable } from "@tract/integrations";
+import { formatUsd } from "@tract/mortgage-math";
+import { Badge, ButtonLink, Card, CtaPanel, Disclosure, Section } from "@/components/ui";
+import { pageMetadata } from "@/lib/metadata";
+import { publicFeatures } from "@/lib/env";
+import { fixturesAllowed, listings } from "@/lib/listings";
+import { GalleryPlaceholder } from "@/components/properties/gallery-placeholder";
+import { PaymentEstimatePanel } from "@/components/properties/payment-estimate-panel";
+import { SampleDataBadge, SampleDataBanner } from "@/components/properties/sample-data-notice";
+import {
+  STATUS_LABEL,
+  cityLine,
+  formatCount,
+  formatDaysOnMarket,
+  formatLotSize,
+  formatSqft,
+  formatTimestamp,
+  streetLine
+} from "@/components/properties/listing-format";
+
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ listingKey: string }>;
+}): Promise<Metadata> {
+  const { listingKey } = await params;
+  const listing = await listings().getByKey(decodeURIComponent(listingKey));
+
+  // Every property detail path is noindex while the provider is a fixture. A
+  // sample property must not become a search result.
+  if (listing === null) {
+    return pageMetadata({
+      title: "Property not found",
+      description: "",
+      path: "/properties",
+      noIndex: true
+    });
+  }
+
+  return pageMetadata({
+    title: `Sample property — ${streetLine(listing)}, ${cityLine(listing)}`,
+    description:
+      "An illustrative sample property used to demonstrate the property detail page and the payment estimate. Not an active listing.",
+    path: `/properties/${listing.listingKey}`,
+    noIndex: true
+  });
+}
+
+/**
+ * Property detail.
+ *
+ * NO STRUCTURED DATA IS EMITTED HERE, DELIBERATELY.
+ * ------------------------------------------------
+ * This is where a `RealEstateListing`, `Offer`, `Residence`, or `Product` node
+ * would normally live, and it is exactly where it must not. The record is a
+ * fixture: emitting listing markup would assert to a search engine that this
+ * property exists, is for sale, and costs the stated amount. A crawler never
+ * sees the sample-data banner a person reads, so the markup would be an
+ * unqualified false claim — invariant 6, and a misrepresentation to third
+ * parties besides.
+ *
+ * When a contracted provider replaces the fixture adapter, listing structured
+ * data may be added, gated on `provider.key !== "fixture"` and on the display
+ * agreement permitting syndication of those fields. `BreadcrumbList` is also
+ * withheld for now because the page it describes is noindex.
+ */
+export default async function PropertyDetailPage({
+  params
+}: {
+  params: Promise<{ listingKey: string }>;
+}) {
+  const features = publicFeatures();
+  const provider = listings();
+
+  if (!features.propertySearch || provider.key === "disabled" || !fixturesAllowed()) notFound();
+
+  const { listingKey } = await params;
+  const listing = await provider.getByKey(decodeURIComponent(listingKey));
+
+  // A record outside the publicly displayable statuses is not "not found" by
+  // accident — a withdrawn or closed record must disappear from public surfaces
+  // promptly, and 404 is how that is enforced here.
+  if (listing === null || !isDisplayable(listing, fixturesAllowed())) notFound();
+
+  const dataAsOf = formatTimestamp(await provider.dataAsOf());
+  const updated = formatTimestamp(listing.modificationTimestamp);
+
+  const facts: { label: string; value: string }[] = [
+    { label: "Property type", value: listing.propertyType ?? "Not stated" },
+    { label: "Status", value: STATUS_LABEL[listing.standardStatus] },
+    { label: "Bedrooms", value: formatCount(listing.bedrooms, "bedroom", "bedrooms") ?? "—" },
+    { label: "Bathrooms", value: formatCount(listing.bathrooms, "bathroom", "bathrooms") ?? "—" },
+    { label: "Living area", value: formatSqft(listing.livingAreaSqft) ?? "—" },
+    { label: "Lot size", value: formatLotSize(listing.lotSizeSqft) ?? "—" },
+    {
+      label: "Year built",
+      value: listing.yearBuilt === undefined ? "—" : String(listing.yearBuilt)
+    },
+    { label: "Days on market", value: formatDaysOnMarket(listing.daysOnMarket) ?? "—" },
+    {
+      label: "Association dues",
+      value:
+        listing.monthlyHoaFeeCents === undefined
+          ? "None stated"
+          : `${formatUsd(listing.monthlyHoaFeeCents)} per month`
+    },
+    {
+      label: "Annual property tax",
+      value:
+        listing.annualTaxAmountCents === undefined
+          ? "Not stated"
+          : formatUsd(listing.annualTaxAmountCents)
+    },
+    { label: "Listing key", value: listing.listingKey }
+  ];
+
+  return (
+    <>
+      <Section pad="head">
+        <nav aria-label="Breadcrumb" className="mb-6 text-sm text-[var(--text-muted)]">
+          <Link href="/" className="hover:text-[var(--purple)]">
+            Home
+          </Link>
+          <span aria-hidden="true"> / </span>
+          <Link href="/properties" className="hover:text-[var(--purple)]">
+            Properties
+          </Link>
+          <span aria-hidden="true"> / </span>
+          <span aria-current="page">{streetLine(listing)}</span>
+        </nav>
+
+        <SampleDataBanner scope="detail" />
+
+        <div className="mt-8 flex flex-wrap items-center gap-3">
+          {listing.isFixture && <SampleDataBadge />}
+          <Badge tone={listing.standardStatus === "active" ? "success" : "neutral"}>
+            {STATUS_LABEL[listing.standardStatus]}
+          </Badge>
+        </div>
+
+        <h1 className="mt-4 text-3xl sm:text-4xl">{streetLine(listing)}</h1>
+        <p className="mt-2 text-lg" style={{ color: "var(--text-muted)" }}>
+          {cityLine(listing)}
+        </p>
+        <p className="mt-5 text-4xl font-bold" style={{ color: "var(--text)" }}>
+          {listing.listPriceCents === undefined
+            ? "Price on request"
+            : formatUsd(listing.listPriceCents)}
+        </p>
+      </Section>
+
+      <Section pad="tight">
+        <GalleryPlaceholder listingKey={listing.listingKey} />
+      </Section>
+
+      <Section pad="tight">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
+          <div className="space-y-8">
+            <Card>
+              <h2 className="text-xl font-semibold">Property facts</h2>
+              <dl className="mt-5 grid gap-x-8 gap-y-4 sm:grid-cols-2">
+                {facts.map((fact) => (
+                  <div key={fact.label}>
+                    <dt
+                      className="text-xs uppercase tracking-[0.1em]"
+                      style={{ color: "var(--text-muted)" }}
+                    >
+                      {fact.label}
+                    </dt>
+                    <dd className="mt-1 font-semibold" style={{ color: "var(--text)" }}>
+                      {fact.value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+              <p className="mt-6 text-xs" style={{ color: "var(--text-muted)" }}>
+                A dash means the sample record does not carry that figure. It is shown as absent
+                rather than as a zero, because an unknown value and a zero value are not the same
+                thing.
+              </p>
+            </Card>
+
+            {listing.description !== undefined && (
+              <Card>
+                <h2 className="text-xl font-semibold">Description</h2>
+                <p className="mt-4 leading-relaxed" style={{ color: "var(--text-muted)" }}>
+                  {listing.description}
+                </p>
+              </Card>
+            )}
+
+            <Card>
+              <h2 className="text-xl font-semibold">Source and freshness</h2>
+              <dl className="mt-4 space-y-3 text-sm">
+                <div>
+                  {/* Attribution travels with the record and is never stripped for layout. */}
+                  <dt className="font-semibold" style={{ color: "var(--text)" }}>
+                    Attribution
+                  </dt>
+                  <dd style={{ color: "var(--text-muted)" }}>{listing.attributionText}</dd>
+                </div>
+                <div>
+                  <dt className="font-semibold" style={{ color: "var(--text)" }}>
+                    Provider
+                  </dt>
+                  <dd style={{ color: "var(--text-muted)" }}>
+                    {listing.provider} ({listing.isFixture ? "sample records" : "licensed feed"})
+                  </dd>
+                </div>
+                {updated !== null && (
+                  <div>
+                    <dt className="font-semibold" style={{ color: "var(--text)" }}>
+                      Record last modified
+                    </dt>
+                    <dd style={{ color: "var(--text-muted)" }}>{updated} ET</dd>
+                  </div>
+                )}
+                {dataAsOf !== null && (
+                  <div>
+                    <dt className="font-semibold" style={{ color: "var(--text)" }}>
+                      Data as of
+                    </dt>
+                    <dd style={{ color: "var(--text-muted)" }}>{dataAsOf} ET</dd>
+                  </div>
+                )}
+              </dl>
+            </Card>
+          </div>
+
+          <div className="space-y-6">
+            <PaymentEstimatePanel listing={listing} />
+
+            <Card>
+              <h2 className="text-lg font-semibold">Talk it through</h2>
+              <p className="mt-3 text-sm" style={{ color: "var(--text-muted)" }}>
+                The estimate above uses assumptions we picked. What you would actually pay depends
+                on the rate you can get, the down payment you make, the insurance quote on the
+                specific building, and the program you use. That takes a conversation.
+              </p>
+              <div className="mt-5 flex flex-col gap-3">
+                <ButtonLink href="/contact" data-cta={`property-detail-${listing.listingKey}`}>
+                  Talk to a mortgage professional
+                </ButtonLink>
+                <ButtonLink href="/calculators/mortgage-payment" variant="secondary">
+                  Estimate my payment
+                </ButtonLink>
+                <ButtonLink href="/properties" variant="ghost">
+                  Back to search
+                </ButtonLink>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </Section>
+
+      <Section pad="tight">
+        <CtaPanel
+          title="Financing questions do not need a listing"
+          body="Whether it is this sample, a property you found elsewhere, or something not on the market yet, we will work through what financing it looks like before you write an offer."
+          primary={{
+            href: "/contact",
+            label: "Talk to a mortgage professional",
+            cta: "property-detail"
+          }}
+          secondary={{ href: "/calculators/mortgage-payment", label: "Estimate my payment" }}
+        />
+        <Disclosure
+          headline="This property is an illustrative sample, not a listing."
+          body="This record was invented to demonstrate how a property detail page works. The address uses a reserved example street name, and the price, facts, and description are made up. It is not for sale, it does not exist, and none of it comes from an MLS, a public record, or a listing portal. TRACT Mortgage is a mortgage brokerage and arranges, but does not make, mortgage loans. Nothing here is a rate quote, a preapproval, or a commitment to lend."
+        />
+      </Section>
+    </>
+  );
+}

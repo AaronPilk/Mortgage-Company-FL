@@ -1,10 +1,16 @@
 import type { Metadata } from "next";
-import { ButtonLink, Card, Disclosure, Section, SectionHeading } from "@/components/ui";
+import { ButtonLink, Card, CtaPanel, Disclosure, Section, SectionHeading } from "@/components/ui";
 import { pageMetadata } from "@/lib/metadata";
 import { publicFeatures } from "@/lib/env";
 import { fixturesAllowed, listings } from "@/lib/listings";
-import { isDisplayable } from "@tract/integrations";
-import { formatUsd } from "@tract/mortgage-math";
+import { PAGE_SIZE, parseCriteria, propertiesHref } from "@/components/properties/criteria";
+import { toProviderInput } from "@/components/properties/criteria";
+import { GalleryPlaceholder } from "@/components/properties/gallery-placeholder";
+import { ListingCard } from "@/components/properties/listing-card";
+import { ListingPagination } from "@/components/properties/pagination";
+import { SampleDataBanner } from "@/components/properties/sample-data-notice";
+import { SearchFilters } from "@/components/properties/search-filters";
+import { formatTimestamp } from "@/components/properties/listing-format";
 
 export const metadata: Metadata = pageMetadata({
   title: "Property search",
@@ -18,17 +24,43 @@ export const dynamic = "force-dynamic";
 /**
  * Property search.
  *
- * Requires both the feature flag and a configured provider. Fixture records
- * carry `isFixture` and are filtered out unless fixtures are explicitly allowed,
- * which they are not in production — the database enforces the same rule.
+ * Search state lives entirely in the query string, so every result set is a URL
+ * somebody can send to a co-buyer or an agent and get the same page back. The
+ * page is server-rendered from that URL; there is no client-side search state
+ * to diverge from it.
  *
- * Filter permutations are noindex. A crawlable URL for every combination of
- * price, beds, and bounds is thin content at scale.
+ * NO STRUCTURED DATA IS EMITTED HERE, DELIBERATELY.
+ * ------------------------------------------------
+ * The records on this page are fixtures. Real-estate structured data
+ * (`RealEstateListing`, `Offer`, `Residence`, `Product`) is a machine-readable
+ * assertion to a search engine that a thing exists, is for sale, and costs a
+ * stated amount. Emitting it over invented records would be a false claim made
+ * at scale to a party that cannot see the "sample data" banner a human reads —
+ * invariant 6, and a straightforward misrepresentation besides.
+ *
+ * When a contracted provider replaces the fixture adapter, listing structured
+ * data may be added here, gated on `provider.key !== "fixture"` and on the
+ * display agreement actually permitting syndication of that field set. Until
+ * then the correct amount of markup is none. The same rule governs the detail
+ * page, which is where a listing node would normally live.
+ *
+ * Filter permutations are noindex for a second reason: a crawlable URL for every
+ * combination of price, beds, and status is thin content at scale.
  */
-export default async function PropertiesPage() {
+export default async function PropertiesPage({
+  searchParams
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const features = publicFeatures();
+  const provider = listings();
 
-  if (!features.propertySearch) {
+  // A fixture provider outside development is the same situation as no provider
+  // at all: there is nothing publishable to show. Invariant 6.
+  const providerUnavailable =
+    !features.propertySearch || provider.key === "disabled" || !fixturesAllowed();
+
+  if (providerUnavailable) {
     return (
       <Section width="narrow">
         <SectionHeading
@@ -53,56 +85,126 @@ export default async function PropertiesPage() {
     );
   }
 
-  const provider = listings();
-  const page = await provider.search({
-    market: "FL",
-    limit: 12,
-    status: ["active", "coming_soon"]
-  });
-  const visible = page.items.filter((listing) => isDisplayable(listing, fixturesAllowed()));
+  const { criteria, valid } = parseCriteria(await searchParams);
+  const page = await provider.search(toProviderInput(criteria, { pageSize: PAGE_SIZE }));
+
+  const firstIndex = (criteria.page - 1) * PAGE_SIZE;
+  const rangeStart = page.items.length === 0 ? 0 : firstIndex + 1;
+  const rangeEnd = firstIndex + page.items.length;
+  const dataAsOf = formatTimestamp(page.dataAsOf);
+  const anyFixture = page.items.some((listing) => listing.isFixture);
 
   return (
-    <Section>
-      <SectionHeading as="h1" eyebrow="Properties" title="Property search" />
-      <p className="mb-6 text-sm text-[var(--text-muted)]">
-        Data as of {new Date(page.dataAsOf).toLocaleString("en-US")}.
-      </p>
-      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {visible.map((listing) => (
-          <Card as="li" key={`${listing.provider}:${listing.listingKey}`}>
-            <p className="text-lg font-semibold text-[var(--text)]">
-              {listing.listPriceCents === undefined
-                ? "Price on request"
-                : formatUsd(listing.listPriceCents)}
-            </p>
-            <p className="mt-1 text-sm text-[var(--text)]">
-              {listing.address.line1}, {listing.address.city}, {listing.address.state}{" "}
-              {listing.address.postalCode}
-            </p>
-            <p className="mt-2 text-sm text-[var(--text-muted)]">
-              {listing.bedrooms} bd · {listing.bathrooms} ba · {listing.livingAreaSqft} sq ft
-            </p>
-            {/* Attribution is required by the display agreement and is never omitted. */}
-            <p className="mt-3 text-xs text-[var(--text-muted)]">{listing.attributionText}</p>
-            {listing.modificationTimestamp !== undefined && (
-              <p className="text-xs text-[var(--text-muted)]">
-                Updated {new Date(listing.modificationTimestamp).toLocaleDateString("en-US")}
-              </p>
-            )}
-          </Card>
-        ))}
-      </ul>
-      {visible.length === 0 && (
-        <Card>
-          <p className="text-[var(--text-muted)]">
-            No listings are available to display right now.
+    <>
+      <Section pad="head" orbs>
+        <SectionHeading
+          as="h1"
+          eyebrow="Properties"
+          title="Search properties, then model the financing"
+          gradientWord="model the financing"
+          description="Filter by place, price, size, and status. Every result links to a detail page with an estimated monthly payment built from the list price."
+        />
+        <SampleDataBanner scope="search" />
+      </Section>
+
+      <Section pad="tight">
+        <SearchFilters criteria={criteria} />
+
+        {!valid && (
+          <p
+            role="status"
+            className="mt-4 text-sm font-medium"
+            style={{ color: "var(--color-warning)" }}
+          >
+            Part of that link could not be read, so the filters it could not parse were ignored.
           </p>
-        </Card>
+        )}
+
+        <div className="mt-8 flex flex-wrap items-baseline justify-between gap-3">
+          <p aria-live="polite" className="text-lg font-semibold" style={{ color: "var(--text)" }}>
+            {page.totalCount === 0
+              ? "No sample properties match"
+              : `${page.totalCount} sample ${page.totalCount === 1 ? "property" : "properties"} match`}
+            {page.totalCount > 0 && (
+              <span className="ml-2 text-sm font-medium" style={{ color: "var(--text-muted)" }}>
+                showing {rangeStart}–{rangeEnd}
+              </span>
+            )}
+          </p>
+          {dataAsOf !== null && (
+            <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+              Sample data as of {dataAsOf} ET
+            </p>
+          )}
+        </div>
+
+        {page.items.length > 0 ? (
+          <ul className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {page.items.map((listing) => (
+              <ListingCard key={`${listing.provider}:${listing.listingKey}`} listing={listing} />
+            ))}
+          </ul>
+        ) : (
+          <Card className="mt-6">
+            <h2 className="text-xl font-semibold">Nothing matched those filters</h2>
+            <p className="mt-3 text-[var(--text-muted)]">
+              This is a small set of illustrative sample properties, so a narrow filter empties it
+              quickly. Widening the price range or clearing the property type usually brings results
+              back.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <ButtonLink href="/properties" variant="secondary">
+                Clear all filters
+              </ButtonLink>
+              <ButtonLink
+                href={propertiesHref(criteria, {
+                  minPrice: undefined,
+                  maxPrice: undefined,
+                  page: 1
+                })}
+                variant="ghost"
+              >
+                Keep the filters, drop the price range
+              </ButtonLink>
+            </div>
+          </Card>
+        )}
+
+        <ListingPagination criteria={criteria} totalCount={page.totalCount} pageSize={PAGE_SIZE} />
+      </Section>
+
+      {page.items.length > 0 && (
+        <Section pad="tight" tone="surface">
+          <h2 className="text-2xl">Why there are no photographs</h2>
+          <p className="mt-3 max-w-2xl text-[var(--text-muted)]">
+            These records are invented, so there is nothing to photograph. Listing photographs also
+            belong to the listing source and may only be shown under a data agreement, which is why
+            no image is ever hotlinked from a portal here.
+          </p>
+          <div className="mt-8 max-w-3xl">
+            <GalleryPlaceholder listingKey="search-example" />
+          </div>
+        </Section>
       )}
-      <Disclosure
-        headline="Listing information comes from a third party."
-        body="Availability, price, and details are supplied by the listing source and can change or be withdrawn without notice. Confirm anything material with the listing agent."
-      />
-    </Section>
+
+      <Section pad="tight">
+        <CtaPanel
+          title="Found something? Let's talk about the financing"
+          body="Bring us a property you are looking at anywhere — these samples, a portal listing, or an off-market deal — and we will work through what financing it actually looks like. No credit pull, no application, no obligation."
+          primary={{
+            href: "/contact",
+            label: "Talk to a mortgage professional",
+            cta: "properties-search"
+          }}
+          secondary={{ href: "/calculators/mortgage-payment", label: "Estimate my payment" }}
+        />
+        {anyFixture && (
+          <Disclosure
+            headline="These properties are illustrative samples, not listings."
+            body="Every record shown on this page was invented to demonstrate the search and the payment estimate. The addresses use reserved example street names, the prices and details are made up, and nothing here is available to buy. When a licensed listing feed is connected, this page will show real records with the attribution, status, and update timestamp that feed requires, and this notice will be replaced."
+          />
+        )}
+      </Section>
+    </>
   );
 }

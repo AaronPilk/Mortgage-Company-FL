@@ -71,6 +71,9 @@ importers:
       '@tract/tokens':
         specifier: workspace:*
         version: link:../../packages/tokens
+      '@tract/vision-model':
+        specifier: workspace:*
+        version: link:../../packages/vision-model
       next:
         specifier: ^16.3.1
         version: 16.3.1(@playwright/test@1.62.1)(@types/node@26.2.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -157,6 +160,12 @@ importers:
   packages/testing: {}
 
   packages/tokens: {}
+
+  packages/vision-model:
+    dependencies:
+      '@tract/mortgage-math':
+        specifier: workspace:*
+        version: link:../mortgage-math
 
 packages:
 
