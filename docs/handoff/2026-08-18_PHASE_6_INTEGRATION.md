@@ -8,8 +8,10 @@ Branch: `agent/tract-integrated-recovery-20260818`
 
 Base: `origin/main` at `7998ede`
 
+Integration commit: `57ce058`
+
 Status: integration complete locally; Phase 6 content work not complete; not
-pushed or deployed
+pushed, merged into `main` or deployed
 
 ## Summary
 

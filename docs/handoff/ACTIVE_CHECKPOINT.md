@@ -9,9 +9,9 @@ based on `origin/main` at `7998ede`. It intentionally reconciles the verified
 recovery implementation through Phase 5 with the newer calculator, marketplace,
 Vision, planner, RendProp and brand work already on `main`.
 
-The integration is locally complete and green. It has not been pushed, merged or
-deployed. No remote database, Auth, RLS, Storage, Vercel or Cloudflare setting was
-changed.
+The integration is locally complete and green at merge commit `57ce058`. It has
+not been pushed, merged into `main` or deployed. No remote database, Auth, RLS,
+Storage, Vercel or Cloudflare setting was changed.
 
 Phase 0 is complete. Error 1102 does not reproduce against the current public
 Worker or the integrated OpenNext artifact. The local Worker preview completed

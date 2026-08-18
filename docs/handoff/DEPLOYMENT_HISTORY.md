@@ -49,8 +49,9 @@ was changed during this audit.
 
 ## Integration branch — not deployed
 
-`agent/tract-integrated-recovery-20260818` reconciles `origin/main` at `7998ede`
-with recovery Phases 0–5. Its complete local gates pass:
+`agent/tract-integrated-recovery-20260818` merge commit `57ce058` reconciles
+`origin/main` at `7998ede` with recovery Phases 0–5. Its complete local gates
+pass:
 
 - `pnpm check`;
 - `pnpm db:verify`;
