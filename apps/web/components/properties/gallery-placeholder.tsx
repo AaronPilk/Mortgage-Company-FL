@@ -1,17 +1,22 @@
 /**
  * Gallery placeholder.
  *
- * There is no photograph, and there is not going to be one until a data
- * agreement supplies images we have the right to display. A stock photograph
- * would imply the sample record depicts a real building; a hotlinked portal
- * image would be someone else's copyrighted work. So the slot renders as
+ * There is no photograph of the property, and there is not going to be one until
+ * a data agreement supplies images we have the right to display. A stock
+ * photograph would imply the sample record depicts a real building; a hotlinked
+ * portal image would be someone else's copyrighted work. So the slot renders as
  * geometry with an explicit statement of what is missing and why.
+ *
+ * Some sample records now carry a company-generated illustration instead — see
+ * `listing-gallery.tsx`. That is a different thing to a listing photograph, it
+ * is labelled as such wherever it appears, and this placeholder remains the
+ * fallback for every record that has none.
  *
  * Drawn inline as SVG rather than shipped as a file, so it costs no request and
  * inherits the theme's colours in both light and dark.
  */
 
-function PlaceholderTile({ patternId }: { patternId: string }) {
+export function PlaceholderTile({ patternId }: { patternId: string }) {
   return (
     <div
       className="relative h-full w-full overflow-hidden rounded-xl border"

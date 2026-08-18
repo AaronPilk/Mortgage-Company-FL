@@ -7,7 +7,7 @@ import { Badge, ButtonLink, Card, CtaPanel, Disclosure, Section } from "@/compon
 import { pageMetadata } from "@/lib/metadata";
 import { publicFeatures } from "@/lib/env";
 import { fixturesAllowed, listings } from "@/lib/listings";
-import { GalleryPlaceholder } from "@/components/properties/gallery-placeholder";
+import { ListingGallery } from "@/components/properties/listing-gallery";
 import { PaymentEstimatePanel } from "@/components/properties/payment-estimate-panel";
 import { SampleDataBadge, SampleDataBanner } from "@/components/properties/sample-data-notice";
 import {
@@ -63,6 +63,11 @@ export async function generateMetadata({
  * sees the sample-data banner a person reads, so the markup would be an
  * unqualified false claim — invariant 6, and a misrepresentation to third
  * parties besides.
+ *
+ * The illustration this page now renders changes nothing about that. An `image`
+ * property on a listing node would make the false claim worse, not better: it
+ * would attach a generated picture to an assertion that a specific building
+ * exists and is for sale. The gate stays where it is.
  *
  * When a contracted provider replaces the fixture adapter, listing structured
  * data may be added, gated on `provider.key !== "fixture"` and on the display
@@ -155,7 +160,7 @@ export default async function PropertyDetailPage({
       </Section>
 
       <Section pad="tight">
-        <GalleryPlaceholder listingKey={listing.listingKey} />
+        <ListingGallery listing={listing} />
       </Section>
 
       <Section pad="tight">

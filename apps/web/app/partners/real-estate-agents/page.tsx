@@ -39,6 +39,23 @@ export default function AgentPartnerPage() {
         description="Built around service and education, not around anything that would resemble payment for referrals."
       />
 
+      {/*
+        Illustrative Florida photography. The alt text describes a house, not a
+        team, an office, a client, or a listing — because none of those are what
+        this picture is, and a partner page is exactly where an image gets read
+        as evidence of a relationship that has not happened yet.
+      */}
+      <img
+        src="/images/agents/open-house.webp"
+        alt="The lit entryway of a Florida home with its front door open, framed by palms and potted ferns"
+        width={1400}
+        height={781}
+        loading="lazy"
+        decoding="async"
+        className="mb-10 aspect-[16/9] w-full rounded-3xl object-cover"
+        style={{ boxShadow: "var(--shadow-float)" }}
+      />
+
       <div className="grid gap-6 lg:grid-cols-3">
         {VALUE.map((item) => (
           <Card key={item.heading}>

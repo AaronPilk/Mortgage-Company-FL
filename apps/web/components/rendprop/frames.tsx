@@ -1,11 +1,17 @@
 /**
  * Illustrative visuals, drawn in SVG and CSS.
  *
- * There are no image or video files anywhere in RendProp's UI, and that is a
- * deliberate constraint rather than an omission. A screenshot of a beautifully
- * staged living room would be the single most misleading thing this feature
- * could ship while no provider is connected — a reader would reasonably take it
- * as output. A diagram cannot be mistaken for a photograph.
+ * The interactive walkthrough uses no image or video files at all, and that is a
+ * deliberate constraint rather than an omission. A photograph of a beautifully
+ * staged living room inside a simulated product screen would be the single most
+ * misleading thing this feature could ship while no provider is connected — a
+ * reader would reasonably take it as output. A diagram cannot be mistaken for a
+ * photograph, so the demo stays on diagrams.
+ *
+ * The marketing page is a different context and does show generated fixtures
+ * (`sample-media.tsx`): they sit under a heading that states no provider is
+ * connected, and every altered one carries its disclosure. Keep that separation.
+ * Nothing photographic belongs inside the walkthrough.
  *
  * Every colour is a theme token, so these read correctly in light and dark.
  */

@@ -113,6 +113,23 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
         <Eyebrow>{program.eyebrow}</Eyebrow>
         <h1 className="text-4xl sm:text-5xl">{program.h1}</h1>
         <p className="mt-6 text-lg text-[var(--text-muted)]">{program.summary}</p>
+        {/*
+          Illustrative scenario photography. No `loading="lazy"`: this sits in the
+          first screen on a program page, and deferring the largest element in the
+          viewport is how a page loses the Largest Contentful Paint it was trying
+          to protect. Intrinsic dimensions are always set so it reserves its box.
+        */}
+        {program.heroImage !== undefined && (
+          <img
+            src={program.heroImage.src}
+            alt={program.heroImage.alt}
+            width={program.heroImage.width}
+            height={program.heroImage.height}
+            decoding="async"
+            className="mt-8 aspect-[16/9] w-full rounded-3xl object-cover"
+            style={{ boxShadow: "var(--shadow-float)" }}
+          />
+        )}
       </Section>
 
       <Section width="narrow" pad="tight">

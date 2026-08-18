@@ -25,7 +25,21 @@ export type ListingSummary = {
   bathrooms?: number;
   livingAreaSqft?: number;
   propertyType?: string;
-  primaryImage?: { url: string; width?: number; height?: number; attribution?: string };
+  /**
+   * `url` must be first-party. A listing source's photograph may only be shown
+   * under a display agreement, and hotlinking one is somebody else's bandwidth
+   * and somebody else's copyright, so the search fixtures assert this stays a
+   * same-origin path. `alt` travels with the image because a caller that has to
+   * invent alt text will invent one that describes a property rather than the
+   * picture.
+   */
+  primaryImage?: {
+    url: string;
+    width?: number;
+    height?: number;
+    attribution?: string;
+    alt?: string;
+  };
   /** Required by the MLS display agreement. Never omitted from a rendered card. */
   attributionText: string;
   modificationTimestamp?: string;
