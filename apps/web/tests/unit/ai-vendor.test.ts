@@ -49,3 +49,21 @@ describe("selectAiVendor", () => {
     ).toEqual({ vendor: null });
   });
 });
+
+describe("model tier ladder", () => {
+  it("resolves the property-query route from the light tier for both vendors", async () => {
+    const { MODEL_TIERS } = await import("../../lib/ai-vendor");
+    expect(MODEL_TIERS.light.anthropic).toBeTruthy();
+    expect(MODEL_TIERS.light.openai).toBeTruthy();
+  });
+
+  it("defines every tier for every vendor so a future route cannot dangle", async () => {
+    const { MODEL_TIERS } = await import("../../lib/ai-vendor");
+    for (const tier of ["light", "standard", "heavy"] as const) {
+      for (const vendor of ["anthropic", "openai"] as const) {
+        expect(typeof MODEL_TIERS[tier][vendor]).toBe("string");
+        expect(MODEL_TIERS[tier][vendor].length).toBeGreaterThan(0);
+      }
+    }
+  });
+});

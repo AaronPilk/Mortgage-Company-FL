@@ -1,8 +1,6 @@
 import "server-only";
 import {
   AnthropicAiProvider,
-  DEFAULT_ANTHROPIC_STRUCTURED_MODEL,
-  DEFAULT_OPENAI_STRUCTURED_MODEL,
   DisabledAiProvider,
   FixtureAiProvider,
   OpenAiAiProvider,
@@ -12,7 +10,7 @@ import {
   type StructuredExtractionInput
 } from "@tract/integrations";
 import { interpretedToExtraction, parseNaturalQuery } from "@/components/properties/nl-parser";
-import { selectAiVendor, type AiVendor } from "./ai-vendor";
+import { MODEL_TIERS, selectAiVendor, type AiVendor, type ModelTier } from "./ai-vendor";
 import { env } from "./env";
 
 /**
@@ -36,16 +34,10 @@ import { env } from "./env";
  * parser. Nothing in this file or in wrangler.jsonc needs to change.
  */
 
-/**
- * The route registry for this application. Model identifiers live here, not in
- * feature code, so a model change is a configuration edit in one place. The
- * registry carries one model per vendor and the route resolves the pair for
- * whichever vendor the environment selected.
- */
-const PROPERTY_QUERY_MODELS: Record<AiVendor, string> = {
-  anthropic: DEFAULT_ANTHROPIC_STRUCTURED_MODEL,
-  openai: DEFAULT_OPENAI_STRUCTURED_MODEL
-};
+// The cost ladder lives beside the vendor rule in ai-vendor.ts (pure,
+// environment-free, unit-testable). Re-exported here so route consumers have
+// one import site.
+export { MODEL_TIERS, type ModelTier };
 
 /**
  * Fixture and disabled modes never reach a vendor, so the Anthropic identifiers
@@ -56,9 +48,13 @@ function activeVendor(): AiVendor {
   return selectAiVendor(env()).vendor ?? "anthropic";
 }
 
-export const PROPERTY_QUERY_ROUTE: ModelRoute = {
+export const PROPERTY_QUERY_ROUTE: ModelRoute & { tier: ModelTier } = {
   key: "property-query-parse",
   capability: "structured_extraction",
+  // Light on purpose: this route only turns a sentence into search filters —
+  // the real answer comes from the listing data, so paying for a bigger model
+  // here buys nothing.
+  tier: "light",
   // Lazy so the route follows the environment's vendor selection without the
   // registry parsing the environment at module load, which a build step does
   // without being a deployment.
@@ -66,7 +62,7 @@ export const PROPERTY_QUERY_ROUTE: ModelRoute = {
     return activeVendor();
   },
   get providerModel() {
-    return PROPERTY_QUERY_MODELS[activeVendor()];
+    return MODEL_TIERS[this.tier][activeVendor()];
   },
   enabled: true,
   maxInputBytes: 2_048,
