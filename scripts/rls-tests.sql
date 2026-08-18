@@ -115,6 +115,34 @@ select public.create_lead_with_receipt(
   gen_random_uuid()
 );
 
+-- A second lead, created through the planner path. This exercises the single
+-- transaction that writes the lead, the consent receipt, the attribution touch,
+-- the outbox event AND the planner answers together. It is deliberately a real
+-- call rather than a direct insert, because the point of the function is that a
+-- caller cannot write four of the five and skip the fifth.
+--
+-- The lead, consent, and outbox counts asserted further down include this row.
+select public.create_lead_with_planner_response(
+  jsonb_build_object(
+    'intent','refinance','first_name','Sam','last_name','Ortiz',
+    'email_normalized','sam@example.com','phone_e164','+18135550188',
+    'source_path','/plan','dedupe_hash','hash-2'),
+  jsonb_build_object(
+    'privacy_accepted',true,'contact_requested',true,'sms_marketing',true,
+    'email_marketing',false,'disclosure_version','v1','disclosure_text_sha256','def',
+    'source_path','/plan','form_version','lead-planner@1.0.0'),
+  jsonb_build_object('landing_path','/plan','utm_source','google'),
+  jsonb_build_object('event_type','lead.received','idempotency_key','k2','payload','{}'::jsonb),
+  jsonb_build_object(
+    'goal','refinance','property_state','fl','property_location','Tampa',
+    'property_type','single_family','property_stage','own_it','price_band','350k_500k',
+    'down_payment_band','20_plus','current_mortgage_balance_band','250k_500k',
+    'current_mortgage_rate_band','6_7','credit_band','720_759','employment','w2',
+    'income_band','8k_12k','monthly_debt_band','under_500','timing','within_30_days',
+    'planner_version','lead-planner@1.0.0'),
+  gen_random_uuid()
+);
+
 insert into public.vision_projects (id, owner_user_id, title, goal) values
   ('00000000-0000-4000-8000-0000000000a1', '00000000-0000-4000-8000-000000000002', 'My house', 'renovate'),
   ('00000000-0000-4000-8000-0000000000a2', '00000000-0000-4000-8000-000000000006', 'Agent project', 'flip');
@@ -160,6 +188,20 @@ select tests.assert_denied('select count(*) from public.attribution_touches',
   'anonymous has no grant on attribution touches');
 select tests.assert_denied('select count(*) from public.integration_outbox',
   'anonymous has no grant on the integration outbox');
+select tests.assert_denied('select count(*) from public.lead_planner_responses',
+  'anonymous has no grant on planner responses');
+select tests.assert_denied(
+  $$insert into public.lead_planner_responses
+      (lead_id, goal, property_state, property_type, property_stage, price_band,
+       down_payment_band, credit_band, employment, income_band, monthly_debt_band,
+       timing, planner_version)
+    values ('00000000-0000-4000-8000-0000000000d1','purchase','FL','condo','identified',
+      'under_200k','3_5','unknown','w2','under_4k','none','researching','x')$$,
+  'anonymous cannot insert a planner response directly');
+select tests.assert_denied(
+  $$select public.create_lead_with_planner_response('{}'::jsonb,'{}'::jsonb,'{}'::jsonb,
+      '{}'::jsonb,'{}'::jsonb, gen_random_uuid())$$,
+  'anonymous cannot call the planner lead function directly');
 select tests.assert(tests.visible_count('select count(*) from public.audit_events') = 0,
   'anonymous sees no audit events');
 select tests.assert(tests.visible_count('select count(*) from public.ai_jobs') = 0,
@@ -221,6 +263,21 @@ select tests.assert_denied(
   $$select public.create_lead_with_receipt('{}'::jsonb,'{}'::jsonb,'{}'::jsonb,'{}'::jsonb, gen_random_uuid())$$,
   'consumer cannot call the lead creation function directly');
 
+select tests.assert(tests.visible_count('select count(*) from public.lead_planner_responses') = 0,
+  'consumer cannot read planner responses');
+select tests.assert_denied(
+  $$select public.create_lead_with_planner_response('{}'::jsonb,'{}'::jsonb,'{}'::jsonb,
+      '{}'::jsonb,'{}'::jsonb, gen_random_uuid())$$,
+  'consumer cannot call the planner lead function directly');
+select tests.assert_denied(
+  $$insert into public.lead_planner_responses
+      (lead_id, goal, property_state, property_type, property_stage, price_band,
+       down_payment_band, credit_band, employment, income_band, monthly_debt_band,
+       timing, planner_version)
+    values ('00000000-0000-4000-8000-0000000000d1','purchase','FL','condo','identified',
+      'under_200k','3_5','unknown','w2','under_4k','none','researching','x')$$,
+  'consumer cannot attach a planner response to a lead');
+
 reset role;
 
 /* ---------------------------------------------------------------- *
@@ -244,8 +301,14 @@ reset role;
 set role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000003', false);
 
-select tests.assert(tests.visible_count('select count(*) from public.leads') = 1,
+-- Two leads exist: the contact-form fixture and the planner fixture.
+select tests.assert(tests.visible_count('select count(*) from public.leads') = 2,
   'loan officer can read leads');
+select tests.assert(tests.visible_count('select count(*) from public.lead_planner_responses') = 1,
+  'loan officer can read the planner answers a lead arrived with');
+select tests.assert_affects_no_rows(
+  $$update public.lead_planner_responses set goal = 'purchase'$$,
+  'loan officer cannot rewrite what the consumer answered');
 select tests.assert(tests.visible_count('select count(*) from public.consent_receipts') = 0,
   'loan officer cannot read the consent ledger');
 select tests.assert(tests.visible_count('select count(*) from public.audit_events') = 0,
@@ -260,8 +323,15 @@ reset role;
 set role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000005', false);
 
-select tests.assert(tests.visible_count('select count(*) from public.consent_receipts') = 1,
+select tests.assert(tests.visible_count('select count(*) from public.consent_receipts') = 2,
   'compliance reviewer can read the consent ledger');
+-- Consent review is a consent question. The planner answers are lead-working
+-- context and are deliberately outside this role's reach.
+select tests.assert(tests.visible_count('select count(*) from public.lead_planner_responses') = 0,
+  'compliance reviewer cannot read planner answers');
+select tests.assert_affects_no_rows(
+  $$delete from public.lead_planner_responses$$,
+  'compliance reviewer cannot delete planner answers');
 select tests.assert(tests.visible_count('select count(*) from public.audit_events') = 1,
   'compliance reviewer can read the audit log');
 select tests.assert_affects_no_rows(
@@ -302,10 +372,16 @@ reset role;
 set role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
 
-select tests.assert(tests.visible_count('select count(*) from public.leads') = 1,
+select tests.assert(tests.visible_count('select count(*) from public.leads') = 2,
   'admin can read leads');
-select tests.assert(tests.visible_count('select count(*) from public.integration_outbox') = 1,
+select tests.assert(tests.visible_count('select count(*) from public.integration_outbox') = 2,
   'admin can read the outbox');
+select tests.assert(tests.visible_count('select count(*) from public.lead_planner_responses') = 1,
+  'admin can read planner answers');
+select tests.assert(
+  tests.visible_count($$select count(*) from public.lead_planner_responses r
+    join public.leads l on l.id = r.lead_id where l.intent = 'refinance'$$) = 1,
+  'admin can join a planner response to the lead it belongs to');
 
 -- Audit history is append-only for everyone, including an admin.
 select tests.assert_denied(
@@ -332,6 +408,62 @@ select tests.assert_denied(
   $$insert into public.usage_ledger (feature, entry_kind, amount_cents)
     values ('vision_report','adjustment', 100)$$,
   'a usage adjustment without a reason is rejected');
+
+-- One transaction wrote the lead, its consent receipt, its attribution touch,
+-- its outbox event, and its planner answers. Invariant 3: there is no success
+-- without the durable write, and no partial receipt.
+select tests.assert(
+  (select count(*) from public.lead_planner_responses r
+   join public.leads l on l.id = r.lead_id
+   join public.consent_receipts c on c.lead_id = l.id
+   join public.attribution_touches a on a.lead_id = l.id
+   join public.integration_outbox o on o.aggregate_id = l.id
+   where l.dedupe_hash = 'hash-2') = 1,
+  'the planner write lands the lead, consent, attribution, outbox, and answers together');
+
+select tests.assert(
+  (select relrowsecurity from pg_class where oid = 'public.lead_planner_responses'::regclass),
+  'row level security is enabled on the planner table');
+
+-- Invariant 5. EXECUTE is granted to PUBLIC by default, so this is the check
+-- that a revoke from anon and authenticated alone would not have satisfied.
+select tests.assert(
+  not has_function_privilege('public',
+    'public.create_lead_with_planner_response(jsonb,jsonb,jsonb,jsonb,jsonb,uuid)', 'execute'),
+  'PUBLIC holds no execute grant on the planner lead function');
+
+select tests.assert(
+  (select count(*) from pg_constraint
+   where conrelid = 'public.lead_planner_responses'::regclass and contype = 'u') >= 1,
+  'a lead can carry at most one planner response');
+
+-- Invariant 2, asserted against the schema itself: this is a marketing form, so
+-- the table cannot grow a column that belongs to an application.
+select tests.assert(
+  (select count(*) from information_schema.columns
+   where table_schema = 'public' and table_name = 'lead_planner_responses'
+     and column_name ~ '(ssn|social_security|date_of_birth|birth|account_number|credit_score|document|upload|pay_stub|tax_return)') = 0,
+  'the planner table carries no application-grade identifier column');
+
+select tests.assert_denied(
+  $$insert into public.lead_planner_responses
+      (lead_id, goal, property_state, property_type, property_stage, price_band,
+       down_payment_band, current_mortgage_balance_band, credit_band, employment,
+       income_band, monthly_debt_band, timing, planner_version)
+    select id,'purchase','FL','condo','identified','under_200k','3_5','100k_250k',
+      'unknown','w2','under_4k','none','researching','x'
+    from public.leads limit 1$$,
+  'a current mortgage balance cannot be recorded against a purchase');
+
+select tests.assert_denied(
+  $$insert into public.lead_planner_responses
+      (lead_id, goal, property_state, property_type, property_stage, price_band,
+       down_payment_band, credit_band, employment, income_band, monthly_debt_band,
+       timing, planner_version)
+    select id,'purchase','FL','condo','identified','under_200k','3_5','excellent',
+      'w2','under_4k','none','researching','x'
+    from public.leads limit 1$$,
+  'a credit band outside the self-reported set is rejected');
 
 select tests.assert(
   (select count(*) from pg_tables t

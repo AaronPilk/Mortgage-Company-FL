@@ -5,6 +5,7 @@ import { ButtonLink, LicenseFact } from "./ui";
 import { businessIdentity, isPreLaunch } from "@/lib/site";
 
 const PRIMARY_NAV = [
+  { href: "/plan", label: "Start planning" },
   { href: "/mortgage", label: "Mortgage" },
   { href: "/calculators", label: "Calculators" },
   { href: "/resources", label: "Resources" },
@@ -36,6 +37,7 @@ const FOOTER_GROUPS = [
   {
     heading: "Tools",
     links: [
+      { href: "/plan", label: "Mortgage planner" },
       { href: "/calculators/mortgage-payment", label: "Payment" },
       { href: "/calculators/affordability", label: "Affordability" },
       { href: "/calculators/refinance-break-even", label: "Refinance break-even" },

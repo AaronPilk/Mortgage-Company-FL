@@ -159,7 +159,7 @@ export default function HomePage() {
               doesn&rsquo;t make sense.
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
-              <ButtonLink href="/contact" data-cta="hero-primary">
+              <ButtonLink href="/plan" data-cta="hero-primary">
                 Build my mortgage plan
                 <svg
                   viewBox="0 0 24 24"

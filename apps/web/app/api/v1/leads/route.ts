@@ -3,7 +3,10 @@ import {
   CreateLeadSchema,
   ContactNormalizationError,
   HTTP_STATUS_BY_CODE,
+  PLANNER_VERSION,
   type ApiErrorCode,
+  type CreateLeadParsed,
+  type PlannerTiming,
   apiFailure,
   apiSuccess,
   fieldErrors,
@@ -44,6 +47,12 @@ import { LEAD_DISCLOSURE_TEXT, LEAD_DISCLOSURE_VERSION, SITE_URL } from "@/lib/s
  *
  * The first-party write is authoritative. If the CRM is down, the lead is still
  * received and the consumer still gets a receipt.
+ *
+ * The progressive planner at /plan posts here too, with an optional `planner`
+ * object. It is the same endpoint on purpose: a second lead route would mean a
+ * second copy of the consent, dedupe, rate-limit, bot-challenge, and outbox
+ * guarantees, and two copies of a guarantee is one guarantee. The planner only
+ * widens what step 10 writes; it moves nothing in the order above.
  */
 
 export const runtime = "nodejs";
@@ -51,6 +60,46 @@ export const dynamic = "force-dynamic";
 
 const MAX_BODY_BYTES = 16 * 1024;
 const FORM_VERSION = "lead-form@1.0.0";
+/** Recorded on the consent receipt so the ledger says which form was shown. */
+const PLANNER_FORM_VERSION = "lead-planner-form@1.0.0";
+
+/**
+ * The planner asks about timing in its own words. The lead table's timeline
+ * column predates it and drives existing routing, so the planner answer is
+ * translated into that vocabulary rather than the column being widened. The
+ * precise answer is not lost: it is stored verbatim in the planner row.
+ */
+const LEAD_TIMELINE_BY_PLANNER_TIMING: Record<PlannerTiming, string> = {
+  immediately: "now",
+  within_30_days: "0_3_months",
+  "60_to_90_days": "0_3_months",
+  researching: "researching"
+};
+
+/**
+ * Planner answers as the database column names. Every value is an enumerated
+ * band; there is no exact income, no exact debt, and no credit score here, and
+ * there must never be.
+ */
+function plannerRow(planner: NonNullable<CreateLeadParsed["planner"]>): Record<string, unknown> {
+  return {
+    goal: planner.goal,
+    property_state: planner.propertyState,
+    property_location: planner.propertyLocation ?? null,
+    property_type: planner.propertyType,
+    property_stage: planner.propertyStage,
+    price_band: planner.priceBand,
+    down_payment_band: planner.downPaymentBand,
+    current_mortgage_balance_band: planner.currentMortgageBalanceBand ?? null,
+    current_mortgage_rate_band: planner.currentMortgageRateBand ?? null,
+    credit_band: planner.creditBand,
+    employment: planner.employment,
+    income_band: planner.incomeBand,
+    monthly_debt_band: planner.monthlyDebtBand,
+    timing: planner.timing,
+    planner_version: PLANNER_VERSION
+  };
+}
 
 function fail(
   code: ApiErrorCode,
@@ -228,8 +277,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     );
   }
 
-  // 10. One transaction: lead, consent receipt, attribution, and outbox row.
-  const { data: leadId, error } = await supabase.rpc("create_lead_with_receipt", {
+  // The planner is an optional richer front end onto this same pipeline. It
+  // supplies the timeline and the self-reported credit band in its own
+  // vocabulary, so those columns are filled from it when the caller did not send
+  // them directly. Nothing else about the ordering above or below changes.
+  const planner = input.planner;
+  const timeline =
+    input.timeline ??
+    (planner === undefined ? null : LEAD_TIMELINE_BY_PLANNER_TIMING[planner.timing]);
+  const creditBand = input.estimatedCreditBand ?? planner?.creditBand ?? null;
+
+  // 10. One transaction: lead, consent receipt, attribution, outbox row, and —
+  // when the planner supplied them — the qualifying answers. A partial write is
+  // not a possible outcome: either the consumer has a receipt and a queued sync,
+  // or nothing happened.
+  const rpcArguments = {
     p_lead: {
       intent: input.intent,
       first_name: input.firstName,
@@ -238,8 +300,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       phone_e164: normalized.phoneE164,
       preferred_contact: input.preferredContact ?? null,
       state_code: input.stateCode,
-      timeline: input.timeline ?? null,
-      estimated_credit_band: input.estimatedCreditBand ?? null,
+      timeline,
+      estimated_credit_band: creditBand,
       message: input.message ?? null,
       source_path: input.attribution.landingPath,
       dedupe_hash: dedupe
@@ -254,7 +316,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       // the stored record ambiguous about what the consumer agreed to.
       disclosure_text_sha256: sha256Hex(LEAD_DISCLOSURE_TEXT),
       source_path: input.attribution.landingPath,
-      form_version: FORM_VERSION,
+      form_version: planner === undefined ? FORM_VERSION : PLANNER_FORM_VERSION,
       ip_prefix_hash: context.ipPrefixHash,
       user_agent_family: context.userAgentFamily
     },
@@ -285,9 +347,37 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         email: normalized.emailNormalized,
         phoneE164: normalized.phoneE164,
         intent: input.intent,
-        timeline: input.timeline ?? null,
+        timeline,
         sourcePath: input.attribution.landingPath,
-        tags: ["web-lead", `intent:${input.intent}`],
+        tags:
+          planner === undefined
+            ? ["web-lead", `intent:${input.intent}`]
+            : ["web-lead", `intent:${input.intent}`, "planner", `goal:${planner.goal}`],
+        // Planner context travels to the CRM as bands only, so a loan officer
+        // opens the record already knowing the shape of the conversation. No
+        // exact income, no exact debt, and no credit score crosses this line —
+        // the adapter's own screening is the second barrier over this one.
+        ...(planner === undefined
+          ? {}
+          : {
+              planner: {
+                goal: planner.goal,
+                propertyState: planner.propertyState,
+                propertyLocation: planner.propertyLocation ?? null,
+                propertyType: planner.propertyType,
+                propertyStage: planner.propertyStage,
+                priceBand: planner.priceBand,
+                downPaymentBand: planner.downPaymentBand,
+                currentMortgageBalanceBand: planner.currentMortgageBalanceBand ?? null,
+                currentMortgageRateBand: planner.currentMortgageRateBand ?? null,
+                creditBand: planner.creditBand,
+                employment: planner.employment,
+                incomeBand: planner.incomeBand,
+                monthlyDebtBand: planner.monthlyDebtBand,
+                timing: planner.timing,
+                plannerVersion: PLANNER_VERSION
+              }
+            }),
         consent: {
           smsMarketing: input.consent.smsMarketing,
           emailMarketing: input.consent.emailMarketing,
@@ -303,7 +393,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
     },
     p_request_id: context.requestId
-  });
+  };
+
+  // One statement either way, so the planner answers cannot land without the
+  // lead and the lead cannot land without them. The sibling function delegates
+  // the receipt to create_lead_with_receipt rather than duplicating it.
+  const { data: leadId, error } =
+    planner === undefined
+      ? await supabase.rpc("create_lead_with_receipt", rpcArguments)
+      : await supabase.rpc("create_lead_with_planner_response", {
+          ...rpcArguments,
+          p_planner: plannerRow(planner)
+        });
 
   if (error !== null) {
     log.error("lead persistence failed", {

@@ -19,6 +19,13 @@ export type RouteEntry = {
 
 export const ROUTE_REGISTRY: RouteEntry[] = [
   { path: "/", priority: 1.0, changeFrequency: "weekly", indexable: true, contentGroup: "home" },
+  {
+    path: "/plan",
+    priority: 0.95,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "calculators"
+  },
 
   // Mortgage core
   {

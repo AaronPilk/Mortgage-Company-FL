@@ -75,6 +75,164 @@ export const ConsentSchema = z.object({
 });
 export type ConsentInput = z.infer<typeof ConsentSchema>;
 
+/**
+ * PROGRESSIVE PLANNER answers.
+ *
+ * The planner asks qualifying questions before it asks who the person is. Every
+ * financial answer is a BAND, never a figure: income and debt are ranges, credit
+ * is a self-reported band and never a score, and no answer here is or becomes an
+ * application. The prohibitions at the top of this file apply in full — a
+ * government identifier, an account number, a document, or an upload must never
+ * appear in this object.
+ *
+ * Each band is an enum rather than free text because the database stores them as
+ * checked columns that operations filters on, and a free-text column cannot be
+ * filtered without first being cleaned.
+ */
+
+export const PlannerGoalSchema = z.enum([
+  "purchase",
+  "refinance",
+  "investment",
+  "land",
+  "construction_renovation"
+]);
+export type PlannerGoal = z.infer<typeof PlannerGoalSchema>;
+
+export const PlannerPropertyTypeSchema = z.enum([
+  "single_family",
+  "condo",
+  "townhome",
+  "multi_family_2_4",
+  "manufactured",
+  "land",
+  "other"
+]);
+
+/** Where the consumer is in finding the property. Not a status of any kind. */
+export const PlannerPropertyStageSchema = z.enum([
+  "under_contract",
+  "identified",
+  "actively_looking",
+  "early_research",
+  "own_it"
+]);
+
+export const PlannerPriceBandSchema = z.enum([
+  "under_200k",
+  "200k_350k",
+  "350k_500k",
+  "500k_750k",
+  "750k_1m",
+  "1m_plus"
+]);
+
+/** Down payment as a share of price. A band, so no exact savings figure is collected. */
+export const PlannerDownPaymentBandSchema = z.enum([
+  "under_3",
+  "3_5",
+  "5_10",
+  "10_20",
+  "20_plus",
+  "not_sure"
+]);
+
+export const PlannerMortgageBalanceBandSchema = z.enum([
+  "under_100k",
+  "100k_250k",
+  "250k_500k",
+  "500k_750k",
+  "750k_plus",
+  "not_sure"
+]);
+
+export const PlannerMortgageRateBandSchema = z.enum([
+  "under_4",
+  "4_5",
+  "5_6",
+  "6_7",
+  "7_plus",
+  "not_sure"
+]);
+
+export const PlannerEmploymentSchema = z.enum([
+  "w2",
+  "self_employed",
+  "business_owner",
+  "contract_1099",
+  "retired",
+  "other"
+]);
+
+/** Gross monthly household income, as a range. An exact figure is never collected. */
+export const PlannerIncomeBandSchema = z.enum([
+  "under_4k",
+  "4k_6k",
+  "6k_8k",
+  "8k_12k",
+  "12k_20k",
+  "20k_plus",
+  "prefer_not_to_say"
+]);
+
+/** Recurring monthly obligations, as a range. */
+export const PlannerMonthlyDebtBandSchema = z.enum([
+  "none",
+  "under_500",
+  "500_1000",
+  "1000_2000",
+  "2000_plus",
+  "prefer_not_to_say"
+]);
+
+export const PlannerTimingSchema = z.enum([
+  "immediately",
+  "within_30_days",
+  "60_to_90_days",
+  "researching"
+]);
+export type PlannerTiming = z.infer<typeof PlannerTimingSchema>;
+
+/** Version of the planner question set. Stored with the row so answers stay interpretable. */
+export const PLANNER_VERSION = "lead-planner@1.0.0" as const;
+
+export const LeadPlannerSchema = z
+  .object({
+    goal: PlannerGoalSchema,
+    propertyState: z
+      .string()
+      .trim()
+      .length(2)
+      .transform((value) => value.toUpperCase()),
+    /** City or postal code. Never a street address — a property is not a person. */
+    propertyLocation: bounded(80).optional(),
+    propertyType: PlannerPropertyTypeSchema,
+    propertyStage: PlannerPropertyStageSchema,
+    priceBand: PlannerPriceBandSchema,
+    downPaymentBand: PlannerDownPaymentBandSchema,
+    currentMortgageBalanceBand: PlannerMortgageBalanceBandSchema.optional(),
+    currentMortgageRateBand: PlannerMortgageRateBandSchema.optional(),
+    creditBand: CreditBandSchema,
+    employment: PlannerEmploymentSchema,
+    incomeBand: PlannerIncomeBandSchema,
+    monthlyDebtBand: PlannerMonthlyDebtBandSchema,
+    timing: PlannerTimingSchema
+  })
+  .refine(
+    (value) =>
+      value.goal === "refinance" ||
+      (value.currentMortgageBalanceBand === undefined &&
+        value.currentMortgageRateBand === undefined),
+    {
+      // The database carries the same rule as a check constraint. Validating it
+      // here too means a crafted payload gets a field error rather than a 500.
+      message: "Current mortgage details apply to a refinance only.",
+      path: ["currentMortgageBalanceBand"]
+    }
+  );
+export type LeadPlannerInput = z.input<typeof LeadPlannerSchema>;
+export type LeadPlannerParsed = z.output<typeof LeadPlannerSchema>;
+
 export const CreateLeadSchema = z.object({
   intent: LeadIntentSchema,
   firstName: z.string().trim().min(1).max(80),
@@ -94,6 +252,11 @@ export const CreateLeadSchema = z.object({
   message: bounded(1500).optional(),
   consent: ConsentSchema,
   attribution: LeadSourceContextSchema,
+  /**
+   * Progressive planner answers. Optional, so the single-page contact form
+   * submits exactly the payload it always has and keeps validating unchanged.
+   */
+  planner: LeadPlannerSchema.optional(),
   turnstileToken: z.string().min(1).max(4096),
   /** Must arrive empty. A populated value is a bot signal. */
   honeypot: z.string().max(0).optional()
