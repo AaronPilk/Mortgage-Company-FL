@@ -115,6 +115,14 @@ export type ArticleInput = {
   datePublished: string;
   dateModified: string;
   authorName: string;
+  /**
+   * "Organization" when the byline is the company's editorial team rather than
+   * a named individual. Emitting a Person for a byline no person holds is the
+   * fabricated-authorship pattern search spam policies name explicitly, so the
+   * honest default for this site is organizational authorship until a real
+   * named author exists.
+   */
+  authorType?: "Person" | "Organization";
   authorUrl?: string;
   reviewerName?: string;
   identity: BusinessIdentity;
@@ -129,7 +137,7 @@ export function articleNode(input: ArticleInput): Node {
     datePublished: input.datePublished,
     dateModified: input.dateModified,
     author: omitEmpty({
-      "@type": "Person",
+      "@type": input.authorType ?? "Person",
       name: input.authorName,
       url: input.authorUrl ?? null
     }),

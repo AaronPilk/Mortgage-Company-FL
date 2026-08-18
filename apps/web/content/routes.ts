@@ -263,6 +263,709 @@ export const ROUTE_REGISTRY: RouteEntry[] = [
     indexable: true,
     contentGroup: "resources"
   },
+  // Article library. Generated from apps/web/content/articles/ — every
+  // article is registered individually so indexation stays a deliberate,
+  // reviewable decision per page, exactly like the program pages.
+  {
+    path: "/resources/fha-mip-explained",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/va-loan-benefits-florida",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/usda-eligibility-florida",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/conventional-vs-fha",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/pmi-vs-mip",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/jumbo-loans-florida",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/fha-203k-explained",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/homestyle-choicerenovation",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/dscr-loans-explained",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/bank-statement-loans",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/preapproval-vs-prequalification",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/down-payment-how-much",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/gift-funds-rules",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/closing-timeline-florida",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/loan-estimate-explained",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/closing-disclosure-explained",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/earnest-money-florida",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/home-appraisal-explained",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/underwriting-conditions",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/first-home-mistakes",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/florida-homeowners-insurance-mortgage",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/wind-mitigation-inspection",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/flood-zones-flood-insurance",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/four-point-inspection",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/roof-age-insurance-mortgage",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/citizens-property-insurance",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/florida-property-taxes-reset",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/homestead-exemption-florida",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/escrow-accounts-florida",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/cdd-fees-explained",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/condo-financing-florida",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/warrantable-vs-non-warrantable",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/milestone-inspection-sirs",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/special-assessments-mortgage",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/hoa-condo-docs-review",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/condo-master-insurance-h06",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/fha-va-condo-approval",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/condotel-financing",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/condo-investor-ratios",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/townhouse-vs-condo-financing",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/rental-cash-flow-analysis",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/cap-rate-explained",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/dscr-vs-conventional-investor",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/str-financing-florida",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/house-hacking-florida",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/brrrr-financing",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/investor-reserves-requirements",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/llc-vs-personal-title-financing",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/fix-and-flip-financing",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/portfolio-growth-financing",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/refinance-break-even",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/cash-out-refinance-florida",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/rate-term-vs-cash-out",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/fha-streamline-refinance",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/va-irrrl-explained",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/remove-pmi",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/recast-vs-refinance",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/heloc-vs-cash-out",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/no-closing-cost-refinance",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/refinance-investment-property",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/buying-home-st-petersburg",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/buying-home-tampa",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/buying-home-sarasota",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/buying-home-orlando",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/buying-home-jacksonville",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/buying-home-miami",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/buying-home-cape-coral",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/buying-home-naples",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/florida-coastal-vs-inland",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/relocating-to-florida-mortgage",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/dti-explained",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/credit-score-mortgage",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/self-employed-mortgage-docs",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/employment-history-mortgage",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/student-loans-dti",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/collections-medical-debt-mortgage",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/thin-credit-nontraditional",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/co-borrower-vs-cosigner",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/waiting-periods-bankruptcy-foreclosure",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/mortgage-credit-inquiries",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/lot-loans-vs-land-loans",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/construction-to-permanent",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/construction-draws-inspections",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/builder-approval-process",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/owner-builder-realities",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/adu-financing-florida",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/manufactured-home-financing",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/well-septic-financing",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/impact-fees-florida",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/renovation-budget-contingency",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/what-is-piti",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/apr-vs-interest-rate",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/discount-points-explained",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/rate-lock-explained",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/amortization-explained",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/ltv-explained",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/title-insurance-florida",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/mortgage-servicing-explained",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/fixed-vs-arm",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
+  {
+    path: "/resources/how-mortgage-brokers-work",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "resources"
+  },
   {
     path: "/locations/florida",
     priority: 0.7,
