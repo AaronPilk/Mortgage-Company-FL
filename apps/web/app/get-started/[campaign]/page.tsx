@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge, Card, Disclosure, LicenseFact, Section } from "@/components/ui";
-import { HomeFunnel } from "@/components/home-funnel";
+import { CampaignFunnel } from "@/components/campaign-funnel/campaign-funnel";
 import { pageMetadata } from "@/lib/metadata";
 import {
   EMAIL_CONSENT_TEXT,
@@ -86,14 +86,14 @@ export default async function CampaignLandingPage({
         </div>
 
         <div className="mx-auto mt-10 max-w-xl">
-          <HomeFunnel
+          <CampaignFunnel
             formId={`campaign-${campaign.slug}`}
             disclosureText={LEAD_DISCLOSURE_TEXT}
             smsConsentText={SMS_CONSENT_TEXT}
             emailConsentText={EMAIL_CONSENT_TEXT}
             disclosureVersion={LEAD_DISCLOSURE_VERSION}
             turnstileSiteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
-            preset={campaign.funnel}
+            config={campaign.funnel}
           />
         </div>
       </Section>

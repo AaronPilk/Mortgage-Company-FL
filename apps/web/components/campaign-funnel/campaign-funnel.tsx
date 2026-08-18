@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { Button } from "@/components/ui";
 import { FIRST_TOUCH_STORAGE_KEY, LAST_TOUCH_STORAGE_KEY, safeLandingPath } from "@tract/analytics";
-import type { LeadAttributionTouch, LeadIntent } from "@tract/schemas";
+import type { LeadAttributionTouch } from "@tract/schemas";
 import {
   attributionTouch,
   currentAttributionTouch,
@@ -11,81 +11,52 @@ import {
 } from "@/lib/attribution-browser";
 import { resetTurnstile } from "@/lib/turnstile-browser";
 import { TurnstileWidget } from "@/components/turnstile-widget";
+import { STATE_OPTIONS } from "@/components/planner/options";
+import {
+  campaignLeadFields,
+  visibleQuestions,
+  type CampaignAnswers,
+  type CampaignChoiceQuestion,
+  type CampaignFunnelConfig,
+  type CampaignSliderQuestion,
+  type CampaignTextQuestion
+} from "./contract";
 
 /**
- * Homepage hero funnel: one question per screen, then contact details.
+ * Campaign landing funnel: one question per screen at the depth the ad
+ * campaigns run at, modeled on the chunked ad funnels the owner asked for.
  *
- * This is the fast lane for organic homepage traffic — a few tappable
- * questions and a contact step — modeled on the chunked-funnel pattern the
- * owner asked for. It stays deliberately short: the full planner lives at
- * /plan, and the deeper ad-campaign funnels live in
- * components/campaign-funnel/ and are configured per campaign in
- * content/campaigns.ts.
+ * Where the homepage hero funnel (components/home-funnel.tsx) deliberately
+ * asks almost nothing, a campaign page already knows the visitor's intent —
+ * the ad told us — and asks the qualifying questions whose answers have a
+ * home in the lead schema. The question list, its copy, and its routing live
+ * in content/campaigns.ts and components/campaign-funnel/contract.ts; this
+ * component is only the screen-by-screen engine.
  *
- * It is a MARKETING form, and every rule that binds components/lead-form.tsx
- * binds here: no government identifier, no date of birth, no account number,
- * no income documentation, no file upload — ever. Credit is a self-reported
- * band, never a score, and nothing here implies approval or prequalification.
+ * It is a MARKETING form, and every rule that binds lead-form.tsx binds here:
+ * no government identifier, no date of birth, no account number, no income
+ * documentation, no file upload — ever. Sliders display a dollar figure for
+ * feel, but only the enumerated band it falls into is submitted. Credit is a
+ * self-reported band, never a score, and nothing here implies approval.
  *
  * Submission mechanics mirror lead-form.tsx exactly: same endpoint, same
  * idempotent submissionId, same attribution touches, same honeypot, same
- * explicitly rendered Turnstile widget. Only the answers differ, and each of
- * them maps onto a field CreateLeadSchema already accepts.
+ * explicitly rendered Turnstile widget.
  */
-
-type ChoiceOption<T extends string> = { value: T; label: string; hint?: string };
-
-type TimelineValue = "now" | "0_3_months" | "3_6_months" | "6_plus" | "researching";
-type CreditBandValue =
-  "below_580" | "580_619" | "620_679" | "680_719" | "720_759" | "760_plus" | "unknown";
-
-/**
- * Step 1 maps straight onto LeadIntent values the schema already accepts.
- * "Sell my home" is connection framing only: TRACT is a mortgage brokerage
- * and does not list homes — the owner's real-estate network picks that
- * conversation up, which is exactly what the sell_home intent exists for.
- */
-const INTENT_OPTIONS: ChoiceOption<
-  Extract<LeadIntent, "purchase" | "refinance" | "first_time_buyer" | "sell_home">
->[] = [
-  { value: "purchase", label: "Buy a home", hint: "I want financing for a purchase" },
-  { value: "refinance", label: "Refinance", hint: "I already own and want to revisit my loan" },
-  {
-    value: "first_time_buyer",
-    label: "Buy my first home",
-    hint: "This would be my first mortgage"
-  },
-  { value: "sell_home", label: "Sell my home", hint: "I own and I'm ready to sell" }
-];
-
-/** Step 2 uses the Timeline enum verbatim; the labels are its honest reading. */
-const TIMELINE_OPTIONS: ChoiceOption<TimelineValue>[] = [
-  { value: "now", label: "As soon as possible" },
-  { value: "0_3_months", label: "Within 3 months" },
-  { value: "3_6_months", label: "3 to 6 months" },
-  { value: "6_plus", label: "More than 6 months" },
-  { value: "researching", label: "Just researching" }
-];
-
-/** Self-reported bands from CreditBandSchema. Never a score, never a pull. */
-const CREDIT_OPTIONS: ChoiceOption<CreditBandValue>[] = [
-  { value: "760_plus", label: "760 or above" },
-  { value: "720_759", label: "720–759" },
-  { value: "680_719", label: "680–719" },
-  { value: "620_679", label: "620–679" },
-  { value: "580_619", label: "580–619" },
-  { value: "below_580", label: "Below 580" },
-  { value: "unknown", label: "Not sure", hint: "That's fine — a rough guess is all this is" }
-];
 
 const AUTO_ADVANCE_MS = 220;
 
-type StepKey = "intent" | "timeline" | "credit" | "contact";
+/** Display formatting only. No arithmetic happens on this figure in the browser. */
+const usd = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 0
+});
 
 /**
  * Friendly text for the server's field-level rejections, mirroring the map in
- * components/planner/planner.tsx. Unknown keys fall through to the server's
- * own message, which is still more actionable than a generic retry line.
+ * components/home-funnel.tsx. Unknown keys fall through to the server's own
+ * message, which is still more actionable than a generic retry line.
  */
 const SERVER_FIELD_TEXT: Record<string, string> = {
   turnstileToken: "The security check didn't complete. Please wait a moment and try again.",
@@ -95,9 +66,10 @@ const SERVER_FIELD_TEXT: Record<string, string> = {
   phone: "Enter a phone number with at least 10 digits.",
   consent: "Please confirm the permission checkbox so a licensed professional can contact you.",
   submissionId: "Something went wrong preparing the submission. Reload the page and try again.",
-  intent: "Choose what you are trying to do on the first screen.",
   timeline: "Choose a timeframe on the timing screen.",
-  estimatedCreditBand: "Choose a credit range — “Not sure” is fine."
+  estimatedCreditBand: "Choose a credit range — “Not sure” is fine.",
+  planner: "One of your earlier answers didn't go through. Use Back to check them and try again.",
+  stateCode: "Choose the state the property is in."
 };
 
 function serverFieldMessages(fields: Record<string, string[]> | undefined): string[] {
@@ -122,19 +94,14 @@ type FormState =
   | { kind: "error"; message: string; fieldMessages: string[] }
   | { kind: "success"; receiptId: string };
 
-type Answers = {
-  intent: LeadIntent | "";
-  timeline: TimelineValue | "";
-  creditBand: CreditBandValue | "";
-};
-
-export function HomeFunnel({
+export function CampaignFunnel({
   formId,
   disclosureText,
   smsConsentText,
   emailConsentText,
   disclosureVersion,
-  turnstileSiteKey
+  turnstileSiteKey,
+  config
 }: {
   formId: string;
   disclosureText: string;
@@ -142,35 +109,33 @@ export function HomeFunnel({
   emailConsentText: string;
   disclosureVersion: string;
   turnstileSiteKey?: string | undefined;
+  config: CampaignFunnelConfig;
 }) {
   const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<Answers>({
-    intent: "",
-    timeline: "",
-    creditBand: ""
-  });
+  const [answers, setAnswers] = useState<CampaignAnswers>(() => ({
+    choices: {},
+    // Every slider starts at its configured default so a visitor who taps
+    // Continue without moving it still submits the band they were shown.
+    sliders: Object.fromEntries(
+      config.questions
+        .filter((question) => question.kind === "slider")
+        .map((question) => [question.id, (question as CampaignSliderQuestion).defaultValue])
+    ),
+    text: {}
+  }));
   const [state, setState] = useState<FormState>({ kind: "idle" });
+  // The state the property is in, asked on the contact screen of planner
+  // campaigns. FL first because that is where this brokerage is licensed —
+  // a fact the page states rather than something the list implies.
+  const [propertyState, setPropertyState] = useState("FL");
 
-  // A seller is never asked for a financing credit band.
-  const skipCredit = answers.intent === "sell_home";
-
-  // The step list is derived, not stated, so the progress bar, the submit
-  // guard, and the screen order can never disagree about which questions this
-  // instance of the funnel actually asks.
-  const steps: StepKey[] = [
-    "intent",
-    "timeline",
-    ...(skipCredit ? [] : (["credit"] as const)),
-    "contact"
-  ];
-  const stepCount = steps.length;
-
-  const stepHeadings: Record<StepKey, string> = {
-    intent: "What are you trying to do?",
-    timeline: "When are you hoping to do it?",
-    credit: "Where do you think your credit sits?",
-    contact: "Where should we send your answer?"
-  };
+  // The step list is derived from the answers, so the progress bar, the back
+  // button, and conditional questions (the branch screen after military = yes)
+  // can never disagree about which screens this funnel actually shows.
+  const questionSteps = visibleQuestions(config, answers);
+  const stepCount = questionSteps.length + 1; // + contact
+  const contactStep = step >= questionSteps.length;
+  const activeQuestion = contactStep ? undefined : questionSteps[step];
 
   const submissionRef = useRef<{
     id: string;
@@ -198,8 +163,6 @@ export function HomeFunnel({
     const root = rootRef.current;
     if (root === null) return;
     const rect = root.getBoundingClientRect();
-    // Scroll only when the card has actually left the viewport; smooth unless
-    // the reader has asked for reduced motion.
     if (rect.top < 0 || rect.top > window.innerHeight - 160) {
       const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       root.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
@@ -221,6 +184,14 @@ export function HomeFunnel({
     }, AUTO_ADVANCE_MS);
   }
 
+  function advanceNow() {
+    if (advanceTimer.current !== undefined) {
+      window.clearTimeout(advanceTimer.current);
+      advanceTimer.current = undefined;
+    }
+    setStep((current) => Math.min(current + 1, stepCount - 1));
+  }
+
   function goBack() {
     if (advanceTimer.current !== undefined) {
       window.clearTimeout(advanceTimer.current);
@@ -229,25 +200,51 @@ export function HomeFunnel({
     setStep((current) => Math.max(current - 1, 0));
   }
 
-  function choose<K extends keyof Answers>(key: K, value: Answers[K]) {
-    setAnswers((current) => ({ ...current, [key]: value }));
+  function chooseAnswer(question: CampaignChoiceQuestion, value: string) {
+    setAnswers((current) => ({
+      ...current,
+      choices: { ...current.choices, [question.id]: value }
+    }));
     scheduleAdvance();
+  }
+
+  function setSlider(question: CampaignSliderQuestion, dollars: number) {
+    setAnswers((current) => ({
+      ...current,
+      sliders: { ...current.sliders, [question.id]: dollars }
+    }));
+  }
+
+  function setText(question: CampaignTextQuestion, value: string) {
+    setAnswers((current) => ({
+      ...current,
+      text: { ...current.text, [question.id]: value }
+    }));
+  }
+
+  function skipSlider(question: CampaignSliderQuestion) {
+    setAnswers((current) => {
+      const sliders = { ...current.sliders };
+      delete sliders[question.id];
+      return { ...current, sliders };
+    });
+    advanceNow();
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     // Enter on an earlier screen means "next", not "submit".
-    const currentStep = steps[step];
-    if (step < stepCount - 1) {
-      const answered =
-        (currentStep === "intent" && answers.intent !== "") ||
-        (currentStep === "timeline" && answers.timeline !== "") ||
-        (currentStep === "credit" && answers.creditBand !== "");
-      if (answered) scheduleAdvance();
+    if (!contactStep) {
+      const question = activeQuestion;
+      // A slider always shows an answer, and the one text question is
+      // optional by contract — so only an unanswered choice blocks Enter.
+      const ready =
+        question !== undefined &&
+        (question.kind !== "choice" || answers.choices[question.id] !== undefined);
+      if (ready) advanceNow();
       return;
     }
     if (state.kind === "submitting") return;
-    if (answers.intent === "") return;
     setState({ kind: "submitting" });
 
     const form = new FormData(event.currentTarget);
@@ -258,12 +255,15 @@ export function HomeFunnel({
       emailMarketing: form.get("emailMarketing") === "on",
       disclosureVersion
     };
+    // Bands and enumerated answers only; the mapping is the tested contract.
+    const leadFields = campaignLeadFields(
+      config,
+      answers,
+      config.planner === undefined ? undefined : propertyState
+    );
     const core = {
-      intent: answers.intent,
-      timeline: answers.timeline || undefined,
-      // A credit answer can survive a back-and-change to selling; a seller
-      // lead never carries one.
-      estimatedCreditBand: skipCredit ? undefined : answers.creditBand || undefined,
+      intent: config.intent,
+      leadFields,
       firstName: String(form.get("firstName") ?? ""),
       lastName: String(form.get("lastName") ?? ""),
       email: String(form.get("email") ?? ""),
@@ -287,14 +287,12 @@ export function HomeFunnel({
 
     const payload = {
       submissionId: submission.id,
-      intent: core.intent,
+      intent: config.intent,
       firstName: core.firstName,
       lastName: core.lastName,
       email: core.email,
       phone: core.phone,
-      stateCode: "FL",
-      timeline: core.timeline,
-      estimatedCreditBand: core.estimatedCreditBand,
+      ...leadFields,
       consent,
       firstTouch: submission.firstTouch,
       lastTouch: submission.lastTouch,
@@ -360,8 +358,8 @@ export function HomeFunnel({
         </div>
         <h2 className="mt-4 text-2xl font-bold text-[var(--text)]">We have your request</h2>
         <p className="mt-3 text-[var(--text-muted)]">
-          A licensed mortgage professional will reach out. Nothing has been submitted to a lender,
-          no credit inquiry has been made, and you are not obligated to anything.
+          {config.successBody ??
+            "A licensed mortgage professional will reach out. Nothing has been submitted to a lender, no credit inquiry has been made, and you are not obligated to anything."}
         </p>
         <p className="mt-4 text-sm text-[var(--text-muted)]">
           Reference{" "}
@@ -380,69 +378,131 @@ export function HomeFunnel({
   }
 
   const progressPct = Math.round(((step + 1) / stepCount) * 100);
-  const activeStep = steps[step] ?? "contact";
-  const heading = stepHeadings[activeStep];
+  const heading = contactStep
+    ? "Where should we send your answer?"
+    : (activeQuestion?.heading ?? "");
+  const help = contactStep
+    ? (config.contactHint ?? "A licensed mortgage professional will reach out about your options.")
+    : activeQuestion?.help;
 
   const inputClass =
     "mt-1.5 w-full rounded-lg border border-[var(--border)] bg-[var(--bg)] px-3 py-2.5 text-base " +
     "min-h-[44px] focus:border-[var(--purple)]";
 
-  const choiceCards = <T extends string>(
-    name: keyof Answers,
-    options: ChoiceOption<T>[],
-    selectedValue: string,
-    twoColumns = false
-  ) => (
-    <fieldset className="mt-5">
-      <legend className="sr-only">{heading}</legend>
-      <div className={`grid gap-3 ${twoColumns ? "sm:grid-cols-2" : ""}`}>
-        {options.map((option) => {
-          const selected = option.value === selectedValue;
-          return (
-            <label
-              key={option.value}
-              className="flex min-h-[56px] cursor-pointer items-center gap-3 rounded-xl border p-4 transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-solid has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--purple)]"
-              style={{
-                borderColor: selected ? "var(--purple)" : "var(--border)",
-                background: selected ? "var(--purple-subtle)" : "var(--bg)"
-              }}
-            >
-              {/* Real radio, visually hidden; the card is its label. */}
-              <input
-                type="radio"
-                name={name}
-                value={option.value}
-                checked={selected}
-                required
-                className="sr-only"
-                onChange={() => choose(name, option.value as Answers[typeof name])}
-                onClick={() => {
-                  // Re-tapping the already-selected card still advances.
-                  if (selected) scheduleAdvance();
+  const choiceCards = (question: CampaignChoiceQuestion) => {
+    const selectedValue = answers.choices[question.id] ?? "";
+    return (
+      <fieldset className="mt-5">
+        <legend className="sr-only">{question.heading}</legend>
+        <div className={`grid gap-3 ${question.twoColumns === true ? "sm:grid-cols-2" : ""}`}>
+          {question.options.map((option) => {
+            const selected = option.value === selectedValue;
+            return (
+              <label
+                key={option.value}
+                className="flex min-h-[56px] cursor-pointer items-center gap-3 rounded-xl border p-4 transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-solid has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--purple)]"
+                style={{
+                  borderColor: selected ? "var(--purple)" : "var(--border)",
+                  background: selected ? "var(--purple-subtle)" : "var(--bg)"
                 }}
-              />
-              <span
-                aria-hidden="true"
-                className="flex size-5 shrink-0 items-center justify-center rounded-full border-2"
-                style={{ borderColor: selected ? "var(--purple)" : "var(--border)" }}
               >
-                {selected && (
-                  <span className="size-2.5 rounded-full" style={{ background: "var(--purple)" }} />
-                )}
-              </span>
-              <span>
-                <span className="block font-semibold text-[var(--text)]">{option.label}</span>
-                {option.hint !== undefined && (
-                  <span className="mt-0.5 block text-sm text-[var(--text-muted)]">
-                    {option.hint}
-                  </span>
-                )}
-              </span>
-            </label>
-          );
-        })}
+                {/* Real radio, visually hidden; the card is its label. */}
+                <input
+                  type="radio"
+                  name={question.id}
+                  value={option.value}
+                  checked={selected}
+                  required
+                  className="sr-only"
+                  onChange={() => chooseAnswer(question, option.value)}
+                  onClick={() => {
+                    // Re-tapping the already-selected card still advances.
+                    if (selected) scheduleAdvance();
+                  }}
+                />
+                <span
+                  aria-hidden="true"
+                  className="flex size-5 shrink-0 items-center justify-center rounded-full border-2"
+                  style={{ borderColor: selected ? "var(--purple)" : "var(--border)" }}
+                >
+                  {selected && (
+                    <span
+                      className="size-2.5 rounded-full"
+                      style={{ background: "var(--purple)" }}
+                    />
+                  )}
+                </span>
+                <span>
+                  <span className="block font-semibold text-[var(--text)]">{option.label}</span>
+                  {option.hint !== undefined && (
+                    <span className="mt-0.5 block text-sm text-[var(--text-muted)]">
+                      {option.hint}
+                    </span>
+                  )}
+                </span>
+              </label>
+            );
+          })}
+        </div>
+      </fieldset>
+    );
+  };
+
+  const sliderScreen = (question: CampaignSliderQuestion) => {
+    const dollars = answers.sliders[question.id] ?? question.defaultValue;
+    return (
+      <div className="mt-5">
+        {/* The live figure is display only. Only the band it falls into is submitted. */}
+        <p
+          aria-live="polite"
+          data-slider-value={question.id}
+          className="text-center text-3xl font-bold text-[var(--text)]"
+        >
+          {usd.format(dollars)}
+        </p>
+        <input
+          type="range"
+          id={fieldId(question.id)}
+          aria-label={question.heading}
+          min={question.min}
+          max={question.max}
+          step={question.step}
+          value={dollars}
+          onChange={(event) => setSlider(question, Number(event.currentTarget.value))}
+          className="mt-4 w-full accent-[var(--purple)]"
+        />
+        <div className="mt-1 flex justify-between text-xs text-[var(--text-muted)]">
+          <span>{usd.format(question.min)}</span>
+          <span>{usd.format(question.max)}</span>
+        </div>
+        <p className="mt-3 text-xs text-[var(--text-muted)]">
+          A rough figure is all this is — only the range it falls in is shared with us.
+        </p>
       </div>
-    </fieldset>
+    );
+  };
+
+  const textScreen = (question: CampaignTextQuestion) => (
+    <div className="mt-5">
+      <label htmlFor={fieldId(question.id)} className="sr-only">
+        {question.heading}
+      </label>
+      <input
+        id={fieldId(question.id)}
+        type="text"
+        // Deliberately unnamed-for-submission: the value travels through the
+        // tested contract mapping into its bounded schema field, not FormData.
+        value={answers.text[question.id] ?? ""}
+        onChange={(event) => setText(question, event.currentTarget.value)}
+        maxLength={question.maxLength}
+        placeholder={question.placeholder}
+        autoComplete="off"
+        className={inputClass}
+      />
+      <p className="mt-3 text-xs text-[var(--text-muted)]">
+        Optional — leave it blank if you'd rather not say, or aren't sure yet.
+      </p>
+    </div>
   );
 
   return (
@@ -512,23 +572,34 @@ export function HomeFunnel({
         >
           {heading}
         </h2>
+        {help !== undefined && <p className="mt-1 text-sm text-[var(--text-muted)]">{help}</p>}
 
-        {activeStep === "intent" && choiceCards("intent", INTENT_OPTIONS, answers.intent)}
-        {activeStep === "timeline" && choiceCards("timeline", TIMELINE_OPTIONS, answers.timeline)}
-        {activeStep === "credit" && (
-          <>
-            <p className="mt-1 text-sm text-[var(--text-muted)]">
-              Your own rough sense is all we need. This is self-reported — never a credit check.
-            </p>
-            {choiceCards("creditBand", CREDIT_OPTIONS, answers.creditBand, true)}
-          </>
-        )}
+        {activeQuestion?.kind === "choice" && choiceCards(activeQuestion)}
+        {activeQuestion?.kind === "slider" && sliderScreen(activeQuestion)}
+        {activeQuestion?.kind === "text" && textScreen(activeQuestion)}
 
-        {activeStep === "contact" && (
+        {contactStep && (
           <>
-            <p className="mt-1 text-sm text-[var(--text-muted)]">
-              A licensed mortgage professional will reach out about your options.
-            </p>
+            {config.planner !== undefined && (
+              <div className="mt-5">
+                <label htmlFor={fieldId("propertyState")} className="text-sm font-semibold">
+                  State the property is in
+                </label>
+                <select
+                  id={fieldId("propertyState")}
+                  name="propertyState"
+                  value={propertyState}
+                  onChange={(event) => setPropertyState(event.currentTarget.value)}
+                  className={inputClass}
+                >
+                  {STATE_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               <div>
                 <label htmlFor={fieldId("firstName")} className="text-sm font-semibold">
@@ -643,9 +714,40 @@ export function HomeFunnel({
             Back
           </button>
         )}
-        {step === stepCount - 1 && (
+        {activeQuestion?.kind === "slider" && activeQuestion.optional === true && (
+          <button
+            type="button"
+            onClick={() => skipSlider(activeQuestion)}
+            className="min-h-[44px] rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text-muted)] transition-colors hover:border-[var(--purple)] hover:text-[var(--text)]"
+          >
+            Skip
+          </button>
+        )}
+        {activeQuestion?.kind === "slider" && (
+          <Button
+            type="button"
+            onClick={() => {
+              // Continue records what the screen shows, so a slider skipped on
+              // a previous visit and then confirmed on this one is an answer.
+              setSlider(
+                activeQuestion,
+                answers.sliders[activeQuestion.id] ?? activeQuestion.defaultValue
+              );
+              advanceNow();
+            }}
+            className="flex-1"
+          >
+            Continue
+          </Button>
+        )}
+        {activeQuestion?.kind === "text" && (
+          <Button type="button" onClick={advanceNow} className="flex-1">
+            Continue
+          </Button>
+        )}
+        {contactStep && (
           <Button type="submit" disabled={state.kind === "submitting"} className="flex-1">
-            {state.kind === "submitting" ? "Sending…" : "Request a call"}
+            {state.kind === "submitting" ? "Sending…" : (config.submitLabel ?? "Request a call")}
           </Button>
         )}
       </div>

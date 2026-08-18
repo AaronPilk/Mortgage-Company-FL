@@ -152,37 +152,218 @@ test.describe("talk chooser and campaign landings", () => {
     }
   });
 
-  test("a campaign page presets the intent and opens on the timing question", async ({ page }) => {
-    // The heloc visitor already told the ad what they want, so the goal
-    // question is gone and the funnel is one step shorter.
+  test("the heloc funnel walks its full question set to the contact step", async ({ page }) => {
+    // The heloc visitor already told the ad what they want, so there is no
+    // goal question — the funnel opens on the product question and asks the
+    // campaign's full set: product → three sliders → credit → timing →
+    // contact. Sliders submit bands, never the figure shown.
     await page.goto("/get-started/heloc");
     const form = page.locator('form[data-form-id="campaign-heloc"]');
     await expect(form).toBeVisible();
-    await expect(form.getByText("Step 1 of 3", { exact: true })).toBeVisible();
+    expect(await form.locator('input[type="radio"][name="intent"]').count()).toBe(0);
+
+    await expect(form.getByText("Step 1 of 7", { exact: true })).toBeVisible();
+    await expect(
+      form.getByRole("heading", { name: "What are you looking to understand?" })
+    ).toBeVisible();
+    // Education framing, never an application, on the page itself.
+    await expect(form.getByText("This is not an application").first()).toBeVisible();
+    await form.getByText("A home equity line of credit", { exact: true }).click();
+
+    // Equity amount slider: live USD formatting of the default, then Continue.
+    await expect(form.getByText("Step 2 of 7", { exact: true })).toBeVisible();
+    await expect(
+      form.getByRole("heading", { name: "About how much equity are you hoping to access?" })
+    ).toBeVisible();
+    await expect(form.locator('[data-slider-value="equityAmount"]')).toHaveText("$50,000");
+    await form.getByRole("button", { name: "Continue" }).click();
+
+    // Home value slider.
+    await expect(form.getByText("Step 3 of 7", { exact: true })).toBeVisible();
+    await expect(form.locator('[data-slider-value="homeValue"]')).toHaveText("$400,000");
+    await form.getByRole("button", { name: "Continue" }).click();
+
+    // Current balance slider.
+    await expect(form.getByText("Step 4 of 7", { exact: true })).toBeVisible();
+    await expect(form.locator('[data-slider-value="currentBalance"]')).toHaveText("$250,000");
+    await form.getByRole("button", { name: "Continue" }).click();
+
+    // Credit is a self-reported band with an explicit escape hatch.
+    await expect(form.getByText("Step 5 of 7", { exact: true })).toBeVisible();
+    await expect(form.getByText("I do not know", { exact: true })).toBeVisible();
+    await form.getByText("I do not know", { exact: true }).click();
+
+    await expect(form.getByText("Step 6 of 7", { exact: true })).toBeVisible();
     await expect(
       form.getByRole("heading", { name: "When are you hoping to access your equity?" })
     ).toBeVisible();
-    expect(await form.locator('input[type="radio"][name="intent"]').count()).toBe(0);
-    // Education framing, never an application, on the page itself.
-    await expect(form.getByText("This is not an application").first()).toBeVisible();
+    await form.getByText("Just researching", { exact: true }).click();
+
+    // Contact last, with unbundled consents and the submit control.
+    await expect(form.getByText("Step 7 of 7", { exact: true })).toBeVisible();
+    await expect(form.locator('input[name="firstName"]')).toBeVisible();
+    await expect(form.locator('input[name="privacyAccepted"]')).toHaveAttribute("required", "");
+    await expect(form.locator('input[name="smsMarketing"]')).not.toHaveAttribute("required", "");
+    await expect(form.getByRole("button", { name: "Request a call" })).toBeVisible();
+
+    // Back returns to the timing question without losing the flow.
+    await form.getByRole("button", { name: "Back" }).click();
+    await expect(form.getByText("Step 6 of 7", { exact: true })).toBeVisible();
   });
 
-  test("the sell funnel skips credit and keeps the handoff framing honest", async ({ page }) => {
+  test("the sell funnel stays short, allows skipping the value, and keeps the handoff honest", async ({
+    page
+  }) => {
     await page.goto("/get-started/sell");
     const body = (await page.locator("body").innerText()).toLowerCase();
     // TRACT does not list homes; the page must say so, and never imply it does.
     expect(body).toContain("don't list homes");
 
     const form = page.locator('form[data-form-id="campaign-sell"]');
-    await expect(form.getByText("Step 1 of 2", { exact: true })).toBeVisible();
+    await expect(form.getByText("Step 1 of 3", { exact: true })).toBeVisible();
     await expect(
       form.getByRole("heading", { name: "When are you looking to sell?" })
     ).toBeVisible();
     await form.getByText("Within 3 months", { exact: true }).click();
+
+    // The rough-value slider is optional; skipping it is a first-class path.
+    await expect(form.getByText("Step 2 of 3", { exact: true })).toBeVisible();
+    await form.getByRole("button", { name: "Skip" }).click();
+
     // Straight to contact — a seller is never asked for a credit band.
-    await expect(form.getByText("Step 2 of 2", { exact: true })).toBeVisible();
+    await expect(form.getByText("Step 3 of 3", { exact: true })).toBeVisible();
     await expect(form.locator('input[name="firstName"]')).toBeVisible();
     expect(await form.locator('input[type="radio"][name="creditBand"]').count()).toBe(0);
+  });
+
+  test("a purchase campaign asks the deep set and branches on military service", async ({
+    page
+  }) => {
+    await page.goto("/get-started/purchase");
+    const form = page.locator('form[data-form-id="campaign-purchase"]');
+    await expect(form.getByText("Step 1 of 14", { exact: true })).toBeVisible();
+    await expect(
+      form.getByRole("heading", { name: "Where are you in the buying process?" })
+    ).toBeVisible();
+    await form.getByText("Just researching", { exact: true }).click();
+
+    // City or ZIP is optional free text with its own bounded planner field.
+    await expect(
+      form.getByRole("heading", { name: "Where are you looking to buy?" })
+    ).toBeVisible();
+    await expect(form.getByText("never a street address")).toBeVisible();
+    await form.getByRole("button", { name: "Continue" }).click();
+
+    await form.getByText("Single family", { exact: true }).click();
+    await form.getByText("Primary residence", { exact: true }).click();
+
+    // Answering yes to service adds the branch screen and lengthens the funnel.
+    await expect(
+      form.getByRole("heading", { name: "Have you or your spouse served in the U.S. military?" })
+    ).toBeVisible();
+    await form.getByText("Yes", { exact: true }).click();
+    await expect(form.getByRole("heading", { name: "Which branch?" })).toBeVisible();
+    await expect(form.getByText("Step 6 of 15", { exact: true })).toBeVisible();
+    // Going back and answering no removes it again.
+    await form.getByRole("button", { name: "Back" }).click();
+    await form.getByText("No", { exact: true }).click();
+    await expect(
+      form.getByRole("heading", { name: "Are you working with a real estate agent?" })
+    ).toBeVisible();
+    await expect(form.getByText("Step 6 of 14", { exact: true })).toBeVisible();
+  });
+
+  test("a full purchase walk-through submits planner bands, never the figures shown", async ({
+    page
+  }) => {
+    // Intercepted like the recovery-spec lead tests: the payload the browser
+    // actually posts is the thing under test.
+    const payloads: Array<Record<string, unknown>> = [];
+    await page.route("**/api/v1/leads", async (route) => {
+      payloads.push(route.request().postDataJSON() as Record<string, unknown>);
+      await route.fulfill({
+        status: 201,
+        contentType: "application/json",
+        body: JSON.stringify({
+          ok: true,
+          data: {
+            receiptId: "00000000-0000-4000-8000-000000000601",
+            receivedAt: "2026-08-18T12:00:00.000Z",
+            intent: "purchase",
+            nextStep: "human_follow_up"
+          },
+          requestId: "campaign-purchase-e2e"
+        })
+      });
+    });
+
+    await page.goto("/get-started/purchase");
+    const form = page.locator('form[data-form-id="campaign-purchase"]');
+
+    await form.getByText("Actively looking", { exact: true }).click();
+    await form.locator('input[type="text"]').fill("Tampa");
+    await form.getByRole("button", { name: "Continue" }).click();
+    await form.getByText("Single family", { exact: true }).click();
+    await form.getByText("Primary residence", { exact: true }).click();
+    await form.getByText("No", { exact: true }).click();
+    await form.getByText("Not yet", { exact: true }).click();
+
+    // Price slider: the default figure renders live and is display-only.
+    await expect(form.locator('[data-slider-value="price"]')).toHaveText("$350,000");
+    await form.getByRole("button", { name: "Continue" }).click();
+    await expect(form.locator('[data-slider-value="downPayment"]')).toHaveText("$30,000");
+    await form.getByRole("button", { name: "Continue" }).click();
+
+    await form.getByText("Employed, paid by W-2", { exact: true }).click();
+    await form.getByText("$8,000 to $12,000", { exact: true }).click();
+    await form.getByText("Under $500 a month", { exact: true }).click();
+    await form.getByText("I do not know", { exact: true }).click();
+    await form.getByText("Just researching", { exact: true }).click();
+
+    // Contact last: state select, contact fields, unbundled consents, submit.
+    await expect(form.getByText("Step 14 of 14", { exact: true })).toBeVisible();
+    await expect(form.locator('select[name="propertyState"]')).toHaveValue("FL");
+    await form.locator('input[name="firstName"]').fill("Dana");
+    await form.locator('input[name="lastName"]').fill("Reyes");
+    await form.locator('input[name="email"]').fill("dana@example.com");
+    await form.locator('input[name="phone"]').fill("813-555-0147");
+    await form.locator('input[name="privacyAccepted"]').check();
+    await form.getByRole("button", { name: "Request a call" }).click();
+    await expect(page.getByText("We have your request")).toBeVisible();
+
+    expect(payloads.length).toBe(1);
+    const payload = payloads[0] ?? {};
+    expect(payload).toMatchObject({
+      intent: "purchase",
+      stateCode: "FL",
+      planner: {
+        goal: "purchase",
+        propertyState: "FL",
+        propertyLocation: "Tampa",
+        propertyType: "single_family",
+        propertyStage: "actively_looking",
+        priceBand: "350k_500k",
+        downPaymentBand: "5_10",
+        creditBand: "unknown",
+        employment: "w2",
+        incomeBand: "8k_12k",
+        monthlyDebtBand: "under_500",
+        timing: "researching"
+      },
+      consent: { privacyAccepted: true, contactRequested: true }
+    });
+    // The campaign context rides in the server-authored message; the visitor's
+    // free text does not.
+    expect(String(payload.message)).toContain("Arrived via the purchase campaign page.");
+    expect(String(payload.message)).not.toContain("Tampa");
+    // The dollar figures the sliders displayed never leave the browser, under
+    // any spelling, and no refinance-only band stows away on a purchase lead.
+    // Scoped to the planner and message (the UUID fields are random hex).
+    const raw = JSON.stringify(payload.planner) + String(payload.message);
+    expect(raw).not.toMatch(/350,?000|30,?000/);
+    expect(raw).not.toContain("currentMortgageBalanceBand");
+    expect(raw).not.toContain("currentMortgageRateBand");
+    expect(String(payload.submissionId)).toMatch(/^[0-9a-f-]{36}$/i);
   });
 
   test("campaign pages and the chooser stay out of the index", async ({ page }) => {

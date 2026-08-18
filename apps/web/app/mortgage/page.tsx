@@ -18,10 +18,14 @@ export const metadata: Metadata = pageMetadata({
  * the programs. The order within each list is the display order.
  *
  * Most visitors arrive with a situation, not a program name, so the page leads
- * with the three situation pages, keeps the government-backed programs at
+ * with the four situation pages, keeps the government-backed programs at
  * medium weight, and folds everything else into a quiet, scannable list.
+ *
+ * Home equity sits in the featured row deliberately: owners weighing a HELOC
+ * or second mortgage are a primary paid-campaign audience, and buried in the
+ * specialty list the page's own owner failed to spot it.
  */
-const SITUATION_SLUGS = ["purchase", "refinance", "first-time-home-buyers"];
+const SITUATION_SLUGS = ["purchase", "refinance", "home-equity", "first-time-home-buyers"];
 const GOVERNMENT_SLUGS = ["fha", "va", "usda"];
 
 function requireProgram(slug: string): Program {
@@ -59,6 +63,15 @@ const CARD_IMAGE_OVERRIDES: Record<string, ProgramHeroImage> = {
     alt: "A Florida house behind mature landscaping",
     width: 1200,
     height: 509
+  },
+  // The home-equity page shares the refinance hero photograph, which sits two
+  // cards away in this same row — so the hub substitutes another company-
+  // generated Florida home image from the asset manifest.
+  "home-equity": {
+    src: "/images/home/tract-vision-preview.webp",
+    alt: "A Florida bungalow with a tidy front garden",
+    width: 1600,
+    height: 1000
   }
 };
 
@@ -82,9 +95,9 @@ export default function MortgageIndexPage() {
       <Section pad="tight">
         <SectionHeading
           title="Start with your situation"
-          description="Buying, refinancing, or doing this for the first time — start with the guide that matches."
+          description="Buying, refinancing, putting your home's equity to work, or doing this for the first time — start with the guide that matches."
         />
-        <ul className="grid gap-6 lg:grid-cols-3">
+        <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {situationPrograms.map((program, index) => {
             const image = cardImage(program);
             return (
@@ -101,7 +114,7 @@ export default function MortgageIndexPage() {
                       // desktop, where eager loading is still the right call.
                       fetchPriority={index === 0 ? "high" : undefined}
                       loading="eager"
-                      sizes="(max-width: 1024px) 100vw, 33vw"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                       className="aspect-[16/9] w-full object-cover"
                     />
                   )}
