@@ -3,6 +3,7 @@ import { Card, Disclosure, Section, SectionHeading } from "@/components/ui";
 import { Planner } from "@/components/planner/planner";
 import { GOAL_OPTIONS, type PlannerGoalValue } from "@/components/planner/options";
 import { pageMetadata } from "@/lib/metadata";
+import { publicFeatures } from "@/lib/env";
 import {
   EMAIL_CONSENT_TEXT,
   LEAD_DISCLOSURE_TEXT,
@@ -13,7 +14,7 @@ import {
 export const metadata: Metadata = pageMetadata({
   title: "Mortgage planner",
   description:
-    "Answer a few questions and watch a payment estimate build as you go. No credit pull, no application, and the estimate is yours before we ask for anything.",
+    "Sign up with your name, email, and phone, then answer a few questions and watch a payment estimate build as you go. No credit pull and no application.",
   path: "/plan"
 });
 
@@ -35,6 +36,13 @@ export default async function PlanPage({
 }) {
   const initialGoal = goalFromQuery((await searchParams).goal);
 
+  // For the optional save-to-account offer after the sign-up gate. The anon key
+  // is public by design; nothing here weakens the accounts feature gate.
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const accountsConfigured =
+    publicFeatures().accounts && supabaseUrl !== undefined && anonKey !== undefined;
+
   return (
     <>
       <Section pad="head" orbs>
@@ -43,7 +51,7 @@ export default async function PlanPage({
           eyebrow="Planner"
           title="Build the picture before you talk to anyone"
           gradientWord="before you talk to anyone"
-          description="Four short steps. A payment estimate appears from the second one and keeps updating as you answer — it is yours whether or not you ever give us your name."
+          description="A quick sign-up — name, email, phone — opens four short steps. A payment estimate appears from the second one and keeps updating as you answer."
         />
         <div className="grid gap-4 sm:grid-cols-3">
           <Card>
@@ -78,6 +86,9 @@ export default async function PlanPage({
           emailConsentText={EMAIL_CONSENT_TEXT}
           disclosureVersion={LEAD_DISCLOSURE_VERSION}
           turnstileSiteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+          accountsConfigured={accountsConfigured}
+          supabaseUrl={supabaseUrl}
+          anonKey={anonKey}
         />
         <Disclosure
           headline="Nothing here is a credit decision."

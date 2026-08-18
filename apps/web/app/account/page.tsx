@@ -29,6 +29,12 @@ type SavedScenario = {
   calculation_version: string;
   saved_at: string;
 };
+type SavedSearch = {
+  id: string;
+  search_params: string;
+  summary: string;
+  saved_at: string;
+};
 type VisionProject = {
   id: string;
   title: string;
@@ -125,6 +131,7 @@ export default async function AccountPage({
   const [
     propertyResult,
     scenarioResult,
+    savedSearchResult,
     preferenceResult,
     projectResult,
     jobResult,
@@ -139,6 +146,12 @@ export default async function AccountPage({
     supabase
       .from("saved_calculator_scenarios")
       .select("id,source,summary,version,calculation_version,saved_at")
+      .eq("owner_user_id", user.id)
+      .order("saved_at", { ascending: false })
+      .limit(50),
+    supabase
+      .from("saved_searches")
+      .select("id,search_params,summary,saved_at")
       .eq("owner_user_id", user.id)
       .order("saved_at", { ascending: false })
       .limit(50),
@@ -169,6 +182,7 @@ export default async function AccountPage({
 
   const properties = (propertyResult.data ?? []) as SavedProperty[];
   const scenarios = (scenarioResult.data ?? []) as SavedScenario[];
+  const savedSearches = (savedSearchResult.data ?? []) as SavedSearch[];
   const projects = (projectResult.data ?? []) as VisionProject[];
   const jobs = (jobResult.data ?? []) as AccountJob[];
   const privacyRequests = (privacyResult.data ?? []) as PrivacyRequest[];
@@ -195,6 +209,7 @@ export default async function AccountPage({
   const queryUnavailable = [
     propertyResult,
     scenarioResult,
+    savedSearchResult,
     preferenceResult,
     projectResult,
     jobResult,
@@ -268,6 +283,40 @@ export default async function AccountPage({
                     className="mt-2 px-0"
                   >
                     Open property
+                  </ButtonLink>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+
+        <Card>
+          <h2 className="text-2xl font-bold">Saved searches</h2>
+          {savedSearches.length === 0 ? (
+            <p className="mt-4 text-sm text-[var(--text-muted)]">
+              No saved searches yet. Save one from the property search page.
+            </p>
+          ) : (
+            <ul className="mt-4 space-y-4">
+              {savedSearches.map((search) => (
+                <li
+                  key={search.id}
+                  className="border-t border-[var(--border)] pt-4 first:border-0 first:pt-0"
+                >
+                  <p className="font-semibold">{search.summary}</p>
+                  <p className="mt-1 text-xs text-[var(--text-muted)]">
+                    Saved {date(search.saved_at)}
+                  </p>
+                  <ButtonLink
+                    href={
+                      search.search_params === ""
+                        ? "/properties"
+                        : `/properties?${search.search_params}`
+                    }
+                    variant="ghost"
+                    className="mt-2 px-0"
+                  >
+                    Run this search
                   </ButtonLink>
                 </li>
               ))}

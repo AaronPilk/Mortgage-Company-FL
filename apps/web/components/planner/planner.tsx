@@ -11,6 +11,7 @@ import {
   readStoredTouch
 } from "@/lib/attribution-browser";
 import { TurnstileWidget } from "@/components/turnstile-widget";
+import { AccountSignIn } from "@/components/account/account-sign-in";
 import { CheckboxField, RadioGroup, SelectField, TextField } from "./controls";
 import { EstimatePanel } from "./estimate";
 import { trackEstimateShown, trackPlannerLead, trackPlannerStarted } from "./analytics";
@@ -46,13 +47,16 @@ import {
 } from "./options";
 
 /**
- * The progressive planner.
+ * The progressive planner, behind a lightweight sign-up gate.
  *
- * The order of the four steps is the whole point. Three steps of context come
- * first and each one makes the estimate on the right more useful; only the last
- * step asks who you are. Nothing computed here is withheld until you hand over
- * a phone number, because a tool that holds its own output hostage is an
- * advertisement wearing a calculator costume.
+ * The gate asks who you are — name, phone, email — and the standing consent
+ * checkboxes, and posts that as a lead immediately, so someone who starts
+ * planning and walks away is still captured. The four steps then run exactly
+ * as before, with the final Contact step acting as a review of the details the
+ * gate collected: everything stays editable, and the full submission posts the
+ * complete planner payload as its own richer lead. Once the gate is open,
+ * nothing computed here is withheld — the estimate builds as you answer and is
+ * never held hostage to another form.
  *
  * What it is not: an application. No Social Security number, no date of birth,
  * no account number, no income documentation, no upload — not here and not
@@ -72,7 +76,7 @@ const STEPS: { key: StepKey; label: string; heading: string }[] = [
   { key: "goal", label: "Goal", heading: "What are you trying to do, and when?" },
   { key: "property", label: "Property", heading: "Tell us about the property" },
   { key: "numbers", label: "Numbers", heading: "The shape of the financing" },
-  { key: "contact", label: "Contact", heading: "Who should we get back to?" }
+  { key: "contact", label: "Contact", heading: "Confirm who we should get back to" }
 ];
 
 type State = {
@@ -188,13 +192,46 @@ function serverFieldMessages(fields: Record<string, string[]> | undefined): stri
   return [...messages];
 }
 
+type SubmissionIdentity = {
+  id: string;
+  fingerprint: string;
+  firstTouch: LeadAttributionTouch;
+  lastTouch: LeadAttributionTouch;
+  conversionTouch: LeadAttributionTouch;
+};
+
+/**
+ * A stable submission identity for one specific payload. The id is minted once
+ * per distinct content fingerprint, so an exact retry after a server failure
+ * reuses the same submissionId and the server's idempotency dedupe holds.
+ */
+function ensureSubmissionIdentity(
+  ref: React.MutableRefObject<SubmissionIdentity | null>,
+  fingerprint: string
+): SubmissionIdentity {
+  if (ref.current === null || ref.current.fingerprint !== fingerprint) {
+    const fallbackPath = window.location.pathname;
+    ref.current = {
+      id: window.crypto.randomUUID(),
+      fingerprint,
+      firstTouch: attributionTouch(readStoredTouch(FIRST_TOUCH_STORAGE_KEY), fallbackPath),
+      lastTouch: attributionTouch(readStoredTouch(LAST_TOUCH_STORAGE_KEY), fallbackPath),
+      conversionTouch: currentAttributionTouch(fallbackPath)
+    };
+  }
+  return ref.current;
+}
+
 export function Planner({
   initialGoal,
   disclosureText,
   smsConsentText,
   emailConsentText,
   disclosureVersion,
-  turnstileSiteKey
+  turnstileSiteKey,
+  accountsConfigured = false,
+  supabaseUrl,
+  anonKey
 }: {
   initialGoal: PlannerGoalValue | "";
   disclosureText: string;
@@ -202,6 +239,10 @@ export function Planner({
   emailConsentText: string;
   disclosureVersion: string;
   turnstileSiteKey?: string | undefined;
+  /** Whether the optional save-to-account offer can work in this environment. */
+  accountsConfigured?: boolean;
+  supabaseUrl?: string | undefined;
+  anonKey?: string | undefined;
 }) {
   const [state, setState] = useState<State>(() => initialState(initialGoal));
   const [stepIndex, setStepIndex] = useState(0);
@@ -209,18 +250,17 @@ export function Planner({
   const [submission, setSubmission] = useState<Submission>({ kind: "idle" });
   const [announcement, setAnnouncement] = useState("");
   const [startTracked, setStartTracked] = useState(false);
+  const [gateUnlocked, setGateUnlocked] = useState(false);
+  const [gateSubmission, setGateSubmission] = useState<Submission>({ kind: "idle" });
+  const [signInOpen, setSignInOpen] = useState(false);
 
   const headingRef = useRef<HTMLHeadingElement>(null);
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const gateFormRef = useRef<HTMLFormElement>(null);
   const shouldFocusHeading = useRef(false);
-  const submissionIdentityRef = useRef<{
-    id: string;
-    fingerprint: string;
-    firstTouch: LeadAttributionTouch;
-    lastTouch: LeadAttributionTouch;
-    conversionTouch: LeadAttributionTouch;
-  } | null>(null);
+  const submissionIdentityRef = useRef<SubmissionIdentity | null>(null);
+  const gateIdentityRef = useRef<SubmissionIdentity | null>(null);
 
   const baseId = useId();
   const fieldId = (name: string) => `${baseId}-${name}`;
@@ -234,18 +274,36 @@ export function Planner({
 
   // Moving to a step is a navigation, so the new step's heading takes focus and
   // the change is spoken. Without both, a keyboard user lands back at the top of
-  // the document and a screen reader user hears nothing at all.
+  // the document and a screen reader user hears nothing at all. Unlocking the
+  // gate is the same kind of navigation, so it participates too.
   useEffect(() => {
     if (!shouldFocusHeading.current) return;
     shouldFocusHeading.current = false;
     headingRef.current?.focus();
-  }, [stepIndex]);
+  }, [stepIndex, gateUnlocked]);
 
   useEffect(() => {
     if (state.goal === "" || startTracked) return;
     setStartTracked(true);
     trackPlannerStarted(state.goal);
   }, [state.goal, startTracked]);
+
+  /**
+   * Who-you-are validation, shared by the sign-up gate and the final confirm
+   * step so the two screens can never drift apart on what a valid contact is.
+   */
+  function contactFieldErrors(): Record<string, string> {
+    const found: Record<string, string> = {};
+    if (state.firstName.trim() === "") found.firstName = "Enter your first name.";
+    if (state.lastName.trim() === "") found.lastName = "Enter your last name.";
+    if (!EMAIL_SHAPE.test(state.email.trim()))
+      found.email = "Enter an email address we can reply to.";
+    if (!looksLikePhone(state.phone)) found.phone = "Enter a phone number with at least 10 digits.";
+    if (!state.privacyAccepted) {
+      found.privacyAccepted = "We need your agreement before a licensed professional contacts you.";
+    }
+    return found;
+  }
 
   function validate(key: StepKey): Record<string, string> {
     const found: Record<string, string> = {};
@@ -284,16 +342,7 @@ export function Planner({
       if (state.monthlyDebtBand === "") found.monthlyDebtBand = "Choose a range.";
     }
     if (key === "contact") {
-      if (state.firstName.trim() === "") found.firstName = "Enter your first name.";
-      if (state.lastName.trim() === "") found.lastName = "Enter your last name.";
-      if (!EMAIL_SHAPE.test(state.email.trim()))
-        found.email = "Enter an email address we can reply to.";
-      if (!looksLikePhone(state.phone))
-        found.phone = "Enter a phone number with at least 10 digits.";
-      if (!state.privacyAccepted) {
-        found.privacyAccepted =
-          "We need your agreement before a licensed professional contacts you.";
-      }
+      Object.assign(found, contactFieldErrors());
     }
     return found;
   }
@@ -336,26 +385,111 @@ export function Planner({
     await send();
   }
 
+  /**
+   * The sign-up gate posts a lead immediately, before the four steps, so a
+   * visitor who starts planning and abandons is still a durable first-party
+   * record. It is the same endpoint and the same consent model as the full
+   * submission — the only difference is that no planner answers exist yet.
+   */
+  async function handleGateSubmit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
+    event.preventDefault();
+    if (gateSubmission.kind === "submitting") return;
+
+    const found = contactFieldErrors();
+    if (Object.keys(found).length > 0) {
+      setErrors(found);
+      queueMicrotask(() => errorSummaryRef.current?.focus());
+      return;
+    }
+
+    setErrors({});
+    setGateSubmission({ kind: "submitting" });
+
+    const form = gateFormRef.current === null ? null : new FormData(gateFormRef.current);
+    const identity = ensureSubmissionIdentity(
+      gateIdentityRef,
+      JSON.stringify({
+        gate: true,
+        goal: state.goal,
+        firstName: state.firstName,
+        lastName: state.lastName,
+        email: state.email,
+        phone: state.phone,
+        privacyAccepted: state.privacyAccepted,
+        smsMarketing: state.smsMarketing,
+        emailMarketing: state.emailMarketing
+      })
+    );
+
+    const payload = {
+      submissionId: identity.id,
+      // A deep link like /plan?goal=refinance already told us the intent; a
+      // plain visit has not answered anything yet, so "general" is the honest value.
+      intent: state.goal === "" ? "general" : INTENT_BY_GOAL[state.goal],
+      firstName: state.firstName.trim(),
+      lastName: state.lastName.trim(),
+      email: state.email.trim(),
+      phone: state.phone.trim(),
+      stateCode: state.propertyState,
+      message: "Planner started — full answers may follow.",
+      consent: {
+        privacyAccepted: state.privacyAccepted,
+        contactRequested: true,
+        smsMarketing: state.smsMarketing,
+        emailMarketing: state.emailMarketing,
+        disclosureVersion
+      },
+      firstTouch: identity.firstTouch,
+      lastTouch: identity.lastTouch,
+      conversionTouch: identity.conversionTouch,
+      turnstileToken: String(form?.get("cf-turnstile-response") ?? "no-challenge-configured"),
+      honeypot: String(form?.get("company") ?? "")
+    };
+
+    try {
+      const response = await fetch("/api/v1/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const result = (await response.json()) as
+        | { ok: true; data: { receiptId: string } }
+        | { ok: false; error: { message: string; fields?: Record<string, string[]> } };
+
+      if (result.ok) {
+        setGateSubmission({ kind: "received", receiptId: result.data.receiptId });
+        shouldFocusHeading.current = true;
+        setGateUnlocked(true);
+        setAnnouncement(
+          `Planner unlocked. Step 1 of ${STEPS.length}. ${STEPS[0]?.label}. ${STEPS[0]?.heading}`
+        );
+        return;
+      }
+      setGateSubmission({
+        kind: "failed",
+        message: result.error.message,
+        fieldMessages: serverFieldMessages(result.error.fields)
+      });
+      queueMicrotask(() => errorSummaryRef.current?.focus());
+    } catch {
+      setGateSubmission({
+        kind: "failed",
+        message: "We could not reach the server. Please check your connection and try again.",
+        fieldMessages: []
+      });
+      queueMicrotask(() => errorSummaryRef.current?.focus());
+    }
+  }
+
   async function send(): Promise<void> {
     if (state.goal === "") return;
     setSubmission({ kind: "submitting" });
 
     const form = formRef.current === null ? null : new FormData(formRef.current);
-    const fingerprint = JSON.stringify(state);
-    if (
-      submissionIdentityRef.current === null ||
-      submissionIdentityRef.current.fingerprint !== fingerprint
-    ) {
-      const fallbackPath = window.location.pathname;
-      submissionIdentityRef.current = {
-        id: window.crypto.randomUUID(),
-        fingerprint,
-        firstTouch: attributionTouch(readStoredTouch(FIRST_TOUCH_STORAGE_KEY), fallbackPath),
-        lastTouch: attributionTouch(readStoredTouch(LAST_TOUCH_STORAGE_KEY), fallbackPath),
-        conversionTouch: currentAttributionTouch(fallbackPath)
-      };
-    }
-    const submissionIdentity = submissionIdentityRef.current;
+    const submissionIdentity = ensureSubmissionIdentity(
+      submissionIdentityRef,
+      JSON.stringify(state)
+    );
 
     const price = sanitizeNumber(state.priceDollars);
     const downPaymentBand: DownPaymentBandValue = isRefinance
@@ -470,6 +604,184 @@ export function Planner({
   }
 
   const errorList = Object.entries(errors);
+
+  // The sign-up gate. Name, phone, email, and the same three separate consent
+  // decisions every lead form on this site uses — nothing else, and no planner
+  // question is asked before it. The estimate promise stays visible alongside.
+  if (!gateUnlocked) {
+    const gateFailed = gateSubmission.kind === "failed";
+    return (
+      <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+        <Card>
+          <form ref={gateFormRef} onSubmit={handleGateSubmit} noValidate>
+            {(errorList.length > 0 || gateFailed) && (
+              <div
+                ref={errorSummaryRef}
+                tabIndex={-1}
+                role="alert"
+                className="mb-6 rounded-lg border border-danger/40 bg-danger/5 p-4"
+              >
+                <p className="font-semibold text-danger">
+                  {gateFailed
+                    ? gateSubmission.message
+                    : errorList.length === 1
+                      ? "One answer needs attention before you continue."
+                      : `${errorList.length} answers need attention before you continue.`}
+                </p>
+                {gateFailed && gateSubmission.fieldMessages.length > 0 && (
+                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-danger">
+                    {gateSubmission.fieldMessages.map((message) => (
+                      <li key={message}>{message}</li>
+                    ))}
+                  </ul>
+                )}
+                {errorList.length > 0 && (
+                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-danger">
+                    {errorList.map(([field, message]) => (
+                      <li key={field}>
+                        <a href={`#${fieldId(field)}`} className="underline underline-offset-2">
+                          {message}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+
+            <h2 className="text-2xl font-bold text-[var(--text)]">Sign up to start planning</h2>
+            <p className="mt-2 text-sm text-[var(--text-muted)]">
+              Tell us who you are and the four planning steps open right up. This is not an
+              application, no credit is pulled at any point, and the estimate builds from your own
+              numbers as you answer.
+            </p>
+
+            <div className="mt-6 grid gap-5 sm:grid-cols-2">
+              <TextField
+                id={fieldId("firstName")}
+                name="firstName"
+                label="First name"
+                autoComplete="given-name"
+                value={state.firstName}
+                onChange={(value) => set("firstName", value)}
+                error={errors.firstName}
+                maxLength={80}
+              />
+              <TextField
+                id={fieldId("lastName")}
+                name="lastName"
+                label="Last name"
+                autoComplete="family-name"
+                value={state.lastName}
+                onChange={(value) => set("lastName", value)}
+                error={errors.lastName}
+                maxLength={80}
+              />
+              <TextField
+                id={fieldId("email")}
+                name="email"
+                type="email"
+                inputMode="email"
+                label="Email"
+                autoComplete="email"
+                value={state.email}
+                onChange={(value) => set("email", value)}
+                error={errors.email}
+                maxLength={320}
+              />
+              <TextField
+                id={fieldId("phone")}
+                name="phone"
+                type="tel"
+                inputMode="tel"
+                label="Phone"
+                autoComplete="tel"
+                placeholder="(813) 555-0147"
+                value={state.phone}
+                onChange={(value) => set("phone", value)}
+                error={errors.phone}
+                maxLength={32}
+              />
+            </div>
+
+            <fieldset
+              className="mt-6 space-y-4 border-t pt-5"
+              style={{ borderColor: "var(--border)" }}
+            >
+              <legend className="sr-only">Consent</legend>
+              {/* The same three separate permissions as everywhere else. Only the
+                  privacy/contact one is required — the marketing opt-ins are
+                  never a condition of using the planner. */}
+              <CheckboxField
+                id={fieldId("privacyAccepted")}
+                name="privacyAccepted"
+                checked={state.privacyAccepted}
+                onChange={(checked) => set("privacyAccepted", checked)}
+                error={errors.privacyAccepted}
+                tone="default"
+              >
+                {disclosureText}{" "}
+                <a className="text-[var(--purple)] underline underline-offset-2" href="/privacy">
+                  Privacy policy
+                </a>
+                .
+              </CheckboxField>
+              <CheckboxField
+                id={fieldId("smsMarketing")}
+                name="smsMarketing"
+                checked={state.smsMarketing}
+                onChange={(checked) => set("smsMarketing", checked)}
+              >
+                {smsConsentText}
+              </CheckboxField>
+              <CheckboxField
+                id={fieldId("emailMarketing")}
+                name="emailMarketing"
+                checked={state.emailMarketing}
+                onChange={(checked) => set("emailMarketing", checked)}
+              >
+                {emailConsentText}
+              </CheckboxField>
+
+              {turnstileSiteKey !== undefined && (
+                <TurnstileWidget siteKey={turnstileSiteKey} action="lead" />
+              )}
+            </fieldset>
+
+            {/* Honeypot. Out of the tab order and hidden from assistive technology. */}
+            <div aria-hidden="true" className="absolute left-[-9999px] h-0 w-0 overflow-hidden">
+              <label htmlFor={fieldId("company")}>Company</label>
+              <input id={fieldId("company")} name="company" tabIndex={-1} autoComplete="off" />
+            </div>
+
+            <div className="mt-8">
+              <Button type="submit" disabled={gateSubmission.kind === "submitting"}>
+                {gateSubmission.kind === "submitting" ? "Saving…" : "Start planning"}
+              </Button>
+            </div>
+          </form>
+        </Card>
+
+        <div className="lg:sticky lg:top-24 lg:self-start">
+          <Card>
+            <div className="flex flex-wrap items-center gap-3">
+              <h2 className="text-lg font-semibold text-[var(--text)]">
+                What opens up when you sign up
+              </h2>
+              <Badge tone="neutral">No credit pull</Badge>
+            </div>
+            <p className="mt-3 text-sm text-[var(--text-muted)]">
+              Four short steps, and a live payment estimate that appears from the second question
+              and keeps updating as you answer. It is an illustration built from your own numbers —
+              not a quote, an approval, or a decision — and answering the planner questions after
+              this is entirely up to you.
+            </p>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   const submitFailed = submission.kind === "failed";
 
   return (
@@ -481,6 +793,37 @@ export function Planner({
         <p aria-live="polite" role="status" className="sr-only">
           {announcement}
         </p>
+
+        {/* Quiet, optional, and non-blocking: the planner works identically
+            whether or not an account is ever created. */}
+        {accountsConfigured && (
+          <div
+            className="mt-4 rounded-xl border px-4 py-3 text-sm text-[var(--text-muted)]"
+            style={{ borderColor: "var(--border)" }}
+          >
+            <p>
+              Want your plan saved to an account? We&rsquo;ll email you a sign-in link.{" "}
+              <button
+                type="button"
+                onClick={() => setSignInOpen((open) => !open)}
+                aria-expanded={signInOpen}
+                className="font-semibold text-[var(--purple)] underline underline-offset-2"
+              >
+                {signInOpen ? "Hide" : "Get the link"}
+              </button>
+            </p>
+            {signInOpen && (
+              <div className="mt-4">
+                <AccountSignIn
+                  configured={accountsConfigured}
+                  supabaseUrl={supabaseUrl}
+                  anonKey={anonKey}
+                  initialEmail={state.email.trim()}
+                />
+              </div>
+            )}
+          </div>
+        )}
 
         <form ref={formRef} onSubmit={handleSubmit} noValidate className="mt-8">
           {(errorList.length > 0 || submitFailed) && (
@@ -732,8 +1075,9 @@ export function Planner({
                   className="rounded-xl border p-4 text-sm text-[var(--text-muted)]"
                   style={{ borderColor: "var(--border)" }}
                 >
-                  Your estimate is already on this page and stays there either way. This last step
-                  is so a licensed professional can talk it through with you.
+                  These are the details you gave when you unlocked the planner. Check they are still
+                  right — everything here is editable — and send, so a licensed professional can
+                  talk the plan through with you.
                 </p>
                 <div className="grid gap-5 sm:grid-cols-2">
                   <TextField

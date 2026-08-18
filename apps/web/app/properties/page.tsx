@@ -4,9 +4,17 @@ import { ButtonLink, Card, CtaPanel, Disclosure, Section, SectionHeading } from 
 import { pageMetadata } from "@/lib/metadata";
 import { publicFeatures } from "@/lib/env";
 import { fixturesAllowed, listings } from "@/lib/listings";
-import { PAGE_SIZE, parseCriteria, propertiesHref } from "@/components/properties/criteria";
+import { createRequestClient } from "@/lib/supabase";
+import {
+  PAGE_SIZE,
+  criteriaToQueryString,
+  parseCriteria,
+  propertiesHref
+} from "@/components/properties/criteria";
 import { toProviderInput } from "@/components/properties/criteria";
+import { AccountNudgeBanner } from "@/components/properties/account-nudge";
 import { AiSearch } from "@/components/properties/ai-search";
+import { SaveSearchButton } from "@/components/properties/save-search-button";
 import { GalleryPlaceholder } from "@/components/properties/gallery-placeholder";
 import { ListingCard } from "@/components/properties/listing-card";
 import { ListingPagination } from "@/components/properties/pagination";
@@ -92,6 +100,17 @@ export default async function PropertiesPage({
     );
   }
 
+  // Accounts are an invitation on this page, never a gate: search, results,
+  // and filters are identical signed in or out. The session read exists only
+  // to decide which invitation to show.
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const accountsConfigured =
+    features.accounts && supabaseUrl !== undefined && anonKey !== undefined;
+  const supabase = accountsConfigured ? await createRequestClient() : null;
+  const userResult = supabase === null ? null : await supabase.auth.getUser();
+  const signedIn = userResult?.error === null && userResult.data.user !== null;
+
   const { criteria, valid } = parseCriteria(await searchParams);
   const page = await provider.search(toProviderInput(criteria, { pageSize: PAGE_SIZE }));
 
@@ -115,7 +134,12 @@ export default async function PropertiesPage({
             Describe the home in your own words — place, price, beds. We turn it into a search, and
             every result links to the financing behind it.
           </p>
-          <AiSearch />
+          <AiSearch
+            signedIn={signedIn}
+            accountsConfigured={accountsConfigured}
+            supabaseUrl={supabaseUrl}
+            anonKey={anonKey}
+          />
         </div>
         <div className="mx-auto mt-12 max-w-3xl">
           <SampleDataBanner scope="search" />
@@ -146,17 +170,32 @@ export default async function PropertiesPage({
               </span>
             )}
           </p>
-          {dataAsOf !== null && (
-            <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-              Sample data as of {dataAsOf} ET
-            </p>
-          )}
+          <div className="flex flex-wrap items-center gap-4">
+            {dataAsOf !== null && (
+              <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+                Sample data as of {dataAsOf} ET
+              </p>
+            )}
+            <SaveSearchButton
+              signedIn={signedIn}
+              search={criteriaToQueryString(criteria)}
+              accountsConfigured={accountsConfigured}
+              supabaseUrl={supabaseUrl}
+              anonKey={anonKey}
+            />
+          </div>
         </div>
+
+        {accountsConfigured && !signedIn && <AccountNudgeBanner />}
 
         {page.items.length > 0 ? (
           <ul className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {page.items.map((listing) => (
-              <ListingCard key={`${listing.provider}:${listing.listingKey}`} listing={listing} />
+              <ListingCard
+                key={`${listing.provider}:${listing.listingKey}`}
+                listing={listing}
+                showSave={accountsConfigured}
+              />
             ))}
           </ul>
         ) : (

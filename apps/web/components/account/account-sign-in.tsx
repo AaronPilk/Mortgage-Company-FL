@@ -7,13 +7,16 @@ import { Button } from "@/components/ui";
 export function AccountSignIn({
   configured,
   supabaseUrl,
-  anonKey
+  anonKey,
+  initialEmail = ""
 }: {
   configured: boolean;
   supabaseUrl?: string | undefined;
   anonKey?: string | undefined;
+  /** Prefill only. The person can still change it before requesting the link. */
+  initialEmail?: string;
 }) {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(initialEmail);
   const [state, setState] = useState<"idle" | "requesting" | "sent" | "error">("idle");
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -64,6 +67,20 @@ export function AccountSignIn({
             ? "Check your email"
             : "Email me a sign-in link"}
       </Button>
+      {/* The account's consent surface: creating one means agreeing to the
+          existing published terms and privacy policy. No new legal text here —
+          the linked pages are the authority. */}
+      <p className="text-xs text-[var(--text-muted)]">
+        By creating an account you agree to the{" "}
+        <a className="text-[var(--purple)] underline underline-offset-2" href="/terms">
+          terms of use
+        </a>{" "}
+        and the{" "}
+        <a className="text-[var(--purple)] underline underline-offset-2" href="/privacy">
+          privacy policy
+        </a>
+        .
+      </p>
       <p className="text-sm text-[var(--text-muted)]" role="status">
         {state === "sent"
           ? "If the address can receive account email, the sign-in link has been requested. Return here after opening it."

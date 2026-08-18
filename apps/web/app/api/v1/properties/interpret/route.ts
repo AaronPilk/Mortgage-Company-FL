@@ -24,6 +24,7 @@ import {
   interpretedToCriteria,
   parseNaturalQuery
 } from "@/components/properties/nl-parser";
+import { resolveAuthenticatedUserId } from "@/lib/account-auth";
 import { ai, MODEL_ROUTES, PROPERTY_QUERY_ROUTE } from "@/lib/ai";
 import { aiBudgetStore } from "@/lib/ai-budget";
 import { env, publicFeatures } from "@/lib/env";
@@ -31,6 +32,7 @@ import { fixturesAllowed, listings } from "@/lib/listings";
 import { log } from "@/lib/logger";
 import { rateLimitStore } from "@/lib/rate-limit";
 import { buildRequestContext, isSameOrigin } from "@/lib/request-context";
+import { createRequestClient } from "@/lib/supabase";
 import { SITE_URL } from "@/lib/site";
 
 /**
@@ -41,10 +43,12 @@ import { SITE_URL } from "@/lib/site";
  * them by navigating — the whole existing search pipeline, pagination, and
  * fixture gating are reused rather than duplicated.
  *
- * The AI path is optional on every axis. AI_MODE=disabled, a refused budget
- * reservation, a provider timeout, or an unusable model answer all land on the
- * deterministic rule-based parser, and `source` reports which one actually
- * produced the result — "ai" is never claimed for a rules answer.
+ * The AI path is optional on every axis. An anonymous request (the AI
+ * understanding is an account perk and never runs without a signed-in user),
+ * AI_MODE=disabled, a refused budget reservation, a provider timeout, or an
+ * unusable model answer all land on the deterministic rule-based parser, and
+ * `source` reports which one actually produced the result — "ai" is never
+ * claimed for a rules answer.
  *
  * Spend discipline (invariant 8): the estimated cost is reserved before the
  * provider is called and settled after. A timeout settles as an unknown
@@ -289,8 +293,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
   const query = parsed.data.query;
 
+  // The AI understanding is an account perk. An anonymous request still gets a
+  // full answer — via the deterministic rules parser, which never spends AI
+  // budget — so basic search works identically for everyone. Any failure to
+  // resolve a session counts as anonymous, never as an error.
+  const userId = await resolveAuthenticatedUserId(await createRequestClient());
+
   let source: InterpretSource = "rules";
-  let criteria = await interpretWithAi(query, context.requestId, context.ipPrefixHash ?? "unknown");
+  let criteria =
+    userId === null
+      ? null
+      : await interpretWithAi(query, context.requestId, context.ipPrefixHash ?? "unknown");
   if (criteria !== null) {
     source = "ai";
   } else {
@@ -308,6 +321,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     NextResponse.json(apiSuccess(body, context.requestId), {
       headers: { "Cache-Control": "no-store" }
     }),
-    { source, queryLength: query.length }
+    // Whether a session existed, never who it was.
+    { source, queryLength: query.length, authenticated: userId !== null }
   );
 }

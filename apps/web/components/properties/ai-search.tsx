@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { AccountSignIn } from "@/components/account/account-sign-in";
 import { EMPTY_CRITERIA, propertiesHref, type PropertySearchCriteria } from "./criteria";
 
 /**
@@ -57,7 +58,23 @@ function speechRecognitionConstructor(): (new () => SpeechRecognitionLike) | nul
   return typeof ctor === "function" ? (ctor as new () => SpeechRecognitionLike) : null;
 }
 
-export function AiSearch() {
+export function AiSearch({
+  signedIn = false,
+  accountsConfigured = false,
+  supabaseUrl,
+  anonKey
+}: {
+  /**
+   * Whether the server saw a session when it rendered this page. The AI
+   * understanding is an account perk: signed out, the same search bar works —
+   * typed or spoken — but the server answers with the deterministic parser and
+   * a quiet affordance here explains how to unlock the AI path.
+   */
+  signedIn?: boolean;
+  accountsConfigured?: boolean;
+  supabaseUrl?: string | undefined;
+  anonKey?: string | undefined;
+}) {
   const router = useRouter();
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
@@ -66,6 +83,7 @@ export function AiSearch() {
   const [interim, setInterim] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [chip, setChip] = useState<{ echo: string; source: "ai" | "rules" } | null>(null);
+  const [signInOpen, setSignInOpen] = useState(false);
   const recognizerRef = useRef<SpeechRecognitionLike | null>(null);
 
   // Feature detection has to run on the client; rendering the microphone only
@@ -156,163 +174,193 @@ export function AiSearch() {
   );
 
   return (
-    <form
-      role="search"
-      aria-label="Describe the property you are looking for"
-      onSubmit={submit}
-      className="mx-auto mt-10 w-full max-w-2xl"
-    >
-      <label htmlFor="ai-property-query" className="sr-only">
-        Describe the property you are looking for
-      </label>
+    <div className="mx-auto mt-10 w-full max-w-2xl">
+      <form role="search" aria-label="Describe the property you are looking for" onSubmit={submit}>
+        <label htmlFor="ai-property-query" className="sr-only">
+          Describe the property you are looking for
+        </label>
 
-      <div
-        className="flex items-center gap-1 rounded-full border py-1.5 pl-5 pr-1.5 shadow-[0_8px_30px_rgb(0_0_0/0.06)] backdrop-blur transition-shadow duration-200 focus-within:border-[var(--purple)] focus-within:shadow-[0_8px_30px_var(--purple-glow)]"
-        style={{ background: "var(--surface)", borderColor: "var(--border)" }}
-      >
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 20 20"
-          fill="none"
-          className="h-5 w-5 shrink-0"
-          stroke="var(--text-muted)"
-          strokeWidth="1.8"
-          strokeLinecap="round"
+        <div
+          className="flex items-center gap-1 rounded-full border py-1.5 pl-5 pr-1.5 shadow-[0_8px_30px_rgb(0_0_0/0.06)] backdrop-blur transition-shadow duration-200 focus-within:border-[var(--purple)] focus-within:shadow-[0_8px_30px_var(--purple-glow)]"
+          style={{ background: "var(--surface)", borderColor: "var(--border)" }}
         >
-          <circle cx="9" cy="9" r="6" />
-          <path d="m13.5 13.5 3.5 3.5" />
-        </svg>
-
-        <input
-          id="ai-property-query"
-          type="text"
-          value={text}
-          onChange={(event) => setText(event.target.value)}
-          maxLength={300}
-          autoComplete="off"
-          enterKeyHint="search"
-          placeholder="Try: 3 bedrooms in St. Pete under $500K"
-          className="min-h-[52px] w-full min-w-0 flex-1 bg-transparent px-2 text-base outline-none sm:text-lg"
-          style={{ color: "var(--text)" }}
-        />
-
-        {micSupported && (
-          <button
-            type="button"
-            onClick={listening ? stopListening : startListening}
-            aria-pressed={listening}
-            aria-label={listening ? "Stop voice input" : "Search by voice"}
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-full transition-colors duration-200 hover:bg-[var(--purple-subtle)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--purple)]"
-            style={listening ? { background: "var(--purple-subtle)" } : undefined}
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 20 20"
+            fill="none"
+            className="h-5 w-5 shrink-0"
+            stroke="var(--text-muted)"
+            strokeWidth="1.8"
+            strokeLinecap="round"
           >
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 20 20"
-              fill="none"
-              className="h-5 w-5"
-              stroke={listening ? "var(--purple)" : "var(--text-muted)"}
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <rect x="7.25" y="2.5" width="5.5" height="9.5" rx="2.75" />
-              <path d="M4.5 9.5a5.5 5.5 0 0 0 11 0M10 15v2.5" />
-            </svg>
-          </button>
-        )}
+            <circle cx="9" cy="9" r="6" />
+            <path d="m13.5 13.5 3.5 3.5" />
+          </svg>
 
-        <button
-          type="submit"
-          disabled={busy || text.trim() === ""}
-          aria-label="Search properties"
-          className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-white shadow-[0_4px_14px_var(--purple-glow)] transition-all duration-200 hover:shadow-[0_6px_20px_var(--purple-glow)] disabled:opacity-40 disabled:shadow-none"
-          style={{ background: "var(--purple)" }}
-        >
-          {busy ? (
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 20 20"
-              fill="none"
-              className="h-5 w-5 animate-spin motion-reduce:animate-none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-            >
-              <path d="M10 2.5a7.5 7.5 0 1 0 7.5 7.5" />
-            </svg>
-          ) : (
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 20 20"
-              fill="none"
-              className="h-5 w-5"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M3.5 10h13M11.5 5 16.5 10 11.5 15" />
-            </svg>
-          )}
-        </button>
-      </div>
+          <input
+            id="ai-property-query"
+            type="text"
+            value={text}
+            onChange={(event) => setText(event.target.value)}
+            maxLength={300}
+            autoComplete="off"
+            enterKeyHint="search"
+            placeholder="Try: 3 bedrooms in St. Pete under $500K"
+            className="min-h-[52px] w-full min-w-0 flex-1 bg-transparent px-2 text-base outline-none sm:text-lg"
+            style={{ color: "var(--text)" }}
+          />
 
-      <div aria-live="polite" className="min-h-[1.75rem]">
-        {listening && (
-          <p role="status" className="mt-2 text-sm" style={{ color: "var(--text-muted)" }}>
-            Listening{interim !== "" ? `: “${interim}”` : "…"}
-          </p>
-        )}
-
-        {error !== null && (
-          <p
-            role="alert"
-            className="mt-2 text-sm font-medium"
-            style={{ color: "var(--color-warning)" }}
-          >
-            {error}
-          </p>
-        )}
-
-        {chip !== null && !listening && error === null && (
-          <p
-            role="status"
-            className="mt-3 inline-flex max-w-full items-center gap-2 rounded-full border px-4 py-1.5 text-sm"
-            style={{
-              borderColor: "var(--border)",
-              background: "var(--surface)",
-              color: "var(--text)"
-            }}
-          >
-            <span className="truncate">
-              Showing: <span className="font-semibold">{chip.echo}</span>
-            </span>
-            <span className="shrink-0 text-xs" style={{ color: "var(--text-muted)" }}>
-              {/* Provenance is honest: "AI" only when a model interpreted the text. */}
-              {chip.source === "ai" ? "· via AI" : "· basic matching"}
-            </span>
+          {micSupported && (
             <button
               type="button"
-              onClick={() => setChip(null)}
-              aria-label="Dismiss search summary"
-              className="grid h-5 w-5 shrink-0 place-items-center rounded-full transition-colors hover:bg-[var(--purple-subtle)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--purple)]"
-              style={{ color: "var(--text-muted)" }}
+              onClick={listening ? stopListening : startListening}
+              aria-pressed={listening}
+              aria-label={listening ? "Stop voice input" : "Search by voice"}
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-full transition-colors duration-200 hover:bg-[var(--purple-subtle)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--purple)]"
+              style={listening ? { background: "var(--purple-subtle)" } : undefined}
             >
               <svg
                 aria-hidden="true"
                 viewBox="0 0 20 20"
                 fill="none"
-                className="h-3 w-3"
-                stroke="currentColor"
-                strokeWidth="2.2"
+                className="h-5 w-5"
+                stroke={listening ? "var(--purple)" : "var(--text-muted)"}
+                strokeWidth="1.8"
                 strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                <path d="m5 5 10 10M15 5 5 15" />
+                <rect x="7.25" y="2.5" width="5.5" height="9.5" rx="2.75" />
+                <path d="M4.5 9.5a5.5 5.5 0 0 0 11 0M10 15v2.5" />
               </svg>
             </button>
-          </p>
-        )}
-      </div>
-    </form>
+          )}
+
+          <button
+            type="submit"
+            disabled={busy || text.trim() === ""}
+            aria-label="Search properties"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-white shadow-[0_4px_14px_var(--purple-glow)] transition-all duration-200 hover:shadow-[0_6px_20px_var(--purple-glow)] disabled:opacity-40 disabled:shadow-none"
+            style={{ background: "var(--purple)" }}
+          >
+            {busy ? (
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 20 20"
+                fill="none"
+                className="h-5 w-5 animate-spin motion-reduce:animate-none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              >
+                <path d="M10 2.5a7.5 7.5 0 1 0 7.5 7.5" />
+              </svg>
+            ) : (
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 20 20"
+                fill="none"
+                className="h-5 w-5"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M3.5 10h13M11.5 5 16.5 10 11.5 15" />
+              </svg>
+            )}
+          </button>
+        </div>
+
+        <div aria-live="polite" className="min-h-[1.75rem]">
+          {listening && (
+            <p role="status" className="mt-2 text-sm" style={{ color: "var(--text-muted)" }}>
+              Listening{interim !== "" ? `: “${interim}”` : "…"}
+            </p>
+          )}
+
+          {error !== null && (
+            <p
+              role="alert"
+              className="mt-2 text-sm font-medium"
+              style={{ color: "var(--color-warning)" }}
+            >
+              {error}
+            </p>
+          )}
+
+          {chip !== null && !listening && error === null && (
+            <p
+              role="status"
+              className="mt-3 inline-flex max-w-full items-center gap-2 rounded-full border px-4 py-1.5 text-sm"
+              style={{
+                borderColor: "var(--border)",
+                background: "var(--surface)",
+                color: "var(--text)"
+              }}
+            >
+              <span className="truncate">
+                Showing: <span className="font-semibold">{chip.echo}</span>
+              </span>
+              <span className="shrink-0 text-xs" style={{ color: "var(--text-muted)" }}>
+                {/* Provenance is honest: "AI" only when a model interpreted the text. */}
+                {chip.source === "ai" ? "· via AI" : "· basic matching"}
+              </span>
+              <button
+                type="button"
+                onClick={() => setChip(null)}
+                aria-label="Dismiss search summary"
+                className="grid h-5 w-5 shrink-0 place-items-center rounded-full transition-colors hover:bg-[var(--purple-subtle)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--purple)]"
+                style={{ color: "var(--text-muted)" }}
+              >
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  className="h-3 w-3"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                >
+                  <path d="m5 5 10 10M15 5 5 15" />
+                </svg>
+              </button>
+            </p>
+          )}
+        </div>
+      </form>
+
+      {/* The unlock affordance lives outside the search form because the
+          sign-in prompt is its own form. It never blocks the search: typed and
+          spoken queries work signed out, answered by the deterministic parser
+          and labelled accordingly — a rules answer is never presented as AI. */}
+      {accountsConfigured && !signedIn && (
+        <div className="mt-2 text-left">
+          <button
+            type="button"
+            onClick={() => setSignInOpen((open) => !open)}
+            aria-expanded={signInOpen}
+            className="text-xs underline underline-offset-2 transition-colors hover:text-[var(--purple)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--purple)]"
+            style={{ color: "var(--text-muted)" }}
+          >
+            AI understanding: sign in to unlock
+          </button>
+          {signInOpen && (
+            <div
+              className="mt-3 rounded-xl border p-4 text-left"
+              style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+            >
+              <p className="mb-3 text-sm font-semibold" style={{ color: "var(--text)" }}>
+                With an account, your words are interpreted by AI instead of basic matching.
+              </p>
+              <AccountSignIn
+                configured={accountsConfigured}
+                supabaseUrl={supabaseUrl}
+                anonKey={anonKey}
+              />
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

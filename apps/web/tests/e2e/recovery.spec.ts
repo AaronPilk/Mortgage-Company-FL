@@ -37,6 +37,23 @@ test.describe("integrated recovery workflows", () => {
     await expect(page.getByText("18 sample properties match")).toBeVisible();
     await expect(page.getByText("Sample data — not a real listing").first()).toBeVisible();
 
+    // Accounts are an invitation here, never a gate: the signed-out nudges are
+    // present, dismissible, and nothing about the search stops working.
+    await expect(page.getByText("to save searches and homes.")).toBeVisible();
+    await page.getByRole("button", { name: "Dismiss account suggestion" }).click();
+    await expect(page.getByText("to save searches and homes.")).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Save this search" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Save property" }).first()).toBeVisible();
+
+    // The AI understanding is the account perk; the affordance opens the
+    // magic-link sign-in rather than blocking the search bar.
+    const unlock = page.getByRole("button", { name: "AI understanding: sign in to unlock" });
+    await expect(unlock).toBeVisible();
+    await unlock.click();
+    await expect(
+      page.getByRole("button", { name: "Email me a sign-in link" }).first()
+    ).toBeVisible();
+
     await page.goto("/properties/FX-TPA-0001");
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Example Bay Dr");
     await expect(page.getByRole("note", { name: "Sample data notice" })).toBeVisible();
@@ -47,15 +64,103 @@ test.describe("integrated recovery workflows", () => {
     expect(structuredData.join(" ")).not.toMatch(/RealEstateListing|Offer|Residence/);
   });
 
-  test("shows the planner estimate before asking for contact details", async ({ page }) => {
+  test("gates the planner behind sign-up, captures the early lead, and confirms contact at the end", async ({
+    page
+  }) => {
+    const payloads: Array<Record<string, unknown>> = [];
+    await page.route("**/api/v1/leads", async (route) => {
+      payloads.push(route.request().postDataJSON() as Record<string, unknown>);
+      await route.fulfill({
+        status: 201,
+        contentType: "application/json",
+        body: JSON.stringify({
+          ok: true,
+          data: {
+            receiptId:
+              payloads.length === 1
+                ? "00000000-0000-4000-8000-000000000501"
+                : "00000000-0000-4000-8000-000000000502",
+            receivedAt: "2026-08-18T12:00:00.000Z",
+            intent: "purchase",
+            nextStep: "human_follow_up"
+          },
+          requestId: "planner-gate-e2e"
+        })
+      });
+    });
+
+    // The gate comes before any planner question: name, email, phone, and the
+    // separate consent checkboxes, with the marketing opt-ins left unchecked to
+    // prove they are not a condition of proceeding.
     await page.goto("/plan");
-    await expect(page.locator('input[name="email"]')).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Sign up to start planning" })).toBeVisible();
+    await expect(page.getByLabel("Buy a home to live in")).toHaveCount(0);
+    await page.locator('input[name="firstName"]').fill("Dana");
+    await page.locator('input[name="lastName"]').fill("Reyes");
+    await page.locator('input[name="email"]').fill("dana@example.com");
+    await page.locator('input[name="phone"]').fill("813-555-0147");
+    await page.locator('input[name="privacyAccepted"]').check();
+    await page.getByRole("button", { name: "Start planning" }).click();
+
+    // The abandonment-safe lead posts immediately, before any planner answer.
+    await expect.poll(() => payloads.length).toBe(1);
+    expect(payloads[0]).toMatchObject({
+      intent: "general",
+      firstName: "Dana",
+      email: "dana@example.com",
+      message: "Planner started — full answers may follow."
+    });
+    expect(payloads[0]).not.toHaveProperty("planner");
+    expect(payloads[0]?.consent).toMatchObject({
+      privacyAccepted: true,
+      smsMarketing: false,
+      emailMarketing: false
+    });
+
+    // The planner unlocks and the estimate still appears before the final
+    // contact step, which is now a review of what the gate collected.
     await page.getByLabel("Buy a home to live in").check();
     await page.getByLabel("Within 30 days").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await expect(page.getByRole("heading", { name: "Your working estimate" })).toBeVisible();
-    await expect(page.locator('input[name="email"]')).toHaveCount(0);
     await expect(page.getByText("No credit pull").first()).toBeVisible();
+
+    await page.getByLabel("Single family", { exact: true }).check();
+    await page.getByLabel("I am actively looking").check();
+    await page.getByRole("button", { name: "Continue" }).click();
+
+    await page.getByLabel("Where you think your credit sits").selectOption("680_719");
+    await page.getByLabel("How you are paid").selectOption("w2");
+    await page.getByLabel("Gross monthly household income").selectOption("8k_12k");
+    await page.getByLabel("Other monthly obligations").selectOption("under_500");
+    await page.getByRole("button", { name: "Continue" }).click();
+
+    // Review, not re-entry: the gate's answers are prefilled and editable.
+    await expect(
+      page.getByRole("heading", { name: "Confirm who we should get back to" })
+    ).toBeVisible();
+    await expect(page.locator('input[name="email"]')).toHaveValue("dana@example.com");
+    await expect(page.locator('input[name="phone"]')).toHaveValue("813-555-0147");
+    await expect(page.locator('input[name="privacyAccepted"]')).toBeChecked();
+
+    await page.getByRole("button", { name: "Send my plan" }).click();
+    await expect(page.getByRole("heading", { name: "We have your plan" })).toBeVisible();
+
+    // The second, richer lead carries the full planner payload, exactly as the
+    // pre-gate planner submitted it.
+    await expect.poll(() => payloads.length).toBe(2);
+    expect(payloads[1]).toMatchObject({ intent: "purchase", email: "dana@example.com" });
+    expect(payloads[1]?.planner).toMatchObject({
+      goal: "purchase",
+      propertyType: "single_family",
+      propertyStage: "actively_looking",
+      creditBand: "680_719",
+      employment: "w2",
+      incomeBand: "8k_12k",
+      monthlyDebtBand: "under_500",
+      timing: "within_30_days"
+    });
+    expect(String(payloads[1]?.submissionId)).not.toBe(String(payloads[0]?.submissionId));
   });
 
   test("shows a deterministic Vision result before the optional report form", async ({ page }) => {

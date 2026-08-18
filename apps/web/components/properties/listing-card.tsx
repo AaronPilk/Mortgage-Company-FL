@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ListingSummary } from "@tract/integrations";
 import { formatUsd } from "@tract/mortgage-math";
 import { Badge, Card } from "@/components/ui";
+import { SavePropertyButton } from "@/components/account/save-property-button";
 import { SampleDataBadge } from "./sample-data-notice";
 import { ListingCardImage } from "./listing-gallery";
 import {
@@ -26,7 +27,14 @@ import {
  * replacing it: a picture makes an invented record read as real, so the badge
  * matters more once there is one, not less. The image carries its own label too.
  */
-export function ListingCard({ listing }: { listing: ListingSummary }) {
+export function ListingCard({
+  listing,
+  showSave = false
+}: {
+  listing: ListingSummary;
+  /** Renders the save-to-account action. Off where accounts are disabled. */
+  showSave?: boolean;
+}) {
   const facts = factSummary(listing);
   const lot = formatLotSize(listing.lotSizeSqft);
   const days = formatDaysOnMarket(listing.daysOnMarket);
@@ -83,6 +91,17 @@ export function ListingCard({ listing }: { listing: ListingSummary }) {
               {listing.attributionText}
               {updated !== null && <> · Record updated {updated} ET</>}
             </p>
+            {showSave && (
+              /* The whole card is a stretched link; the save action has to sit
+                 above that overlay to stay clickable. Signed out, the button's
+                 own 401 handling turns it into a sign-in prompt. */
+              <div className="relative z-[1] mt-3">
+                <SavePropertyButton
+                  listingKey={listing.listingKey}
+                  sourceMode={listing.isFixture ? "fixture" : "live"}
+                />
+              </div>
+            )}
           </div>
         </div>
       </article>

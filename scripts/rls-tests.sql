@@ -160,6 +160,18 @@ insert into public.notification_preferences (
   owner_user_id, report_ready_email, report_failure_email
 ) values ('00000000-0000-4000-8000-000000000002', true, false);
 
+insert into public.saved_searches (id, owner_user_id, search_params, summary) values
+  (
+    '00000000-0000-4000-8000-000000000230',
+    '00000000-0000-4000-8000-000000000002',
+    'q=Tampa&beds=3', '3+ beds in Tampa'
+  ),
+  (
+    '00000000-0000-4000-8000-000000000231',
+    '00000000-0000-4000-8000-000000000006',
+    'q=Orlando', 'Listings in Orlando'
+  );
+
 select public.create_lead_with_receipt(
   jsonb_build_object(
     'intent','purchase','first_name','Dana','last_name','Reyes',
@@ -401,6 +413,8 @@ select tests.assert(tests.visible_count('select count(*) from public.content_sou
   'anonymous cannot read sources attached only to draft content');
 select tests.assert(tests.visible_count('select count(*) from public.vision_projects') = 0,
   'anonymous cannot read Vision projects');
+select tests.assert_denied('select count(*) from public.saved_searches',
+  'anonymous has no grant on saved searches');
 
 -- RendProp. Every grant is revoked from anon, so each of these is a hard
 -- permission error rather than an empty result. A published tour does reach the
@@ -482,6 +496,8 @@ select tests.assert(
   'consumer sees only their own saved calculator scenario');
 select tests.assert(tests.visible_count('select count(*) from public.notification_preferences') = 1,
   'consumer sees their own notification preferences');
+select tests.assert(tests.visible_count('select count(*) from public.saved_searches') = 1,
+  'consumer sees only their own saved search');
 
 insert into public.saved_properties (owner_user_id, listing_key, source_mode)
 values ('00000000-0000-4000-8000-000000000002', 'FX-OWN-WRITE', 'fixture');
@@ -496,8 +512,16 @@ insert into public.saved_calculator_scenarios (
 update public.notification_preferences
 set report_ready_email = false
 where owner_user_id = '00000000-0000-4000-8000-000000000002';
+insert into public.saved_searches (id, owner_user_id, search_params, summary)
+values (
+  '00000000-0000-4000-8000-000000000232',
+  '00000000-0000-4000-8000-000000000002',
+  'maxPrice=500000', 'Listings under $500,000'
+);
 select tests.assert(tests.visible_count('select count(*) from public.saved_properties') = 2,
   'consumer can create an owned saved property');
+select tests.assert(tests.visible_count('select count(*) from public.saved_searches') = 2,
+  'consumer can create an owned saved search');
 select tests.assert(
   tests.visible_count('select count(*) from public.saved_calculator_scenarios') = 2,
   'consumer can create an owned saved calculator scenario');
@@ -534,6 +558,14 @@ select tests.assert_denied(
   $$insert into public.notification_preferences (owner_user_id)
     values ('00000000-0000-4000-8000-000000000006')$$,
   'consumer cannot create notification preferences for another user');
+select tests.assert_denied(
+  $$insert into public.saved_searches (id, owner_user_id, search_params, summary)
+    values (gen_random_uuid(),'00000000-0000-4000-8000-000000000006','q=Hostile','Hostile write.')$$,
+  'consumer cannot save a search for another user');
+select tests.assert_affects_no_rows(
+  $$delete from public.saved_searches
+    where id = '00000000-0000-4000-8000-000000000231'$$,
+  'consumer cannot delete another user''s saved search');
 select tests.assert_affects_no_rows(
   $$update public.privacy_requests set status = 'completed', completed_at = now()$$,
   'consumer cannot mark their privacy request completed');
@@ -672,6 +704,8 @@ select tests.assert(tests.visible_count('select count(*) from public.saved_prope
 select tests.assert(
   tests.visible_count('select count(*) from public.saved_calculator_scenarios') = 1,
   'agent sees only their own saved calculator scenario');
+select tests.assert(tests.visible_count('select count(*) from public.saved_searches') = 1,
+  'agent sees only their own saved search');
 select tests.assert(tests.visible_count('select count(*) from public.privacy_requests') = 0,
   'agent cannot see another user privacy request');
 
