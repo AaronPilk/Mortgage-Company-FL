@@ -29,11 +29,16 @@ import {
  */
 export function ListingCard({
   listing,
-  showSave = false
+  showSave = false,
+  supabaseUrl,
+  anonKey
 }: {
   listing: ListingSummary;
   /** Renders the save-to-account action. Off where accounts are disabled. */
   showSave?: boolean;
+  /** Passed to the save button's signed-out account prompt. */
+  supabaseUrl?: string | undefined;
+  anonKey?: string | undefined;
 }) {
   const facts = factSummary(listing);
   const lot = formatLotSize(listing.lotSizeSqft);
@@ -94,11 +99,14 @@ export function ListingCard({
             {showSave && (
               /* The whole card is a stretched link; the save action has to sit
                  above that overlay to stay clickable. Signed out, the button's
-                 own 401 handling turns it into a sign-in prompt. */
+                 own 401 handling opens the shared account prompt dialog. */
               <div className="relative z-[1] mt-3">
                 <SavePropertyButton
                   listingKey={listing.listingKey}
                   sourceMode={listing.isFixture ? "fixture" : "live"}
+                  accountsConfigured={showSave}
+                  supabaseUrl={supabaseUrl}
+                  anonKey={anonKey}
                 />
               </div>
             )}

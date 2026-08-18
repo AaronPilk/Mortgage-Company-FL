@@ -15,7 +15,7 @@ import { TurnstileWidget } from "@/components/turnstile-widget";
 /**
  * Homepage hero funnel: one question per screen, then contact details.
  *
- * This is the fast lane for paid traffic — three tappable questions and a
+ * This is the fast lane for paid traffic — a few tappable questions and a
  * contact step — modeled on the chunked-funnel pattern the owner asked for.
  * The full planner lives at /plan; this form deliberately asks less.
  *
@@ -36,13 +36,23 @@ type TimelineValue = "now" | "0_3_months" | "3_6_months" | "6_plus" | "researchi
 type CreditBandValue =
   "below_580" | "580_619" | "620_679" | "680_719" | "720_759" | "760_plus" | "unknown";
 
-/** Step 1 maps straight onto LeadIntent values the schema already accepts. */
+/**
+ * Step 1 maps straight onto LeadIntent values the schema already accepts.
+ * "Sell my home" is connection framing only: TRACT is a mortgage brokerage
+ * and does not list homes — the owner's real-estate network picks that
+ * conversation up, which is exactly what the sell_home intent exists for.
+ */
 const INTENT_OPTIONS: ChoiceOption<
-  Extract<LeadIntent, "purchase" | "refinance" | "first_time_buyer">
+  Extract<LeadIntent, "purchase" | "refinance" | "first_time_buyer" | "sell_home">
 >[] = [
   { value: "purchase", label: "Buy a home", hint: "I want financing for a purchase" },
   { value: "refinance", label: "Refinance", hint: "I already own and want to revisit my loan" },
-  { value: "first_time_buyer", label: "Buy my first home", hint: "This would be my first mortgage" }
+  {
+    value: "first_time_buyer",
+    label: "Buy my first home",
+    hint: "This would be my first mortgage"
+  },
+  { value: "sell_home", label: "Sell my home", hint: "I own and I'm ready to sell" }
 ];
 
 /** Step 2 uses the Timeline enum verbatim; the labels are its honest reading. */
@@ -159,13 +169,26 @@ export function HomeFunnel({
   turnstileSiteKey?: string | undefined;
   preset?: HomeFunnelPreset | undefined;
 }) {
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState<Answers>({
+    intent: preset?.intent ?? "",
+    timeline: "",
+    creditBand: ""
+  });
+  const [state, setState] = useState<FormState>({ kind: "idle" });
+
+  // A seller is never asked for a financing credit band — whether the sell
+  // campaign page preset said so, or the visitor chose selling on the first
+  // screen of the homepage funnel.
+  const skipCredit = preset?.skipCreditStep === true || answers.intent === "sell_home";
+
   // The step list is derived, not stated, so the progress bar, the submit
   // guard, and the screen order can never disagree about which questions this
   // instance of the funnel actually asks.
   const steps: StepKey[] = [
     ...(preset === undefined ? (["intent"] as const) : []),
     "timeline",
-    ...(preset?.skipCreditStep === true ? [] : (["credit"] as const)),
+    ...(skipCredit ? [] : (["credit"] as const)),
     "contact"
   ];
   const stepCount = steps.length;
@@ -176,14 +199,6 @@ export function HomeFunnel({
     credit: "Where do you think your credit sits?",
     contact: "Where should we send your answer?"
   };
-
-  const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<Answers>({
-    intent: preset?.intent ?? "",
-    timeline: "",
-    creditBand: ""
-  });
-  const [state, setState] = useState<FormState>({ kind: "idle" });
 
   const submissionRef = useRef<{
     id: string;
@@ -274,7 +289,9 @@ export function HomeFunnel({
     const core = {
       intent: answers.intent,
       timeline: answers.timeline || undefined,
-      estimatedCreditBand: answers.creditBand || undefined,
+      // A credit answer can survive a back-and-change to selling; a seller
+      // lead never carries one.
+      estimatedCreditBand: skipCredit ? undefined : answers.creditBand || undefined,
       firstName: String(form.get("firstName") ?? ""),
       lastName: String(form.get("lastName") ?? ""),
       email: String(form.get("email") ?? ""),

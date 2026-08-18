@@ -45,14 +45,27 @@ test.describe("integrated recovery workflows", () => {
     await expect(page.getByRole("button", { name: "Save this search" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Save property" }).first()).toBeVisible();
 
-    // The AI understanding is the account perk; the affordance opens the
-    // magic-link sign-in rather than blocking the search bar.
-    const unlock = page.getByRole("button", { name: "AI understanding: sign in to unlock" });
+    // The AI understanding is the account perk; the pill opens the shared
+    // account dialog with the magic-link form rather than blocking the search
+    // bar, and the dialog closes cleanly from the keyboard.
+    const unlock = page.getByRole("button", { name: "Unlock AI search" });
     await expect(unlock).toBeVisible();
     await unlock.click();
-    await expect(
-      page.getByRole("button", { name: "Email me a sign-in link" }).first()
-    ).toBeVisible();
+    const dialog = page.getByRole("dialog", { name: "Unlock AI search" });
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole("button", { name: "Email me a sign-in link" })).toBeVisible();
+    await expect(dialog.getByRole("link", { name: "terms of use" })).toBeVisible();
+    await expect(dialog.getByRole("link", { name: "privacy policy" })).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(dialog).toHaveCount(0);
+
+    // The signed-out save path opens the same dialog, named for its benefit.
+    await page.getByRole("button", { name: "Save this search" }).click();
+    const saveDialog = page.getByRole("dialog", { name: "Save this search" });
+    await expect(saveDialog).toBeVisible();
+    await expect(saveDialog.getByRole("button", { name: "Email me a sign-in link" })).toBeVisible();
+    await saveDialog.getByRole("button", { name: "Close dialog" }).click();
+    await expect(saveDialog).toHaveCount(0);
 
     await page.goto("/properties/FX-TPA-0001");
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Example Bay Dr");

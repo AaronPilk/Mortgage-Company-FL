@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AccountSignIn } from "@/components/account/account-sign-in";
+import { AccountPromptDialog, AccountPromptPill } from "@/components/account/account-prompt-dialog";
 import { EMPTY_CRITERIA, propertiesHref, type PropertySearchCriteria } from "./criteria";
 
 /**
@@ -83,7 +83,7 @@ export function AiSearch({
   const [interim, setInterim] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [chip, setChip] = useState<{ echo: string; source: "ai" | "rules" } | null>(null);
-  const [signInOpen, setSignInOpen] = useState(false);
+  const [promptOpen, setPromptOpen] = useState(false);
   const recognizerRef = useRef<SpeechRecognitionLike | null>(null);
 
   // Feature detection has to run on the client; rendering the microphone only
@@ -332,33 +332,24 @@ export function AiSearch({
       {/* The unlock affordance lives outside the search form because the
           sign-in prompt is its own form. It never blocks the search: typed and
           spoken queries work signed out, answered by the deterministic parser
-          and labelled accordingly — a rules answer is never presented as AI. */}
+          and labelled accordingly — a rules answer is never presented as AI.
+          The pill opens the shared account dialog rather than an inline form,
+          so this prompt matches every other signed-out prompt on the page. */}
       {accountsConfigured && !signedIn && (
         <div className="mt-2 text-left">
-          <button
-            type="button"
-            onClick={() => setSignInOpen((open) => !open)}
-            aria-expanded={signInOpen}
-            className="text-xs underline underline-offset-2 transition-colors hover:text-[var(--purple)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--purple)]"
-            style={{ color: "var(--text-muted)" }}
-          >
-            AI understanding: sign in to unlock
-          </button>
-          {signInOpen && (
-            <div
-              className="mt-3 rounded-xl border p-4 text-left"
-              style={{ borderColor: "var(--border)", background: "var(--surface)" }}
-            >
-              <p className="mb-3 text-sm font-semibold" style={{ color: "var(--text)" }}>
-                With an account, your words are interpreted by AI instead of basic matching.
-              </p>
-              <AccountSignIn
-                configured={accountsConfigured}
-                supabaseUrl={supabaseUrl}
-                anonKey={anonKey}
-              />
-            </div>
-          )}
+          <AccountPromptPill onClick={() => setPromptOpen(true)}>
+            Unlock AI search
+          </AccountPromptPill>
+          <AccountPromptDialog
+            open={promptOpen}
+            onClose={() => setPromptOpen(false)}
+            headline="Unlock AI search"
+            body="Describe the home in your own words — place, price, beds, the feel of it — and AI turns your words into the search."
+            note="AI answers only for signed-in visitors. Signed out, this bar still works with basic matching."
+            configured={accountsConfigured}
+            supabaseUrl={supabaseUrl}
+            anonKey={anonKey}
+          />
         </div>
       )}
     </div>

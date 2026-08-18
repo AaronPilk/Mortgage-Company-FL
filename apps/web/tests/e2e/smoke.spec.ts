@@ -31,7 +31,7 @@ test.describe("home page", () => {
 
     // The choice cards are real radio inputs (visually hidden), and clicking a
     // card auto-advances — no Continue click between questions.
-    expect(await form.locator('input[type="radio"][name="intent"]').count()).toBe(3);
+    expect(await form.locator('input[type="radio"][name="intent"]').count()).toBe(4);
     await form.getByText("Buy a home", { exact: true }).click();
     await expect(form.getByText("Step 2 of 4", { exact: true })).toBeVisible();
     await expect(
@@ -55,6 +55,25 @@ test.describe("home page", () => {
     // Back returns to the previous question without losing the flow.
     await form.getByRole("button", { name: "Back" }).click();
     await expect(form.getByText("Step 3 of 4", { exact: true })).toBeVisible();
+  });
+
+  test("picking Sell my home drops the credit question and shortens the funnel", async ({
+    page
+  }) => {
+    await page.goto("/");
+    const form = page.locator('form[data-form-id="home-hero"]');
+
+    // Connection framing only: TRACT does not list homes, and the option's
+    // sub-copy claims nothing beyond ownership and readiness to sell.
+    await expect(form.getByText("I own and I'm ready to sell", { exact: true })).toBeVisible();
+    await form.getByText("Sell my home", { exact: true }).click();
+
+    // Three steps, not four — a seller is never asked for a credit band.
+    await expect(form.getByText("Step 2 of 3", { exact: true })).toBeVisible();
+    await form.getByText("Within 3 months", { exact: true }).click();
+    await expect(form.getByText("Step 3 of 3", { exact: true })).toBeVisible();
+    await expect(form.locator('input[name="firstName"]')).toBeVisible();
+    expect(await form.locator('input[type="radio"][name="creditBand"]').count()).toBe(0);
   });
 
   test("keeps the homepage form a marketing form, not an application", async ({ page }) => {

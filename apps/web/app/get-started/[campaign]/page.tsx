@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge, Card, Disclosure, LicenseFact, Section } from "@/components/ui";
 import { HomeFunnel } from "@/components/home-funnel";
@@ -107,6 +108,20 @@ export default async function CampaignLandingPage({
             ))}
           </ol>
         </Card>
+        {/* Quiet path to the organic education page for visitors who want to
+            read before they talk. Deliberately small: the funnel above remains
+            the page's one job. */}
+        {campaign.educationLink !== undefined && (
+          <p className="mx-auto mt-6 max-w-2xl text-center text-sm">
+            <Link
+              href={campaign.educationLink.href}
+              className="font-medium underline underline-offset-4"
+              style={{ color: "var(--purple)" }}
+            >
+              {campaign.educationLink.label}
+            </Link>
+          </p>
+        )}
       </Section>
 
       {/* The standard licence and disclosure block, exactly as the homepage. */}

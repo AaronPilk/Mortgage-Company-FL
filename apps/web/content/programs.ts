@@ -409,6 +409,124 @@ export const PROGRAMS: Program[] = [
     loanTypeForSchema: "Conventional mortgage"
   },
   {
+    // One page for both second-lien instruments, because the real decision is
+    // between them (and against a cash-out refinance), not within either one.
+    // Covers two products, so no single loanType is honest for the schema.
+    slug: "home-equity",
+    heroImage: SCENARIO_IMAGES.refinance,
+    navLabel: "Home equity",
+    h1: "Home equity lines and second mortgages in Florida",
+    title: "HELOCs and Second Mortgages in Florida",
+    description:
+      "How a home equity line of credit differs from a closed-end second mortgage, and when a cash-out refinance beats both.",
+    eyebrow: "Home equity",
+    summary:
+      "A home equity line of credit and a closed-end second mortgage both borrow against the equity in a home you already own, without touching your existing first mortgage. Which one fits — or whether replacing the whole loan with a cash-out refinance beats both — turns mostly on the rate you already have and on how you actually plan to use the money.",
+    mayFit: [
+      "You have meaningful equity and a first mortgage whose terms you want to keep",
+      "You want flexible access to funds over time — a renovation done in stages, for example — rather than one lump sum, which is what a line of credit is built for",
+      "You need a single fixed amount with a predictable payment, which is what a closed-end second mortgage provides",
+      "You want the draw period, the repayment period, and the variable-rate mechanics explained before you talk to any lender"
+    ],
+    exploreAlternativesIf: [
+      "Your existing first-mortgage rate is high enough that replacing the entire loan could make sense — that is a cash-out refinance, and it deserves a direct comparison before you add a second lien",
+      "You would be borrowing to cover recurring living expenses — putting your home behind an ongoing shortfall tends to compound the problem rather than solve it",
+      "The amount is small and short-lived enough that closing costs and a lien on your home outweigh the convenience of the credit",
+      "A payment that can rise would strain your budget — most lines of credit carry a variable rate, and the minimum payment typically steps up when the draw period ends"
+    ],
+    howItWorks: [
+      {
+        heading: "Your equity sets the ceiling",
+        body: "Lenders size both instruments against combined loan-to-value: your first-mortgage balance plus the new line or loan, divided by the home's appraised value. Each lender sets its own maximum, and it moves with credit profile, occupancy, and property type. The practical consequence is that two lenders can offer meaningfully different amounts against the identical house, which makes comparing more than one worth the effort."
+      },
+      {
+        heading: "A line of credit runs in two phases",
+        body: "During the draw period you can borrow, repay, and borrow again up to the limit, and interest accrues only on what you have actually drawn — minimum payments during this phase are often interest-only. When the draw period ends, the repayment period begins: no new draws, and the payment is recalculated to retire the principal. Because most lines carry a variable rate built from an index plus a margin, the payment can change over the life of the line, and the jump at the end of the draw period surprises people who only budgeted for the interest-only minimum."
+      },
+      {
+        heading: "A closed-end second mortgage is the fixed alternative",
+        body: "A closed-end second — often called a home equity loan — delivers one lump sum at closing and amortizes it on a set schedule, typically at a fixed rate. There is no draw flexibility and no reuse of repaid principal; in exchange you get a payment that does not move. If the plan is a single defined expense rather than staged spending, this structure is frequently the better match."
+      },
+      {
+        heading: "Your first mortgage stays exactly as it is",
+        body: "Neither instrument replaces or reprices your existing first mortgage — that is the entire appeal when the loan you already have is worth keeping. Both, however, place a lien on your home behind the first. The home secures the debt, which means failing to repay can ultimately mean losing the house. That is the sentence to sit with before treating home equity as convenient money."
+      }
+    ],
+    variables: [
+      {
+        label: "Combined loan-to-value",
+        body: "The first-mortgage balance plus the new lien, measured against appraised value. It gates how much any lender will extend, and each lender caps it differently."
+      },
+      {
+        label: "Credit profile",
+        body: "Drives availability and, on a line of credit, the margin added to the index — which follows the balance for the life of the line."
+      },
+      {
+        label: "Your existing first-mortgage rate",
+        body: "The pivot of the whole decision. A first mortgage worth keeping argues for a second lien; one you would happily replace argues for pricing a cash-out refinance instead."
+      },
+      {
+        label: "How you will actually draw",
+        body: "A line drawn fully on day one behaves like a lump-sum loan at a variable rate — the flexibility you paid for goes unused. Staged spending is where a line earns its keep."
+      },
+      {
+        label: "Rate structure",
+        body: "Which index, what margin, how often the rate adjusts, and the lifetime cap all vary by lender. Some let you fix the rate on a portion of the balance; whether and how depends on the program."
+      }
+    ],
+    faqs: [
+      {
+        question: "Should I get a HELOC or do a cash-out refinance?",
+        answer:
+          "Run both, honestly. A cash-out refinance replaces your entire first mortgage, so its cost includes whatever happens to the rate on money you already owe; a second lien leaves the first mortgage alone but adds its own rate and costs on the new money. Which wins depends on your current rate, the amount, and how long you will carry it — our refinance guide and break-even calculator exist for exactly this comparison."
+      },
+      {
+        question: "What happens when the draw period ends?",
+        answer:
+          "New borrowing stops and the payment is recalculated to repay the principal over the repayment period. If you were paying interest-only minimums, that step-up can be substantial, and some lines are structured with a balloon instead of full amortization. Ask any lender to show you the repayment-phase payment on a fully drawn line before you open it — it is the number the marketing rarely leads with."
+      },
+      {
+        question: "Is the interest tax-deductible?",
+        answer:
+          "It depends on how the money is used and on current tax law, both of which are outside what a mortgage brokerage should be advising you on. Talk to a tax professional about your specific situation before you count on a deduction."
+      },
+      {
+        question: "Can the lender freeze or reduce my line?",
+        answer:
+          "Yes, in defined circumstances — federal rules permit a lender to suspend draws or reduce a limit when, for example, the property's value declines significantly or a borrower's financial circumstances change materially. A line you are keeping as an emergency reserve can therefore shrink at precisely the moment broader conditions worsen, which is worth weighing if the reserve is the whole plan."
+      },
+      {
+        question: "What does it cost to open?",
+        answer:
+          "It varies by lender and instrument: appraisal, origination, and recording charges are common, lines of credit sometimes carry annual fees, and lenders that waive upfront costs often recover them if you close the line early. Ask for the full fee schedule, including what closing the account costs, before comparing anything else."
+      }
+    ],
+    relatedCalculators: [
+      { href: "/calculators/refinance-break-even", label: "Compare against a cash-out refinance" },
+      { href: "/calculators/mortgage-payment", label: "Estimate a fixed second-mortgage payment" }
+    ],
+    relatedPrograms: ["refinance", "conventional", "purchase"],
+    sources: [
+      {
+        publisher: "Consumer Financial Protection Bureau",
+        title: "What you should know about home equity lines of credit (HELOC booklet)",
+        url: "https://files.consumerfinance.gov/f/documents/cfpb_heloc-brochure.pdf"
+      },
+      {
+        publisher: "Consumer Financial Protection Bureau",
+        title: "What is a home equity loan?",
+        url: "https://www.consumerfinance.gov/ask-cfpb/what-is-a-home-equity-loan-en-106/"
+      },
+      {
+        publisher: "Board of Governors of the Federal Reserve System",
+        title: "What you should know about home equity lines of credit",
+        url: "https://www.federalreserve.gov/pubs/equity/equity_english.htm"
+      }
+    ],
+    requiresLenderPath: true,
+    loanTypeForSchema: null
+  },
+  {
     slug: "fha",
     heroImage: SCENARIO_IMAGES.purchase,
     navLabel: "FHA",

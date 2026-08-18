@@ -8,13 +8,20 @@ export function AccountSignIn({
   configured,
   supabaseUrl,
   anonKey,
-  initialEmail = ""
+  initialEmail = "",
+  onSent
 }: {
   configured: boolean;
   supabaseUrl?: string | undefined;
   anonKey?: string | undefined;
   /** Prefill only. The person can still change it before requesting the link. */
   initialEmail?: string;
+  /**
+   * Fires once when the link request succeeds, so a host (the account prompt
+   * dialog) can show its own success surface. The request logic stays here —
+   * this is a notification, not a handoff.
+   */
+  onSent?: () => void;
 }) {
   const [email, setEmail] = useState(initialEmail);
   const [state, setState] = useState<"idle" | "requesting" | "sent" | "error">("idle");
@@ -31,6 +38,7 @@ export function AccountSignIn({
       options: { emailRedirectTo: callback.toString(), shouldCreateUser: true }
     });
     setState(error === null ? "sent" : "error");
+    if (error === null) onSent?.();
   }
 
   if (!configured) {

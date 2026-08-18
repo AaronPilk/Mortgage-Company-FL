@@ -39,6 +39,12 @@ export type CampaignDefinition = {
   funnel: HomeFunnelPreset;
   /** The what-happens-next strip. Three honest steps, no outcome promised. */
   whatHappensNext: [string, string, string];
+  /**
+   * Optional quiet link to the matching organic education page. Rendered small
+   * and below the fold so it informs without leaking paid clicks — the funnel
+   * stays the page's one job.
+   */
+  educationLink?: { href: string; label: string };
 };
 
 const STANDARD_CHIPS = ["No credit pull", "Not an application", "No obligation"];
@@ -100,7 +106,8 @@ export const CAMPAIGNS: CampaignDefinition[] = [
       timelineHeading: "When are you hoping to access your equity?",
       message: "Arrived via the HELOC campaign page."
     },
-    whatHappensNext: MORTGAGE_NEXT_STEPS
+    whatHappensNext: MORTGAGE_NEXT_STEPS,
+    educationLink: { href: "/mortgage/home-equity", label: "Learn how HELOCs work first" }
   },
   {
     // Program interest is not a schema field. FHA arrives as a purchase lead;

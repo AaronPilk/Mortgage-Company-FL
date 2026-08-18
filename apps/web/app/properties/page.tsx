@@ -186,7 +186,9 @@ export default async function PropertiesPage({
           </div>
         </div>
 
-        {accountsConfigured && !signedIn && <AccountNudgeBanner />}
+        {accountsConfigured && !signedIn && (
+          <AccountNudgeBanner supabaseUrl={supabaseUrl} anonKey={anonKey} />
+        )}
 
         {page.items.length > 0 ? (
           <ul className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -195,6 +197,8 @@ export default async function PropertiesPage({
                 key={`${listing.provider}:${listing.listingKey}`}
                 listing={listing}
                 showSave={accountsConfigured}
+                supabaseUrl={supabaseUrl}
+                anonKey={anonKey}
               />
             ))}
           </ul>

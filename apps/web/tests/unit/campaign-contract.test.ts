@@ -162,7 +162,8 @@ describe("campaign copy stays inside the marketing rules", () => {
         campaign.funnel.timelineHeading ?? "",
         campaign.funnel.contactHint ?? "",
         campaign.funnel.successBody ?? "",
-        campaign.funnel.message ?? ""
+        campaign.funnel.message ?? "",
+        campaign.educationLink?.label ?? ""
       ].join(" \n ");
       for (const pattern of forbidden) {
         const match = prose.match(pattern);
@@ -180,6 +181,19 @@ describe("campaign copy stays inside the marketing rules", () => {
     // The page must say out loud that TRACT does not list homes.
     expect(prose).toContain("don't list homes");
     expect(prose).toContain("connect");
+  });
+
+  it("points every education link at a registered indexable route", () => {
+    // The content linter only scans .tsx literals, so a campaign's education
+    // link — data rendered by the template — needs its own resolution check.
+    for (const campaign of CAMPAIGNS) {
+      if (campaign.educationLink === undefined) continue;
+      const entry = ROUTE_REGISTRY.find((route) => route.path === campaign.educationLink?.href);
+      expect(entry, `${campaign.slug} education link is not a registered route`).toBeDefined();
+      expect(entry?.indexable, `${campaign.slug} education link points at a noindex page`).toBe(
+        true
+      );
+    }
   });
 
   it("meets the metadata length budget the content linter enforces", () => {

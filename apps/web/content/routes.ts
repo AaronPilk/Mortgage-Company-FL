@@ -63,6 +63,15 @@ export const ROUTE_REGISTRY: RouteEntry[] = [
     indexable: true,
     contentGroup: "mortgage"
   },
+  // Evergreen home-equity education. Indexable on purpose: this is the organic
+  // page the noindex /get-started/heloc campaign page points its visitors at.
+  {
+    path: "/mortgage/home-equity",
+    priority: 0.8,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "mortgage"
+  },
   {
     path: "/mortgage/fha",
     priority: 0.8,

@@ -20,6 +20,7 @@ const FOOTER_GROUPS = [
     links: [
       { href: "/mortgage/purchase", label: "Buying a home" },
       { href: "/mortgage/refinance", label: "Refinancing" },
+      { href: "/mortgage/home-equity", label: "Home equity" },
       { href: "/mortgage/first-time-home-buyers", label: "First-time buyers" },
       { href: "/mortgage/self-employed", label: "Self-employed" },
       { href: "/mortgage/investment-property", label: "Investment property" }
