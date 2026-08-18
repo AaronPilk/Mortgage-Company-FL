@@ -10,8 +10,6 @@ async function main(): Promise<void> {
     "/calculators/affordability",
     "/vision",
     "/mortgage/fha",
-    "/privacy",
-    "/partners/real-estate-agents",
     "/api/v1/health",
     "/properties/FX-STP-0001"
   ];

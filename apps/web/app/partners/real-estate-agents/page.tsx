@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import { AssetImage } from "@/components/asset-image";
-import { Card, Disclosure, FeatureStatus, Section, SectionHeading } from "@/components/ui";
+import {
+  ButtonLink,
+  Card,
+  Disclosure,
+  FeatureStatus,
+  Section,
+  SectionHeading
+} from "@/components/ui";
 import { LeadForm } from "@/components/lead-form";
 import { pageMetadata } from "@/lib/metadata";
 import { publicFeatures } from "@/lib/env";
@@ -104,10 +111,19 @@ export default function AgentPartnerPage() {
           </p>
           <h2 className="mt-2 text-3xl font-bold">A useful handoff, not a referral payment.</h2>
           <p className="mt-4 text-[var(--text-muted)]">
-            A future QR handoff can preserve the agent and event source when a visitor opens a
-            planner or media tour. The pictured pattern is intentionally non-scannable; no public
-            tour, attribution record or compensation arrangement is implied.
+            The fixture QR handoff demonstrates how an event source can travel into a local sample
+            tour and then into an inquiry. The pictured pattern is intentionally non-scannable; the
+            linked route below carries bounded first-party campaign labels and no compensation
+            arrangement is implied.
           </p>
+          <div className="mt-6">
+            <ButtonLink
+              href="/tour/rendprop-coastal-demo?utm_source=agent_partner_page&utm_medium=onsite_qr&utm_campaign=rendprop_sample"
+              variant="secondary"
+            >
+              Open the attributed sample tour
+            </ButtonLink>
+          </div>
         </div>
       </div>
 
@@ -126,12 +142,17 @@ export default function AgentPartnerPage() {
           <h2 className="text-lg font-semibold text-[var(--text)]">RendProp listing media</h2>
           <p className="mt-3 text-sm text-[var(--text-muted)]">
             A guided phone-capture workflow that turns a walkthrough into a shareable tour with
-            clear labeling for any enhanced or staged imagery. It is in development and is not
-            available yet — and we will not describe it as survey-grade or claim measurement
-            accuracy it has not been benchmarked against.
+            clear labeling for any enhanced or staged imagery. The synthetic fixture workflow is
+            available to try; uploads and production media service are not. It is never described as
+            survey-grade or given measurement accuracy it has not been benchmarked against.
           </p>
           <div className="mt-4">
             <FeatureStatus label="RendProp" status={features.rendProp ? "live" : "coming_soon"} />
+          </div>
+          <div className="mt-5">
+            <ButtonLink href="/rendprop/demo" variant="secondary">
+              Run the RendProp sample
+            </ButtonLink>
           </div>
         </Card>
       </div>

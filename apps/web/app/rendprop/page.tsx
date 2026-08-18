@@ -73,15 +73,19 @@ export default function RendPropPage() {
             />
             <div className="flex flex-wrap items-center gap-3">
               <FeatureStatus
-                label="Interactive capture"
+                label="Production media service"
                 status={features.rendProp ? "live" : "coming_soon"}
               />
+              <Badge tone="success">Interactive fixture workflow available</Badge>
               <Badge tone="warning">Synthetic product demonstration</Badge>
             </div>
             <p className="mt-5 text-sm text-[var(--text-muted)]">
-              The media demonstration below is usable now. Upload, processing and public-tour
-              publishing remain disabled until Phase 4 completes the rights and deletion workflow.
+              The local sample below and its guided fixture workflow are usable now. Camera access,
+              user uploads, remote processing and production publishing remain disabled.
             </p>
+            <div className="mt-6">
+              <ButtonLink href="/rendprop/demo">Try the fixture workflow</ButtonLink>
+            </div>
           </div>
           <div
             className="overflow-hidden rounded-[2rem] border border-[var(--border)] bg-[var(--surface-2)] shadow-[var(--shadow-float)]"
@@ -229,8 +233,14 @@ export default function RendPropPage() {
                 Room sequence, media labels and agent attribution
               </p>
               <p className="mt-2 text-sm text-[var(--text-muted)]">
-                Public sharing and QR attribution ship with the complete rights and deletion flow.
+                Open the stable noindex sample to inspect room navigation, source labels, sharing,
+                attribution and the explicit unpublished state.
               </p>
+              <div className="mt-4">
+                <ButtonLink href="/tour/rendprop-coastal-demo" variant="secondary">
+                  Try the sample tour
+                </ButtonLink>
+              </div>
             </div>
           </Card>
         </div>
@@ -238,9 +248,9 @@ export default function RendPropPage() {
 
       <Section width="narrow">
         <div className="flex flex-wrap gap-3">
-          <ButtonLink href="/partners/real-estate-agents">See the agent workflow</ButtonLink>
-          <ButtonLink href="/contact" variant="secondary">
-            Discuss the product concept
+          <ButtonLink href="/rendprop/demo">Run the fixture workflow</ButtonLink>
+          <ButtonLink href="/partners/real-estate-agents" variant="secondary">
+            See the agent workflow
           </ButtonLink>
         </div>
         <Disclosure

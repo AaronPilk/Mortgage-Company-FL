@@ -96,6 +96,156 @@ test.describe("product media", () => {
       page.getByText("Not for measurement, appraisal, survey or construction.")
     ).toBeVisible();
   });
+
+  test("runs the rights-aware RendProp fixture through failure, exact retry, and review", async ({
+    page
+  }) => {
+    await page.goto("/rendprop/demo");
+    const continueButton = page.getByRole("button", { name: "Continue to synthetic capture" });
+    await expect(continueButton).toBeDisabled();
+
+    await page.getByLabel("Media rights").check();
+    await expect(continueButton).toBeDisabled();
+    await page.getByLabel("Privacy review").check();
+    await continueButton.click();
+
+    await page.getByRole("button", { name: "Use synthetic sample" }).click();
+    await page.getByLabel("Living room").check();
+    await page.getByLabel("Virtual staging").check();
+    await page.getByRole("button", { name: "Queue fixture processing" }).click();
+    await expect(page.getByText("Sample status: queued")).toBeVisible();
+
+    await page.getByRole("button", { name: "Begin fixture processing" }).click();
+    await expect(page.getByText("Sample status: processing")).toBeVisible();
+    await page.getByRole("button", { name: "Preview recoverable failure" }).click();
+    const processingAlert = page.getByTestId("rendprop-processing-step").getByRole("alert");
+    await expect(processingAlert).toContainText("fixture stopped");
+    await expect(processingAlert).toContainText("fixture_render_interrupted");
+
+    await page.getByRole("button", { name: "Retry the same sample" }).click();
+    await page.getByRole("button", { name: "Complete deterministic processing" }).click();
+    const review = page.getByTestId("rendprop-review-step");
+    await expect(review.locator("img")).toHaveCount(5);
+    for (const label of [
+      "Original synthetic fixture",
+      "Cleanup visualization",
+      "Virtually staged",
+      "Enhanced synthetic fixture",
+      "Floor-plan candidate"
+    ]) {
+      await expect(review.getByText(label, { exact: true })).toBeVisible();
+    }
+    await expect(review).toContainText("1 retries");
+
+    await page.getByRole("button", { name: "Prepare the local sample tour" }).click();
+    const tourLink = page.getByRole("link", { name: "Open attributed sample tour" });
+    await expect(tourLink).toHaveAttribute(
+      "href",
+      /\/tour\/rendprop-coastal-demo\?utm_source=rendprop_demo/
+    );
+  });
+
+  test("keeps the sample tour labeled, attributed, noindex, and mobile-safe", async ({ page }) => {
+    await page.goto(
+      "/tour/rendprop-coastal-demo?utm_source=rendprop_demo&utm_medium=onsite_qr&utm_campaign=agent_sample_tour"
+    );
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("coastal-room walkthrough");
+    await expect(page.getByText("TRACT sample workflow")).toBeVisible();
+    await expect(page.getByTestId("tour-living-pair").locator("img")).toHaveCount(2);
+    await expect(page.getByTestId("tour-kitchen-pair").locator("img")).toHaveCount(2);
+    await expect(page.getByText("Virtually staged", { exact: true })).toBeVisible();
+    await expect(page.getByText("Enhanced synthetic fixture", { exact: true })).toBeVisible();
+    await expect(page.getByText("Floor-plan candidate · generated · not to scale")).toBeVisible();
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+    const qrPresentation = page.getByAltText(
+      "Abstract non-scannable QR-style card for the sample tour"
+    );
+    await qrPresentation.scrollIntoViewIfNeeded();
+    await expect
+      .poll(() => qrPresentation.evaluate((image: HTMLImageElement) => image.naturalWidth))
+      .toBeGreaterThan(0);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth
+      )
+    ).toBeLessThanOrEqual(1);
+
+    await page.goto("/tour/rendprop-coastal-demo?state=unpublished");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("This tour is not available.");
+    await expect(page.locator("form")).toHaveCount(0);
+  });
+
+  test("carries bounded tour attribution into an exact-retry inquiry", async ({ page }) => {
+    const payloads: Array<Record<string, unknown>> = [];
+    await page.route("**/api/v1/leads", async (route) => {
+      payloads.push(route.request().postDataJSON() as Record<string, unknown>);
+      await route.fulfill({
+        status: 500,
+        contentType: "application/json",
+        body: JSON.stringify({
+          ok: false,
+          error: { code: "INTERNAL_ERROR", message: "Fixture retry response.", requestId: "test" }
+        })
+      });
+    });
+    await page.goto(
+      "/tour/rendprop-coastal-demo?utm_source=rendprop_demo&utm_medium=onsite_qr&utm_campaign=agent_sample_tour&not_allowed=discarded"
+    );
+    await page.locator('input[name="firstName"]').fill("Dana");
+    await page.locator('input[name="lastName"]').fill("Reyes");
+    await page.locator('input[name="email"]').fill("dana@example.com");
+    await page.locator('input[name="phone"]').fill("813-555-0147");
+    await page.locator('input[name="privacyAccepted"]').check();
+    await page.getByRole("button", { name: "Request a conversation" }).click();
+    await expect(page.locator('form [role="alert"]')).toContainText("Fixture retry response");
+    await page.getByRole("button", { name: "Request a conversation" }).click();
+    await expect.poll(() => payloads.length).toBe(2);
+
+    expect(payloads[0]).toEqual(payloads[1]);
+    expect(payloads[0]?.submissionId).toBe(payloads[1]?.submissionId);
+    expect(payloads[0]?.intent).toBe("purchase");
+    expect(payloads[0]?.lastTouch).toMatchObject({
+      landingPath: "/tour/rendprop-coastal-demo",
+      utmSource: "rendprop_demo",
+      utmMedium: "onsite_qr",
+      utmCampaign: "agent_sample_tour"
+    });
+    expect(payloads[0]?.lastTouch).not.toHaveProperty("not_allowed");
+    expect(payloads[0]?.conversionTouch).toMatchObject({
+      landingPath: "/tour/rendprop-coastal-demo"
+    });
+  });
+
+  test("submits agent demo interest through the same idempotent lead contract", async ({
+    page
+  }) => {
+    const payloads: Array<Record<string, unknown>> = [];
+    await page.route("**/api/v1/leads", async (route) => {
+      payloads.push(route.request().postDataJSON() as Record<string, unknown>);
+      await route.fulfill({
+        status: 500,
+        contentType: "application/json",
+        body: JSON.stringify({
+          ok: false,
+          error: { code: "INTERNAL_ERROR", message: "Retry the agent demo.", requestId: "test" }
+        })
+      });
+    });
+    await page.goto("/rendprop/demo");
+    await page.locator('input[name="firstName"]').fill("Riley");
+    await page.locator('input[name="lastName"]').fill("Morgan");
+    await page.locator('input[name="email"]').fill("riley@example.com");
+    await page.locator('input[name="phone"]').fill("407-555-0162");
+    await page.locator('input[name="privacyAccepted"]').check();
+    await page.getByRole("button", { name: "Request the demo" }).click();
+    await expect(page.locator('form [role="alert"]')).toContainText("Retry the agent demo");
+    await page.getByRole("button", { name: "Request the demo" }).click();
+    await expect.poll(() => payloads.length).toBe(2);
+
+    expect(payloads[0]).toEqual(payloads[1]);
+    expect(payloads[0]?.intent).toBe("agent_partner");
+    expect(payloads[0]?.conversionTouch).toMatchObject({ landingPath: "/rendprop/demo" });
+  });
 });
 
 test.describe("calculators", () => {
@@ -356,6 +506,7 @@ test.describe("indexation and crawl control", () => {
       "/api",
       "/vision",
       "/rendprop",
+      "/tour",
       "/properties",
       "/offline"
     ]) {
@@ -365,7 +516,13 @@ test.describe("indexation and crawl control", () => {
   });
 
   test("marks feature and system pages noindex", async ({ page }) => {
-    for (const path of ["/vision", "/rendprop", "/offline"]) {
+    for (const path of [
+      "/vision",
+      "/rendprop",
+      "/rendprop/demo",
+      "/tour/rendprop-coastal-demo",
+      "/offline"
+    ]) {
       await page.goto(path);
       const robots = await page.locator('meta[name="robots"]').getAttribute("content");
       expect(robots, `${path} should be noindex`).toContain("noindex");

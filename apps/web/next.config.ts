@@ -85,6 +85,10 @@ const nextConfig: NextConfig = {
           { key: "Cache-Control", value: "no-store" },
           { key: "X-Robots-Tag", value: "noindex, nofollow" }
         ]
+      },
+      {
+        source: "/tour/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }]
       }
     ];
   }

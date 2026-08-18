@@ -46,6 +46,8 @@ type TouchRow = {
   touch_kind: string;
   landing_path: string;
   utm_source: string | null;
+  utm_medium: string | null;
+  utm_campaign: string | null;
   created_at: string;
 };
 
@@ -146,7 +148,7 @@ export default async function Page() {
           .order("created_at", { ascending: false }),
         supabase
           .from("attribution_touches")
-          .select("lead_id,touch_kind,landing_path,utm_source,created_at")
+          .select("lead_id,touch_kind,landing_path,utm_source,utm_medium,utm_campaign,created_at")
           .in("lead_id", leadIds)
           .order("occurred_at", { ascending: true }),
         supabase
@@ -236,6 +238,8 @@ export default async function Page() {
             const touches = touchesByLead.get(lead.id) ?? [];
             const outbox = outboxByLead.get(lead.id);
             const plan = planByLead.get(lead.id);
+            const isRendPropInterest =
+              lead.source_path === "/rendprop/demo" || lead.source_path.startsWith("/tour/");
             return (
               <Card as="li" key={lead.id}>
                 <div className="flex flex-wrap items-start justify-between gap-4">
@@ -248,6 +252,7 @@ export default async function Page() {
                         {lead.status}
                       </Badge>
                       <Badge tone="neutral">{lead.intent.replaceAll("_", " ")}</Badge>
+                      {isRendPropInterest && <Badge tone="success">RendProp interest</Badge>}
                     </div>
                     <p className="mt-2 text-sm text-[var(--text-muted)]">
                       {maskEmail(lead.email_normalized)} · {maskPhone(lead.phone_e164)}
@@ -326,6 +331,12 @@ export default async function Page() {
                             {touches.at(-1)?.utm_source === null
                               ? ""
                               : ` · ${touches.at(-1)?.utm_source}`}
+                            {touches.at(-1)?.utm_medium === null
+                              ? ""
+                              : ` / ${touches.at(-1)?.utm_medium}`}
+                            {touches.at(-1)?.utm_campaign === null
+                              ? ""
+                              : ` / ${touches.at(-1)?.utm_campaign}`}
                           </p>
                         )}
                       </li>

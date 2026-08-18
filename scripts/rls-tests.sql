@@ -148,6 +148,63 @@ select tests.assert(
    where submission_id = '00000000-0000-4000-8000-000000000110') = 1,
   'lead request persists one bounded planning snapshot');
 
+-- RendProp agent-demo interest deliberately reuses the general lead contract:
+-- intent and bounded source attribution make it observable without inventing a
+-- media-session table or persisting fixture state.
+select public.create_lead_with_receipt(
+  jsonb_build_object(
+    'intent','agent_partner','first_name','Riley','last_name','Morgan',
+    'email_normalized','riley@example.com','phone_e164','+14075550162',
+    'source_path','/rendprop/demo','dedupe_hash','rendprop-hash-1'),
+  jsonb_build_object(
+    'privacy_accepted',true,'contact_requested',true,'sms_marketing',false,
+    'email_marketing',false,'disclosure_version','v1','disclosure_text_sha256','abc',
+    'source_path','/rendprop/demo','form_version','1'),
+  jsonb_build_array(
+    jsonb_build_object('touch_kind','first','landing_path','/rendprop/demo'),
+    jsonb_build_object(
+      'touch_kind','last','landing_path','/tour/rendprop-coastal-demo',
+      'utm_source','rendprop_demo','utm_medium','onsite_qr',
+      'utm_campaign','agent_sample_tour'),
+    jsonb_build_object('touch_kind','conversion','landing_path','/rendprop/demo')
+  ),
+  jsonb_build_object(
+    'event_type','lead.received','idempotency_key','rendprop-agent-demo-1',
+    'payload',jsonb_build_object(
+      'intent','agent_partner','sourcePath','/rendprop/demo',
+      'tags',jsonb_build_array('web-lead','intent:agent_partner'))),
+  '00000000-0000-4000-8000-000000000120',
+  null
+);
+
+-- An exact browser retry resolves to the same lead and outbox event even if its
+-- body cannot be reconstructed after the first transaction committed.
+select public.create_lead_with_receipt(
+  '{}'::jsonb, '{}'::jsonb, '[]'::jsonb,
+  jsonb_build_object('event_type','lead.received','idempotency_key','rendprop-retry-ignored'),
+  '00000000-0000-4000-8000-000000000120',
+  null
+);
+
+select tests.assert(
+  (select count(*) from public.leads
+   where intent = 'agent_partner' and source_path = '/rendprop/demo') = 1,
+  'RendProp exact retry creates one agent-demo lead');
+select tests.assert(
+  (select count(*) from public.lead_submission_receipts
+   where submission_id = '00000000-0000-4000-8000-000000000120') = 1,
+  'RendProp exact retry creates one durable submission receipt');
+select tests.assert(
+  (select count(*) from public.attribution_touches
+   where lead_id = (select lead_id from public.lead_submission_receipts
+     where submission_id = '00000000-0000-4000-8000-000000000120')) = 3,
+  'RendProp interest stores first, last, and conversion attribution');
+select tests.assert(
+  (select count(*) from public.integration_outbox
+   where aggregate_id = (select lead_id from public.lead_submission_receipts
+     where submission_id = '00000000-0000-4000-8000-000000000120')) = 1,
+  'RendProp exact retry creates one outbox event');
+
 select public.create_vision_report_request(
   '00000000-0000-4000-8000-000000000100',
   jsonb_build_object(
@@ -202,8 +259,8 @@ create temporary table claimed_outbox as
 select * from public.claim_integration_outbox('fixture-worker-0001', 10);
 
 select tests.assert(
-  (select count(*) from claimed_outbox) = 2,
-  'outbox worker atomically claims the two available lead events');
+  (select count(*) from claimed_outbox) = 3,
+  'outbox worker atomically claims the three available lead events');
 select tests.assert(
   public.complete_integration_outbox(
     (select id from claimed_outbox order by id::text limit 1),
@@ -379,7 +436,7 @@ reset role;
 set role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000003', false);
 
-select tests.assert(tests.visible_count('select count(*) from public.leads') = 2,
+select tests.assert(tests.visible_count('select count(*) from public.leads') = 3,
   'loan officer can read leads');
 select tests.assert(tests.visible_count('select count(*) from public.vision_report_requests') = 0,
   'loan officer cannot read Vision report request mappings');
@@ -399,7 +456,7 @@ reset role;
 set role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000005', false);
 
-select tests.assert(tests.visible_count('select count(*) from public.consent_receipts') = 2,
+select tests.assert(tests.visible_count('select count(*) from public.consent_receipts') = 3,
   'compliance reviewer can read the consent ledger');
 select tests.assert(tests.visible_count('select count(*) from public.audit_events') = 1,
   'compliance reviewer can read the audit log');
@@ -441,14 +498,14 @@ reset role;
 set role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
 
-select tests.assert(tests.visible_count('select count(*) from public.leads') = 2,
+select tests.assert(tests.visible_count('select count(*) from public.leads') = 3,
   'admin can read leads');
-select tests.assert(tests.visible_count('select count(*) from public.integration_outbox') = 2,
+select tests.assert(tests.visible_count('select count(*) from public.integration_outbox') = 3,
   'admin can read the outbox');
 select tests.assert(tests.visible_count('select count(*) from public.vision_report_requests') = 1,
   'admin can read Vision report request mappings');
-select tests.assert(tests.visible_count('select count(*) from public.lead_submission_receipts') = 1,
-  'admin can trace the general lead submission receipt');
+select tests.assert(tests.visible_count('select count(*) from public.lead_submission_receipts') = 2,
+  'admin can trace general and RendProp submission receipts');
 select tests.assert(tests.visible_count('select count(*) from public.lead_plans') = 1,
   'admin can read the general lead planning snapshot');
 

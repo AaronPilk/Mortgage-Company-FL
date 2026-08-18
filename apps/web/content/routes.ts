@@ -276,6 +276,20 @@ export const ROUTE_REGISTRY: RouteEntry[] = [
     contentGroup: "rendprop"
   },
   {
+    path: "/rendprop/demo",
+    priority: 0.2,
+    changeFrequency: "monthly",
+    indexable: false,
+    contentGroup: "rendprop"
+  },
+  {
+    path: "/tour/rendprop-coastal-demo",
+    priority: 0.1,
+    changeFrequency: "monthly",
+    indexable: false,
+    contentGroup: "rendprop"
+  },
+  {
     path: "/properties",
     priority: 0.5,
     changeFrequency: "daily",
