@@ -2,9 +2,10 @@
 
 Audit refreshed: 2026-08-18
 
-Scope: read-only repository, Vercel, Supabase and Cloudflare inspection plus local
-verification. No external deployment, data, Auth, RLS, secret or production
-configuration was changed.
+Scope: read-only repository, Vercel, Supabase and Cloudflare inspection plus
+local verification. The audit itself changed no external data, Auth, RLS,
+secret or production configuration. Claude separately deployed consumer UI
+commit `e641019` while the audit was in progress.
 
 ## Hosting topology
 
@@ -16,10 +17,11 @@ The public canonical origin is
 enables `nodejs_compat`, binds static assets, enables observability and declares
 only the non-secret brand variable.
 
-Four deployments are visible. The current version was created 2026-08-18 at
-01:38 UTC with version id `a8691060-83c5-473c-8858-cd20b81300ab`. Wrangler does
-not encode its Git commit. Public probes of home, health, planner, Vision,
-RendProp and current brand assets return HTTP 200.
+Five deployments are visible. The current version was created 2026-08-18 at
+03:22 UTC with version id `671ea10b-2d29-4278-b9e7-0a4b7c8af8a6`. Wrangler does
+not encode its Git commit, but Claude reported the upload from `e641019` and the
+timing and UI match. Public probes of home, health, planner, properties, Vision,
+RendProp and the new hero asset return HTTP 200.
 
 No Worker secrets are listed. Production preflight therefore correctly refuses
 a release that would claim durable lead capture or production bot protection.
@@ -35,21 +37,23 @@ A GitHub push does not deploy this Worker.
 ### Vercel — active public duplicate
 
 Team `TRACT Mortgage` contains one Next.js project,
-`mortgage-company-fl-web`. It has three ready deployments, all targeted as
-`production`:
+`mortgage-company-fl-web`. Verified ready production deployments include:
 
 - Git `f903d60`;
 - Git `cdacd99`;
-- Git `7998ede` (latest).
+- Git `7998ede`;
+- Git `e641019` (latest verified, deployment
+  `dpl_WtmJkZvAjU3LSbWVMgwNURt17Jjy`).
 
 The latest deployment exposes three `vercel.app` aliases, including
 `mortgage-company-fl-web.vercel.app`, and an unauthenticated request returns HTTP 200. The rendered canonical points to the Cloudflare origin, but Vercel is still
 actively hosting a second public runtime and automatically follows `main`.
 
-This is not an approved preview-only connection and not a future migration.
-Before another push to `main`, the owner must disable the Vercel Git production
-path or make its aliases non-public. Do not move Cloudflare production to Vercel
-and do not run both as production architecture.
+This is not an approved preview-only connection and not a future migration. The
+owner explicitly authorized the combined main-branch push with the automatic
+Vercel deployment as a known consequence, but did not make Vercel canonical.
+Disable the Vercel Git production path or make its aliases non-public. Do not
+move Cloudflare production to Vercel or retain dual production architecture.
 
 ### Error 1102 disposition
 

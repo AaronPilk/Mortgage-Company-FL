@@ -1,8 +1,9 @@
 # Current state
 
-**As of 2026-08-18.** This describes the verified integration branch
-`agent/tract-integrated-recovery-20260818`. It is not a statement that the branch
-is deployed.
+**As of 2026-08-18.** This describes combined code commit `c1fa306` on
+`agent/tract-integrated-recovery-20260818`. Claude's consumer UI parent
+`e641019` is deployed; the combined recovery merge is verified but is not yet
+deployed to the canonical Cloudflare Worker.
 
 ## Repository and hosting
 
@@ -10,30 +11,31 @@ is deployed.
 | ----------------------------- | ------------------------------------------------------------------------------------------- |
 | Canonical repository          | `https://github.com/AaronPilk/Mortgage-Company-FL`                                          |
 | Default / production branch   | `main`                                                                                      |
-| Integration base              | `origin/main` at `7998ede`                                                                  |
+| Integration parents           | Recovery `5da551d` plus consumer UI `e641019`; merged at `c1fa306`                          |
 | Intended canonical host       | Cloudflare Workers through `@opennextjs/cloudflare`                                         |
 | Worker                        | `mortgage-company-fl`                                                                       |
 | Canonical origin              | `https://mortgage-company-fl.aaron-9c3.workers.dev`                                         |
 | Cloudflare deploy             | Manual: `pnpm cf:build && pnpm cf:deploy`                                                   |
-| Latest visible Worker version | `a8691060-83c5-473c-8858-cd20b81300ab`, created 2026-08-18 01:38 UTC                        |
+| Latest visible Worker version | `671ea10b-2d29-4278-b9e7-0a4b7c8af8a6`, created 2026-08-18 03:22 UTC                        |
 | Vercel                        | Public duplicate production target; not canonical and not approved as a second architecture |
 | Supabase                      | Healthy but empty candidate project; not proven or migrated                                 |
 
 The Cloudflare Worker is publicly healthy and the intended canonical origin.
-Four Worker deployments are visible. The current version exposes only the static
-asset binding and the non-secret brand variable; no Worker secrets are listed.
-Its public feature routes and health endpoint return HTTP 200.
+Five Worker deployments are visible. Claude deployed the latest from the
+consumer UI tree before recovery reconciliation. Its public home, health,
+planner, properties, Vision, RendProp and new hero image return HTTP 200, but the
+health probe still reports database unconfigured and CRM, AI, bot and email
+disabled.
 
 Vercel team `TRACT Mortgage` contains one Next.js project,
-`mortgage-company-fl-web`. It has three ready production deployments sourced
-from GitHub `main`. The latest production artifact maps to `7998ede` and has
-public `vercel.app` aliases. Its canonical tag points back to the Cloudflare
-origin, but it is still a second publicly reachable runtime.
+`mortgage-company-fl-web`. Its latest verified production artifact
+`dpl_WtmJkZvAjU3LSbWVMgwNURt17Jjy` maps to `e641019` and has public
+`vercel.app` aliases. Its canonical tag points back to the Cloudflare origin,
+but it is still a second publicly reachable runtime.
 
-The pushed recovery branch at `400c6d8` created a fourth ready deployment with
-no production target. Its deployment URL and branch alias redirect
-unauthenticated requests to Vercel SSO, confirming an access-protected preview.
-The public production duplicate must be resolved before merging to `main`.
+The pushed recovery branch at `400c6d8` created an access-protected preview.
+The owner subsequently authorized a combined main-branch push despite the known
+automatic Vercel production deployment; that does not make Vercel canonical.
 
 ## Application shape
 
@@ -51,6 +53,7 @@ admin surfaces are explicitly noindex where applicable.
 
 ### Primary public product flows
 
+- Image-led housing-payment hero with a responsive fallback and local estimator.
 - Mortgage program hub and 16 high-intent program routes.
 - Ten deterministic calculators with optional save/send/review actions.
 - Progressive planner at `/plan`, with value before contact capture.
@@ -158,12 +161,12 @@ schema was changed.
 
 ## Deployment boundary
 
-The integration is not production-ready despite green local gates.
-`pnpm deploy:preflight` currently refuses on `HASH_PEPPER`,
+The combined artifact is not production-ready despite green code, database and
+browser gates. `pnpm deploy:preflight` currently refuses on `HASH_PEPPER`,
 `SUPABASE_SERVICE_ROLE_KEY`, `TURNSTILE_MODE` and
 `NEXT_PUBLIC_TURNSTILE_SITE_KEY`. Values were not inspected or recorded.
 
-Do not merge or push another release while Vercel auto-deploys `main` to a public
-production target. Do not apply the 14 migrations until the Supabase project
-identity and migration authority are explicit. Do not run the manual Cloudflare
-deploy until all release gates pass.
+The owner authorized the combined Git push with the known Vercel auto-deploy
+consequence. That does not authorize bypassing Cloudflare preflight or applying
+the 14 migrations to an unproven Supabase project. Do not run the manual
+Cloudflare deploy until every release gate passes.

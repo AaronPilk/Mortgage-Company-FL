@@ -4,80 +4,48 @@
 
 ## Current checkpoint
 
-The isolated integration branch is `agent/tract-integrated-recovery-20260818`,
-based on `origin/main` at `7998ede`. It intentionally reconciles the verified
-recovery implementation through Phase 5 with the newer calculator, marketplace,
-Vision, planner, RendProp and brand work already on `main`.
+The isolated integration branch is `agent/tract-integrated-recovery-20260818`.
+Combined code commit `c1fa306` is a two-parent merge of the verified Phase 0–5
+recovery work at `5da551d` and Claude's consumer UI/image commit `e641019` from
+`main`. The merge preserves both streams and corrects the responsive-image,
+accessibility, asset-provenance and full-housing-payment contracts found during
+reconciliation.
 
-The integration is locally complete and green at merge commit `57ce058`, with
-handoff updates at `400c6d8`. The branch is pushed to
-`origin/agent/tract-integrated-recovery-20260818`; it has not been merged into
-`main` or deployed to Cloudflare. The Git push automatically created one
-access-protected Vercel preview. No remote database, Auth, RLS, Storage, Vercel
-setting or Cloudflare configuration was changed.
+The owner explicitly changed the earlier hold and authorized the combined work
+to be pushed to `main`. This handoff advances both the recovery branch and
+`main` with `c1fa306` in their history. That authorization does not waive the
+repository's production preflight or authorize an unreviewed remote Supabase
+migration.
 
-Phase 0 is complete. Error 1102 does not reproduce against the current public
-Worker or the integrated OpenNext artifact. The local Worker preview completed
-61 route requests with zero failures, 10.1 ms average and 41.1 ms maximum.
+Claude deployed `e641019` before the reconciliation finished:
 
-## Verified state
+- Cloudflare Worker version `671ea10b-2d29-4278-b9e7-0a4b7c8af8a6` became 100%
+  live at 2026-08-18 03:22 UTC;
+- Vercel production deployment `dpl_WtmJkZvAjU3LSbWVMgwNURt17Jjy` reached
+  `READY` from the same commit.
+
+The Cloudflare deployment is healthy but contains Claude's UI on the old
+`7998ede` base, not the recovery implementation. The combined `c1fa306` artifact
+must not replace it until production preflight passes.
+
+Phase 0 is complete. Error 1102 does not reproduce against the public Worker or
+the integrated OpenNext artifact.
+
+## Verified combined state
 
 | Gate                    | Result                                                                                            |
 | ----------------------- | ------------------------------------------------------------------------------------------------- |
-| `pnpm check`            | Pass: format, lint, typecheck, 633 tests, content lint and 57-page production build               |
+| `pnpm check`            | Pass: format, lint, typecheck, 638 tests, content lint and 57-route production build              |
 | `pnpm db:verify`        | Pass: 14 migrations, 38 public tables, 59 policies, 165 SQL assertions, RLS on every public table |
 | `pnpm test:e2e`         | Pass: 80/80 desktop and mobile checks                                                             |
-| `pnpm cf:build`         | Pass: OpenNext Cloudflare artifact generated                                                      |
-| local Worker preview    | Pass: 61/61 route smoke, no Error 1102                                                            |
-| `pnpm deploy:preflight` | Correctly blocked on four configuration names; no values printed                                  |
+| `pnpm cf:build`         | Pass: combined OpenNext Cloudflare artifact generated                                             |
+| `pnpm deploy:preflight` | Blocked on four required configuration names; no values printed                                   |
 
-The integrated Vision report path now sends bounded inputs, recomputes the
-deterministic result server-side, and atomically records lead, consent, three
-attribution touches, project, assumption provenance, scenario, report and outbox
-state. Exact retries are proved for ordinary leads, planner leads, Vision reports
-and privacy requests.
+## Active production blockers
 
-## Newly confirmed external blockers
+### Cloudflare production configuration
 
-### Public Vercel duplicate
-
-Vercel is not merely connected. Team `TRACT Mortgage` contains project
-`mortgage-company-fl-web`. It has three ready deployments targeted as
-`production`; the latest production artifact was built from `main` commit
-`7998ede`. Its production aliases are publicly reachable and the primary alias
-returns HTTP 200. The rendered canonical still points to the Cloudflare Worker.
-
-Pushing the recovery branch created a fourth `READY` deployment from `400c6d8`
-with no production target. Both its deployment URL and branch alias redirect
-unauthenticated requests to Vercel SSO, so it is an access-protected preview, not
-a new public production alias. This confirms that Vercel Git deployment remains
-active for both production and preview branches.
-
-Cloudflare remains the intended canonical host, but there are currently two
-public runtimes. Pushing or merging to `main` would automatically deploy another
-Vercel production artifact. The read-only infrastructure scope does not permit
-disconnecting or deleting it.
-
-Owner action required before the integration is merged or deployed: disable the
-Vercel Git production deployment or otherwise make the production aliases
-non-public, then verify that Cloudflare remains the sole production architecture.
-Do not migrate the application to Vercel.
-
-### Supabase is empty and unproven
-
-The connector now exposes one healthy project named `AaronPilk's Project` in
-`us-east-2` on PostgreSQL 17. It is a plausible TRACT candidate, but identity has
-not been proven. It contains no repository migrations, no public tables or
-policies, no application Edge Functions, no Storage buckets or objects and no
-Auth users. The only public function is Supabase's RLS event-trigger helper; the
-security advisor reports that `anon` and `authenticated` retain execute grants.
-
-No migration may be applied until the owner confirms this project is TRACT and
-explicitly authorizes the remote database change.
-
-### Deployment preflight
-
-The integrated tree correctly refuses a release until these names are configured
+The combined tree correctly refuses a release until these names are configured
 in the canonical production environment:
 
 - `HASH_PEPPER`
@@ -85,28 +53,43 @@ in the canonical production environment:
 - `TURNSTILE_MODE`
 - `NEXT_PUBLIC_TURNSTILE_SITE_KEY`
 
-This list is the local preflight result, not permission to set values. The full
-environment contract is in `docs/architecture/runtime-inventory.md`.
+Do not bypass this gate and do not place values in source control or handoff
+documents.
+
+### Supabase remains empty and unproven
+
+The connector exposes one healthy project named `AaronPilk's Project` in
+`us-east-2`, but it has not been proven to be the TRACT production project. It
+contains none of the 14 repository migrations, public application tables,
+policies, Edge Functions, Storage buckets or Auth users. No remote schema,
+Auth, RLS, Storage setting or data was changed.
+
+### Public Vercel duplicate remains active
+
+Vercel Git deployment is still active for `main` and creates a publicly
+reachable production runtime independent of Cloudflare. The owner authorized
+the main-branch push with this known consequence, but did not authorize a
+migration from Cloudflare or a second canonical architecture. Cloudflare remains
+the canonical origin; Vercel duplicate resolution remains an infrastructure
+follow-up.
 
 ## Exact next action
 
-1. Keep the pushed recovery branch isolated from `main`.
-2. Have the owner resolve the public Vercel duplicate without creating another
-   hosting architecture.
-3. Prove the Supabase project identity and approve an additive migration plan.
-4. Provision the required Cloudflare configuration through approved secret and
-   public-variable channels, then re-run `pnpm deploy:preflight`.
-5. Only after every gate is green: merge the reviewed branch, run the manual
-   Cloudflare workflow (`pnpm cf:build && pnpm cf:deploy`), and verify production.
+1. Verify the resulting Git commit and automatic Vercel deployment without
+   changing Vercel project settings.
+2. Provision the four required Cloudflare configuration names through approved
+   secret/public-variable channels and re-run `pnpm deploy:preflight`.
+3. Prove the Supabase project identity and separately authorize the reviewed
+   additive migration plan before any remote migration.
+4. Only after preflight passes, deploy `c1fa306` or its handoff descendant to
+   Cloudflare and verify the live routes and Worker version.
 
-Until steps 2–4 are complete, do not merge this integration to `main`, make
-additional release pushes or deploy it, and do not claim that durable production
-lead capture, Auth, CRM delivery or bot protection is live.
+Until steps 2–3 are complete, do not claim that the recovery database, durable
+lead capture, Auth, CRM delivery or production bot protection is live.
 
 ## Next engineering checkpoint
 
-After the infrastructure gate is assigned, Phase 6 continues with reviewed
-content, SEO/AEO, feed/schema and analytics contracts on this reconciled base.
-Avoid broad UI replacement: the mortgage-first product routes and differentiated
-workflows are already implemented and should be improved through measured,
-bounded changes.
+After the infrastructure gate is resolved, continue Phase 6 with reviewed
+content, SEO/AEO, feed/schema and analytics contracts on the reconciled base.
+Avoid another broad UI replacement; improve the now-integrated mortgage-first
+flows through measured changes.

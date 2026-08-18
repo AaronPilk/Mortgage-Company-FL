@@ -6,12 +6,12 @@ Agent: Codex
 
 Branch: `agent/tract-integrated-recovery-20260818`
 
-Base: `origin/main` at `7998ede`
+Parents: recovery `5da551d`; consumer UI `e641019`
 
-Integration commit: `57ce058`
+Integration commit: `c1fa306`
 
-Status: integration complete and pushed to its isolated remote branch; Phase 6
-content work not complete; not merged into `main` or deployed to Cloudflare
+Status: recovery/UI integration complete and authorized for `main`; Phase 6
+content work not complete; combined artifact not deployed to Cloudflare
 
 ## Summary
 
@@ -31,10 +31,14 @@ content work not complete; not merged into `main` or deployed to Cloudflare
   smoke contract to 61 release-visible requests.
 - Reconciled the authoritative handoff and architecture inventory against live
   read-only Vercel, Supabase and Cloudflare evidence.
+- Merged Claude's image-led consumer experience without discarding recovery
+  flows, corrected responsive image behavior and recorded all 42 assets.
+- Kept the hero estimate explicit about modeled mortgage insurance and excluded
+  costs rather than presenting principal-and-interest as a whole payment.
 
 ## Verification
 
-- `pnpm check`: pass; 633 unit/integration tests, 46 pages, 53 registered routes
+- `pnpm check`: pass; 638 unit/integration tests, 46 pages, 53 registered routes
   and the production build.
 - `pnpm db:verify`: pass; 14 migrations, 38 public tables, 59 policies and 165
   SQL assertions; every public table has RLS.
@@ -46,8 +50,9 @@ content work not complete; not merged into `main` or deployed to Cloudflare
 
 ## Read-only infrastructure findings
 
-- Cloudflare remains the intended canonical host and has four visible Worker
-  versions; current public product probes return HTTP 200.
+- Cloudflare remains the intended canonical host and has five visible Worker
+  versions. Claude deployed `e641019` as Worker version
+  `671ea10b-2d29-4278-b9e7-0a4b7c8af8a6`; current public probes return HTTP 200.
 - Vercel is actively and publicly auto-deploying `main` as a production target.
   It is not merely connected or preview-only. The recovery-branch push also
   created an access-protected preview. No Vercel setting was changed.
@@ -59,8 +64,8 @@ content work not complete; not merged into `main` or deployed to Cloudflare
 
 ## External blockers
 
-1. Disable or privatize the Vercel Git production path before merging this
-   branch into `main`.
+1. Record and then disable or privatize the automatic Vercel production path;
+   the owner authorized the combined main push but not a second canonical host.
 2. Prove the Supabase project identity and explicitly approve the additive
    migration plan.
 3. Provision the canonical Cloudflare configuration required by preflight.
@@ -69,5 +74,6 @@ content work not complete; not merged into `main` or deployed to Cloudflare
 ## Next engineering task
 
 Continue Phase 6 on this reconciled base: reviewed content, SEO/AEO, feed/schema
-and analytics contracts. Do not deploy until the infrastructure blockers above
-are cleared and every mandatory gate is re-run.
+and analytics contracts. Do not deploy the combined Cloudflare artifact until
+the infrastructure blockers above are cleared and every mandatory gate is
+re-run.

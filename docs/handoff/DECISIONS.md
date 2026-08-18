@@ -38,20 +38,21 @@ means a future operator can find it, point a domain at it, and serve 404s.
 
 ---
 
-## D-2 — Cloudflare remains canonical; the public Vercel duplicate is a blocker
+## D-2 — Cloudflare remains canonical; Vercel is a duplicate, not a migration
 
-**Decision.** Do not push, merge or deploy another release while Vercel
-automatically publishes `main` as a public `production` target. The owner must
-disable that Git production path or make its aliases non-public. Do not migrate
-TRACT to Vercel.
+**Decision.** Cloudflare remains TRACT's canonical host. Vercel automatically
+publishes `main` as a public `production` target and must be disabled or made
+non-public. The owner explicitly authorized the combined recovery/UI push with
+that automatic deployment as a known consequence; this is a one-release process
+override, not authorization to migrate TRACT to Vercel or normalize dual hosting.
 
 **Reasoning.** The original read-only audit saw one protected Vercel deployment
 and classified the connector as unused. The refreshed 2026-08-18 inventory
-disproved that classification: the project now has three ready production
-deployments, its latest artifact maps to `7998ede`, and its aliases return HTTP
-200 without authentication. A canonical tag pointing to Cloudflare reduces
-search ambiguity but does not remove a second runtime, stale-disclosure surface
-or independent header/configuration boundary.
+disproved that classification: the project has multiple ready production
+deployments, its latest verified artifact maps to `e641019`, and its aliases
+return HTTP 200 without authentication. A canonical tag pointing to Cloudflare
+reduces search ambiguity but does not remove a second runtime,
+stale-disclosure surface or independent header/configuration boundary.
 
 There is still no `vercel.json` or `.vercel` directory in the repository. The
 second architecture is a dashboard/Git integration, not an application

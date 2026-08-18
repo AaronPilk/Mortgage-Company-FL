@@ -52,8 +52,9 @@ project should be deleted.
 automatically creates a public production deployment from `main`. Feature
 branches create access-protected previews. Cloudflare remains the intended
 canonical host; do not migrate TRACT to Vercel or create a second production
-architecture. Resolve the public Vercel production path before another merge to
-`main`.
+architecture. The owner explicitly authorized the combined recovery/UI push to
+`main` with this consequence; resolve the public Vercel production path rather
+than treating that exception as a new hosting decision.
 
 ---
 
@@ -120,12 +121,12 @@ never prints a value.**
 
 In the default configuration it refuses on four items, which is correct:
 
-| Item                        | Why it blocks                                                           |
-| --------------------------- | ----------------------------------------------------------------------- |
-| `HASH_PEPPER`               | Still the development default.                                          |
-| `SUPABASE_SERVICE_ROLE_KEY` | Without a database there is no durable lead receipt.                    |
-| `TURNSTILE_MODE`            | Conversion forms need a real bot challenge, not `disabled`/`fixture`.   |
-| `MLS_PROVIDER`              | Fixture listing data, unacknowledged. See `SHOW_SAMPLE_LISTINGS` below. |
+| Item                             | Why it blocks                                                         |
+| -------------------------------- | --------------------------------------------------------------------- |
+| `HASH_PEPPER`                    | Still the development default.                                        |
+| `SUPABASE_SERVICE_ROLE_KEY`      | Without a database there is no durable lead receipt.                  |
+| `TURNSTILE_MODE`                 | Conversion forms need a real bot challenge, not `disabled`/`fixture`. |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Public identifier required for the production Turnstile widget.       |
 
 Environment **parsing** and deployment **policy** are deliberately separate
 functions (ADR-003). `next build` legitimately parses the environment without

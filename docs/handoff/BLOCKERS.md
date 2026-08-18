@@ -8,8 +8,8 @@ weakening a test or inventing a production claim.
 
 | Field           | Value                                                                                                                                  |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Status          | Hard blocker before push/merge/deploy                                                                                                  |
-| Evidence        | One Vercel project, three ready `production` deployments and three public aliases; latest build is GitHub `main` at `7998ede`          |
+| Status          | Active topology blocker; owner explicitly waived it for the combined Git push, not as a canonical-host decision                        |
+| Evidence        | One Vercel project with public production aliases; latest verified build is GitHub `main` at `e641019`                                 |
 | Risk            | A push to `main` automatically publishes Vercel while Cloudflare remains canonical, creating two public runtimes for a regulated site  |
 | Smallest action | Disable the Vercel Git production deployment or make the Vercel aliases non-public, then verify Cloudflare is the sole production host |
 | Owner           | Vercel/GitHub account owner                                                                                                            |
@@ -41,8 +41,8 @@ The current local environment reports four blocking names:
 - `NEXT_PUBLIC_TURNSTILE_SITE_KEY`
 
 Provision values only through approved Cloudflare secret/public-variable paths.
-Do not put values in source, docs, chat or Vercel. Re-run preflight after the
-Supabase identity and Vercel topology are resolved.
+Do not put values in source, docs, chat or Vercel. Re-run preflight before any
+combined Cloudflare deploy.
 
 ## 4. Licensing and legal launch facts are incomplete
 

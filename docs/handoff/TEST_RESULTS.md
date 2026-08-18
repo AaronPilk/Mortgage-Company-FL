@@ -11,15 +11,14 @@ Passes all six stages:
 - Prettier format check;
 - ESLint;
 - workspace TypeScript checks;
-- Vitest: **31 files, 633 tests, all passing**;
+- Vitest: **31 files, 638 tests, all passing**;
 - content lint: **46 page files and 53 registered routes, no structural
   problems**;
 - Next.js 16.3.1 production build: **57 generated pages/routes**.
 
-The content gate initially found the noindex RendProp tour missing from the route
-registry. Registering `/tour/rendprop-coastal-demo` corrected the sitemap and
-content-group contract; the complete gate was then re-run from the beginning and
-passed.
+The reconciled suite also verifies all 42 generated/recovered image assets,
+their repository references and provenance metadata. The complete gate was
+re-run from the beginning after the merge and passed.
 
 ### `pnpm db:verify`
 
@@ -49,6 +48,9 @@ schema or row was changed.
 - 40 desktop;
 - 40 mobile;
 - mortgage-first home and disclosure contracts;
+- responsive hero delivery and a bounded broken-image fallback;
+- local housing-payment estimate including modeled mortgage insurance below
+  20% down and explicit exclusions;
 - calculator behavior and keyboard operation;
 - exact lead retry and first/last/conversion attribution;
 - progressive planner value before contact capture;
@@ -90,14 +92,17 @@ The local preview was shut down after the crawl. No deploy command was run.
 
 ## Read-only live probes
 
-- Cloudflare Worker home, health, `/plan`, `/vision/start`, `/rendprop/demo` and
-  current brand asset: HTTP 200.
-- Latest Vercel production alias: HTTP 200 and publicly reachable.
+- Cloudflare Worker home, health, `/plan`, `/properties`, `/vision`, `/rendprop`
+  and the new hero asset: HTTP 200.
+- Current Cloudflare version:
+  `671ea10b-2d29-4278-b9e7-0a4b7c8af8a6`, uploaded at 2026-08-18 03:22 UTC.
+- Latest verified Vercel production deployment
+  `dpl_WtmJkZvAjU3LSbWVMgwNURt17Jjy` from `e641019`: `READY` and publicly
+  reachable.
 - Vercel canonical tag: Cloudflare Worker origin.
 - Vercel and Cloudflare health endpoints: both report database unconfigured,
   CRM/AI/bot/email disabled and public product feature flags off.
-- Current Cloudflare deployment list: four versions, latest created 2026-08-18
-  01:38 UTC.
+- Current Cloudflare deployment list: five versions.
 
 These probes did not submit forms or mutate external state.
 
@@ -117,6 +122,6 @@ deployment and is not waived by the green code gates.
 
 - No remote Supabase migration, RLS, Auth or Storage test.
 - No production form submission or CRM delivery.
-- No Cloudflare deploy or post-deploy log window for this integration.
+- No Cloudflare deploy or post-deploy log window for combined commit `c1fa306`.
 - No measured Lighthouse score or full accessibility audit.
 - No paid AI/media provider call.
