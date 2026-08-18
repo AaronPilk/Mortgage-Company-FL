@@ -214,10 +214,24 @@ test.describe("recovery system boundaries", () => {
     expect(get.headers()["allow"]).toBe("POST");
   });
 
-  test("keeps public tools available when account Auth is unconfigured", async ({ page }) => {
+  test("keeps public tools available on /account in every auth state", async ({ page }) => {
+    /*
+      The durable invariant is the escape hatch: whatever state Supabase Auth is
+      in — unconfigured (no keys in the build) or configured (the committed
+      .env.production now carries them) — a signed-out visitor always gets the
+      page, an explanation of the state they are in, and a way to use the
+      public tools. The original assertion pinned the unconfigured notice
+      specifically, which made the test describe the build environment rather
+      than the boundary it exists to protect.
+    */
     await page.goto("/account");
     await expect(page.getByRole("heading", { level: 1 })).toContainText("saved TRACT work");
-    await expect(page.getByText(/account sign-in is not configured/i)).toBeVisible();
+    await expect(
+      page
+        .getByText(/account sign-in is not configured/i)
+        .or(page.getByText(/one-time sign-in link/i))
+        .first()
+    ).toBeVisible();
     await expect(
       page.getByRole("link", { name: "Use calculators without an account" })
     ).toBeVisible();
