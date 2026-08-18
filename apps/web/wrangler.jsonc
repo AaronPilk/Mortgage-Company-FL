@@ -32,6 +32,10 @@
     "NEXT_PUBLIC_BRAND_NAME": "TRACT Mortgage",
     "NEXT_PUBLIC_SUPABASE_URL": "https://pywikpvjovaayidxyoii.supabase.co",
     "TURNSTILE_MODE": "production",
+    // Hostnames Turnstile tokens must have been solved on. Comma-separated;
+    // required by the environment schema whenever the mode is live — its
+    // absence is what turned every page into a 500 on 18 Aug 2026.
+    "TURNSTILE_HOSTNAMES": "mortgage-company-fl.aaron-9c3.workers.dev",
     "GHL_MODE": "production",
     "GHL_LOCATION_ID": "rg3WUxqvDHrkiyBmEiCV",
     // Used by the scheduled handler to address the in-process drain call in a

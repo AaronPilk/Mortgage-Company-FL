@@ -23,7 +23,7 @@ import openNextHandler, {
  * not log an error a human then has to learn to ignore.
  */
 export default {
-  fetch: openNextHandler.fetch,
+  fetch: (request, env, ctx) => openNextHandler.fetch(request, env, ctx),
 
   async scheduled(controller, env, ctx) {
     const origin = env.WORKER_SELF_ORIGIN;
