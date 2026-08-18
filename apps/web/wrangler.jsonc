@@ -1,10 +1,42 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "mortgage-company-fl",
-  "main": ".open-next/worker.js",
+
+  // The entry wraps the generated OpenNext worker to add the outbox-drain cron.
+  // See worker-entry.js for why.
+  "main": "worker-entry.js",
+
   "compatibility_date": "2026-08-01",
   "compatibility_flags": ["nodejs_compat"],
   "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
   "observability": { "enabled": true },
-  "vars": { "NEXT_PUBLIC_BRAND_NAME": "TRACT Mortgage" }
+
+  // Every minute. A lead should reach the CRM while the visitor is still on
+  // the thank-you page; an empty drain is one cheap bounded query.
+  "triggers": { "crons": ["* * * * *"] },
+
+  /*
+   * SECRETS ARE NEVER LISTED HERE — they are set in the dashboard or with
+   * `wrangler secret put` and survive deploys on their own:
+   *   HASH_PEPPER, SUPABASE_SERVICE_ROLE_KEY, TURNSTILE_SECRET_KEY,
+   *   GHL_PRIVATE_INTEGRATION_TOKEN, OUTBOX_DRAIN_TOKEN
+   *
+   * Plain-text vars are a different story: `wrangler deploy` REPLACES the
+   * dashboard's Text variables with exactly this list. A Text var added only
+   * in the dashboard silently disappears on the next deploy — which is how a
+   * site loses its Supabase URL in production without anyone touching it. So
+   * every non-secret runtime setting lives here, in the committed config,
+   * where a deploy can only ever assert it.
+   */
+  "vars": {
+    "NEXT_PUBLIC_BRAND_NAME": "TRACT Mortgage",
+    "NEXT_PUBLIC_SUPABASE_URL": "https://pywikpvjovaayidxyoii.supabase.co",
+    "TURNSTILE_MODE": "production",
+    "GHL_MODE": "production",
+    "GHL_LOCATION_ID": "rg3WUxqvDHrkiyBmEiCV",
+    // Used by the scheduled handler to address the in-process drain call in a
+    // way that survives host canonicalization. Change alongside
+    // apps/web/.env.production when the production domain changes.
+    "WORKER_SELF_ORIGIN": "https://mortgage-company-fl.aaron-9c3.workers.dev"
+  }
 }
