@@ -38,6 +38,15 @@
     "TURNSTILE_HOSTNAMES": "mortgage-company-fl.aaron-9c3.workers.dev",
     "GHL_MODE": "production",
     "GHL_LOCATION_ID": "rg3WUxqvDHrkiyBmEiCV",
+    // Labelled sample listings, deliberately published pre-MLS (see
+    // docs/handoff/DECISIONS.md and lib/listings.ts). Three switches are all
+    // required: the fixture provider, the explicit sample-data opt-in, and the
+    // property-search feature gate that the page and API route check first.
+    // SHOW_SAMPLE_LISTINGS is the string "true" — the schema parses an enum of
+    // "true"/"false" and transforms it to a boolean.
+    "MLS_PROVIDER": "fixture",
+    "SHOW_SAMPLE_LISTINGS": "true",
+    "FEATURE_PROPERTY_SEARCH": "true",
     // Used by the scheduled handler to address the in-process drain call in a
     // way that survives host canonicalization. Change alongside
     // apps/web/.env.production when the production domain changes.

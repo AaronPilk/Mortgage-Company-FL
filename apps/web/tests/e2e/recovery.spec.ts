@@ -4,7 +4,7 @@ test.describe("integrated recovery workflows", () => {
   test("renders the generated hero with a bounded image fallback", async ({ page }) => {
     await page.goto("/");
     const proof = page.getByTestId("hero-product-proof");
-    await expect(proof).toContainText("Know the housing payment");
+    await expect(proof).toContainText("Honest answers about your Florida mortgage");
     expect(
       await proof.locator("img").evaluate((image: HTMLImageElement) => image.naturalWidth)
     ).toBeGreaterThan(0);
@@ -51,6 +51,7 @@ test.describe("integrated recovery workflows", () => {
     await page.goto("/plan");
     await expect(page.locator('input[name="email"]')).toHaveCount(0);
     await page.getByLabel("Buy a home to live in").check();
+    await page.getByLabel("Within 30 days").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await expect(page.getByRole("heading", { name: "Your working estimate" })).toBeVisible();
     await expect(page.locator('input[name="email"]')).toHaveCount(0);

@@ -5,6 +5,7 @@ import { ButtonLink, LicenseFact } from "./ui";
 import { businessIdentity, isPreLaunch } from "@/lib/site";
 
 const PRIMARY_NAV = [
+  { href: "/properties", label: "Properties" },
   { href: "/plan", label: "Start planning" },
   { href: "/mortgage", label: "Mortgage" },
   { href: "/calculators", label: "Calculators" },

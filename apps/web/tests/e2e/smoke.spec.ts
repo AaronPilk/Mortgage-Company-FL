@@ -10,14 +10,37 @@ import { expect, test } from "@playwright/test";
  */
 
 test.describe("home page", () => {
-  test("states the company type and both primary actions above the fold", async ({ page }) => {
+  test("states the company type and leads with the lead form", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
-      "Know the housing payment before you fall in love with the house"
+      "Honest answers about your Florida mortgage"
     );
     await expect(page.getByText("Florida mortgage brokerage").first()).toBeVisible();
-    await expect(page.getByRole("link", { name: "Build my mortgage plan" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Explore payment calculators" })).toBeVisible();
+    // The page exists to convert paid intent traffic, so the form shares the
+    // hero with the message rather than living behind a /contact link.
+    const hero = page.getByTestId("hero-product-proof");
+    await expect(hero.locator('form[data-form-id="home-hero"]')).toBeVisible();
+    await expect(hero.getByRole("button", { name: "Request a call" })).toBeVisible();
+  });
+
+  test("keeps the homepage form a marketing form, not an application", async ({ page }) => {
+    await page.goto("/");
+    const form = page.locator('form[data-form-id="home-hero"]');
+    await expect(form.getByText("This is not an application").first()).toBeVisible();
+    const names = await form
+      .locator("input, select, textarea")
+      .evaluateAll((elements) => elements.map((element) => element.getAttribute("name") ?? ""));
+    for (const forbidden of [
+      "ssn",
+      "socialSecurity",
+      "dob",
+      "dateOfBirth",
+      "income",
+      "accountNumber"
+    ]) {
+      expect(names).not.toContain(forbidden);
+    }
+    expect(await form.locator('input[type="file"]').count()).toBe(0);
   });
 
   test("never claims to be a lender and always carries the broker disclosure", async ({ page }) => {
