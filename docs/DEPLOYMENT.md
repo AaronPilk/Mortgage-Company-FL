@@ -48,30 +48,18 @@ application's API routes or its server rendering; the Pages deployment returned
 permanent 404s. The migration to Workers is commit `3a7a2ad`. The dead Pages
 project should be deleted.
 
-**Vercel is connected to the account but is not production.** It serves no
-traffic and there is no Vercel configuration in this repository. Do not create a
-second production deployment.
+**Vercel is an active but unapproved duplicate runtime.** Its Git integration
+automatically creates a public production deployment from `main`. Feature
+branches create access-protected previews. Cloudflare remains the intended
+canonical host; do not migrate TRACT to Vercel or create a second production
+architecture. Resolve the public Vercel production path before another merge to
+`main`.
 
 ---
 
 ## How a deploy happens
 
-### The normal path — this is the one that is used
-
-```
-push to `main` on https://github.com/AaronPilk/Mortgage-Company-FL
-   → Cloudflare builds
-   → Cloudflare deploys
-   → https://mortgage-company-fl.aaron-9c3.workers.dev
-```
-
-That is the whole mechanism. There is no manual step and no dashboard
-configuration, because `NEXT_PUBLIC_SITE_URL` is committed in
-`apps/web/.env.production`.
-
-Confirmed working: commit `f903d60` was pushed and is live.
-
-### The manual path — break-glass only
+### The current path — manual Cloudflare deployment
 
 ```bash
 pnpm deploy:preflight              # refuses if configuration is not production-ready
@@ -80,8 +68,32 @@ pnpm --filter @tract/web exec opennextjs-cloudflare preview
 pnpm cf:deploy                     # wrangler deploy
 ```
 
-Use this only when the Git-connected build is unavailable. A manual deploy from a
-working copy is a deploy whose source nobody can identify later.
+Run the deploy only from a clean, reviewed commit after every release gate is
+green. Record both the Git commit and resulting Worker version because Wrangler
+metadata does not currently provide that mapping.
+
+A Git push has two different effects today:
+
+```text
+push to `main`
+   -> GitHub updates
+   -> Vercel creates a public production duplicate
+   -> Cloudflare does not build or deploy
+
+push to a feature branch
+   -> GitHub updates
+   -> Vercel creates an access-protected preview
+   -> Cloudflare does not build or deploy
+```
+
+The Vercel behavior is a release blocker, not the TRACT deployment mechanism.
+
+### Optional future Git path — not configured
+
+Cloudflare Workers Builds could be connected to the repository with build
+command `pnpm cf:build` and deploy command `pnpm cf:deploy`. Do not document or
+rely on push-to-deploy unless a Git-triggered Worker build is observed and its
+commit-to-version mapping is recorded.
 
 ### The build guard
 
@@ -233,20 +245,19 @@ duplicate leads afterwards. That is the correct tradeoff and is not a defect.
 
 ## Rollback point
 
-**`f903d60` — "Give the site a visual language, in both themes."**
-
-It is the current tip of `origin/main`, it is what production is serving, and it
-was verified live: 39 routes crawled, then 390 requests at concurrency 16, all
-HTTP 200.
-
-Reverting to it returns production to a known-good state.
+The current public Worker version is
+`a8691060-83c5-473c-8858-cd20b81300ab`. Public probes are healthy, but its exact
+Git source is unproven. The previously verified Worker version associated around
+commit `f903d60` is `02ff84bb-9f8e-41d4-9049-66f74deba249`. Use Cloudflare's
+deployment history as the rollback source of truth and record the selected
+version during an incident.
 
 ### How to roll back
 
 1. **Worker deployments roll back through Cloudflare's deployment history.** This
    is the fast path and does not require a Git operation.
-2. Alternatively, revert the offending commit on `main` and push. The Git-connected
-   build redeploys.
+2. Reverting a Git commit does not change Cloudflare until the reviewed revert is
+   manually built and deployed.
 3. **Database migrations do not roll back automatically.** Take a backup before
    applying one to production, and write the reverse statement into the
    migration's comment header when a reversal is practical. Migrations are

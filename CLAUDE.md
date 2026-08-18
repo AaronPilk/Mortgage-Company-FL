@@ -92,4 +92,10 @@ deploy is manual, from the repo root:
 pnpm cf:build && pnpm cf:deploy
 ```
 
+Vercel's Git integration is separate: a push to `main` currently creates a
+public Vercel production deployment, while feature-branch pushes create
+access-protected previews. Vercel is not an approved production architecture.
+Do not merge to `main` until that public duplicate path is disabled or made
+non-public.
+
 `docs/DEPLOYMENT.md` explains what would make push-to-deploy real.

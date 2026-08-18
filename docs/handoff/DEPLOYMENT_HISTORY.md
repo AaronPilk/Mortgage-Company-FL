@@ -35,23 +35,25 @@ local Worker preview passed, but `pnpm cf:deploy` was not run.
 Vercel currently performs an independent Git deployment from `main`. This is a
 public duplicate, not an approved preview-only connection.
 
-| Created UTC      | Vercel deployment                  | Git commit | Target     | State |
-| ---------------- | ---------------------------------- | ---------- | ---------- | ----- |
-| 2026-08-17 20:37 | `dpl_556Wr88RHPtj3Qe8Vjx4QhhXsqut` | `f903d60`  | production | READY |
-| 2026-08-18 00:59 | `dpl_6Y1NzPy36c9kzXE7JYnxippz6qGb` | `cdacd99`  | production | READY |
-| 2026-08-18 01:18 | `dpl_HAwXfY5vaJ3XjBWVHkV8d9YcSanp` | `7998ede`  | production | READY |
+| Created UTC      | Vercel deployment                  | Git commit | Target                   | State |
+| ---------------- | ---------------------------------- | ---------- | ------------------------ | ----- |
+| 2026-08-17 20:37 | `dpl_556Wr88RHPtj3Qe8Vjx4QhhXsqut` | `f903d60`  | production               | READY |
+| 2026-08-18 00:59 | `dpl_6Y1NzPy36c9kzXE7JYnxippz6qGb` | `cdacd99`  | production               | READY |
+| 2026-08-18 01:18 | `dpl_HAwXfY5vaJ3XjBWVHkV8d9YcSanp` | `7998ede`  | production               | READY |
+| 2026-08-18 02:31 | `dpl_8zgxNAVkwSqcfpvSnZ7quBLXSEdo` | `400c6d8`  | protected branch preview | READY |
 
-The latest deployment has public aliases including
+The latest production deployment has public aliases including
 `mortgage-company-fl-web.vercel.app` and returns HTTP 200 without an
 authentication gate. Its canonical tag points to the Cloudflare Worker, but it
-still serves a second runtime. No Vercel project, alias, deployment or setting
-was changed during this audit.
+still serves a second runtime. The recovery-branch preview redirects
+unauthenticated requests to Vercel SSO. The preview was created automatically by
+the Git push; no Vercel project, alias or setting was changed during this audit.
 
-## Integration branch — not deployed
+## Integration branch — pushed, not merged or deployed
 
 `agent/tract-integrated-recovery-20260818` merge commit `57ce058` reconciles
 `origin/main` at `7998ede` with recovery Phases 0–5. Its complete local gates
-pass:
+pass. Handoff commit `400c6d8` is pushed to the remote feature branch:
 
 - `pnpm check`;
 - `pnpm db:verify`;
@@ -59,9 +61,9 @@ pass:
 - `pnpm cf:build`;
 - 61-request local Worker smoke.
 
-It must not be pushed or merged while `main` automatically creates another
-public Vercel production deployment. It must not be deployed to Cloudflare while
-production preflight is red.
+It must not be merged while `main` automatically creates another public Vercel
+production deployment. It must not be deployed to Cloudflare while production
+preflight is red.
 
 ## Required release sequence
 
@@ -72,7 +74,7 @@ production preflight is red.
 3. Provision approved Cloudflare configuration without exposing values.
 4. Re-run `pnpm check`, `pnpm db:verify`, `pnpm test:e2e`,
    `pnpm deploy:preflight` and `pnpm cf:build`.
-5. Push/merge the reviewed integration.
+5. Merge the reviewed integration into `main`.
 6. Run the manual Cloudflare deployment.
 7. Verify at minimum: `/api/v1/health`, `/`, `/plan`,
    `/calculators/amortization`, `/vision/start`, `/rendprop/demo`,

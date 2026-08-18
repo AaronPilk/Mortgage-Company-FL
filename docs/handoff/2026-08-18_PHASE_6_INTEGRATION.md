@@ -10,8 +10,8 @@ Base: `origin/main` at `7998ede`
 
 Integration commit: `57ce058`
 
-Status: integration complete locally; Phase 6 content work not complete; not
-pushed, merged into `main` or deployed
+Status: integration complete and pushed to its isolated remote branch; Phase 6
+content work not complete; not merged into `main` or deployed to Cloudflare
 
 ## Summary
 
@@ -49,7 +49,8 @@ pushed, merged into `main` or deployed
 - Cloudflare remains the intended canonical host and has four visible Worker
   versions; current public product probes return HTTP 200.
 - Vercel is actively and publicly auto-deploying `main` as a production target.
-  It is not merely connected or preview-only. No Vercel setting was changed.
+  It is not merely connected or preview-only. The recovery-branch push also
+  created an access-protected preview. No Vercel setting was changed.
 - The connector-visible Supabase project is healthy but has no TRACT migrations,
   public tables, buckets, objects, Edge Functions or Auth users. It is unproven
   and was not modified.
@@ -58,8 +59,8 @@ pushed, merged into `main` or deployed
 
 ## External blockers
 
-1. Disable or privatize the Vercel Git production path before pushing or merging
-   this branch.
+1. Disable or privatize the Vercel Git production path before merging this
+   branch into `main`.
 2. Prove the Supabase project identity and explicitly approve the additive
    migration plan.
 3. Provision the canonical Cloudflare configuration required by preflight.

@@ -25,11 +25,15 @@ asset binding and the non-secret brand variable; no Worker secrets are listed.
 Its public feature routes and health endpoint return HTTP 200.
 
 Vercel team `TRACT Mortgage` contains one Next.js project,
-`mortgage-company-fl-web`. It has three ready deployments, all targeted as
-`production`, sourced from GitHub `main`. The latest maps to `7998ede` and has
+`mortgage-company-fl-web`. It has three ready production deployments sourced
+from GitHub `main`. The latest production artifact maps to `7998ede` and has
 public `vercel.app` aliases. Its canonical tag points back to the Cloudflare
-origin, but it is still a second publicly reachable runtime. This must be
-resolved before another push to `main`.
+origin, but it is still a second publicly reachable runtime.
+
+The pushed recovery branch at `400c6d8` created a fourth ready deployment with
+no production target. Its deployment URL and branch alias redirect
+unauthenticated requests to Vercel SSO, confirming an access-protected preview.
+The public production duplicate must be resolved before merging to `main`.
 
 ## Application shape
 
@@ -159,7 +163,7 @@ The integration is not production-ready despite green local gates.
 `SUPABASE_SERVICE_ROLE_KEY`, `TURNSTILE_MODE` and
 `NEXT_PUBLIC_TURNSTILE_SITE_KEY`. Values were not inspected or recorded.
 
-Do not push/merge while Vercel auto-deploys `main` to a public production target.
-Do not apply the 14 migrations until the Supabase project identity and migration
-authority are explicit. Do not run the manual Cloudflare deploy until all release
-gates pass.
+Do not merge or push another release while Vercel auto-deploys `main` to a public
+production target. Do not apply the 14 migrations until the Supabase project
+identity and migration authority are explicit. Do not run the manual Cloudflare
+deploy until all release gates pass.

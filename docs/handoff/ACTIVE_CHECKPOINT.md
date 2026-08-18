@@ -9,9 +9,12 @@ based on `origin/main` at `7998ede`. It intentionally reconciles the verified
 recovery implementation through Phase 5 with the newer calculator, marketplace,
 Vision, planner, RendProp and brand work already on `main`.
 
-The integration is locally complete and green at merge commit `57ce058`. It has
-not been pushed, merged into `main` or deployed. No remote database, Auth, RLS,
-Storage, Vercel or Cloudflare setting was changed.
+The integration is locally complete and green at merge commit `57ce058`, with
+handoff updates at `400c6d8`. The branch is pushed to
+`origin/agent/tract-integrated-recovery-20260818`; it has not been merged into
+`main` or deployed to Cloudflare. The Git push automatically created one
+access-protected Vercel preview. No remote database, Auth, RLS, Storage, Vercel
+setting or Cloudflare configuration was changed.
 
 Phase 0 is complete. Error 1102 does not reproduce against the current public
 Worker or the integrated OpenNext artifact. The local Worker preview completed
@@ -40,18 +43,25 @@ and privacy requests.
 
 Vercel is not merely connected. Team `TRACT Mortgage` contains project
 `mortgage-company-fl-web`. It has three ready deployments targeted as
-`production`; the latest was built from `main` commit `7998ede`. Its three
-`vercel.app` aliases are publicly reachable and the primary alias returns HTTP 200. The rendered canonical still points to the Cloudflare Worker.
+`production`; the latest production artifact was built from `main` commit
+`7998ede`. Its production aliases are publicly reachable and the primary alias
+returns HTTP 200. The rendered canonical still points to the Cloudflare Worker.
+
+Pushing the recovery branch created a fourth `READY` deployment from `400c6d8`
+with no production target. Both its deployment URL and branch alias redirect
+unauthenticated requests to Vercel SSO, so it is an access-protected preview, not
+a new public production alias. This confirms that Vercel Git deployment remains
+active for both production and preview branches.
 
 Cloudflare remains the intended canonical host, but there are currently two
 public runtimes. Pushing or merging to `main` would automatically deploy another
 Vercel production artifact. The read-only infrastructure scope does not permit
 disconnecting or deleting it.
 
-Owner action required before the integration is pushed or deployed: disable the
-Vercel Git production deployment or otherwise make the Vercel aliases non-public,
-then verify that Cloudflare remains the sole production architecture. Do not
-migrate the application to Vercel.
+Owner action required before the integration is merged or deployed: disable the
+Vercel Git production deployment or otherwise make the production aliases
+non-public, then verify that Cloudflare remains the sole production architecture.
+Do not migrate the application to Vercel.
 
 ### Supabase is empty and unproven
 
@@ -80,18 +90,18 @@ environment contract is in `docs/architecture/runtime-inventory.md`.
 
 ## Exact next action
 
-1. Review and commit the local integration checkpoint.
+1. Keep the pushed recovery branch isolated from `main`.
 2. Have the owner resolve the public Vercel duplicate without creating another
    hosting architecture.
 3. Prove the Supabase project identity and approve an additive migration plan.
 4. Provision the required Cloudflare configuration through approved secret and
    public-variable channels, then re-run `pnpm deploy:preflight`.
-5. Only after every gate is green: push/merge the reviewed branch, run the manual
+5. Only after every gate is green: merge the reviewed branch, run the manual
    Cloudflare workflow (`pnpm cf:build && pnpm cf:deploy`), and verify production.
 
-Until steps 2–4 are complete, do not push, merge or deploy this integration and
-do not claim that durable production lead capture, Auth, CRM delivery or bot
-protection is live.
+Until steps 2–4 are complete, do not merge this integration to `main`, make
+additional release pushes or deploy it, and do not claim that durable production
+lead capture, Auth, CRM delivery or bot protection is live.
 
 ## Next engineering checkpoint
 
