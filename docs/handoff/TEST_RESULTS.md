@@ -91,3 +91,19 @@ Phase 3 exit decision: complete locally. All required media is local, synthetic,
 | Secret-pattern scan and `git diff --check`      | Pass   | No credential-shaped value or whitespace error detected                                                             |
 
 Phase 4 exit decision: complete locally. The fixture proves the agent experience, bounded attribution and inquiry lifecycle without upload or remote provider infrastructure. Production media capture/storage/processing/deletion remains disabled and Phase 5 begins with account/admin completion.
+
+## 2026-08-17 — Phase 5 completion
+
+| Command/check                                | Result | Relevant output / unresolved issue                                                                                                                                          |
+| -------------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm check`                                 | Pass   | Format, lint, 10-package typecheck, 188 tests, 40-page content lint and production build                                                                                    |
+| `pnpm db:verify` on disposable PostgreSQL 17 | Pass   | Twelve migrations; 31 RLS-enabled public tables; Auth trigger, owner writes/hostile denials, privacy exact retry, staff source visibility and every prior contract; stopped |
+| `pnpm test:e2e`                              | Pass   | 96/96 desktop/mobile checks, including optional-account fallback and cross-origin mutation rejection                                                                        |
+| React best-practices review                  | Pass   | Client state remains local/bounded; no effect-driven synchronization; async controls expose pending, success and honest error states                                        |
+| `pnpm cf:build`                              | Pass   | OpenNext 1.20.2 built account/Auth APIs and data-backed protected routes without changing hosting configuration                                                             |
+| `wrangler deploy --dry-run`                  | Pass   | 82 static files; 10,034.66 KiB uncompressed / 1,936.42 KiB gzip; no deployment                                                                                              |
+| `pnpm smoke:routes` against OpenNext preview | Pass   | 50 requests, zero failures, 12.1 ms average and 83.2 ms maximum; zero Error 1102 pages                                                                                      |
+| Account/Auth direct probes                   | Pass   | Account 200/no-store/noindex; missing callback config redirects to unavailable state; hostile POST returns bounded 403                                                      |
+| Secret-pattern scan and `git diff --check`   | Pass   | No credential-shaped value or whitespace error detected                                                                                                                     |
+
+Phase 5 exit decision: complete locally at `599f4bd`. Account/Auth requires proven remote configuration and unapplied migrations, so it is not claimed live. `origin/main` advanced by five overlapping commits during the checkpoint; integration and full re-verification are required before Phase 6 implementation, PR or deployment.

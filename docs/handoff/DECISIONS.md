@@ -119,3 +119,27 @@
 - Alternatives: add speculative media tables and Storage buckets; persist sample sessions; call a remote media or QR provider; create a separate RendProp lead endpoint.
 - Consequences: both attestations gate progress; the sample has queued/processing/failed/retry/ready states under one stable key; QR links use bounded first-party UTM fields; exact lead retries create one receipt/outbox event; production retention, deletion and media processing remain explicitly unimplemented.
 - Owner: Codex.
+
+## 2026-08-17 — Keep accounts optional and enforce persistence ownership twice
+
+- Decision: use Supabase email-link Auth only for cross-device persistence, with application user checks and owner-based PostgreSQL RLS on every account record.
+- Reason: calculators and product previews are acquisition value and must not be hidden behind registration; a request-scoped database client plus RLS prevents one account from reading or mutating another account's records.
+- Alternatives: require sign-in before public tools; use a service-role client for ordinary account writes; store only in browser local storage.
+- Consequences: public tools and on-device saves remain available without contact data, while signed-in users can retain bounded properties, calculator scenarios, projects, reports and preferences. Remote Auth redirects still require separate approved configuration.
+- Owner: Codex.
+
+## 2026-08-17 — Treat export and deletion as exact-retry requests, not completed actions
+
+- Decision: create a received privacy-request lifecycle through an owner-scoped RPC keyed by a client-stable UUID; implement no destructive executor in Phase 5.
+- Reason: a network retry must not create duplicate cases, and accepting a request is not evidence that an export was assembled or deletion and retention review completed.
+- Alternatives: display immediate success without a record; delete account rows directly from the browser; create a new request on every retry.
+- Consequences: the user and authorized staff can trace received/in-progress/completed/rejected state, a changed exact retry cannot rewrite the original request type and completion remains an explicit operational step.
+- Owner: Codex.
+
+## 2026-08-17 — Reconcile the newly advanced main in a separate integration worktree
+
+- Decision: preserve the healthy Phase 0–5 recovery history and the five newer `origin/main` commits, then integrate them on a new recoverable branch before Phase 6 overlaps or release work.
+- Reason: main advanced by roughly 23,000 added lines across property, Vision, planner, RendProp, migrations and handoff files while the isolated branch was active. Rebasing blindly would risk discarding verified behavior or accepting incompatible migrations.
+- Alternatives: overwrite main with the recovery branch; abandon the recovery commits; continue adding overlapping features to the stale base.
+- Consequences: there is no push or deployment from the divergent Phase 5 branch. The integration audit must read the newer instructions, resolve contracts deliberately and rerun database/browser/Worker gates.
+- Owner: Codex.

@@ -9,4 +9,16 @@
 | Paid AI features                  | Approved provider, data map, retention position and budget        | Yes; deterministic workflow must work without AI | Founders / compliance        | Keep AI optional and fail-soft                                   | Provider approval, credentials and data-processing decision                                              |
 | Legal/licensing production claims | Counsel and principal review                                      | Yes, with clear draft/pending labels             | Counsel / principal MLO      | Keep unverified claims nullable and gated                        | Signed content and licensing approval                                                                    |
 
+## Repository integration prerequisite
+
+The isolated recovery branch is healthy through Phase 5, but `origin/main` advanced by five large,
+overlapping commits while that work was in progress. Those commits touch property search, Vision,
+planner, RendProp, content, migrations and the handoff ledger. This does not block read-only audit or
+work in a new integration worktree, but it blocks a safe PR, merge or deployment from the current
+divergent branch.
+
+Next action: inspect the newer instructions and contracts, create a recoverable integration branch,
+preserve both histories, resolve migration/order and product overlap deliberately, and rerun every
+database, browser and Worker gate. Do not overwrite `main` or discard either implementation.
+
 No item above authorizes guessing credentials, changing a remote database, publishing fixtures as live data or weakening launch gates.

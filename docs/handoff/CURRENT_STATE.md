@@ -1,9 +1,9 @@
 # Current state
 
-Last updated: 2026-08-18T01:01:59Z
+Last updated: 2026-08-18T01:35:01Z
 Last agent: Codex
-Current product phase: Phase 5 — account and admin completion
-Last known healthy commit: `deaef698dfd120d2bd7e93a00fe2a92a6773879d`
+Current product phase: Phase 6 — SEO, AEO, content and analytics
+Last known healthy commit: `599f4bd4da2ce90b19785f8c865fdfc56d095ed6`
 Current branch: `agent/tract-autonomous-build-20260817`
 Public Cloudflare URL: `https://mortgage-company-fl.aaron-9c3.workers.dev`
 
@@ -11,7 +11,7 @@ Public Cloudflare URL: `https://mortgage-company-fl.aaron-9c3.workers.dev`
 
 - Next.js 16 / OpenNext application deployed as the existing Cloudflare Worker.
 - Mortgage marketing shell, program pages, five calculators, contact and legal routes.
-- Ten local Supabase migrations defining 27 public tables, RLS on all 27 and service-role-only idempotent lead, Vision and outbox-worker functions.
+- Twelve local Supabase migrations defining 31 public tables, RLS on all 31 and service-role-only idempotent lead, Vision and outbox-worker functions.
 - Local contracts for leads, consent, attribution, outbox, properties, Vision, AI usage, content and audit events.
 - Fixture property adapter with seven visibly distinct synthetic Florida examples; live property search remains disabled.
 - Stable property detail routes feed a no-account TRACT Vision workspace with editable assumptions, versioned deterministic calculations, three scenario cases, payment sensitivity and a pre-contact preview.
@@ -28,7 +28,11 @@ Public Cloudflare URL: `https://mortgage-company-fl.aaron-9c3.workers.dev`
 - RendProp now has a complete synthetic presentation plus an interactive fixture workflow for rights/privacy attestations, sample selection, room tags, deterministic queued/processing/failure/retry/review states and a stable local tour.
 - The noindex sample tour carries visible original/altered labels, synthetic property/presenter attribution, room navigation, an explicit unpublished state, bounded QR attribution, a mortgage CTA and first-party inquiry paths.
 - Operations/admin can identify RendProp interest and inspect consent, first/last/conversion attribution and outbox lifecycle under existing RLS; no fixture state or media path enters the lead record.
-- Verification passes: 183 unit/integration tests, the expanded PostgreSQL RLS/idempotency/worker suite and 92 desktop/mobile end-to-end tests.
+- Optional email-link Auth now has request, callback and sign-out paths with honest unconfigured/error states; no remote Auth configuration changed.
+- Signed-in account views are data-backed for saved properties, bounded calculator scenarios, owned Vision projects/scenarios/reports, job status, notification preferences and privacy-request lifecycle.
+- Account writes are authenticated, same-origin and owner constrained; export/deletion requests have exact-retry receipt semantics and never imply that processing completed.
+- Admin home, jobs, usage/quota/kill-switch, content/source completeness and audit are data-backed and read-only; masked leads, integrations and readiness remain under the documented role matrix.
+- Verification passes: 188 unit/integration tests, the expanded PostgreSQL RLS/idempotency/worker/account suite and 96 desktop/mobile end-to-end tests.
 - A repository-owned 50-request Worker smoke command exercises the complete route registry and explicitly detects Cloudflare Error 1102 pages.
 - Phase 0 is complete. The current local Worker artifact and public deployment each survived the 50-request crawl with zero failures.
 
@@ -41,7 +45,7 @@ Public Cloudflare URL: `https://mortgage-company-fl.aaron-9c3.workers.dev`
 | Supabase                  | Unconfigured in the deployed application       | Public health response; no TRACT project identity established         |
 | Listings                  | Live provider disabled; explicit demo fixtures | Source adapter and production-safe environment default                |
 | CRM, AI, Turnstile, email | Disabled                                       | Public health response and environment schema                         |
-| Accounts                  | Feature flag enabled, no complete auth flow    | Source audit                                                          |
+| Accounts                  | Complete local flow; production unconfigured   | Auth/account routes, RLS verification and public unavailable state    |
 | Vision                    | Deterministic demo active; persistence gated   | Property/Vision browser loop and local database verification          |
 | RendProp                  | Interactive synthetic fixture demo             | Browser state machine and stable noindex local sample tour            |
 | Live property search      | Disabled                                       | No executed data agreement                                            |
@@ -55,11 +59,12 @@ Public Cloudflare URL: `https://mortgage-company-fl.aaron-9c3.workers.dev`
 - The additive Vision migration has not been applied remotely because no TRACT Supabase project identity has been proven.
 - The public application still has no configured database or Turnstile production mode, so report/lead submission correctly returns unavailable rather than false success.
 - RendProp production capture/upload/scanning/processing/storage/retention/deletion and real listing publication remain disabled; Phase 4 implements only the bounded local fixture workflow.
-- Consumer account completion, data-backed admin completion, reviewed resource publishing and production integrations remain.
+- Reviewed resource publishing, SEO/AEO completion and production integrations remain.
 - All asset entries remain pending owner/compliance review even though agent visual QA and automated decoding/fallback checks pass.
 - No remote scheduler invokes the protected outbox worker route; production activation requires a reviewed `OUTBOX_DRAIN_TOKEN` and the established Cloudflare scheduling path.
 - Existing build documentation overstates completed admin and integration behavior; this handoff ledger supersedes those claims.
+- `origin/main` advanced by five large, overlapping implementation commits during the isolated recovery. Both histories are preserved, but they must be reconciled and reverified before a PR or deployment.
 
 ## Highest-priority next task
 
-Implement Phase 5's optional consumer-auth persistence and complete data-backed admin views against local Supabase contracts, with ownership/RBAC/RLS verification and no remote Auth or database changes.
+Audit and reconcile the five newer `origin/main` commits into a separate recoverable integration branch, then implement Phase 6 reviewed content, SEO/AEO, feed, schema and analytics work on the verified combined base.

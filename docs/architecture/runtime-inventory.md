@@ -41,7 +41,7 @@ This deployment is not the public TRACT host. It appears to be a newly connected
 | Static public content     | Home, mortgage, calculators, company/legal, Vision and RendProp fixture workflow | Prerendered or SSG                                                           |
 | Dynamic public content    | Properties, Vision and the noindex RendProp sample tour                          | Server-rendered where request/provider state is required                     |
 | Dynamic protected content | Account and admin routes                                                         | Server-rendered and fail-closed without configured Auth                      |
-| APIs                      | Health, lead/Vision receipts, outbox drain and GHL webhook                       | Node runtime, force-dynamic, no-store                                        |
+| APIs                      | Health, lead/Vision receipts, account persistence, outbox drain and GHL webhook  | Node runtime, force-dynamic, no-store                                        |
 | Data                      | Supabase/Postgres contracts                                                      | Unconfigured in deployed app; local migrations verify on PostgreSQL 17       |
 | Integrations              | CRM, listings, AI, property data, Turnstile                                      | Ports with disabled/fixture adapters; no paid/live provider required to boot |
 
@@ -71,7 +71,7 @@ Nothing establishes that project as TRACT. The deployed TRACT health endpoint re
 
 ### Local schema contract
 
-Ten additive migrations define 27 public tables, enable RLS on every table, create 40 named policies and define eleven current public function names. A disposable PostgreSQL 17 execution applies every migration and passes the full ownership, role, idempotency and outbox suite.
+Twelve additive migrations define 31 public tables, enable RLS on every table, create 47 named policies and define thirteen current public function names. A disposable PostgreSQL 17 execution applies every migration and passes the full ownership, role, idempotency, account and outbox suite.
 
 | Recovery requirement | Local implementation                                                                        | Gap / next verification                                                          |
 | -------------------- | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
@@ -83,9 +83,10 @@ Ten additive migrations define 27 public tables, enable RLS on every table, crea
 | Vision projects      | Projects, assumptions, scenarios, reports, anonymous request mapping and atomic request RPC | Durable local path verified; production database unconfigured                    |
 | AI jobs              | Jobs, budget reservation, quota policies and kill switches                                  | Disabled and unused; no orchestrator or queue                                    |
 | Usage                | Append-oriented `usage_ledger` and adjustment constraints                                   | No live provider reconciliation                                                  |
-| Content              | Items, sources, revisions and link opportunities                                            | Admin views are not data-backed; no migrated content                             |
+| Content              | Items, sources, revisions and link opportunities; staff workflow/source view                | No migrated or reviewed public content                                           |
 | Audit events         | Immutable `audit_events` and service-only recorder                                          | Few application actions emit audit events                                        |
-| Auth                 | Profiles, roles and local email-signup config                                               | Remote Auth settings and redirect URLs unverified; no complete user flow         |
+| Auth                 | Profile/consumer-role trigger, email-link request/callback/sign-out and account persistence | Remote Auth settings, redirects and live delivery remain unverified              |
+| Account data         | Saved properties/scenarios, preferences and exact-retry privacy requests under owner RLS    | Local only; no remote migration applied                                          |
 | Storage              | None in migrations                                                                          | Buckets, object policies and upload contracts are missing                        |
 | Edge Functions       | None                                                                                        | No remote or local Edge Function implementation                                  |
 
@@ -156,14 +157,14 @@ Only names and requirements are recorded here. Values must remain in the appropr
 - Production RendProp media jobs, uploads, Storage and provider contracts do not exist; the shipped demonstration is intentionally browser-only fixture state.
 - Content and audit tables have little or no application write traffic.
 - The protected outbox drain path has no configured remote scheduler or credentials.
-- Accounts are flagged on but do not provide a usable Auth lifecycle.
+- Accounts are locally complete but remain unused in the deployed application because no proven TRACT Supabase/Auth configuration exists.
 
 ## Verify next
 
-1. Complete Phase 5 account persistence and data-backed admin surfaces against disposable PostgreSQL.
-2. Prove the TRACT Supabase project identity before any remote database action.
-3. Inspect the Cloudflare environment-variable name inventory after project identity is known; do not read or copy values.
-4. Add Storage buckets and RLS through reviewed additive migrations only when the active checkpoint reaches uploads.
+1. Reconcile the verified recovery branch with the five newer, overlapping `origin/main` commits in a separate recoverable worktree.
+2. Complete Phase 6 reviewed content, SEO/AEO, feed, schema and analytics contracts on the reconciled base.
+3. Prove the TRACT Supabase project identity before any remote database action.
+4. Inspect the Cloudflare environment-variable name inventory after project identity is known; do not read or copy values.
 5. Keep Vercel read-only and outside the production architecture.
 
 ## Primary platform references
