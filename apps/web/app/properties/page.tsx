@@ -6,6 +6,7 @@ import { publicFeatures } from "@/lib/env";
 import { fixturesAllowed, listings } from "@/lib/listings";
 import { PAGE_SIZE, parseCriteria, propertiesHref } from "@/components/properties/criteria";
 import { toProviderInput } from "@/components/properties/criteria";
+import { AiSearch } from "@/components/properties/ai-search";
 import { GalleryPlaceholder } from "@/components/properties/gallery-placeholder";
 import { ListingCard } from "@/components/properties/listing-card";
 import { ListingPagination } from "@/components/properties/pagination";
@@ -26,10 +27,14 @@ export const dynamic = "force-dynamic";
 /**
  * Property search.
  *
- * Search state lives entirely in the query string, so every result set is a URL
- * somebody can send to a co-buyer or an agent and get the same page back. The
- * page is server-rendered from that URL; there is no client-side search state
- * to diverge from it.
+ * The hero is one sentence and one field: describe the home, typed or spoken,
+ * and the interpretation endpoint turns it into the same query string the
+ * structured filters produce. Search state lives entirely in that query
+ * string, so every result set is a URL somebody can send to a co-buyer or an
+ * agent and get the same page back. The page is server-rendered from the URL;
+ * there is no client-side search state to diverge from it, and the structured
+ * filters remain a plain GET form behind a disclosure for anyone who wants
+ * the dials.
  *
  * NO STRUCTURED DATA IS EMITTED HERE, DELIBERATELY.
  * ------------------------------------------------
@@ -99,14 +104,22 @@ export default async function PropertiesPage({
   return (
     <>
       <Section pad="head" orbs>
-        <SectionHeading
-          as="h1"
-          eyebrow="Properties"
-          title="Search properties, then model the financing"
-          gradientWord="model the financing"
-          description="Filter by place, price, size, and status. Every result links to a detail page with an estimated monthly payment built from the list price."
-        />
-        <SampleDataBanner scope="search" />
+        <div className="mx-auto max-w-3xl text-center">
+          <h1 className="text-4xl tracking-[-0.02em] sm:text-6xl">
+            Tell us what you&rsquo;re <span className="text-gradient">looking for</span>.
+          </h1>
+          <p
+            className="mx-auto mt-5 max-w-xl text-lg leading-relaxed"
+            style={{ color: "var(--text-muted)" }}
+          >
+            Describe the home in your own words — place, price, beds. We turn it into a search, and
+            every result links to the financing behind it.
+          </p>
+          <AiSearch />
+        </div>
+        <div className="mx-auto mt-12 max-w-3xl">
+          <SampleDataBanner scope="search" />
+        </div>
       </Section>
 
       <Section pad="tight">
@@ -122,13 +135,13 @@ export default async function PropertiesPage({
           </p>
         )}
 
-        <div className="mt-8 flex flex-wrap items-baseline justify-between gap-3">
+        <div className="mt-10 flex flex-wrap items-baseline justify-between gap-3">
           <p aria-live="polite" className="text-lg font-semibold" style={{ color: "var(--text)" }}>
             {page.totalCount === 0
               ? "No sample properties match"
               : `${page.totalCount} sample ${page.totalCount === 1 ? "property" : "properties"} match`}
             {page.totalCount > 0 && (
-              <span className="ml-2 text-sm font-medium" style={{ color: "var(--text-muted)" }}>
+              <span className="ml-2 text-sm font-normal" style={{ color: "var(--text-muted)" }}>
                 showing {rangeStart}–{rangeEnd}
               </span>
             )}
@@ -141,7 +154,7 @@ export default async function PropertiesPage({
         </div>
 
         {page.items.length > 0 ? (
-          <ul className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {page.items.map((listing) => (
               <ListingCard key={`${listing.provider}:${listing.listingKey}`} listing={listing} />
             ))}

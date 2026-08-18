@@ -124,6 +124,14 @@ export default async function PropertyDetailPage({
     { label: "Listing key", value: listing.listingKey }
   ];
 
+  // The hero's quiet meta row. Absent values are simply absent — the full facts
+  // grid below is where an unknown is rendered as a dash and explained.
+  const heroFacts = [
+    formatCount(listing.bedrooms, "bed", "beds"),
+    formatCount(listing.bathrooms, "bath", "baths"),
+    formatSqft(listing.livingAreaSqft)
+  ].filter((part): part is string => part !== null);
+
   return (
     <>
       <Section pad="head">
@@ -141,22 +149,34 @@ export default async function PropertyDetailPage({
 
         <SampleDataBanner scope="detail" />
 
-        <div className="mt-8 flex flex-wrap items-center gap-3">
+        <div className="mt-10 flex flex-wrap items-center gap-2">
           {listing.isFixture && <SampleDataBadge />}
           <Badge tone={listing.standardStatus === "active" ? "success" : "neutral"}>
             {STATUS_LABEL[listing.standardStatus]}
           </Badge>
         </div>
 
-        <h1 className="mt-4 text-3xl sm:text-4xl">{streetLine(listing)}</h1>
-        <p className="mt-2 text-lg" style={{ color: "var(--text-muted)" }}>
-          {cityLine(listing)}
-        </p>
-        <p className="mt-5 text-4xl font-bold" style={{ color: "var(--text)" }}>
-          {listing.listPriceCents === undefined
-            ? "Price on request"
-            : formatUsd(listing.listPriceCents)}
-        </p>
+        <div className="mt-5 flex flex-wrap items-end justify-between gap-x-10 gap-y-5">
+          <div>
+            <h1 className="text-3xl tracking-[-0.02em] sm:text-4xl">{streetLine(listing)}</h1>
+            <p className="mt-2 text-lg" style={{ color: "var(--text-muted)" }}>
+              {cityLine(listing)}
+            </p>
+            {heroFacts.length > 0 && (
+              <p className="mt-3 text-sm font-medium" style={{ color: "var(--text)" }}>
+                {heroFacts.join("  ·  ")}
+              </p>
+            )}
+          </div>
+          <p
+            className="text-[2.75rem] font-semibold leading-none tracking-[-0.02em]"
+            style={{ color: "var(--text)" }}
+          >
+            {listing.listPriceCents === undefined
+              ? "Price on request"
+              : formatUsd(listing.listPriceCents)}
+          </p>
+        </div>
       </Section>
 
       <Section pad="tight">
@@ -168,16 +188,20 @@ export default async function PropertyDetailPage({
           <div className="space-y-8">
             <Card>
               <h2 className="text-xl font-semibold">Property facts</h2>
-              <dl className="mt-5 grid gap-x-8 gap-y-4 sm:grid-cols-2">
+              <dl className="mt-6 grid gap-x-10 gap-y-6 sm:grid-cols-2">
                 {facts.map((fact) => (
-                  <div key={fact.label}>
+                  <div
+                    key={fact.label}
+                    className="border-b pb-3"
+                    style={{ borderColor: "var(--border)" }}
+                  >
                     <dt
-                      className="text-xs uppercase tracking-[0.1em]"
+                      className="text-xs tracking-[0.06em]"
                       style={{ color: "var(--text-muted)" }}
                     >
                       {fact.label}
                     </dt>
-                    <dd className="mt-1 font-semibold" style={{ color: "var(--text)" }}>
+                    <dd className="mt-1.5 font-medium" style={{ color: "var(--text)" }}>
                       {fact.value}
                     </dd>
                   </div>

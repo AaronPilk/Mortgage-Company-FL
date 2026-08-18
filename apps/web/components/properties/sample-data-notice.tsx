@@ -28,14 +28,17 @@ export function SampleDataBanner({
       ? "Every result below is an illustrative sample property invented to demonstrate how this search works."
       : "This page describes an illustrative sample property invented to demonstrate how a listing detail page works.";
 
+  // Restyled quieter than the original two-tone box, never weaker: same role,
+  // same label, same statements, still the first thing under the heading.
   return (
     <aside
       role="note"
       aria-label="Sample data notice"
-      className="rounded-2xl border-2 p-5 sm:p-6"
+      className="rounded-2xl border border-l-4 p-5 text-left sm:p-6"
       style={{
-        borderColor: "var(--color-warning)",
-        background: "var(--surface-2)"
+        borderColor: "var(--border)",
+        borderLeftColor: "var(--color-warning)",
+        background: "var(--surface)"
       }}
     >
       <div className="flex flex-wrap items-center gap-3">

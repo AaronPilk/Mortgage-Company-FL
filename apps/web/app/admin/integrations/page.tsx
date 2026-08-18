@@ -90,7 +90,8 @@ export default async function Page() {
           ["CRM", modes.ghl],
           ["Turnstile", modes.turnstile],
           ["Email", modes.email],
-          ["Listings", modes.mls]
+          ["Listings", modes.mls],
+          ["AI", modes.ai]
         ].map(([label, mode]) => (
           <Card key={label}>
             <p className="text-sm text-[var(--text-muted)]">{label}</p>

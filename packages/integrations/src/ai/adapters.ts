@@ -62,6 +62,200 @@ export class FixtureAiProvider implements AiProvider {
 }
 
 /**
+ * Anthropic Messages API, for the "structured_extraction" capability only.
+ *
+ * The output contract is enforced with a forced tool call: the model cannot
+ * answer except by filling the caller's JSON schema, so there is no free-text
+ * parsing step to get wrong. One request per execute — no retry lives in this
+ * adapter, because a retry against a paid API is a second spend the caller's
+ * reservation never covered.
+ *
+ * The default model identifier is constructor configuration, not feature code;
+ * a route registry's `providerModel` overrides it per route.
+ */
+
+/** Current small/fast tier. A route or constructor option overrides it. */
+export const DEFAULT_ANTHROPIC_STRUCTURED_MODEL = "claude-haiku-4-5";
+
+/**
+ * Published per-million-token prices for the default model, in integer cents.
+ * Used only to reserve and settle spend; overstating by rounding up is the
+ * safe direction. Constructor-overridable when the model changes tier.
+ */
+const DEFAULT_INPUT_CENTS_PER_MTOK = 100;
+const DEFAULT_OUTPUT_CENTS_PER_MTOK = 500;
+
+/** Rough chars-per-token divisor for cost estimation. Deliberately pessimistic. */
+const CHARS_PER_TOKEN = 3;
+
+export type StructuredExtractionInput = {
+  system: string;
+  user: string;
+  toolName: string;
+  toolDescription: string;
+  /** JSON schema the tool call must satisfy. The model cannot reply outside it. */
+  inputSchema: Record<string, unknown>;
+  maxOutputTokens?: number;
+};
+
+/** The provider answered with an HTTP error. Carries the status, never the body. */
+export class AnthropicApiError extends Error {
+  constructor(readonly status: number) {
+    super(`Anthropic API responded ${status}`);
+    this.name = "AnthropicApiError";
+  }
+}
+
+/** The request timed out in flight. The provider may still have billed it. */
+export class AnthropicTimeoutError extends Error {
+  constructor() {
+    super("Anthropic API request timed out");
+    this.name = "AnthropicTimeoutError";
+  }
+}
+
+export type AnthropicProviderOptions = {
+  apiKey: string;
+  defaultModel?: string;
+  baseUrl?: string;
+  inputCentsPerMillionTokens?: number;
+  outputCentsPerMillionTokens?: number;
+  /** Test seam. Defaults to global fetch. */
+  fetchImpl?: typeof fetch;
+};
+
+function isStructuredExtractionInput(value: unknown): value is StructuredExtractionInput {
+  if (typeof value !== "object" || value === null) return false;
+  const candidate = value as Record<string, unknown>;
+  return (
+    typeof candidate.system === "string" &&
+    typeof candidate.user === "string" &&
+    typeof candidate.toolName === "string" &&
+    typeof candidate.inputSchema === "object" &&
+    candidate.inputSchema !== null
+  );
+}
+
+export class AnthropicAiProvider implements AiProvider {
+  readonly key = "anthropic";
+  readonly capabilities: readonly AiCapability[] = ["structured_extraction"];
+
+  private readonly apiKey: string;
+  private readonly defaultModel: string;
+  private readonly baseUrl: string;
+  private readonly inputCentsPerMTok: number;
+  private readonly outputCentsPerMTok: number;
+  private readonly fetchImpl: typeof fetch;
+
+  constructor(options: AnthropicProviderOptions) {
+    this.apiKey = options.apiKey;
+    this.defaultModel = options.defaultModel ?? DEFAULT_ANTHROPIC_STRUCTURED_MODEL;
+    this.baseUrl = (options.baseUrl ?? "https://api.anthropic.com").replace(/\/$/, "");
+    this.inputCentsPerMTok = options.inputCentsPerMillionTokens ?? DEFAULT_INPUT_CENTS_PER_MTOK;
+    this.outputCentsPerMTok = options.outputCentsPerMillionTokens ?? DEFAULT_OUTPUT_CENTS_PER_MTOK;
+    this.fetchImpl = options.fetchImpl ?? fetch;
+  }
+
+  private costCents(inputTokens: number, outputTokens: number): number {
+    const cents =
+      (inputTokens * this.inputCentsPerMTok + outputTokens * this.outputCentsPerMTok) / 1_000_000;
+    // Integer cents, rounded up, never below one: a fraction of a cent is still
+    // money and understating spend is the failure the ledger exists to prevent.
+    return Math.max(1, Math.ceil(cents));
+  }
+
+  async estimateCost(input: unknown): Promise<number> {
+    if (!isStructuredExtractionInput(input)) return 1;
+    const promptChars =
+      input.system.length + input.user.length + JSON.stringify(input.inputSchema).length;
+    const inputTokens = Math.ceil(promptChars / CHARS_PER_TOKEN) + 64;
+    return this.costCents(inputTokens, input.maxOutputTokens ?? 512);
+  }
+
+  async execute<TInput, TOutput>(
+    request: AiRequest<TInput>,
+    modelKey: string
+  ): Promise<AiResult<TOutput>> {
+    if (request.capability !== "structured_extraction") {
+      throw new AiPolicyError(
+        `Anthropic adapter does not provide capability "${request.capability}"`
+      );
+    }
+    const input: unknown = request.input;
+    if (!isStructuredExtractionInput(input)) {
+      throw new AiPolicyError("structured_extraction requires a schema-bearing input");
+    }
+
+    const model = modelKey !== "" ? modelKey : this.defaultModel;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), request.timeoutMs);
+
+    let response: Response;
+    try {
+      response = await this.fetchImpl(`${this.baseUrl}/v1/messages`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-api-key": this.apiKey,
+          "anthropic-version": "2023-06-01"
+        },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model,
+          max_tokens: input.maxOutputTokens ?? 512,
+          system: input.system,
+          messages: [{ role: "user", content: input.user }],
+          tools: [
+            {
+              name: input.toolName,
+              description: input.toolDescription,
+              input_schema: input.inputSchema
+            }
+          ],
+          tool_choice: { type: "tool", name: input.toolName }
+        })
+      });
+    } catch (error) {
+      // An abort is a timeout with the request possibly in flight; the caller
+      // must settle it as an unknown outcome, not a free failure.
+      if (error instanceof Error && error.name === "AbortError") {
+        throw new AnthropicTimeoutError();
+      }
+      throw error;
+    } finally {
+      clearTimeout(timer);
+    }
+
+    if (!response.ok) throw new AnthropicApiError(response.status);
+
+    const body = (await response.json()) as {
+      id?: string;
+      content?: { type: string; input?: unknown }[];
+      usage?: { input_tokens?: number; output_tokens?: number };
+    };
+
+    const toolUse = body.content?.find((block) => block.type === "tool_use");
+    const inputTokens = body.usage?.input_tokens ?? 0;
+    const outputTokens = body.usage?.output_tokens ?? 0;
+
+    return {
+      // Missing tool output is returned as null rather than thrown: the call
+      // was billed, and the caller's output validation decides what happens.
+      output: (toolUse?.input ?? null) as TOutput,
+      provider: this.key,
+      modelKey: model,
+      promptVersion: request.promptVersion,
+      ...(body.id === undefined ? {} : { requestId: body.id }),
+      inputUnits: inputTokens,
+      outputUnits: outputTokens,
+      actualCostCents: this.costCents(inputTokens, outputTokens),
+      safetyLabels: [],
+      cached: false
+    };
+  }
+}
+
+/**
  * Output validation contract.
  *
  * A model result is untrusted input. It is validated against a registered schema

@@ -107,6 +107,7 @@ export const ServerEnvSchema = z
     requireWhenLive(env.GHL_MODE, "OUTBOX_DRAIN_TOKEN", "Outbox drain token");
     requireWhenLive(env.TURNSTILE_MODE, "TURNSTILE_SECRET_KEY", "Turnstile secret");
     requireWhenLive(env.TURNSTILE_MODE, "TURNSTILE_HOSTNAMES", "Turnstile hostnames");
+    requireWhenLive(env.AI_MODE, "ANTHROPIC_API_KEY", "Anthropic API key");
   });
 
 export type ServerEnv = z.infer<typeof ServerEnvSchema>;

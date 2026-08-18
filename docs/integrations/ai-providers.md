@@ -5,6 +5,41 @@
 `AI_MODE=disabled` by default. The disabled provider refuses every request, so a
 misconfiguration cannot spend money.
 
+## Implemented: Anthropic, structured extraction only
+
+`AnthropicAiProvider` (packages/integrations/src/ai/adapters.ts) implements the
+`structured_extraction` capability against the Anthropic Messages API with a
+forced tool call, so the model can only answer inside the caller's JSON schema.
+One request per execute — no retries, because a retry is a second spend the
+reservation never covered. Timeouts throw `AnthropicTimeoutError`, which callers
+settle as an _unknown_ outcome (reservation held); HTTP errors throw
+`AnthropicApiError` and settle as failed-before-billable.
+
+First consumer: `/api/v1/properties/interpret`, which turns a shopper's free
+text into search criteria. It has a deterministic rule-based parser as its
+baseline and fallback (`apps/web/components/properties/nl-parser.ts`), so the
+feature works with `AI_MODE=disabled` and degrades to it on any provider
+refusal, error, or timeout. The response labels its provenance honestly:
+`source: "ai"` only when a model interpreted the text.
+
+Activation is configuration, not code:
+
+- `AI_MODE=production` (or `sandbox`) — the environment schema requires
+  `ANTHROPIC_API_KEY` once the mode is live.
+- `ANTHROPIC_API_KEY` — deployment secret store only; already listed in
+  `SECRET_ENV_KEYS`.
+- `AI_DAILY_PLATFORM_BUDGET_CENTS` and `AI_DEFAULT_USER_DAILY_BUDGET_CENTS`
+  non-zero — at their zero defaults every paid reservation is refused and the
+  feature stays on the deterministic parser. Spending money is a deliberate act.
+
+Data classification: the query is a consumer's own free text about a property
+(`consumer_property`). It is never logged (length and outcome only) and never
+echoed back; the response restates the validated criteria.
+
+Model identifiers live in the application's route registry
+(`apps/web/lib/ai.ts`, `PROPERTY_QUERY_ROUTE`), with
+`DEFAULT_ANTHROPIC_STRUCTURED_MODEL` as the constructor default.
+
 ## Two layers
 
 The **application orchestrator** owns policy: feature gating, redaction, data
