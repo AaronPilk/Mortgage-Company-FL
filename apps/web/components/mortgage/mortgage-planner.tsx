@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   CALCULATION_VERSION,
@@ -88,6 +88,10 @@ export function MortgagePlanner({
   const [monthlyDebt, setMonthlyDebt] = useState(0);
   const [occupancy, setOccupancy] = useState("primary_residence");
   const [savedMessage, setSavedMessage] = useState("");
+  const [accountSaveState, setAccountSaveState] = useState<
+    "idle" | "saving" | "saved" | "signin" | "error"
+  >("idle");
+  const accountSaveId = useRef<string | null>(null);
 
   const plan = useMemo(() => {
     const boundedDownPayment = Math.min(targetPrice, downPayment);
@@ -164,6 +168,26 @@ export function MortgagePlanner({
       setSavedMessage("Saved on this device. Nothing was sent to TRACT.");
     } catch {
       setSavedMessage("This browser blocked local storage, so the plan was not saved.");
+    }
+  }
+
+  async function saveToAccount() {
+    accountSaveId.current ??= window.crypto.randomUUID();
+    setAccountSaveState("saving");
+    try {
+      const response = await fetch("/api/v1/account/scenarios", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ saveId: accountSaveId.current, snapshot })
+      });
+      if (response.ok) {
+        accountSaveId.current = null;
+        setAccountSaveState("saved");
+      } else {
+        setAccountSaveState(response.status === 401 ? "signin" : "error");
+      }
+    } catch {
+      setAccountSaveState("error");
     }
   }
 
@@ -474,6 +498,18 @@ export function MortgagePlanner({
             <Button type="button" variant="secondary" onClick={saveLocally}>
               Save on this device
             </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={saveToAccount}
+              disabled={accountSaveState === "saving"}
+            >
+              {accountSaveState === "saving"
+                ? "Saving…"
+                : accountSaveState === "saved"
+                  ? "Saved to account"
+                  : "Save to my account"}
+            </Button>
             <Button type="button" onClick={() => setStep(5)}>
               Save with TRACT or talk
             </Button>
@@ -485,6 +521,19 @@ export function MortgagePlanner({
               className="text-sm text-[var(--text-muted)]"
             >
               {savedMessage}
+            </p>
+          )}
+          {accountSaveState === "signin" && (
+            <p role="status" className="text-sm text-[var(--text-muted)]">
+              <Link href="/account" className="font-semibold text-[var(--purple)] underline">
+                Sign in
+              </Link>{" "}
+              to save this plan across devices. The planner remains available without an account.
+            </p>
+          )}
+          {accountSaveState === "error" && (
+            <p role="status" className="text-sm text-[var(--text-muted)]">
+              The account save was not confirmed. Retry to check the same request.
             </p>
           )}
         </div>

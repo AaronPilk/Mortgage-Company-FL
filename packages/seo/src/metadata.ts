@@ -104,6 +104,7 @@ export function createMetadata(siteUrl: string, input: PageMetaInput): PageMetad
 export const NOINDEX_PREFIXES = [
   "/admin",
   "/account",
+  "/auth",
   "/api",
   "/preview",
   "/vision/report",

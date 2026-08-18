@@ -83,7 +83,8 @@ insert into auth.users (id, email) values
   ('00000000-0000-4000-8000-000000000003', 'officer@example.com'),
   ('00000000-0000-4000-8000-000000000004', 'editor@example.com'),
   ('00000000-0000-4000-8000-000000000005', 'compliance@example.com'),
-  ('00000000-0000-4000-8000-000000000006', 'agent@example.com');
+  ('00000000-0000-4000-8000-000000000006', 'agent@example.com'),
+  ('00000000-0000-4000-8000-000000000007', 'operations@example.com');
 
 insert into public.profiles (id, display_name) values
   ('00000000-0000-4000-8000-000000000001', 'Admin'),
@@ -91,7 +92,9 @@ insert into public.profiles (id, display_name) values
   ('00000000-0000-4000-8000-000000000003', 'Officer'),
   ('00000000-0000-4000-8000-000000000004', 'Editor'),
   ('00000000-0000-4000-8000-000000000005', 'Compliance'),
-  ('00000000-0000-4000-8000-000000000006', 'Agent');
+  ('00000000-0000-4000-8000-000000000006', 'Agent'),
+  ('00000000-0000-4000-8000-000000000007', 'Operations')
+on conflict (id) do update set display_name = excluded.display_name;
 
 insert into public.user_roles (user_id, role) values
   ('00000000-0000-4000-8000-000000000001', 'admin'),
@@ -99,7 +102,44 @@ insert into public.user_roles (user_id, role) values
   ('00000000-0000-4000-8000-000000000004', 'content_editor'),
   ('00000000-0000-4000-8000-000000000005', 'compliance_reviewer'),
   ('00000000-0000-4000-8000-000000000006', 'agent'),
-  ('00000000-0000-4000-8000-000000000002', 'consumer');
+  ('00000000-0000-4000-8000-000000000007', 'operations'),
+  ('00000000-0000-4000-8000-000000000002', 'consumer')
+on conflict (user_id, role) do nothing;
+
+select tests.assert((select count(*) from public.profiles) = 7,
+  'Auth user trigger creates one profile per user');
+select tests.assert(
+  (select count(*) from public.user_roles where role = 'consumer') = 7,
+  'Auth user trigger grants every new account the baseline consumer role');
+
+insert into public.saved_properties (owner_user_id, listing_key, source_mode) values
+  ('00000000-0000-4000-8000-000000000002', 'FX-STP-0001', 'fixture'),
+  ('00000000-0000-4000-8000-000000000006', 'FX-ORL-0004', 'fixture');
+
+insert into public.saved_calculator_scenarios (
+  id, owner_user_id, source, version, calculation_version,
+  input_snapshot, result_snapshot, summary
+) values
+  (
+    '00000000-0000-4000-8000-000000000210',
+    '00000000-0000-4000-8000-000000000002',
+    'mortgage_payment','payment@1','mortgage-math@1',
+    jsonb_build_object('priceDollars',425000),
+    jsonb_build_object('totalMonthlyDollars',3100),
+    'Consumer payment fixture.'
+  ),
+  (
+    '00000000-0000-4000-8000-000000000211',
+    '00000000-0000-4000-8000-000000000006',
+    'affordability','affordability@1','mortgage-math@1',
+    jsonb_build_object('monthlyIncomeDollars',9000),
+    jsonb_build_object('estimatedPurchasePriceDollars',390000),
+    'Agent affordability fixture.'
+  );
+
+insert into public.notification_preferences (
+  owner_user_id, report_ready_email, report_failure_email
+) values ('00000000-0000-4000-8000-000000000002', true, false);
 
 select public.create_lead_with_receipt(
   jsonb_build_object(
@@ -300,6 +340,18 @@ values
 insert into public.content_items (id, content_type, slug, title, description, body_mdx, status, indexation)
 values ('00000000-0000-4000-8000-0000000000c1', 'article', 'draft-post', 'Draft', 'A draft', '# draft', 'draft', 'noindex');
 
+insert into public.content_sources (
+  content_item_id, publisher, title, url, source_kind, accessed_at, is_primary
+) values (
+  '00000000-0000-4000-8000-0000000000c1',
+  'Florida Office of Financial Regulation',
+  'Mortgage Broker Resources',
+  'https://flofr.gov/',
+  'regulator',
+  now(),
+  true
+);
+
 insert into public.quota_policies (subject_kind, feature, period, request_limit, cost_limit_cents, concurrency_limit)
 values ('consumer', 'vision_report', 'day', 3, 500, 1);
 
@@ -336,10 +388,20 @@ select tests.assert_denied('select count(*) from public.lead_plans',
   'anonymous has no grant on lead plans');
 select tests.assert_denied('select count(*) from public.vision_report_requests',
   'anonymous has no grant on Vision report requests');
+select tests.assert_denied('select count(*) from public.saved_properties',
+  'anonymous has no grant on saved properties');
+select tests.assert_denied('select count(*) from public.saved_calculator_scenarios',
+  'anonymous has no grant on saved calculator scenarios');
+select tests.assert_denied('select count(*) from public.notification_preferences',
+  'anonymous has no grant on notification preferences');
+select tests.assert_denied('select count(*) from public.privacy_requests',
+  'anonymous has no grant on privacy requests');
 select tests.assert(tests.visible_count('select count(*) from public.audit_events') = 0,
   'anonymous sees no audit events');
 select tests.assert(tests.visible_count('select count(*) from public.ai_jobs') = 0,
   'anonymous cannot read AI jobs');
+select tests.assert(tests.visible_count('select count(*) from public.content_sources') = 0,
+  'anonymous cannot read sources attached only to draft content');
 select tests.assert(tests.visible_count('select count(*) from public.vision_projects') = 0,
   'anonymous cannot read Vision projects');
 
@@ -375,6 +437,68 @@ select tests.assert(tests.visible_count('select count(*) from public.lead_plans'
   'consumer cannot read lead planning snapshots');
 select tests.assert(tests.visible_count('select count(*) from public.usage_ledger') = 0,
   'consumer cannot read the usage ledger');
+select tests.assert(tests.visible_count('select count(*) from public.saved_properties') = 1,
+  'consumer sees only their own saved property');
+select tests.assert(
+  tests.visible_count('select count(*) from public.saved_calculator_scenarios') = 1,
+  'consumer sees only their own saved calculator scenario');
+select tests.assert(tests.visible_count('select count(*) from public.notification_preferences') = 1,
+  'consumer sees their own notification preferences');
+
+insert into public.saved_properties (owner_user_id, listing_key, source_mode)
+values ('00000000-0000-4000-8000-000000000002', 'FX-OWN-WRITE', 'fixture');
+insert into public.saved_calculator_scenarios (
+  id, owner_user_id, source, version, calculation_version,
+  input_snapshot, result_snapshot, summary
+) values (
+  '00000000-0000-4000-8000-000000000212',
+  '00000000-0000-4000-8000-000000000002',
+  'closing_cost','closing@1','mortgage-math@1','{}','{}','Own write fixture.'
+);
+update public.notification_preferences
+set report_ready_email = false
+where owner_user_id = '00000000-0000-4000-8000-000000000002';
+select tests.assert(tests.visible_count('select count(*) from public.saved_properties') = 2,
+  'consumer can create an owned saved property');
+select tests.assert(
+  tests.visible_count('select count(*) from public.saved_calculator_scenarios') = 2,
+  'consumer can create an owned saved calculator scenario');
+select tests.assert(
+  tests.visible_count($$select count(*) from public.notification_preferences
+    where report_ready_email = false$$) = 1,
+  'consumer can update their own notification preferences');
+
+select * from public.create_privacy_request(
+  '00000000-0000-4000-8000-000000000220', 'export');
+select * from public.create_privacy_request(
+  '00000000-0000-4000-8000-000000000220', 'delete');
+select tests.assert(tests.visible_count('select count(*) from public.privacy_requests') = 1,
+  'exact privacy-request retry creates one request');
+select tests.assert(
+  tests.visible_count($$select count(*) from public.privacy_requests
+    where request_type = 'export' and status = 'received'$$) = 1,
+  'exact privacy-request retry returns the original received request');
+
+select tests.assert_denied(
+  $$insert into public.saved_properties (owner_user_id, listing_key, source_mode)
+    values ('00000000-0000-4000-8000-000000000006','FX-HOSTILE-1','fixture')$$,
+  'consumer cannot save a property for another user');
+select tests.assert_denied(
+  $$insert into public.saved_calculator_scenarios (
+      id, owner_user_id, source, version, calculation_version,
+      input_snapshot, result_snapshot, summary
+    ) values (
+      gen_random_uuid(),'00000000-0000-4000-8000-000000000006',
+      'closing_cost','hostile@1','mortgage-math@1','{}','{}','Hostile write.'
+    )$$,
+  'consumer cannot save a calculator scenario for another user');
+select tests.assert_denied(
+  $$insert into public.notification_preferences (owner_user_id)
+    values ('00000000-0000-4000-8000-000000000006')$$,
+  'consumer cannot create notification preferences for another user');
+select tests.assert_affects_no_rows(
+  $$update public.privacy_requests set status = 'completed', completed_at = now()$$,
+  'consumer cannot mark their privacy request completed');
 
 -- Privilege escalation attempt.
 select tests.assert_denied(
@@ -426,6 +550,13 @@ select tests.assert(tests.visible_count('select count(*) from public.leads') = 0
   'agent cannot read unrelated leads');
 select tests.assert(tests.visible_count('select count(*) from public.vision_projects') = 1,
   'agent sees only their own Vision project');
+select tests.assert(tests.visible_count('select count(*) from public.saved_properties') = 1,
+  'agent sees only their own saved property');
+select tests.assert(
+  tests.visible_count('select count(*) from public.saved_calculator_scenarios') = 1,
+  'agent sees only their own saved calculator scenario');
+select tests.assert(tests.visible_count('select count(*) from public.privacy_requests') = 0,
+  'agent cannot see another user privacy request');
 
 reset role;
 
@@ -450,6 +581,20 @@ select tests.assert(tests.visible_count('select count(*) from public.audit_event
 reset role;
 
 /* ---------------------------------------------------------------- *
+ * Operations
+ * ---------------------------------------------------------------- */
+
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000007', false);
+
+select tests.assert(tests.visible_count('select count(*) from public.privacy_requests') = 1,
+  'operations can read privacy request lifecycle');
+select tests.assert(tests.visible_count('select count(*) from public.audit_events') = 0,
+  'operations cannot read compliance audit history');
+
+reset role;
+
+/* ---------------------------------------------------------------- *
  * Compliance reviewer
  * ---------------------------------------------------------------- */
 
@@ -460,6 +605,10 @@ select tests.assert(tests.visible_count('select count(*) from public.consent_rec
   'compliance reviewer can read the consent ledger');
 select tests.assert(tests.visible_count('select count(*) from public.audit_events') = 1,
   'compliance reviewer can read the audit log');
+select tests.assert(tests.visible_count('select count(*) from public.content_sources') = 1,
+  'compliance reviewer can inspect source completeness');
+select tests.assert(tests.visible_count('select count(*) from public.privacy_requests') = 1,
+  'compliance reviewer can read privacy request lifecycle');
 select tests.assert_affects_no_rows(
   $$update public.quota_policies set enabled = false$$,
   'compliance reviewer cannot change quota policy');
@@ -481,6 +630,8 @@ select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000004
 
 select tests.assert(tests.visible_count('select count(*) from public.content_items') = 1,
   'content editor can read drafts');
+select tests.assert(tests.visible_count('select count(*) from public.content_sources') = 1,
+  'content editor can inspect sources attached to drafts');
 
 -- The indexable_requires_review constraint is the real gate: an editor cannot
 -- flip a draft to index without a published status, an author, and a reviewer.
@@ -508,6 +659,8 @@ select tests.assert(tests.visible_count('select count(*) from public.lead_submis
   'admin can trace general and RendProp submission receipts');
 select tests.assert(tests.visible_count('select count(*) from public.lead_plans') = 1,
   'admin can read the general lead planning snapshot');
+select tests.assert(tests.visible_count('select count(*) from public.privacy_requests') = 1,
+  'admin can read privacy request lifecycle');
 
 -- Audit history is append-only for everyone, including an admin.
 select tests.assert_denied(

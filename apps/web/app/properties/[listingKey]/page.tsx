@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AssetImage } from "@/components/asset-image";
+import { SavePropertyButton } from "@/components/account/save-property-button";
 import { Badge, ButtonLink, Card, Disclosure, Section } from "@/components/ui";
 import { propertyMedia } from "@/content/property-media";
 import { demoListings } from "@/lib/listings";
@@ -142,10 +143,11 @@ export default async function PropertyDemoPage({
                 </div>
               )}
             </dl>
-            <div className="mt-8">
+            <div className="mt-8 flex flex-wrap items-start gap-3">
               <ButtonLink href={`/vision?property=${encodeURIComponent(listing.listingKey)}`}>
                 Model this example in Vision
               </ButtonLink>
+              <SavePropertyButton listingKey={listing.listingKey} sourceMode="fixture" />
             </div>
           </div>
         </div>

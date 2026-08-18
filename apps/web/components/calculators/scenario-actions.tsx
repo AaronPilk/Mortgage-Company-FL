@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import type { LeadIntent, PlanningSnapshot } from "@tract/schemas";
 import { LeadForm } from "@/components/lead-form";
@@ -22,6 +22,10 @@ export function ScenarioActions({
 }) {
   const [action, setAction] = useState<Action>(null);
   const [saveStatus, setSaveStatus] = useState("");
+  const [accountSaveState, setAccountSaveState] = useState<
+    "idle" | "saving" | "saved" | "signin" | "error"
+  >("idle");
+  const accountSaveId = useRef<string | null>(null);
 
   function saveOnDevice() {
     try {
@@ -45,6 +49,26 @@ export function ScenarioActions({
     target?.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
+  async function saveToAccount() {
+    accountSaveId.current ??= window.crypto.randomUUID();
+    setAccountSaveState("saving");
+    try {
+      const response = await fetch("/api/v1/account/scenarios", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ saveId: accountSaveId.current, snapshot })
+      });
+      if (response.ok) {
+        accountSaveId.current = null;
+        setAccountSaveState("saved");
+      } else {
+        setAccountSaveState(response.status === 401 ? "signin" : "error");
+      }
+    } catch {
+      setAccountSaveState("error");
+    }
+  }
+
   const requestedSnapshot: PlanningSnapshot = {
     ...snapshot,
     inputSnapshot: {
@@ -63,6 +87,18 @@ export function ScenarioActions({
       <div className="mt-5 flex flex-wrap gap-3">
         <Button type="button" variant="secondary" onClick={saveOnDevice}>
           Save this scenario
+        </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={saveToAccount}
+          disabled={accountSaveState === "saving"}
+        >
+          {accountSaveState === "saving"
+            ? "Saving…"
+            : accountSaveState === "saved"
+              ? "Saved to account"
+              : "Save to my account"}
         </Button>
         <Button type="button" variant="secondary" onClick={() => setAction("email")}>
           Email me this breakdown
@@ -83,6 +119,19 @@ export function ScenarioActions({
       {saveStatus !== "" && (
         <p className="mt-4 text-sm text-[var(--text-muted)]" role="status">
           {saveStatus}
+        </p>
+      )}
+      {accountSaveState === "signin" && (
+        <p className="mt-4 text-sm text-[var(--text-muted)]" role="status">
+          <Link href="/account" className="font-semibold text-[var(--purple)] underline">
+            Sign in
+          </Link>{" "}
+          to save this scenario across devices. The calculation still works without an account.
+        </p>
+      )}
+      {accountSaveState === "error" && (
+        <p className="mt-4 text-sm text-[var(--text-muted)]" role="status">
+          The account save was not confirmed. Retry to check the same request.
         </p>
       )}
       {action !== null && (

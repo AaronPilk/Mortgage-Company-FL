@@ -653,6 +653,35 @@ test.describe("admin", () => {
   });
 });
 
+test.describe("optional consumer accounts", () => {
+  test("keeps public tools available when Auth is unconfigured", async ({ page }) => {
+    await page.goto("/account");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("saved TRACT work");
+    await expect(page.getByText(/account sign-in is not configured/i)).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Use calculators without an account" })
+    ).toBeVisible();
+
+    await page.goto("/calculators/mortgage-payment");
+    await expect(page.getByRole("button", { name: "Save this scenario" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Save to my account" })).toBeVisible();
+  });
+
+  test("rejects cross-origin account writes and never exposes a GET mutation", async ({
+    request
+  }) => {
+    const rejected = await request.post("/api/v1/account/scenarios", {
+      headers: { "Content-Type": "application/json", Origin: "https://evil.example" },
+      data: {}
+    });
+    expect(rejected.status()).toBe(403);
+
+    const get = await request.get("/api/v1/account/scenarios");
+    expect(get.status()).toBe(405);
+    expect(get.headers()["allow"] ?? "").not.toContain("GET");
+  });
+});
+
 test.describe("navigation and errors", () => {
   test("serves a useful 404", async ({ page }) => {
     const response = await page.goto("/this-page-does-not-exist");
