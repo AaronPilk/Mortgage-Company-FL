@@ -14,12 +14,13 @@ import {
 } from "@/components/ui";
 import { AssetImage } from "@/components/asset-image";
 import { HeroEstimator } from "@/components/hero-estimator";
+import { HomeFunnel } from "@/components/home-funnel";
 import { JsonLd } from "@/components/json-ld";
-import { LeadForm } from "@/components/lead-form";
 import { pageMetadata } from "@/lib/metadata";
 import {
   EMAIL_CONSENT_TEXT,
   LEAD_DISCLOSURE_TEXT,
+  LEAD_DISCLOSURE_VERSION,
   SITE_URL,
   SMS_CONSENT_TEXT,
   businessIdentity
@@ -209,12 +210,12 @@ export default function HomePage() {
               id="talk"
               className="animate-fade-up scroll-mt-24 lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:justify-self-end lg:pl-4"
             >
-              <LeadForm
-                intent="general"
+              <HomeFunnel
                 formId="home-hero"
                 disclosureText={LEAD_DISCLOSURE_TEXT}
                 smsConsentText={SMS_CONSENT_TEXT}
                 emailConsentText={EMAIL_CONSENT_TEXT}
+                disclosureVersion={LEAD_DISCLOSURE_VERSION}
                 turnstileSiteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
               />
             </div>

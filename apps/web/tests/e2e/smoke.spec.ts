@@ -10,7 +10,7 @@ import { expect, test } from "@playwright/test";
  */
 
 test.describe("home page", () => {
-  test("states the company type and leads with the lead form", async ({ page }) => {
+  test("states the company type and leads with the funnel form", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
       "Honest answers about your Florida mortgage"
@@ -19,17 +19,69 @@ test.describe("home page", () => {
     // The page exists to convert paid intent traffic, so the form shares the
     // hero with the message rather than living behind a /contact link.
     const hero = page.getByTestId("hero-product-proof");
-    await expect(hero.locator('form[data-form-id="home-hero"]')).toBeVisible();
-    await expect(hero.getByRole("button", { name: "Request a call" })).toBeVisible();
+    const form = hero.locator('form[data-form-id="home-hero"]');
+    await expect(form).toBeVisible();
+    await expect(form.getByText("Step 1 of 4", { exact: true })).toBeVisible();
+    await expect(form.getByRole("heading", { name: "What are you trying to do?" })).toBeVisible();
+  });
+
+  test("walks one question per screen to the contact step and back", async ({ page }) => {
+    await page.goto("/");
+    const form = page.locator('form[data-form-id="home-hero"]');
+
+    // The choice cards are real radio inputs (visually hidden), and clicking a
+    // card auto-advances — no Continue click between questions.
+    expect(await form.locator('input[type="radio"][name="intent"]').count()).toBe(3);
+    await form.getByText("Buy a home", { exact: true }).click();
+    await expect(form.getByText("Step 2 of 4", { exact: true })).toBeVisible();
+    await expect(
+      form.getByRole("heading", { name: "When are you hoping to do it?" })
+    ).toBeVisible();
+
+    await form.getByText("Within 3 months", { exact: true }).click();
+    await expect(form.getByText("Step 3 of 4", { exact: true })).toBeVisible();
+    // Credit is a self-reported band with an explicit "Not sure" escape hatch.
+    await expect(form.getByText("Not sure", { exact: true })).toBeVisible();
+    await form.getByText("Not sure", { exact: true }).click();
+    await expect(form.getByText("Step 4 of 4", { exact: true })).toBeVisible();
+
+    // The final screen collects contact details, separate consents, and submit.
+    await expect(form.locator('input[name="firstName"]')).toBeVisible();
+    await expect(form.locator('input[name="privacyAccepted"]')).toHaveAttribute("required", "");
+    await expect(form.locator('input[name="smsMarketing"]')).not.toHaveAttribute("required", "");
+    await expect(form.locator('input[name="emailMarketing"]')).not.toHaveAttribute("required", "");
+    await expect(form.getByRole("button", { name: "Request a call" })).toBeVisible();
+
+    // Back returns to the previous question without losing the flow.
+    await form.getByRole("button", { name: "Back" }).click();
+    await expect(form.getByText("Step 3 of 4", { exact: true })).toBeVisible();
   });
 
   test("keeps the homepage form a marketing form, not an application", async ({ page }) => {
     await page.goto("/");
     const form = page.locator('form[data-form-id="home-hero"]');
-    await expect(form.getByText("This is not an application").first()).toBeVisible();
-    const names = await form
-      .locator("input, select, textarea")
-      .evaluateAll((elements) => elements.map((element) => element.getAttribute("name") ?? ""));
+    const collectedNames: string[] = [];
+    const collectNames = async () => {
+      const names = await form
+        .locator("input, select, textarea")
+        .evaluateAll((elements) => elements.map((element) => element.getAttribute("name") ?? ""));
+      collectedNames.push(...names);
+      expect(await form.locator('input[type="file"]').count()).toBe(0);
+      // The "not an application" framing must be visible on every step.
+      await expect(form.getByText("This is not an application").first()).toBeVisible();
+    };
+
+    await collectNames();
+    await form.getByText("Refinance", { exact: true }).click();
+    await expect(form.getByText("Step 2 of 4", { exact: true })).toBeVisible();
+    await collectNames();
+    await form.getByText("Just researching", { exact: true }).click();
+    await expect(form.getByText("Step 3 of 4", { exact: true })).toBeVisible();
+    await collectNames();
+    await form.getByText("Not sure", { exact: true }).click();
+    await expect(form.getByText("Step 4 of 4", { exact: true })).toBeVisible();
+    await collectNames();
+
     for (const forbidden of [
       "ssn",
       "socialSecurity",
@@ -38,9 +90,8 @@ test.describe("home page", () => {
       "income",
       "accountNumber"
     ]) {
-      expect(names).not.toContain(forbidden);
+      expect(collectedNames).not.toContain(forbidden);
     }
-    expect(await form.locator('input[type="file"]').count()).toBe(0);
   });
 
   test("never claims to be a lender and always carries the broker disclosure", async ({ page }) => {
