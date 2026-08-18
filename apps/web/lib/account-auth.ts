@@ -1,6 +1,12 @@
-/** Only private account destinations may be carried through an Auth callback. */
+/**
+ * Only private account destinations may be carried through an Auth callback:
+ * the account area itself, plus the password-reset completion page that
+ * recovery links land on. Everything else — absolute URLs, protocol-relative
+ * URLs, unrelated local paths — collapses to /account.
+ */
 export function safeAccountNextPath(value: string | null): string {
   if (value === "/account" || value?.startsWith("/account/") === true) return value;
+  if (value === "/auth/update-password") return value;
   return "/account";
 }
 

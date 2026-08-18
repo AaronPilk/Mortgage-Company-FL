@@ -69,8 +69,9 @@ type PrivacyRequest = {
 };
 
 const AUTH_MESSAGES: Record<string, string> = {
-  verified: "Your sign-in link was verified.",
-  error: "That sign-in link could not be verified. Request a new link.",
+  verified: "Your email link was verified.",
+  error:
+    "That email link could not be verified. Links expire and work once — request a new one below.",
   unavailable: "Account sign-in is not configured in this environment.",
   signed_out: "You have been signed out."
 };
@@ -112,10 +113,13 @@ export default async function AccountPage({
               Accounts are disabled in this environment. Public planning tools remain available.
             </p>
           ) : (
+            // The standalone account page leans toward returning visitors:
+            // sign-in first, with the create-account toggle one tap away.
             <AccountSignIn
               configured={authConfigured}
               supabaseUrl={supabaseUrl}
               anonKey={anonKey}
+              defaultMode="signIn"
             />
           )}
           <div className="mt-6">

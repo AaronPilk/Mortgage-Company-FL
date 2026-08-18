@@ -11,6 +11,12 @@ describe("account Auth callback redirect", () => {
     expect(safeAccountNextPath("/account/preferences")).toBe("/account/preferences");
   });
 
+  it("allows the password-reset completion page, exactly", () => {
+    expect(safeAccountNextPath("/auth/update-password")).toBe("/auth/update-password");
+    expect(safeAccountNextPath("/auth/update-password/extra")).toBe("/account");
+    expect(safeAccountNextPath("/auth/anything-else")).toBe("/account");
+  });
+
   it("rejects open redirects and unrelated local paths", () => {
     expect(safeAccountNextPath("https://evil.example")).toBe("/account");
     expect(safeAccountNextPath("//evil.example/account")).toBe("/account");

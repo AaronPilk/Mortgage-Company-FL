@@ -46,16 +46,24 @@ test.describe("integrated recovery workflows", () => {
     await expect(page.getByRole("button", { name: "Save property" }).first()).toBeVisible();
 
     // The AI understanding is the account perk; the pill opens the shared
-    // account dialog with the magic-link form rather than blocking the search
-    // bar, and the dialog closes cleanly from the keyboard.
+    // account dialog with the email + password form rather than blocking the
+    // search bar, and the dialog closes cleanly from the keyboard. Creating an
+    // account is the default; sign-in is one toggle away, and the reset path
+    // hangs off sign-in.
     const unlock = page.getByRole("button", { name: "Unlock AI search" });
     await expect(unlock).toBeVisible();
     await unlock.click();
     const dialog = page.getByRole("dialog", { name: "Unlock AI search" });
     await expect(dialog).toBeVisible();
-    await expect(dialog.getByRole("button", { name: "Email me a sign-in link" })).toBeVisible();
+    await expect(dialog.getByLabel("Email address")).toBeVisible();
+    await expect(dialog.getByLabel("Password")).toBeVisible();
+    await expect(dialog.getByRole("button", { name: "Create my account" })).toBeVisible();
     await expect(dialog.getByRole("link", { name: "terms of use" })).toBeVisible();
     await expect(dialog.getByRole("link", { name: "privacy policy" })).toBeVisible();
+    await dialog.getByRole("button", { name: "Sign in", exact: true }).click();
+    await expect(dialog.getByRole("button", { name: "Sign in", exact: true })).toBeVisible();
+    await expect(dialog.getByRole("button", { name: "Forgot password?" })).toBeVisible();
+    await expect(dialog.getByRole("button", { name: "Create an account" })).toBeVisible();
     await page.keyboard.press("Escape");
     await expect(dialog).toHaveCount(0);
 
@@ -63,7 +71,9 @@ test.describe("integrated recovery workflows", () => {
     await page.getByRole("button", { name: "Save this search" }).click();
     const saveDialog = page.getByRole("dialog", { name: "Save this search" });
     await expect(saveDialog).toBeVisible();
-    await expect(saveDialog.getByRole("button", { name: "Email me a sign-in link" })).toBeVisible();
+    await expect(saveDialog.getByLabel("Email address")).toBeVisible();
+    await expect(saveDialog.getByLabel("Password")).toBeVisible();
+    await expect(saveDialog.getByRole("button", { name: "Create my account" })).toBeVisible();
     await saveDialog.getByRole("button", { name: "Close dialog" }).click();
     await expect(saveDialog).toHaveCount(0);
 
@@ -348,7 +358,7 @@ test.describe("recovery system boundaries", () => {
     await expect(
       page
         .getByText(/account sign-in is not configured/i)
-        .or(page.getByText(/one-time sign-in link/i))
+        .or(page.getByText(/sign in with your email and password/i))
         .first()
     ).toBeVisible();
     await expect(

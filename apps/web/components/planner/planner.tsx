@@ -802,14 +802,14 @@ export function Planner({
             style={{ borderColor: "var(--border)" }}
           >
             <p>
-              Want your plan saved to an account? We&rsquo;ll email you a sign-in link.{" "}
+              Want your plan saved to an account? Create a free account or sign in.{" "}
               <button
                 type="button"
                 onClick={() => setSignInOpen((open) => !open)}
                 aria-expanded={signInOpen}
                 className="font-semibold text-[var(--purple)] underline underline-offset-2"
               >
-                {signInOpen ? "Hide" : "Get the link"}
+                {signInOpen ? "Hide" : "Open the account form"}
               </button>
             </p>
             {signInOpen && (

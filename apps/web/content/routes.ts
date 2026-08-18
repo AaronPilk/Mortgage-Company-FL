@@ -1169,6 +1169,15 @@ export const ROUTE_REGISTRY: RouteEntry[] = [
     indexable: false,
     contentGroup: "system"
   },
+  // Password-reset completion. Reached only from the emailed recovery link
+  // via /auth/callback; never indexable, never in the sitemap.
+  {
+    path: "/auth/update-password",
+    priority: 0.1,
+    changeFrequency: "yearly",
+    indexable: false,
+    contentGroup: "system"
+  },
   {
     path: "/admin",
     priority: 0.1,

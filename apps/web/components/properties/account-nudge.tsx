@@ -76,7 +76,7 @@ export function AccountNudgeBanner({
           open={promptOpen}
           onClose={() => setPromptOpen(false)}
           headline="Create your free account"
-          body="Save searches and homes, and unlock AI search — the account is free and sign-in is a one-time email link."
+          body="Create a free account or sign in to save searches and homes and unlock AI search."
           configured
           supabaseUrl={supabaseUrl}
           anonKey={anonKey}

@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui";
-import { AccountSignIn } from "./account-sign-in";
+import { AccountSignIn, type AccountSignInOutcome } from "./account-sign-in";
 
 /**
  * The one account-creation prompt for signed-out visitors.
@@ -14,8 +14,13 @@ import { AccountSignIn } from "./account-sign-in";
  * the words change: each trigger names its own benefit, because "sign in"
  * without a reason is a demand, not an offer.
  *
- * The magic-link request itself is `AccountSignIn`, unchanged — this component
- * owns no auth logic, only the modal shell and the success state around it.
+ * The email + password form itself is `AccountSignIn` — this component owns
+ * no auth logic, only the modal shell and the success state around it. Two
+ * successes exist: an instant session (password sign-in, or sign-up with
+ * confirmation disabled) shows a brief "You're in." and closes on its own,
+ * because `AccountSignIn` has already refreshed the router and the page
+ * behind the dialog is now signed in; a sign-up that needs email
+ * confirmation stays open with the check-your-email explanation.
  *
  * Accessibility, in full, because a modal that traps a pointer but not a
  * keyboard is a wall for exactly the people who cannot route around it:
@@ -57,15 +62,24 @@ export function AccountPromptDialog({
   const panelRef = useRef<HTMLDivElement | null>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const [mounted, setMounted] = useState(false);
-  const [sent, setSent] = useState(false);
+  const [outcome, setOutcome] = useState<AccountSignInOutcome | null>(null);
 
   // Portals cannot render during SSR; the dialog only exists after mount.
   useEffect(() => setMounted(true), []);
 
   // A fresh open starts at the form, not at a stale success message.
   useEffect(() => {
-    if (open) setSent(false);
+    if (open) setOutcome(null);
   }, [open]);
+
+  // An instant session needs no further action from the person: show the
+  // brief success state, then close so they land back on the now-unlocked
+  // page. The confirmation-email outcome stays open — it carries instructions.
+  useEffect(() => {
+    if (!open || outcome !== "signed_in") return;
+    const timer = window.setTimeout(onClose, 1800);
+    return () => window.clearTimeout(timer);
+  }, [open, outcome, onClose]);
 
   useEffect(() => {
     if (!open) return;
@@ -115,7 +129,7 @@ export function AccountPromptDialog({
       document.body.style.overflow = previousOverflow;
       previousFocusRef.current?.focus();
     };
-  }, [open, onClose, sent]);
+  }, [open, onClose, outcome]);
 
   if (!open || !mounted) return null;
 
@@ -186,7 +200,7 @@ export function AccountPromptDialog({
         )}
 
         <div className="mt-6">
-          {sent ? (
+          {outcome !== null ? (
             <div role="status" className="space-y-4">
               <div className="flex items-start gap-3">
                 <span
@@ -206,16 +220,27 @@ export function AccountPromptDialog({
                     <path d="M4 10.5 8 14.5 16 5.5" />
                   </svg>
                 </span>
-                <div>
-                  <p className="font-semibold" style={{ color: "var(--text)" }}>
-                    Check your email — the sign-in link is on its way.
-                  </p>
-                  {/* Honest scope: we requested the link; we cannot see delivery. */}
-                  <p className="mt-1.5 text-sm" style={{ color: "var(--text-muted)" }}>
-                    If that address can receive account email, a one-time link has been requested.
-                    Open it and you will come back here signed in.
-                  </p>
-                </div>
+                {outcome === "signed_in" ? (
+                  <div>
+                    <p className="font-semibold" style={{ color: "var(--text)" }}>
+                      You&rsquo;re in.
+                    </p>
+                    <p className="mt-1.5 text-sm" style={{ color: "var(--text-muted)" }}>
+                      This page now knows you — your account features are unlocked.
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="font-semibold" style={{ color: "var(--text)" }}>
+                      Check your email to confirm your account.
+                    </p>
+                    {/* Honest scope: we requested the email; we cannot see delivery. */}
+                    <p className="mt-1.5 text-sm" style={{ color: "var(--text-muted)" }}>
+                      One time only — open the confirmation link, then you sign in here with your
+                      password.
+                    </p>
+                  </div>
+                )}
               </div>
               <Button type="button" variant="secondary" onClick={onClose}>
                 Done
@@ -226,7 +251,7 @@ export function AccountPromptDialog({
               configured={configured}
               supabaseUrl={supabaseUrl}
               anonKey={anonKey}
-              onSent={() => setSent(true)}
+              onSuccess={setOutcome}
             />
           )}
         </div>
