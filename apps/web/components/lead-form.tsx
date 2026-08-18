@@ -10,6 +10,7 @@ import {
   readStoredTouch
 } from "@/lib/attribution-browser";
 import { resetTurnstile } from "@/lib/turnstile-browser";
+import { TurnstileWidget } from "@/components/turnstile-widget";
 
 /**
  * Marketing lead form.
@@ -388,12 +389,7 @@ export function LeadForm({
       </fieldset>
 
       {turnstileSiteKey !== undefined && (
-        <div
-          className="mt-6 cf-turnstile"
-          data-sitekey={turnstileSiteKey}
-          data-action="lead"
-          data-theme="light"
-        />
+        <TurnstileWidget className="mt-6" siteKey={turnstileSiteKey} action="lead" />
       )}
 
       <div className="mt-7">

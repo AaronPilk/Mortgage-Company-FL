@@ -5,6 +5,7 @@ import { FIRST_TOUCH_STORAGE_KEY, LAST_TOUCH_STORAGE_KEY } from "@tract/analytic
 import type { LeadAttributionTouch } from "@tract/schemas";
 import type { VisionInput, VisionResult } from "@tract/vision-model";
 import { Button } from "@/components/ui";
+import { TurnstileWidget } from "@/components/turnstile-widget";
 import {
   attributionTouch,
   currentAttributionTouch,
@@ -365,11 +366,7 @@ export function VisionReportRequest({
       </fieldset>
 
       {turnstileSiteKey !== undefined && (
-        <div
-          className="mt-6 cf-turnstile"
-          data-sitekey={turnstileSiteKey}
-          data-action="vision_report"
-        />
+        <TurnstileWidget className="mt-6" siteKey={turnstileSiteKey} action="vision_report" />
       )}
 
       <div className="mt-7">
