@@ -45,12 +45,20 @@ test.describe("integrated recovery workflows", () => {
     await expect(page.getByRole("button", { name: "Save this search" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Save property" }).first()).toBeVisible();
 
-    // The AI understanding is the account perk; the pill opens the shared
-    // account dialog with the email + password form rather than blocking the
-    // search bar, and the dialog closes cleanly from the keyboard. Creating an
+    // The natural-language search is an account feature outright: signed out,
+    // submitting the bar opens the account dialog instead of running any
+    // search, and the pill under it says so plainly. The dialog carries the
+    // email + password form and closes cleanly from the keyboard. Creating an
     // account is the default; sign-in is one toggle away, and the reset path
     // hangs off sign-in.
-    const unlock = page.getByRole("button", { name: "Unlock AI search" });
+    await page.locator("#ai-property-query").fill("3 bed in st pete");
+    await page.getByRole("button", { name: "Search properties" }).click();
+    const dialogFromBar = page.getByRole("dialog", { name: "Unlock AI search" });
+    await expect(dialogFromBar).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(dialogFromBar).toHaveCount(0);
+
+    const unlock = page.getByRole("button", { name: "AI search requires a free account" });
     await expect(unlock).toBeVisible();
     await unlock.click();
     const dialog = page.getByRole("dialog", { name: "Unlock AI search" });

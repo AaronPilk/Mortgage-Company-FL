@@ -293,17 +293,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
   const query = parsed.data.query;
 
-  // The AI understanding is an account perk. An anonymous request still gets a
-  // full answer — via the deterministic rules parser, which never spends AI
-  // budget — so basic search works identically for everyone. Any failure to
-  // resolve a session counts as anonymous, never as an error.
+  // Natural-language search is an account feature, full stop — the owner's
+  // product decision, and the signed-out client never calls this route. An
+  // anonymous request is refused here too, so the boundary holds against a
+  // direct caller and not just in the UI. Any failure to resolve a session
+  // counts as anonymous.
   const userId = await resolveAuthenticatedUserId(await createRequestClient());
+  if (userId === null) {
+    return finish("rejected_anonymous", fail("UNAUTHORIZED", context.requestId), {
+      queryLength: query.length
+    });
+  }
 
   let source: InterpretSource = "rules";
-  let criteria =
-    userId === null
-      ? null
-      : await interpretWithAi(query, context.requestId, context.ipPrefixHash ?? "unknown");
+  let criteria = await interpretWithAi(query, context.requestId, context.ipPrefixHash ?? "unknown");
   if (criteria !== null) {
     source = "ai";
   } else {

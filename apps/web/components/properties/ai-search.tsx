@@ -144,6 +144,15 @@ export function AiSearch({
       if (query === "" || busy) return;
       if (listening) stopListening();
 
+      // The described-in-your-own-words search is an account feature, full
+      // stop. Signed out, submitting opens the account dialog instead of
+      // running any interpretation — the structured filters below remain the
+      // no-account way to browse.
+      if (!signedIn) {
+        setPromptOpen(true);
+        return;
+      }
+
       setBusy(true);
       setError(null);
       try {
@@ -170,8 +179,16 @@ export function AiSearch({
         setBusy(false);
       }
     },
-    [busy, listening, router, stopListening, text]
+    [busy, listening, router, signedIn, stopListening, text]
   );
+
+  const requireAccountForMic = useCallback(() => {
+    if (!signedIn) {
+      setPromptOpen(true);
+      return true;
+    }
+    return false;
+  }, [signedIn]);
 
   return (
     <div className="mx-auto mt-10 w-full max-w-2xl">
@@ -213,7 +230,11 @@ export function AiSearch({
           {micSupported && (
             <button
               type="button"
-              onClick={listening ? stopListening : startListening}
+              onClick={() => {
+                if (requireAccountForMic()) return;
+                if (listening) stopListening();
+                else startListening();
+              }}
               aria-pressed={listening}
               aria-label={listening ? "Stop voice input" : "Search by voice"}
               className="grid h-11 w-11 shrink-0 place-items-center rounded-full transition-colors duration-200 hover:bg-[var(--purple-subtle)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--purple)]"
@@ -330,22 +351,22 @@ export function AiSearch({
       </form>
 
       {/* The unlock affordance lives outside the search form because the
-          sign-in prompt is its own form. It never blocks the search: typed and
-          spoken queries work signed out, answered by the deterministic parser
-          and labelled accordingly — a rules answer is never presented as AI.
-          The pill opens the shared account dialog rather than an inline form,
-          so this prompt matches every other signed-out prompt on the page. */}
+          sign-in prompt is its own form. Signed out, the bar itself is the
+          gate: typing, speaking, or submitting opens this same dialog, and no
+          interpretation runs until an account exists. The structured filters
+          below stay open to everyone, so browsing never requires an account —
+          describing does. */}
       {accountsConfigured && !signedIn && (
         <div className="mt-2 text-left">
           <AccountPromptPill onClick={() => setPromptOpen(true)}>
-            Unlock AI search
+            AI search requires a free account
           </AccountPromptPill>
           <AccountPromptDialog
             open={promptOpen}
             onClose={() => setPromptOpen(false)}
             headline="Unlock AI search"
-            body="Describe the home in your own words — place, price, beds, the feel of it — and AI turns your words into the search."
-            note="AI answers only for signed-in visitors. Signed out, this bar still works with basic matching."
+            body="Describe the home in your own words — place, price, beds, the feel of it — and AI turns your words into the search. Create a free account or sign in to use it."
+            note="No account? The filters below still let you browse every listing."
             configured={accountsConfigured}
             supabaseUrl={supabaseUrl}
             anonKey={anonKey}
