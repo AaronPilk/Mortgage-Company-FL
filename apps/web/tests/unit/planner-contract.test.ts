@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   CreateLeadSchema,
   CreditBandSchema,
+  LeadIntentSchema,
   LeadPlannerSchema,
   PlannerEmploymentSchema,
   PlannerGoalSchema,
@@ -20,6 +21,7 @@ import {
   EMPLOYMENT_OPTIONS,
   GOAL_OPTIONS,
   INCOME_BAND_OPTIONS,
+  INTENT_BY_GOAL,
   MONTHLY_DEBT_BAND_OPTIONS,
   MORTGAGE_RATE_BAND_OPTIONS,
   PROPERTY_STAGE_OPTIONS,
@@ -152,6 +154,18 @@ describe("planner options and the schema cannot drift apart", () => {
       expect([...options.map((option) => option.value)].sort()).toEqual([...schemaValues].sort());
     });
   }
+
+  it("maps every planner goal onto an intent the lead vocabulary accepts", () => {
+    // INTENT_BY_GOAL is typed Record<PlannerGoalValue, string>, so widening the
+    // lead intent enum cannot break it silently — this is the check that its
+    // values stay inside the vocabulary the API will actually accept.
+    for (const goal of PlannerGoalSchema.options) {
+      expect(
+        LeadIntentSchema.safeParse(INTENT_BY_GOAL[goal]).success,
+        `goal "${goal}" maps to "${INTENT_BY_GOAL[goal]}", which is not a LeadIntent`
+      ).toBe(true);
+    }
+  });
 
   it("derives a band the schema accepts from every figure the visitor can type", () => {
     for (const price of [0, 9_999, 199_999, 200_000, 499_999, 900_000, 4_000_000]) {

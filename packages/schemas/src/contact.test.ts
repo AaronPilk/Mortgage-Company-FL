@@ -6,7 +6,7 @@ import {
   normalizeEmail,
   normalizePhoneE164
 } from "./contact";
-import { CreateLeadSchema } from "./lead";
+import { CreateLeadSchema, LeadIntentSchema } from "./lead";
 import { EnvironmentError, assertProductionReady, parseServerEnv } from "./env";
 import { apiFailure, apiSuccess, fieldErrors } from "./api";
 
@@ -93,6 +93,22 @@ describe("CreateLeadSchema", () => {
     expect(parsed.email).toBe("dana@example.com");
     expect(parsed.stateCode).toBe("FL");
     expect(parsed.consent.smsMarketing).toBe(false);
+  });
+
+  it("accepts every intent in the vocabulary, including the seller and HELOC additions", () => {
+    // sell_home is a real-estate-side handoff and heloc is education-only
+    // equity interest; both are marketing intents, never product statuses.
+    for (const intent of LeadIntentSchema.options) {
+      expect(CreateLeadSchema.safeParse({ ...valid, intent }).success, intent).toBe(true);
+    }
+    expect(LeadIntentSchema.options).toContain("sell_home");
+    expect(LeadIntentSchema.options).toContain("heloc");
+  });
+
+  it("still rejects an intent outside the vocabulary", () => {
+    // The database column is unconstrained text, so this parse is the only
+    // gate keeping a made-up intent out of operations filters.
+    expect(CreateLeadSchema.safeParse({ ...valid, intent: "preapproved" }).success).toBe(false);
   });
 
   it("requires an affirmative privacy acceptance, not merely a boolean", () => {

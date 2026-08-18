@@ -22,6 +22,17 @@ export const LeadIntentSchema = z.enum([
   "self_employed",
   "agent_partner",
   "vision_report",
+  /**
+   * A homeowner who wants to sell. TRACT is a mortgage brokerage, not a listing
+   * brokerage — this intent exists so the owner's real-estate network can pick
+   * the conversation up. Copy around it is connection/handoff framing only.
+   */
+  "sell_home",
+  /**
+   * Home equity line of credit interest. Educational conversations only — this
+   * intent never carries or implies a rate, a limit, or an approval.
+   */
+  "heloc",
   "general"
 ]);
 export type LeadIntent = z.infer<typeof LeadIntentSchema>;

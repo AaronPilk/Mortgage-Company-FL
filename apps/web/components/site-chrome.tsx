@@ -88,11 +88,12 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-2.5">
           <ThemeToggle />
-          <ButtonLink
-            href="/contact"
-            data-cta="header-consultation"
-            className="!min-h-[42px] !px-5"
-          >
+          {/*
+            One button, four audiences. /talk asks what the visitor is here for
+            and routes each answer to the funnel built for it, which converts
+            better than dropping everyone on a generic contact form.
+          */}
+          <ButtonLink href="/talk" data-cta="header-consultation" className="!min-h-[42px] !px-5">
             Talk to us
           </ButtonLink>
         </div>

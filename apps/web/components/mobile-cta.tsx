@@ -37,8 +37,9 @@ export function MobileCta() {
         >
           Start my plan
         </Link>
+        {/* Mirrors the header CTA: /talk routes each audience to its own funnel. */}
         <Link
-          href="/contact"
+          href="/talk"
           data-cta="mobile-bar-contact"
           className="flex min-h-[46px] flex-1 items-center justify-center rounded-xl border text-sm font-semibold"
           style={{ borderColor: "var(--border)", color: "var(--text)" }}

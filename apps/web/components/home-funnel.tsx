@@ -65,8 +65,35 @@ const CREDIT_OPTIONS: ChoiceOption<CreditBandValue>[] = [
   { value: "unknown", label: "Not sure", hint: "That's fine — a rough guess is all this is" }
 ];
 
-const STEP_COUNT = 4;
 const AUTO_ADVANCE_MS = 220;
+
+/**
+ * Campaign preset. An ad-landing page already knows what the visitor wants —
+ * the ad told us — so the page can preset the intent and drop the goal
+ * question rather than asking it twice. Everything here is server-authored
+ * page configuration: nothing the visitor types flows into it, which is why
+ * `message` is allowed to exist at all (it is a fixed campaign label for the
+ * loan officer, never consumer free text).
+ */
+export type HomeFunnelPreset = {
+  /** Intent the campaign page already established. Skips the goal question. */
+  intent: LeadIntent;
+  /**
+   * Drop the credit-band question. Used by the seller funnel: a homeowner
+   * telling us they want to sell does not need a financing credit band.
+   */
+  skipCreditStep?: boolean;
+  /** Campaign-specific wording for the timing question, read honestly against TimelineSchema. */
+  timelineHeading?: string;
+  /** The reassurance line above the contact fields. Overridden where "mortgage options" would be wrong. */
+  contactHint?: string;
+  /** Success-state body. Overridden where the default mortgage framing would mislead. */
+  successBody?: string;
+  /** Fixed campaign context stored on the lead's message field, e.g. "Arrived via FHA campaign page." */
+  message?: string;
+};
+
+type StepKey = "intent" | "timeline" | "credit" | "contact";
 
 /**
  * Friendly text for the server's field-level rejections, mirroring the map in
@@ -81,9 +108,10 @@ const SERVER_FIELD_TEXT: Record<string, string> = {
   phone: "Enter a phone number with at least 10 digits.",
   consent: "Please confirm the permission checkbox so a licensed professional can contact you.",
   submissionId: "Something went wrong preparing the submission. Reload the page and try again.",
-  intent: "Choose what you are trying to do in step 1.",
-  timeline: "Choose a timeframe in step 2.",
-  estimatedCreditBand: "Choose a credit range in step 3 — “Not sure” is fine."
+  // Not numbered: campaign presets drop steps, so a fixed "step 2" would lie.
+  intent: "Choose what you are trying to do on the first screen.",
+  timeline: "Choose a timeframe on the timing screen.",
+  estimatedCreditBand: "Choose a credit range — “Not sure” is fine."
 };
 
 function serverFieldMessages(fields: Record<string, string[]> | undefined): string[] {
@@ -114,20 +142,14 @@ type Answers = {
   creditBand: CreditBandValue | "";
 };
 
-const STEP_HEADINGS = [
-  "What are you trying to do?",
-  "When are you hoping to do it?",
-  "Where do you think your credit sits?",
-  "Where should we send your answer?"
-] as const;
-
 export function HomeFunnel({
   formId,
   disclosureText,
   smsConsentText,
   emailConsentText,
   disclosureVersion,
-  turnstileSiteKey
+  turnstileSiteKey,
+  preset
 }: {
   formId: string;
   disclosureText: string;
@@ -135,9 +157,32 @@ export function HomeFunnel({
   emailConsentText: string;
   disclosureVersion: string;
   turnstileSiteKey?: string | undefined;
+  preset?: HomeFunnelPreset | undefined;
 }) {
+  // The step list is derived, not stated, so the progress bar, the submit
+  // guard, and the screen order can never disagree about which questions this
+  // instance of the funnel actually asks.
+  const steps: StepKey[] = [
+    ...(preset === undefined ? (["intent"] as const) : []),
+    "timeline",
+    ...(preset?.skipCreditStep === true ? [] : (["credit"] as const)),
+    "contact"
+  ];
+  const stepCount = steps.length;
+
+  const stepHeadings: Record<StepKey, string> = {
+    intent: "What are you trying to do?",
+    timeline: preset?.timelineHeading ?? "When are you hoping to do it?",
+    credit: "Where do you think your credit sits?",
+    contact: "Where should we send your answer?"
+  };
+
   const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<Answers>({ intent: "", timeline: "", creditBand: "" });
+  const [answers, setAnswers] = useState<Answers>({
+    intent: preset?.intent ?? "",
+    timeline: "",
+    creditBand: ""
+  });
   const [state, setState] = useState<FormState>({ kind: "idle" });
 
   const submissionRef = useRef<{
@@ -185,7 +230,7 @@ export function HomeFunnel({
     if (advanceTimer.current !== undefined) window.clearTimeout(advanceTimer.current);
     advanceTimer.current = window.setTimeout(() => {
       advanceTimer.current = undefined;
-      setStep((current) => Math.min(current + 1, STEP_COUNT - 1));
+      setStep((current) => Math.min(current + 1, stepCount - 1));
     }, AUTO_ADVANCE_MS);
   }
 
@@ -205,11 +250,12 @@ export function HomeFunnel({
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     // Enter on an earlier screen means "next", not "submit".
-    if (step < STEP_COUNT - 1) {
+    const currentStep = steps[step];
+    if (step < stepCount - 1) {
       const answered =
-        (step === 0 && answers.intent !== "") ||
-        (step === 1 && answers.timeline !== "") ||
-        (step === 2 && answers.creditBand !== "");
+        (currentStep === "intent" && answers.intent !== "") ||
+        (currentStep === "timeline" && answers.timeline !== "") ||
+        (currentStep === "credit" && answers.creditBand !== "");
       if (answered) scheduleAdvance();
       return;
     }
@@ -260,6 +306,8 @@ export function HomeFunnel({
       stateCode: "FL",
       timeline: core.timeline,
       estimatedCreditBand: core.estimatedCreditBand,
+      // Fixed campaign context, authored by the page — never visitor input.
+      message: preset?.message,
       consent,
       firstTouch: submission.firstTouch,
       lastTouch: submission.lastTouch,
@@ -325,8 +373,8 @@ export function HomeFunnel({
         </div>
         <h2 className="mt-4 text-2xl font-bold text-[var(--text)]">We have your request</h2>
         <p className="mt-3 text-[var(--text-muted)]">
-          A licensed mortgage professional will reach out. Nothing has been submitted to a lender,
-          no credit inquiry has been made, and you are not obligated to anything.
+          {preset?.successBody ??
+            "A licensed mortgage professional will reach out. Nothing has been submitted to a lender, no credit inquiry has been made, and you are not obligated to anything."}
         </p>
         <p className="mt-4 text-sm text-[var(--text-muted)]">
           Reference{" "}
@@ -344,8 +392,9 @@ export function HomeFunnel({
     );
   }
 
-  const progressPct = Math.round(((step + 1) / STEP_COUNT) * 100);
-  const heading = STEP_HEADINGS[step];
+  const progressPct = Math.round(((step + 1) / stepCount) * 100);
+  const activeStep = steps[step] ?? "contact";
+  const heading = stepHeadings[activeStep];
 
   const inputClass =
     "mt-1.5 w-full rounded-lg border border-[var(--border)] bg-[var(--bg)] px-3 py-2.5 text-base " +
@@ -423,9 +472,9 @@ export function HomeFunnel({
           style={{ background: "var(--border)" }}
           role="progressbar"
           aria-valuemin={1}
-          aria-valuemax={STEP_COUNT}
+          aria-valuemax={stepCount}
           aria-valuenow={step + 1}
-          aria-label={`Step ${step + 1} of ${STEP_COUNT}`}
+          aria-label={`Step ${step + 1} of ${stepCount}`}
         >
           <div
             className="h-full rounded-full transition-[width] duration-300"
@@ -434,7 +483,7 @@ export function HomeFunnel({
         </div>
         <div className="mt-2 flex items-baseline justify-between gap-3">
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]">
-            Step {step + 1} of {STEP_COUNT}
+            Step {step + 1} of {stepCount}
           </p>
         </div>
         {/* The framing that keeps this a marketing form stays on every screen. */}
@@ -445,7 +494,7 @@ export function HomeFunnel({
 
       {/* Screen-reader step announcement. */}
       <p aria-live="polite" role="status" className="sr-only">
-        Step {step + 1} of {STEP_COUNT}: {heading}
+        Step {step + 1} of {stepCount}: {heading}
       </p>
 
       {state.kind === "error" && (
@@ -477,9 +526,9 @@ export function HomeFunnel({
           {heading}
         </h2>
 
-        {step === 0 && choiceCards("intent", INTENT_OPTIONS, answers.intent)}
-        {step === 1 && choiceCards("timeline", TIMELINE_OPTIONS, answers.timeline)}
-        {step === 2 && (
+        {activeStep === "intent" && choiceCards("intent", INTENT_OPTIONS, answers.intent)}
+        {activeStep === "timeline" && choiceCards("timeline", TIMELINE_OPTIONS, answers.timeline)}
+        {activeStep === "credit" && (
           <>
             <p className="mt-1 text-sm text-[var(--text-muted)]">
               Your own rough sense is all we need. This is self-reported — never a credit check.
@@ -488,10 +537,11 @@ export function HomeFunnel({
           </>
         )}
 
-        {step === 3 && (
+        {activeStep === "contact" && (
           <>
             <p className="mt-1 text-sm text-[var(--text-muted)]">
-              A licensed mortgage professional will reach out about your options.
+              {preset?.contactHint ??
+                "A licensed mortgage professional will reach out about your options."}
             </p>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               <div>
@@ -607,7 +657,7 @@ export function HomeFunnel({
             Back
           </button>
         )}
-        {step === STEP_COUNT - 1 && (
+        {step === stepCount - 1 && (
           <Button type="submit" disabled={state.kind === "submitting"} className="flex-1">
             {state.kind === "submitting" ? "Sending…" : "Request a call"}
           </Button>

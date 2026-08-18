@@ -109,6 +109,72 @@ test.describe("home page", () => {
   });
 });
 
+test.describe("talk chooser and campaign landings", () => {
+  test("the header CTA routes to the chooser, which routes each audience", async ({ page }) => {
+    await page.goto("/");
+    // Both Talk to us entry points — header and the mobile bar — go to /talk.
+    await expect(page.locator('[data-cta="header-consultation"]')).toHaveAttribute("href", "/talk");
+    await expect(page.locator('[data-cta="mobile-bar-contact"]')).toHaveAttribute("href", "/talk");
+
+    await page.goto("/talk");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(
+      "What brings you to TRACT?"
+    );
+    for (const [label, href] of [
+      ["Buying a home", "/get-started/purchase"],
+      ["Selling a home", "/get-started/sell"],
+      ["I'm a real estate agent", "/partners/real-estate-agents"],
+      ["I'm an investor", "/get-started/investment"]
+    ] as const) {
+      // Scoped to main: the footer links program pages under similar names.
+      await expect(
+        page.locator("main").getByRole("link", { name: new RegExp(label) })
+      ).toHaveAttribute("href", href);
+    }
+  });
+
+  test("a campaign page presets the intent and opens on the timing question", async ({ page }) => {
+    // The heloc visitor already told the ad what they want, so the goal
+    // question is gone and the funnel is one step shorter.
+    await page.goto("/get-started/heloc");
+    const form = page.locator('form[data-form-id="campaign-heloc"]');
+    await expect(form).toBeVisible();
+    await expect(form.getByText("Step 1 of 3", { exact: true })).toBeVisible();
+    await expect(
+      form.getByRole("heading", { name: "When are you hoping to access your equity?" })
+    ).toBeVisible();
+    expect(await form.locator('input[type="radio"][name="intent"]').count()).toBe(0);
+    // Education framing, never an application, on the page itself.
+    await expect(form.getByText("This is not an application").first()).toBeVisible();
+  });
+
+  test("the sell funnel skips credit and keeps the handoff framing honest", async ({ page }) => {
+    await page.goto("/get-started/sell");
+    const body = (await page.locator("body").innerText()).toLowerCase();
+    // TRACT does not list homes; the page must say so, and never imply it does.
+    expect(body).toContain("don't list homes");
+
+    const form = page.locator('form[data-form-id="campaign-sell"]');
+    await expect(form.getByText("Step 1 of 2", { exact: true })).toBeVisible();
+    await expect(
+      form.getByRole("heading", { name: "When are you looking to sell?" })
+    ).toBeVisible();
+    await form.getByText("Within 3 months", { exact: true }).click();
+    // Straight to contact — a seller is never asked for a credit band.
+    await expect(form.getByText("Step 2 of 2", { exact: true })).toBeVisible();
+    await expect(form.locator('input[name="firstName"]')).toBeVisible();
+    expect(await form.locator('input[type="radio"][name="creditBand"]').count()).toBe(0);
+  });
+
+  test("campaign pages and the chooser stay out of the index", async ({ page }) => {
+    for (const path of ["/talk", "/get-started/purchase", "/get-started/sell"]) {
+      await page.goto(path);
+      const robots = page.locator('meta[name="robots"]');
+      await expect(robots).toHaveAttribute("content", /noindex/);
+    }
+  });
+});
+
 test.describe("calculators", () => {
   test("computes a full housing payment, not just principal and interest", async ({ page }) => {
     await page.goto("/calculators/mortgage-payment");

@@ -1077,6 +1077,74 @@ export const ROUTE_REGISTRY: RouteEntry[] = [
     contentGroup: "properties"
   },
 
+  // Ad campaign landing pages and the "Talk to us" chooser. Deliberately not
+  // indexable: campaign pages exist to receive paid clicks and must not
+  // compete with the organic program pages for ranking (and the site is
+  // pre-launch); /talk is a router page with nothing to rank for.
+  {
+    path: "/talk",
+    priority: 0.3,
+    changeFrequency: "monthly",
+    indexable: false,
+    contentGroup: "conversion"
+  },
+  {
+    path: "/get-started/purchase",
+    priority: 0.3,
+    changeFrequency: "monthly",
+    indexable: false,
+    contentGroup: "campaign"
+  },
+  {
+    path: "/get-started/refinance",
+    priority: 0.3,
+    changeFrequency: "monthly",
+    indexable: false,
+    contentGroup: "campaign"
+  },
+  {
+    path: "/get-started/heloc",
+    priority: 0.3,
+    changeFrequency: "monthly",
+    indexable: false,
+    contentGroup: "campaign"
+  },
+  {
+    path: "/get-started/fha",
+    priority: 0.3,
+    changeFrequency: "monthly",
+    indexable: false,
+    contentGroup: "campaign"
+  },
+  {
+    path: "/get-started/va",
+    priority: 0.3,
+    changeFrequency: "monthly",
+    indexable: false,
+    contentGroup: "campaign"
+  },
+  {
+    path: "/get-started/first-home",
+    priority: 0.3,
+    changeFrequency: "monthly",
+    indexable: false,
+    contentGroup: "campaign"
+  },
+  {
+    path: "/get-started/investment",
+    priority: 0.3,
+    changeFrequency: "monthly",
+    indexable: false,
+    contentGroup: "campaign"
+  },
+  {
+    path: "/get-started/sell",
+    priority: 0.3,
+    changeFrequency: "monthly",
+    indexable: false,
+    contentGroup: "campaign"
+  },
+
   // Never indexable.
   {
     path: "/offline",
