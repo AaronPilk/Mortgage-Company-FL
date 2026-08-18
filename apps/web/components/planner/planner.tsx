@@ -10,6 +10,7 @@ import {
   currentAttributionTouch,
   readStoredTouch
 } from "@/lib/attribution-browser";
+import { TurnstileWidget } from "@/components/turnstile-widget";
 import { CheckboxField, RadioGroup, SelectField, TextField } from "./controls";
 import { EstimatePanel } from "./estimate";
 import { trackEstimateShown, trackPlannerLead, trackPlannerStarted } from "./analytics";
@@ -47,10 +48,10 @@ import {
 /**
  * The progressive planner.
  *
- * The order of the six steps is the whole point. Four steps of context come
- * first and each one makes the estimate on the right more useful; only then does
- * step five ask who you are. Nothing computed here is withheld until you hand
- * over a phone number, because a tool that holds its own output hostage is an
+ * The order of the four steps is the whole point. Three steps of context come
+ * first and each one makes the estimate on the right more useful; only the last
+ * step asks who you are. Nothing computed here is withheld until you hand over
+ * a phone number, because a tool that holds its own output hostage is an
  * advertisement wearing a calculator costume.
  *
  * What it is not: an application. No Social Security number, no date of birth,
@@ -65,15 +66,13 @@ import {
  * challenge, and outbox guarantees.
  */
 
-type StepKey = "goal" | "property" | "financing" | "timing" | "contact" | "consent";
+type StepKey = "goal" | "property" | "numbers" | "contact";
 
 const STEPS: { key: StepKey; label: string; heading: string }[] = [
-  { key: "goal", label: "Goal", heading: "What are you trying to do?" },
+  { key: "goal", label: "Goal", heading: "What are you trying to do, and when?" },
   { key: "property", label: "Property", heading: "Tell us about the property" },
-  { key: "financing", label: "Financing", heading: "The shape of the financing" },
-  { key: "timing", label: "Timing", heading: "When would this happen?" },
-  { key: "contact", label: "Contact", heading: "Who should we get back to?" },
-  { key: "consent", label: "Consent", heading: "Your permission, in three parts" }
+  { key: "numbers", label: "Numbers", heading: "The shape of the financing" },
+  { key: "contact", label: "Contact", heading: "Who should we get back to?" }
 ];
 
 type State = {
@@ -142,7 +141,7 @@ function initialState(goal: PlannerGoalValue | ""): State {
 type Submission =
   | { kind: "idle" }
   | { kind: "submitting" }
-  | { kind: "failed"; message: string }
+  | { kind: "failed"; message: string; fieldMessages: string[] }
   | { kind: "received"; receiptId: string };
 
 const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -155,6 +154,38 @@ function looksLikePhone(value: string): boolean {
 
 function sanitizeNumber(value: number): number {
   return Number.isFinite(value) && value >= 0 ? value : 0;
+}
+
+/**
+ * Friendly text for the server's field-level rejections. Keys the map does not
+ * know fall through to the server's own message, which is still more actionable
+ * than a generic "check your answers".
+ */
+const SERVER_FIELD_TEXT: Record<string, string> = {
+  turnstileToken:
+    "The security check didn't complete. Please wait for the checkbox to load and try again.",
+  firstName: "Enter your first name.",
+  lastName: "Enter your last name.",
+  email: "Enter an email address we can reply to.",
+  phone: "Enter a phone number with at least 10 digits.",
+  consent: "Please confirm the permission checkbox so a licensed professional can contact you.",
+  submissionId: "Something went wrong preparing the submission. Reload the page and try again."
+};
+
+function serverFieldMessages(fields: Record<string, string[]> | undefined): string[] {
+  if (fields === undefined) return [];
+  const messages = new Set<string>();
+  for (const [key, texts] of Object.entries(fields)) {
+    const friendly = SERVER_FIELD_TEXT[key] ?? SERVER_FIELD_TEXT[key.split(".")[0] ?? ""];
+    if (friendly !== undefined) {
+      messages.add(friendly);
+      continue;
+    }
+    for (const text of texts) {
+      if (text.trim().length > 0) messages.add(text);
+    }
+  }
+  return [...messages];
 }
 
 export function Planner({
@@ -218,8 +249,13 @@ export function Planner({
 
   function validate(key: StepKey): Record<string, string> {
     const found: Record<string, string> = {};
-    if (key === "goal" && state.goal === "") {
-      found.goal = "Choose what you are trying to do so the estimate has something to work with.";
+    if (key === "goal") {
+      if (state.goal === "") {
+        found.goal = "Choose what you are trying to do so the estimate has something to work with.";
+      }
+      if (state.timing === "") {
+        found.timing = "Choose a timeframe. Just researching is a real answer.";
+      }
     }
     if (key === "property") {
       if (state.propertyState === "") found.propertyState = "Choose the state the property is in.";
@@ -231,7 +267,7 @@ export function Planner({
         found.priceDollars = "Enter an approximate value of at least $10,000.";
       }
     }
-    if (key === "financing") {
+    if (key === "numbers") {
       if (isRefinance) {
         if (sanitizeNumber(state.currentBalanceDollars) < 1_000) {
           found.currentBalanceDollars = "Enter roughly what you still owe.";
@@ -247,9 +283,6 @@ export function Planner({
       if (state.incomeBand === "") found.incomeBand = "Choose a range.";
       if (state.monthlyDebtBand === "") found.monthlyDebtBand = "Choose a range.";
     }
-    if (key === "timing" && state.timing === "") {
-      found.timing = "Choose a timeframe. Just researching is a real answer.";
-    }
     if (key === "contact") {
       if (state.firstName.trim() === "") found.firstName = "Enter your first name.";
       if (state.lastName.trim() === "") found.lastName = "Enter your last name.";
@@ -257,9 +290,10 @@ export function Planner({
         found.email = "Enter an email address we can reply to.";
       if (!looksLikePhone(state.phone))
         found.phone = "Enter a phone number with at least 10 digits.";
-    }
-    if (key === "consent" && !state.privacyAccepted) {
-      found.privacyAccepted = "We need your agreement before a licensed professional contacts you.";
+      if (!state.privacyAccepted) {
+        found.privacyAccepted =
+          "We need your agreement before a licensed professional contacts you.";
+      }
     }
     return found;
   }
@@ -392,12 +426,17 @@ export function Planner({
         trackPlannerLead(state.goal, result.data.receiptId);
         return;
       }
-      setSubmission({ kind: "failed", message: result.error.message });
+      setSubmission({
+        kind: "failed",
+        message: result.error.message,
+        fieldMessages: serverFieldMessages(result.error.fields)
+      });
       queueMicrotask(() => errorSummaryRef.current?.focus());
     } catch {
       setSubmission({
         kind: "failed",
-        message: "We could not reach the server. Please check your connection and try again."
+        message: "We could not reach the server. Please check your connection and try again.",
+        fieldMessages: []
       });
       queueMicrotask(() => errorSummaryRef.current?.focus());
     }
@@ -458,6 +497,15 @@ export function Planner({
                     ? "One answer needs attention before you continue."
                     : `${errorList.length} answers need attention before you continue.`}
               </p>
+              {/* The server's field-level rejections, translated where we can.
+                  More useful than the generic message alone. */}
+              {submission.kind === "failed" && submission.fieldMessages.length > 0 && (
+                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-danger">
+                  {submission.fieldMessages.map((message) => (
+                    <li key={message}>{message}</li>
+                  ))}
+                </ul>
+              )}
               {errorList.length > 0 && (
                 <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-danger">
                   {errorList.map(([field, message]) => (
@@ -486,16 +534,27 @@ export function Planner({
 
           <div className="mt-6 space-y-6">
             {stepKey === "goal" && (
-              <RadioGroup
-                idPrefix={baseId}
-                name="goal"
-                legend="What brings you here?"
-                description="Everything after this adapts to your answer."
-                options={GOAL_OPTIONS}
-                value={state.goal}
-                onChange={(value) => set("goal", value)}
-                error={errors.goal}
-              />
+              <>
+                <RadioGroup
+                  idPrefix={baseId}
+                  name="goal"
+                  legend="What brings you here?"
+                  options={GOAL_OPTIONS}
+                  value={state.goal}
+                  onChange={(value) => set("goal", value)}
+                  error={errors.goal}
+                />
+                <RadioGroup
+                  idPrefix={baseId}
+                  name="timing"
+                  legend="When would this happen?"
+                  options={TIMING_OPTIONS}
+                  value={state.timing}
+                  onChange={(value) => set("timing", value)}
+                  error={errors.timing}
+                  columns={2}
+                />
+              </>
             )}
 
             {stepKey === "property" && (
@@ -519,7 +578,7 @@ export function Planner({
                     onChange={(value) => set("propertyLocation", value)}
                     maxLength={80}
                     placeholder="Tampa"
-                    hint="A city or postal code only. Never a street address."
+                    hint="Never a street address."
                   />
                 </div>
                 <RadioGroup
@@ -550,9 +609,9 @@ export function Planner({
                   min={0}
                   step={5_000}
                   prefix="$"
-                  hint={`An approximation is fine. We pass along the range it falls in — ${
+                  hint={`Approximate is fine — only the range it falls in (${
                     PRICE_BAND_LABEL[priceBandFor(sanitizeNumber(state.priceDollars))]
-                  } — not the figure you typed.`}
+                  }) is submitted.`}
                 />
                 {errors.priceDollars !== undefined && (
                   <p className="mt-2 text-sm font-medium text-danger">{errors.priceDollars}</p>
@@ -560,7 +619,7 @@ export function Planner({
               </>
             )}
 
-            {stepKey === "financing" && (
+            {stepKey === "numbers" && (
               <>
                 {isRefinance ? (
                   <>
@@ -572,7 +631,7 @@ export function Planner({
                       min={0}
                       step={5_000}
                       prefix="$"
-                      hint="An approximation. Only the range it falls in is submitted."
+                      hint="Approximate is fine — only the range it falls in is submitted."
                     />
                     {errors.currentBalanceDollars !== undefined && (
                       <p className="mt-2 text-sm font-medium text-danger">
@@ -602,14 +661,14 @@ export function Planner({
                       min={0}
                       step={2_500}
                       prefix="$"
-                      hint={`We pass along the share it represents — ${
+                      hint={`Only the share it represents (${
                         DOWN_PAYMENT_BAND_LABEL[
                           downPaymentBandFor(
                             sanitizeNumber(state.downPaymentDollars),
                             sanitizeNumber(state.priceDollars)
                           )
                         ]
-                      } — not the amount you typed.`}
+                      }) is submitted — not the amount.`}
                     />
                     {errors.downPaymentDollars !== undefined && (
                       <p className="mt-2 text-sm font-medium text-danger">
@@ -619,28 +678,28 @@ export function Planner({
                   </div>
                 )}
 
-                <SelectField
-                  id={fieldId("creditBand")}
-                  name="creditBand"
-                  label="Where you think your credit sits"
-                  placeholder="Choose a range"
-                  options={CREDIT_BAND_OPTIONS}
-                  value={state.creditBand}
-                  onChange={(value) => set("creditBand", value as CreditBandValue | "")}
-                  error={errors.creditBand}
-                  hint="Your own estimate is enough. No credit is pulled, and this is never treated as a score."
-                />
-                <SelectField
-                  id={fieldId("employment")}
-                  name="employment"
-                  label="How you are paid"
-                  placeholder="Choose one"
-                  options={EMPLOYMENT_OPTIONS}
-                  value={state.employment}
-                  onChange={(value) => set("employment", value as EmploymentValue | "")}
-                  error={errors.employment}
-                />
                 <div className="grid gap-5 sm:grid-cols-2">
+                  <SelectField
+                    id={fieldId("creditBand")}
+                    name="creditBand"
+                    label="Where you think your credit sits"
+                    placeholder="Choose a range"
+                    options={CREDIT_BAND_OPTIONS}
+                    value={state.creditBand}
+                    onChange={(value) => set("creditBand", value as CreditBandValue | "")}
+                    error={errors.creditBand}
+                    hint="Your own estimate is enough — never treated as a score."
+                  />
+                  <SelectField
+                    id={fieldId("employment")}
+                    name="employment"
+                    label="How you are paid"
+                    placeholder="Choose one"
+                    options={EMPLOYMENT_OPTIONS}
+                    value={state.employment}
+                    onChange={(value) => set("employment", value as EmploymentValue | "")}
+                    error={errors.employment}
+                  />
                   <SelectField
                     id={fieldId("incomeBand")}
                     name="incomeBand"
@@ -661,27 +720,10 @@ export function Planner({
                     value={state.monthlyDebtBand}
                     onChange={(value) => set("monthlyDebtBand", value as MonthlyDebtBandValue | "")}
                     error={errors.monthlyDebtBand}
-                    hint="Car, student, card minimums. Not groceries or utilities."
+                    hint="Car, student, card minimums."
                   />
                 </div>
-                <p className="text-xs text-[var(--text-muted)]">
-                  We never ask for a Social Security number, a date of birth, an account number, or
-                  a document. Those belong in a secure application system, and this is not one.
-                </p>
               </>
-            )}
-
-            {stepKey === "timing" && (
-              <RadioGroup
-                idPrefix={baseId}
-                name="timing"
-                legend="When would you want this to happen?"
-                description="There is no wrong answer, and researching does not put you in a queue."
-                options={TIMING_OPTIONS}
-                value={state.timing}
-                onChange={(value) => set("timing", value)}
-                error={errors.timing}
-              />
             )}
 
             {stepKey === "contact" && (
@@ -690,8 +732,8 @@ export function Planner({
                   className="rounded-xl border p-4 text-sm text-[var(--text-muted)]"
                   style={{ borderColor: "var(--border)" }}
                 >
-                  Your estimate is already on this page and stays there whether or not you fill this
-                  in. This step exists so a licensed professional can talk it through with you.
+                  Your estimate is already on this page and stays there either way. This last step
+                  is so a licensed professional can talk it through with you.
                 </p>
                 <div className="grid gap-5 sm:grid-cols-2">
                   <TextField
@@ -749,15 +791,14 @@ export function Planner({
                   value={state.preferredContact}
                   onChange={(value) => set("preferredContact", value)}
                 />
-              </>
-            )}
 
-            {stepKey === "consent" && (
-              <fieldset className="space-y-4">
-                <legend className="sr-only">Consent</legend>
-                {/* Three separate permissions. Bundling them would make the marketing
-                    consents unreliable, which is the point of separating them. */}
-                <div>
+                <fieldset
+                  className="space-y-4 border-t pt-5"
+                  style={{ borderColor: "var(--border)" }}
+                >
+                  <legend className="sr-only">Consent</legend>
+                  {/* Three separate permissions. Bundling them would make the marketing
+                      consents unreliable, which is the point of separating them. */}
                   <CheckboxField
                     id={fieldId("privacyAccepted")}
                     name="privacyAccepted"
@@ -775,28 +816,28 @@ export function Planner({
                     </a>
                     .
                   </CheckboxField>
-                </div>
-                <CheckboxField
-                  id={fieldId("smsMarketing")}
-                  name="smsMarketing"
-                  checked={state.smsMarketing}
-                  onChange={(checked) => set("smsMarketing", checked)}
-                >
-                  {smsConsentText}
-                </CheckboxField>
-                <CheckboxField
-                  id={fieldId("emailMarketing")}
-                  name="emailMarketing"
-                  checked={state.emailMarketing}
-                  onChange={(checked) => set("emailMarketing", checked)}
-                >
-                  {emailConsentText}
-                </CheckboxField>
+                  <CheckboxField
+                    id={fieldId("smsMarketing")}
+                    name="smsMarketing"
+                    checked={state.smsMarketing}
+                    onChange={(checked) => set("smsMarketing", checked)}
+                  >
+                    {smsConsentText}
+                  </CheckboxField>
+                  <CheckboxField
+                    id={fieldId("emailMarketing")}
+                    name="emailMarketing"
+                    checked={state.emailMarketing}
+                    onChange={(checked) => set("emailMarketing", checked)}
+                  >
+                    {emailConsentText}
+                  </CheckboxField>
 
-                {turnstileSiteKey !== undefined && (
-                  <div className="cf-turnstile" data-sitekey={turnstileSiteKey} />
-                )}
-              </fieldset>
+                  {turnstileSiteKey !== undefined && (
+                    <TurnstileWidget siteKey={turnstileSiteKey} action="lead" />
+                  )}
+                </fieldset>
+              </>
             )}
           </div>
 

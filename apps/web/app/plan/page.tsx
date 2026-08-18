@@ -43,7 +43,7 @@ export default async function PlanPage({
           eyebrow="Planner"
           title="Build the picture before you talk to anyone"
           gradientWord="before you talk to anyone"
-          description="Six short steps. A payment estimate appears from the second one and keeps updating as you answer — it is yours whether or not you ever give us your name."
+          description="Four short steps. A payment estimate appears from the second one and keeps updating as you answer — it is yours whether or not you ever give us your name."
         />
         <div className="grid gap-4 sm:grid-cols-3">
           <Card>
