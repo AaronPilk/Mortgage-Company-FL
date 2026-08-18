@@ -11,17 +11,17 @@ file says what exists. Those say what stops it and why it is shaped this way.
 
 ## Where the code lives and where it runs
 
-| Fact                   | Value                                                                     |
-| ---------------------- | ------------------------------------------------------------------------- |
-| Canonical repository   | `https://github.com/AaronPilk/Mortgage-Company-FL`                        |
-| Default branch         | `main`                                                                    |
-| Production branch      | `main`                                                                    |
-| Production platform    | Cloudflare Workers, via `@opennextjs/cloudflare`                          |
-| Worker name            | `mortgage-company-fl` (`apps/web/wrangler.jsonc`)                         |
-| Public URL             | `https://mortgage-company-fl.aaron-9c3.workers.dev`                       |
-| Custom domain          | None configured                                                           |
-| Deploy trigger         | Push to `main` on GitHub. Cloudflare builds and deploys automatically.    |
-| Current working branch | `claude/tract-autonomous-build-20260817` — four commits, **not deployed** |
+| Fact                   | Value                                                                                                |
+| ---------------------- | ---------------------------------------------------------------------------------------------------- |
+| Canonical repository   | `https://github.com/AaronPilk/Mortgage-Company-FL`                                                   |
+| Default branch         | `main`                                                                                               |
+| Production branch      | `main`                                                                                               |
+| Production platform    | Cloudflare Workers, via `@opennextjs/cloudflare`                                                     |
+| Worker name            | `mortgage-company-fl` (`apps/web/wrangler.jsonc`)                                                    |
+| Public URL             | `https://mortgage-company-fl.aaron-9c3.workers.dev`                                                  |
+| Custom domain          | None configured                                                                                      |
+| Deploy trigger         | **Manual: `pnpm cf:build && pnpm cf:deploy`.** Push-to-`main` does NOT deploy — verified 2026-08-18. |
+| Current working branch | `claude/tract-autonomous-build-20260817` — four commits, **not deployed**                            |
 
 **Cloudflare Pages is not the production host and must not be used.** Pages
 cannot serve this application's API routes and server rendering; that project

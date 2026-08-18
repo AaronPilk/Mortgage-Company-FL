@@ -6,8 +6,9 @@ Deployment target for every entry is Cloudflare Workers, worker
 `mortgage-company-fl`, served at
 `https://mortgage-company-fl.aaron-9c3.workers.dev`.
 
-Deploy mechanism: push to `main` on `https://github.com/AaronPilk/Mortgage-Company-FL`.
-Cloudflare builds and deploys automatically. See `docs/DEPLOYMENT.md`.
+Deploy mechanism: **manual** `pnpm cf:build && pnpm cf:deploy`. Pushing to `main`
+does not trigger a Cloudflare build — verified 2026-08-18 by comparing the pushed
+commits against the Worker's `modified_on`. See `docs/DEPLOYMENT.md`.
 
 ---
 

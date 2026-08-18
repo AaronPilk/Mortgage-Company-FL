@@ -64,3 +64,25 @@ to make something pass, stop — the test is the requirement.
 - Use real borrower data in a fixture, a test, or a screenshot.
 - Add a status that implies a credit decision to the marketing schema.
 - Publish a page whose claims are not traced to a current primary source.
+
+## Parallel agents
+
+Codex works this repository alongside Claude — audit, infrastructure and
+verification on its side, feature implementation on Claude's. Two consequences:
+
+- Never assume sole ownership of the worktree. Branch, `git fetch` before
+  integrating, and resolve conflicts by reading both sides. Never `git reset
+--hard`, force-push, or resolve a conflict by discarding a whole side.
+- Uncommitted work in the tree may not be yours. Preserve it.
+
+## Deploying
+
+Pushing to `main` does **not** deploy. Verified 2026-08-18: commits reached
+`origin/main` while the Cloudflare Worker's `modified_on` did not move. The
+deploy is manual, from the repo root:
+
+```bash
+pnpm cf:build && pnpm cf:deploy
+```
+
+`docs/DEPLOYMENT.md` explains what would make push-to-deploy real.

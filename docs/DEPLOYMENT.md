@@ -10,6 +10,24 @@ Operational incident procedures are in `RUNBOOK.md`. Deployment history is in
 
 ---
 
+> **Corrected 2026-08-18.** Pushing to `main` does **not** currently deploy.
+> Measured: commits `4ecb1f0`…`cdacd99` reached `origin/main`, and the Cloudflare
+> Worker's `modified_on` stayed at `2026-08-17T22:18:23Z` — no build ran. The
+> earlier claim that GitHub deploys automatically was inferred from `f903d60`
+> going live; that was a manual `wrangler deploy`, not a Git-triggered build.
+>
+> **The working deploy is manual**, from the repo root:
+>
+> ```bash
+> pnpm cf:build && pnpm cf:deploy
+> ```
+>
+> Wiring Workers Builds (Cloudflare dashboard → the `mortgage-company-fl` Worker
+> → Settings → Builds → connect the GitHub repo, build command `pnpm cf:build`,
+> deploy command `pnpm cf:deploy`) is what would make push-to-deploy real. Until
+> someone confirms a Git-triggered build actually ran, treat the manual command
+> as the only deploy path.
+
 ## Target
 
 | Field          | Value                                               |
