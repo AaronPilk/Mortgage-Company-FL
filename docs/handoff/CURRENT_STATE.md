@@ -23,7 +23,10 @@ Public Cloudflare URL: `https://mortgage-company-fl.aaron-9c3.workers.dev`
 - The database outbox supports locked claims, bounded retry/dead outcomes and lead status projection; the fixture CRM proves replay suppression.
 - Turnstile live mode now requires a site key, secret, expected hostnames and action validation; visible retries reset the single-use token.
 - Operations/admin views show masked lead lifecycle, consent state, attribution kinds, plan summary and outbox status without rendering raw financial inputs or secret values.
-- Verification passes: 177 unit/integration tests, the expanded PostgreSQL RLS/idempotency/worker suite and 76 desktop/mobile end-to-end tests.
+- A canonical 32-entry asset manifest governs local home, property, Vision, RendProp, agent and social media with rights, source, prompt, dimensions, transformations and review state.
+- The home hero now proves the property-planning product visually; property details have canonical galleries; Vision has labeled renovation, addition and land comparisons.
+- RendProp now has a complete synthetic presentation demo for guided capture, cleanup, virtual staging, enhancement, floor-plan candidate and tour cover while its interactive workflow remains disabled.
+- Verification passes: 179 unit/integration tests, the expanded PostgreSQL RLS/idempotency/worker suite and 84 desktop/mobile end-to-end tests.
 - A repository-owned 50-request Worker smoke command exercises the complete route registry and explicitly detects Cloudflare Error 1102 pages.
 - Phase 0 is complete. The current local Worker artifact and public deployment each survived the 50-request crawl with zero failures.
 
@@ -38,7 +41,7 @@ Public Cloudflare URL: `https://mortgage-company-fl.aaron-9c3.workers.dev`
 | CRM, AI, Turnstile, email | Disabled                                       | Public health response and environment schema                         |
 | Accounts                  | Feature flag enabled, no complete auth flow    | Source audit                                                          |
 | Vision                    | Deterministic demo active; persistence gated   | Property/Vision browser loop and local database verification          |
-| RendProp                  | Placeholder                                    | Source audit                                                          |
+| RendProp                  | Synthetic presentation demo; workflow disabled | Labeled local media and disabled interactive-capture status           |
 | Live property search      | Disabled                                       | No executed data agreement                                            |
 
 ## Known failures and gaps
@@ -49,10 +52,11 @@ Public Cloudflare URL: `https://mortgage-company-fl.aaron-9c3.workers.dev`
 - No Storage bucket migrations or Edge Functions exist locally.
 - The additive Vision migration has not been applied remotely because no TRACT Supabase project identity has been proven.
 - The public application still has no configured database or Turnstile production mode, so report/lead submission correctly returns unavailable rather than false success.
-- RendProp workflow, consumer account completion, reviewed resource publishing, the remaining image manifest and production integrations remain.
+- RendProp capture/upload/processing/public-tour workflow, consumer account completion, reviewed resource publishing and production integrations remain.
+- All asset entries remain pending owner/compliance review even though agent visual QA and automated decoding/fallback checks pass.
 - No remote scheduler invokes the protected outbox worker route; production activation requires a reviewed `OUTBOX_DRAIN_TOKEN` and the established Cloudflare scheduling path.
 - Existing build documentation overstates completed admin and integration behavior; this handoff ledger supersedes those claims.
 
 ## Highest-priority next task
 
-Build Phase 3's reviewed asset manifest, hero product proof, property galleries, Vision pairs, RendProp fixtures and responsive image verification.
+Seal Phase 3, then implement Phase 4's rights-aware RendProp capture state, processing fixture, public-tour/QR attribution path and agent demo lead without enabling remote media providers.

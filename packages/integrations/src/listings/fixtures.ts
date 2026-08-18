@@ -25,7 +25,7 @@ export const FLORIDA_FIXTURES: ListingSummary[] = [
     yearBuilt: 1956,
     lotSizeAcres: 0.16,
     primaryImage: {
-      url: "/images/property-demos/st-pete-bungalow.jpg",
+      url: "/images/properties/fixture-st-pete-bungalow-01.webp",
       width: 1600,
       height: 1000,
       attribution: "AI-generated planning illustration created for TRACT."
@@ -59,7 +59,7 @@ export const FLORIDA_FIXTURES: ListingSummary[] = [
     yearBuilt: 2004,
     lotSizeAcres: 0.19,
     primaryImage: {
-      url: "/images/property-demos/tampa-contemporary.jpg",
+      url: "/images/properties/fixture-tampa-contemporary-01.webp",
       width: 1600,
       height: 1000,
       attribution: "AI-generated planning illustration created for TRACT."
@@ -98,7 +98,7 @@ export const FLORIDA_FIXTURES: ListingSummary[] = [
     yearBuilt: 1978,
     lotSizeAcres: 0.21,
     primaryImage: {
-      url: "/images/property-demos/sarasota-coastal.jpg",
+      url: "/images/properties/fixture-sarasota-coastal-01.webp",
       width: 1600,
       height: 1000,
       attribution: "AI-generated planning illustration created for TRACT."
@@ -137,7 +137,7 @@ export const FLORIDA_FIXTURES: ListingSummary[] = [
     yearBuilt: 1992,
     lotSizeAcres: 0.24,
     primaryImage: {
-      url: "/images/property-demos/orlando-suburban.jpg",
+      url: "/images/properties/fixture-orlando-suburban-01.webp",
       width: 1600,
       height: 1000,
       attribution: "AI-generated planning illustration created for TRACT."
@@ -176,7 +176,7 @@ export const FLORIDA_FIXTURES: ListingSummary[] = [
     yearBuilt: 1968,
     lotSizeAcres: 0.18,
     primaryImage: {
-      url: "/images/property-demos/jacksonville-duplex.jpg",
+      url: "/images/properties/fixture-jacksonville-duplex-01.webp",
       width: 1600,
       height: 1000,
       attribution: "AI-generated planning illustration created for TRACT."
@@ -211,7 +211,7 @@ export const FLORIDA_FIXTURES: ListingSummary[] = [
     propertyType: "Residential Lot",
     lotSizeAcres: 0.31,
     primaryImage: {
-      url: "/images/property-demos/lakeland-lot.jpg",
+      url: "/images/properties/fixture-florida-lot-01.webp",
       width: 1600,
       height: 1000,
       attribution: "AI-generated planning illustration created for TRACT."
@@ -246,7 +246,7 @@ export const FLORIDA_FIXTURES: ListingSummary[] = [
     propertyType: "Land",
     lotSizeAcres: 8.4,
     primaryImage: {
-      url: "/images/property-demos/ocala-land.jpg",
+      url: "/images/properties/fixture-florida-land-01.webp",
       width: 1600,
       height: 1000,
       attribution: "AI-generated planning illustration created for TRACT."

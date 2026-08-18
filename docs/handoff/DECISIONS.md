@@ -95,3 +95,19 @@
 - Alternatives: accept any successful widget token; create a new remote widget during recovery.
 - Consequences: live mode now requires `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` and deployment-specific `TURNSTILE_HOSTNAMES`; no widget or credential was created or changed.
 - Owner: Codex.
+
+## 2026-08-17 — Keep one canonical, provenance-tracked media tree
+
+- Decision: consolidate all public product media under `public/images` families governed by one 32-entry manifest, and remove the duplicate `property-demos` runtime tree.
+- Reason: every displayed fixture needs one rights/provenance record and a stable optimized delivery path; scattered copies make review and withdrawal unreliable.
+- Alternatives: retain JPEG duplicates; reference generation originals directly; use remote stock or listing media.
+- Consequences: property adapters now reference canonical WebP assets, social metadata uses local 1200-by-630 images and previous duplicate files remain recoverable from Git history.
+- Owner: Codex.
+
+## 2026-08-17 — Keep transformation truth in HTML and source geometry visible
+
+- Decision: use reference-guided generated pairs for Vision and RendProp, place all original/concept/cleanup/staging/enhancement labels in HTML, and render the mortgage dashboard from the actual local UI.
+- Reason: generated text is unreliable, an unlabeled visualization can be mistaken for property condition and a generic dashboard illustration would not prove the product works.
+- Alternatives: bake labels into pixels; use unrelated before/after images; generate an imaginary interface.
+- Consequences: comparison media keeps materially matched viewpoints and permanent context, the kitchen retains its visible scuff, the floor plan carries an explicit non-measurement boundary and every asset remains pending owner/compliance approval.
+- Owner: Codex.

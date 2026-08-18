@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { notFound } from "next/navigation";
+import { AssetImage } from "@/components/asset-image";
 import { Badge, ButtonLink, Card, Disclosure, Section } from "@/components/ui";
+import { propertyMedia } from "@/content/property-media";
 import { demoListings } from "@/lib/listings";
 import { pageMetadata } from "@/lib/metadata";
 import { formatRate, formatUsd, visionPlanningPreview } from "@tract/mortgage-math";
@@ -34,6 +35,7 @@ export default async function PropertyDemoPage({
   if (listing === null || !listing.isFixture || listing.demoPlanningSeed === undefined) notFound();
 
   const seed = listing.demoPlanningSeed;
+  const media = propertyMedia(listing.listingKey);
   const price = listing.listPriceCents ?? 0;
   const preview = visionPlanningPreview({
     purchasePriceCents: price,
@@ -63,17 +65,43 @@ export default async function PropertyDemoPage({
     <>
       <Section pad="tight" width="wide">
         <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
-          <div className="relative aspect-[8/5] overflow-hidden rounded-3xl bg-[var(--surface-2)] shadow-[var(--shadow-card)]">
-            {listing.primaryImage !== undefined && (
-              <Image
-                src={listing.primaryImage.url}
-                alt={`Generated illustration for the ${listing.address.city} planning example`}
-                fill
-                priority
-                sizes="(max-width: 1024px) 100vw, 58vw"
-                className="object-cover"
-              />
+          <div data-testid="property-gallery">
+            <div className="relative aspect-[8/5] overflow-hidden rounded-3xl bg-[var(--surface-2)] shadow-[var(--shadow-card)]">
+              {media[0] !== undefined && (
+                <AssetImage
+                  src={media[0].src}
+                  alt={media[0].alt}
+                  width={media[0].width}
+                  height={media[0].height}
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 58vw"
+                  fallbackLabel="Synthetic property preview unavailable"
+                />
+              )}
+            </div>
+            {media.length > 1 && (
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                {media.slice(1).map((item) => (
+                  <div
+                    key={item.src}
+                    className="aspect-[6/5] overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface-2)]"
+                  >
+                    <AssetImage
+                      src={item.src}
+                      alt={item.alt}
+                      width={item.width}
+                      height={item.height}
+                      sizes="(max-width: 640px) 50vw, 28vw"
+                      fallbackLabel="Gallery view unavailable"
+                    />
+                  </div>
+                ))}
+              </div>
             )}
+            <p className="mt-3 text-xs text-[var(--text-muted)]">
+              {media.length} generated {media.length === 1 ? "view" : "views"} · Synthetic fixture
+              media
+            </p>
           </div>
           <div>
             <Badge tone="warning">Synthetic planning example · not for sale</Badge>

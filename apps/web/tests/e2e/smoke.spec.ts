@@ -35,6 +35,69 @@ test.describe("home page", () => {
   });
 });
 
+test.describe("product media", () => {
+  test("loads the home product proof and falls back without layout collapse", async ({ page }) => {
+    await page.goto("/");
+    const proof = page.getByTestId("hero-product-proof");
+    await expect(proof).toBeVisible();
+    await expect(proof).toContainText("Synthetic planning demo");
+    expect(
+      await proof.locator("img").evaluate((image: HTMLImageElement) => image.naturalWidth)
+    ).toBeGreaterThan(0);
+
+    await page.route("**/_next/image?*", async (route) => {
+      const source = new URL(route.request().url()).searchParams.get("url");
+      if (source === "/images/home/tract-hero-property.webp") {
+        await route.fulfill({ status: 404, body: "missing in fallback test" });
+        return;
+      }
+      await route.continue();
+    });
+    await page.reload();
+    await expect(proof.locator('[data-media-state="fallback"]')).toContainText(
+      "Synthetic property preview unavailable"
+    );
+  });
+
+  test("shows an honest property gallery with loaded canonical media", async ({ page }) => {
+    await page.goto("/properties/FX-STP-0001");
+    const gallery = page.getByTestId("property-gallery");
+    await expect(gallery).toContainText("2 generated views");
+    await expect(gallery.locator("img")).toHaveCount(2);
+    expect(
+      await gallery
+        .locator("img")
+        .evaluateAll((images: HTMLImageElement[]) =>
+          images.every((image) => image.naturalWidth > 0)
+        )
+    ).toBe(true);
+  });
+
+  test("keeps Vision comparisons labeled and within the mobile viewport", async ({ page }) => {
+    await page.goto("/vision?property=FX-STP-0001");
+    const pairs = page.getByTestId("vision-media-pairs");
+    await expect(pairs.locator("img")).toHaveCount(6);
+    await expect(pairs.getByText("Original fixture", { exact: true })).toHaveCount(3);
+    await expect(pairs.getByText("Concept visualization", { exact: true })).toHaveCount(3);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth
+      )
+    ).toBeLessThanOrEqual(1);
+  });
+
+  test("labels every RendProp transformation and bounds the floor-plan claim", async ({ page }) => {
+    await page.goto("/rendprop");
+    await expect(page.getByTestId("rendprop-living-sequence").locator("img")).toHaveCount(3);
+    await expect(page.getByText("Cleanup visualization", { exact: true })).toBeVisible();
+    await expect(page.getByText("Virtually staged", { exact: true })).toBeVisible();
+    await expect(page.getByText("Enhanced", { exact: true })).toBeVisible();
+    await expect(
+      page.getByText("Not for measurement, appraisal, survey or construction.")
+    ).toBeVisible();
+  });
+});
+
 test.describe("calculators", () => {
   test("computes a full housing payment, not just principal and interest", async ({ page }) => {
     await page.goto("/calculators/mortgage-payment");

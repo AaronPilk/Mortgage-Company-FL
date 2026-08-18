@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
+import { AssetImage } from "@/components/asset-image";
 import { Badge, ButtonLink, Card, Disclosure, Section, SectionHeading } from "@/components/ui";
+import { propertyMedia } from "@/content/property-media";
 import { pageMetadata } from "@/lib/metadata";
 import { publicFeatures } from "@/lib/env";
 import { demoListings } from "@/lib/listings";
@@ -11,6 +12,7 @@ export const metadata: Metadata = pageMetadata({
   title: "Property planning lab",
   description: "Explore synthetic Florida property examples and model the financing.",
   path: "/properties",
+  imagePath: "/images/og/properties.png",
   noIndex: true
 });
 
@@ -56,6 +58,7 @@ export default async function PropertiesPage() {
 
         <ul className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {demoPage.items.map((listing) => {
+            const primaryMedia = propertyMedia(listing.listingKey)[0];
             const address = [
               listing.address.line1,
               listing.address.city,
@@ -73,13 +76,15 @@ export default async function PropertiesPage() {
                 >
                   <Card interactive className="h-full overflow-hidden p-0">
                     <div className="relative aspect-[8/5] overflow-hidden bg-[var(--surface-2)]">
-                      {listing.primaryImage !== undefined && (
-                        <Image
-                          src={listing.primaryImage.url}
-                          alt={`Generated illustration for the ${listing.address.city} planning example`}
-                          fill
+                      {primaryMedia !== undefined && (
+                        <AssetImage
+                          src={primaryMedia.src}
+                          alt={primaryMedia.alt}
+                          width={primaryMedia.width}
+                          height={primaryMedia.height}
                           sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                           className="object-cover transition duration-500 group-hover:scale-[1.03]"
+                          fallbackLabel="Synthetic property preview unavailable"
                         />
                       )}
                       <div className="absolute left-4 top-4">

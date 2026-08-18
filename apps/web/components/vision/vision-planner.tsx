@@ -1,9 +1,10 @@
 "use client";
 
 import { useId, useMemo, useRef, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import { AssetImage } from "@/components/asset-image";
 import { Button, Card } from "@/components/ui";
+import { propertyMedia } from "@/content/property-media";
 import { FIRST_TOUCH_STORAGE_KEY, LAST_TOUCH_STORAGE_KEY, safeLandingPath } from "@tract/analytics";
 import {
   attributionTouch,
@@ -58,6 +59,7 @@ export function VisionPlanner({
 }) {
   const seed = listing.demoPlanningSeed;
   if (seed === undefined) throw new Error("Vision demo requires an explicit planning seed");
+  const primaryMedia = propertyMedia(listing.listingKey)[0];
   const purchasePrice = dollars(listing.listPriceCents ?? 0);
   const [goal, setGoal] = useState(seed.goal);
   const [values, setValues] = useState<PlannerValues>({
@@ -229,16 +231,17 @@ export function VisionPlanner({
   return (
     <div data-testid="vision-planner">
       <div className="grid gap-8 xl:grid-cols-[0.82fr_1.18fr]">
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-6">
           <Card className="overflow-hidden p-0">
-            {listing.primaryImage !== undefined && (
+            {primaryMedia !== undefined && (
               <div className="relative aspect-[8/5] bg-[var(--surface-2)]">
-                <Image
-                  src={listing.primaryImage.url}
-                  alt={`Generated illustration for the ${listing.address.city} planning example`}
-                  fill
+                <AssetImage
+                  src={primaryMedia.src}
+                  alt={primaryMedia.alt}
+                  width={primaryMedia.width}
+                  height={primaryMedia.height}
                   sizes="(max-width: 1280px) 100vw, 40vw"
-                  className="object-cover"
+                  fallbackLabel="Synthetic property preview unavailable"
                 />
               </div>
             )}
@@ -370,7 +373,7 @@ export function VisionPlanner({
           </Card>
         </div>
 
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-6">
           <Card className="border-[var(--purple)]" dataTestId="vision-preview">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>

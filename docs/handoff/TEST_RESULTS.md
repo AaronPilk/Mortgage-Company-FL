@@ -59,3 +59,19 @@ Phase 1 exit decision: complete locally. The full workflow functions without MLS
 | `pnpm deploy:preflight`                       | Expected refusal | Four requirements remain: `HASH_PEPPER`, `SUPABASE_SERVICE_ROLE_KEY`, production `TURNSTILE_MODE` and `NEXT_PUBLIC_TURNSTILE_SITE_KEY`; no values printed |
 
 Phase 2 exit decision: complete locally. Production persistence, Turnstile, CRM and outbox scheduling remain disabled until the real TRACT Supabase project and deployment configuration are proven.
+
+## 2026-08-17 — Phase 3 completion
+
+| Command/check                                | Result | Relevant output / unresolved issue                                                                           |
+| -------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------ |
+| `pnpm check`                                 | Pass   | Format, lint, 10-package typecheck, 179 tests, 38-page content lint and 41-route production build            |
+| `pnpm db:verify` on disposable PostgreSQL 17 | Pass   | Ten migrations and the complete lead/Vision/outbox/RLS matrix; test database dropped and server stopped      |
+| `pnpm test:e2e`                              | Pass   | 84/84 desktop/mobile checks, including media decoding, labels, fallback and mobile overflow                  |
+| Canonical manifest file/dimension validation | Pass   | 32 unique assets; every file exists, dimensions match and provenance fields are complete                     |
+| Local hydrated visual QA                     | Pass   | Six critical routes at 1440 and 390 pixels; no broken image, console error, overlay or final overflow        |
+| `pnpm cf:build`                              | Pass   | OpenNext 1.20.2 built the canonical media/product-presentation artifact                                      |
+| `wrangler deploy --dry-run`                  | Pass   | 77 static assets; 7,737.93 KiB uncompressed / 1,514.36 KiB gzip; no deployment                               |
+| `pnpm smoke:routes` against OpenNext preview | Pass   | 50 requests, zero failures, 13.9 ms average and 211.5 ms maximum                                             |
+| Direct OpenNext asset probes                 | Pass   | Home WebP, Vision WebP, RendProp WebP, default OG PNG and manifest JSON all returned 200 with expected types |
+
+Phase 3 exit decision: complete locally. All required media is local, synthetic, labeled and manifest-tracked. Manifest entries remain pending owner/compliance review, and RendProp processing/public-tour behavior remains Phase 4 work.

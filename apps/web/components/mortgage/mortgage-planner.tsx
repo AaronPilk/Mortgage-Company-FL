@@ -378,7 +378,10 @@ export function MortgagePlanner({
 
       {step === 4 && (
         <div className="space-y-6">
-          <Card dataTestId="planner-preview" className="bg-purple-950 text-white">
+          <Card
+            dataTestId="planner-preview"
+            className="border-[var(--purple)] !bg-[var(--purple-subtle)]"
+          >
             <StepHeading
               step={4}
               title="Your preliminary planning range"

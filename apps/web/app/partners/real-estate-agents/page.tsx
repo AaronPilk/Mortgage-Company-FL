@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AssetImage } from "@/components/asset-image";
 import { Card, Disclosure, FeatureStatus, Section, SectionHeading } from "@/components/ui";
 import { LeadForm } from "@/components/lead-form";
 import { pageMetadata } from "@/lib/metadata";
@@ -31,13 +32,32 @@ export default function AgentPartnerPage() {
   const features = publicFeatures();
   return (
     <Section orbs>
-      <SectionHeading
-        as="h1"
-        eyebrow="For agents"
-        title="A financing partner who communicates"
-        gradientWord="communicates"
-        description="Built around service and education, not around anything that would resemble payment for referrals."
-      />
+      <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
+        <SectionHeading
+          as="h1"
+          eyebrow="For agents"
+          title="A financing partner who communicates"
+          gradientWord="communicates"
+          description="Built around service and education, not around anything that would resemble payment for referrals."
+        />
+        <div className="overflow-hidden rounded-[2rem] border border-[var(--border)] bg-[var(--surface-2)] shadow-[var(--shadow-float)]">
+          <div className="aspect-[8/5] overflow-hidden">
+            <AssetImage
+              src="/images/agents/agent-toolkit.webp"
+              alt="Synthetic flat lay of an agent toolkit with phone, tablet, tripod and open-house materials"
+              width={1440}
+              height={900}
+              sizes="(max-width: 1024px) 100vw, 58vw"
+              priority
+              fallbackLabel="Agent toolkit preview unavailable"
+            />
+          </div>
+          <p className="border-t border-[var(--border)] px-5 py-4 text-sm text-[var(--text-muted)]">
+            A synthetic toolkit fixture illustrating capture, share and client-education
+            touchpoints.
+          </p>
+        </div>
+      </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         {VALUE.map((item) => (
@@ -64,6 +84,32 @@ export default function AgentPartnerPage() {
           doing our job well enough that you want to work with us again.
         </p>
       </Card>
+
+      <div className="mt-10 grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
+        <Card className="overflow-hidden p-0">
+          <div className="aspect-square overflow-hidden bg-[var(--surface-2)]">
+            <AssetImage
+              src="/images/agents/open-house-qr-demo.webp"
+              alt="Synthetic open-house toolkit crop with an abstract non-scannable QR-style card"
+              width={900}
+              height={900}
+              sizes="(max-width: 1024px) 100vw, 40vw"
+              fallbackLabel="Open-house attribution preview unavailable"
+            />
+          </div>
+        </Card>
+        <div>
+          <p className="text-sm font-semibold text-[var(--purple)]">
+            Open-house attribution concept
+          </p>
+          <h2 className="mt-2 text-3xl font-bold">A useful handoff, not a referral payment.</h2>
+          <p className="mt-4 text-[var(--text-muted)]">
+            A future QR handoff can preserve the agent and event source when a visitor opens a
+            planner or media tour. The pictured pattern is intentionally non-scannable; no public
+            tour, attribution record or compensation arrangement is implied.
+          </p>
+        </div>
+      </div>
 
       <div className="mt-10 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
         <LeadForm

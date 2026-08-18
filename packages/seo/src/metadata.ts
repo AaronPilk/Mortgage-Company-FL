@@ -68,7 +68,7 @@ export function absoluteUrl(siteUrl: string, path: string): string {
 
 export function createMetadata(siteUrl: string, input: PageMetaInput): PageMetadata {
   const canonical = absoluteUrl(siteUrl, input.path);
-  const image = absoluteUrl(siteUrl, input.imagePath ?? "/og/default.png");
+  const image = absoluteUrl(siteUrl, input.imagePath ?? "/images/og/default.png");
   const noIndex = input.noIndex ?? false;
 
   return {
