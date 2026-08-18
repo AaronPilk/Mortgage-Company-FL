@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { disclosureFor, dollarsToCents, formatUsd, rentVsBuy } from "@tract/mortgage-math";
 import { Disclosure } from "@/components/ui";
+import { ScenarioActions } from "@/components/calculators/scenario-actions";
 import { NumberInput, ResultRow } from "./field";
 
 /**
@@ -67,187 +68,220 @@ export function RentVsBuyCalculator() {
   const favoursBuying = result.buyingAdvantageCents > 0;
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1.05fr_1fr]">
-      <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-6 shadow-[var(--shadow-card)]">
-        <h3 className="text-lg font-semibold">Renting</h3>
-        <div className="mt-5 grid gap-5 sm:grid-cols-2">
-          <NumberInput
-            id="rvb-rent"
-            label="Monthly rent"
-            value={monthlyRent}
-            onChange={setMonthlyRent}
-            step={50}
-            prefix="$"
-          />
-          <NumberInput
-            id="rvb-growth"
-            label="Annual rent growth"
-            value={rentGrowth}
-            onChange={setRentGrowth}
-            step={0.5}
-            prefix="%"
-          />
+    <>
+      <div className="grid gap-6 lg:grid-cols-[1.05fr_1fr]">
+        <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-6 shadow-[var(--shadow-card)]">
+          <h3 className="text-lg font-semibold">Renting</h3>
+          <div className="mt-5 grid gap-5 sm:grid-cols-2">
+            <NumberInput
+              id="rvb-rent"
+              label="Monthly rent"
+              value={monthlyRent}
+              onChange={setMonthlyRent}
+              step={50}
+              prefix="$"
+            />
+            <NumberInput
+              id="rvb-growth"
+              label="Annual rent growth"
+              value={rentGrowth}
+              onChange={setRentGrowth}
+              step={0.5}
+              prefix="%"
+            />
+          </div>
+
+          <h3 className="mt-8 text-lg font-semibold">Buying</h3>
+          <div className="mt-5 grid gap-5 sm:grid-cols-2">
+            <NumberInput
+              id="rvb-price"
+              label="Purchase price"
+              value={price}
+              onChange={setPrice}
+              step={5000}
+              prefix="$"
+            />
+            <NumberInput
+              id="rvb-down"
+              label="Down payment"
+              value={downPayment}
+              onChange={setDownPayment}
+              step={2500}
+              prefix="$"
+            />
+            <NumberInput
+              id="rvb-rate"
+              label="Interest rate"
+              value={rate}
+              onChange={setRate}
+              step={0.125}
+              prefix="%"
+            />
+            <NumberInput
+              id="rvb-closing"
+              label="Closing costs"
+              value={closingCosts}
+              onChange={setClosingCosts}
+              step={500}
+              prefix="$"
+            />
+            <NumberInput
+              id="rvb-tax"
+              label="Annual property tax"
+              value={annualTax}
+              onChange={setAnnualTax}
+              step={100}
+              prefix="$"
+            />
+            <NumberInput
+              id="rvb-ins"
+              label="Annual insurance"
+              value={annualInsurance}
+              onChange={setAnnualInsurance}
+              step={100}
+              prefix="$"
+            />
+            <NumberInput
+              id="rvb-hoa"
+              label="Monthly HOA"
+              value={monthlyHoa}
+              onChange={setMonthlyHoa}
+              step={10}
+              prefix="$"
+            />
+            <NumberInput
+              id="rvb-maint"
+              label="Annual maintenance"
+              value={maintenance}
+              onChange={setMaintenance}
+              step={0.25}
+              prefix="%"
+              hint="Percent of purchase price per year. One percent is a common starting assumption, not a rule."
+            />
+          </div>
+
+          <h3 className="mt-8 text-lg font-semibold">Your assumptions</h3>
+          <p className="mt-1 text-xs text-[var(--text-muted)]">
+            These two are guesses about the future. They move the result more than anything else on
+            this page, so try a pessimistic set as well as an optimistic one.
+          </p>
+          <div className="mt-5 grid gap-5 sm:grid-cols-2">
+            <NumberInput
+              id="rvb-appr"
+              label="Annual appreciation"
+              value={appreciation}
+              onChange={setAppreciation}
+              step={0.5}
+              prefix="%"
+            />
+            <NumberInput
+              id="rvb-sell"
+              label="Cost to sell"
+              value={sellingCost}
+              onChange={setSellingCost}
+              step={0.5}
+              prefix="%"
+            />
+            <NumberInput
+              id="rvb-horizon"
+              label="Years you will stay"
+              value={horizonYears}
+              onChange={setHorizonYears}
+              step={1}
+              min={1}
+            />
+          </div>
         </div>
 
-        <h3 className="mt-8 text-lg font-semibold">Buying</h3>
-        <div className="mt-5 grid gap-5 sm:grid-cols-2">
-          <NumberInput
-            id="rvb-price"
-            label="Purchase price"
-            value={price}
-            onChange={setPrice}
-            step={5000}
-            prefix="$"
-          />
-          <NumberInput
-            id="rvb-down"
-            label="Down payment"
-            value={downPayment}
-            onChange={setDownPayment}
-            step={2500}
-            prefix="$"
-          />
-          <NumberInput
-            id="rvb-rate"
-            label="Interest rate"
-            value={rate}
-            onChange={setRate}
-            step={0.125}
-            prefix="%"
-          />
-          <NumberInput
-            id="rvb-closing"
-            label="Closing costs"
-            value={closingCosts}
-            onChange={setClosingCosts}
-            step={500}
-            prefix="$"
-          />
-          <NumberInput
-            id="rvb-tax"
-            label="Annual property tax"
-            value={annualTax}
-            onChange={setAnnualTax}
-            step={100}
-            prefix="$"
-          />
-          <NumberInput
-            id="rvb-ins"
-            label="Annual insurance"
-            value={annualInsurance}
-            onChange={setAnnualInsurance}
-            step={100}
-            prefix="$"
-          />
-          <NumberInput
-            id="rvb-hoa"
-            label="Monthly HOA"
-            value={monthlyHoa}
-            onChange={setMonthlyHoa}
-            step={10}
-            prefix="$"
-          />
-          <NumberInput
-            id="rvb-maint"
-            label="Annual maintenance"
-            value={maintenance}
-            onChange={setMaintenance}
-            step={0.25}
-            prefix="%"
-            hint="Percent of purchase price per year. One percent is a common starting assumption, not a rule."
-          />
-        </div>
+        <div>
+          <div
+            className="rounded-2xl border border-[var(--border)] bg-purple-950 p-6 text-white"
+            aria-live="polite"
+          >
+            <p className="text-sm font-semibold uppercase tracking-widest text-purple-300">
+              Over {Math.round(result.horizonMonths / 12)} years, under these assumptions
+            </p>
+            <p className="mt-2 text-4xl font-bold tabular-nums text-white">
+              {favoursBuying ? "Buying costs less" : "Renting costs less"}
+            </p>
+            <p className="mt-2 text-sm text-purple-200">
+              by roughly {formatUsd(Math.abs(result.buyingAdvantageCents))} in total cash, before
+              any tax treatment
+            </p>
 
-        <h3 className="mt-8 text-lg font-semibold">Your assumptions</h3>
-        <p className="mt-1 text-xs text-[var(--text-muted)]">
-          These two are guesses about the future. They move the result more than anything else on
-          this page, so try a pessimistic set as well as an optimistic one.
-        </p>
-        <div className="mt-5 grid gap-5 sm:grid-cols-2">
-          <NumberInput
-            id="rvb-appr"
-            label="Annual appreciation"
-            value={appreciation}
-            onChange={setAppreciation}
-            step={0.5}
-            prefix="%"
-          />
-          <NumberInput
-            id="rvb-sell"
-            label="Cost to sell"
-            value={sellingCost}
-            onChange={setSellingCost}
-            step={0.5}
-            prefix="%"
-          />
-          <NumberInput
-            id="rvb-horizon"
-            label="Years you will stay"
-            value={horizonYears}
-            onChange={setHorizonYears}
-            step={1}
-            min={1}
-          />
-        </div>
-      </div>
+            <dl className="mt-6 space-y-2.5 text-sm">
+              <ResultRow label="Total rent paid" value={formatUsd(result.totalRentPaidCents)} />
+              <ResultRow
+                label="Total ownership outflow"
+                value={formatUsd(result.totalOwnershipOutflowCents)}
+              />
+              <ResultRow
+                label="Estimated home value"
+                value={formatUsd(result.estimatedHomeValueCents)}
+              />
+              <ResultRow
+                label="Estimated loan balance"
+                value={formatUsd(result.estimatedLoanBalanceCents)}
+              />
+              <ResultRow
+                label="Net proceeds if you sell"
+                value={formatUsd(result.estimatedNetSaleProceedsCents)}
+                emphasis
+              />
+            </dl>
 
-      <div>
-        <div
-          className="rounded-2xl border border-[var(--border)] bg-purple-950 p-6 text-white"
-          aria-live="polite"
-        >
-          <p className="text-sm font-semibold uppercase tracking-widest text-purple-300">
-            Over {Math.round(result.horizonMonths / 12)} years, under these assumptions
-          </p>
-          <p className="mt-2 text-4xl font-bold tabular-nums text-white">
-            {favoursBuying ? "Buying costs less" : "Renting costs less"}
-          </p>
-          <p className="mt-2 text-sm text-purple-200">
-            by roughly {formatUsd(Math.abs(result.buyingAdvantageCents))} in total cash, before any
-            tax treatment
-          </p>
+            <div className="mt-5 rounded-lg bg-purple-900 p-4">
+              <p className="text-sm text-purple-200">
+                This is a cash comparison, not a recommendation. It deliberately omits tax
+                treatment, which is individual and belongs with a tax professional. Change
+                appreciation by a point in either direction and see how far the answer moves.
+              </p>
+            </div>
 
-          <dl className="mt-6 space-y-2.5 text-sm">
-            <ResultRow label="Total rent paid" value={formatUsd(result.totalRentPaidCents)} />
-            <ResultRow
-              label="Total ownership outflow"
-              value={formatUsd(result.totalOwnershipOutflowCents)}
-            />
-            <ResultRow
-              label="Estimated home value"
-              value={formatUsd(result.estimatedHomeValueCents)}
-            />
-            <ResultRow
-              label="Estimated loan balance"
-              value={formatUsd(result.estimatedLoanBalanceCents)}
-            />
-            <ResultRow
-              label="Net proceeds if you sell"
-              value={formatUsd(result.estimatedNetSaleProceedsCents)}
-              emphasis
-            />
-          </dl>
-
-          <div className="mt-5 rounded-lg bg-purple-900 p-4">
-            <p className="text-sm text-purple-200">
-              This is a cash comparison, not a recommendation. It deliberately omits tax treatment,
-              which is individual and belongs with a tax professional. Change appreciation by a
-              point in either direction and see how far the answer moves.
+            <p className="mt-4 text-xs text-purple-300">
+              Calculation version {result.calculationVersion}
             </p>
           </div>
 
-          <p className="mt-4 text-xs text-purple-300">
-            Calculation version {result.calculationVersion}
-          </p>
+          <Disclosure
+            headline={disclosure.headline}
+            body={disclosure.body}
+            excludes={disclosure.excludes}
+            version={disclosure.version}
+          />
         </div>
-
-        <Disclosure
-          headline={disclosure.headline}
-          body={disclosure.body}
-          excludes={disclosure.excludes}
-          version={disclosure.version}
-        />
       </div>
-    </div>
+      <ScenarioActions
+        intent="purchase"
+        compareTargetId="rvb-rent"
+        snapshot={{
+          source: "rent_vs_buy",
+          version: "rent-vs-buy-calculator@1.0.0",
+          calculationVersion: result.calculationVersion,
+          inputSnapshot: {
+            horizonYears,
+            monthlyRentDollars: monthlyRent,
+            rentGrowthPercent: rentGrowth,
+            priceDollars: price,
+            downPaymentDollars: downPayment,
+            ratePercent: rate,
+            annualTaxDollars: annualTax,
+            annualInsuranceDollars: annualInsurance,
+            monthlyHoaDollars: monthlyHoa,
+            maintenancePercent: maintenance,
+            appreciationPercent: appreciation,
+            sellingCostPercent: sellingCost,
+            closingCostsDollars: closingCosts
+          },
+          resultSnapshot: {
+            totalRentPaidDollars: Math.round(result.totalRentPaidCents / 100),
+            totalOwnershipOutflowDollars: Math.round(result.totalOwnershipOutflowCents / 100),
+            netSaleProceedsDollars: Math.round(result.estimatedNetSaleProceedsCents / 100),
+            buyingAdvantageDollars: Math.round(result.buyingAdvantageCents / 100)
+          },
+          summary: `${horizonYears}-year comparison · ${favoursBuying ? "buying" : "renting"} has the lower modeled net cash cost under these assumptions`
+        }}
+      />
+    </>
   );
 }

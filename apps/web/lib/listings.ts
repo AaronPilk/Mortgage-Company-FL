@@ -29,6 +29,16 @@ export function listings(): ListingProvider {
 }
 
 /**
+ * Read-only access to the explicitly labelled local sample catalogue. Account
+ * validation uses this even when the runtime listing provider is disabled so a
+ * previously saved sample key can still be identified without weakening the
+ * production fixture display gate.
+ */
+export function demoListings(): ListingProvider {
+  return new FixtureListingProvider();
+}
+
+/**
  * Whether sample listings may be rendered.
  *
  * Outside production the answer is always yes. In production it takes a second,

@@ -35,7 +35,7 @@ export default defineConfig({
     { name: "mobile", use: { ...devices["Pixel 7"], ...channelOverride } }
   ],
   webServer: {
-    command: "PORT=3100 node .next/standalone/server.js || PORT=3100 npx next start --port 3100",
+    command: "pnpm exec next start --port 3100",
     url: "http://127.0.0.1:3100",
     reuseExistingServer: process.env.CI !== "true",
     timeout: 120_000,
@@ -44,6 +44,8 @@ export default defineConfig({
       GHL_MODE: "disabled",
       AI_MODE: "disabled",
       MLS_PROVIDER: "fixture",
+      SHOW_SAMPLE_LISTINGS: "true",
+      FEATURE_PROPERTY_SEARCH: "true",
       TURNSTILE_MODE: "fixture"
     }
   }

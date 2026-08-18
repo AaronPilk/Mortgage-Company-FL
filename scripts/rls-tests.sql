@@ -102,7 +102,8 @@ insert into auth.users (id, email) values
   ('00000000-0000-4000-8000-000000000003', 'officer@example.com'),
   ('00000000-0000-4000-8000-000000000004', 'editor@example.com'),
   ('00000000-0000-4000-8000-000000000005', 'compliance@example.com'),
-  ('00000000-0000-4000-8000-000000000006', 'agent@example.com');
+  ('00000000-0000-4000-8000-000000000006', 'agent@example.com'),
+  ('00000000-0000-4000-8000-000000000007', 'operations@example.com');
 
 insert into public.profiles (id, display_name) values
   ('00000000-0000-4000-8000-000000000001', 'Admin'),
@@ -110,7 +111,9 @@ insert into public.profiles (id, display_name) values
   ('00000000-0000-4000-8000-000000000003', 'Officer'),
   ('00000000-0000-4000-8000-000000000004', 'Editor'),
   ('00000000-0000-4000-8000-000000000005', 'Compliance'),
-  ('00000000-0000-4000-8000-000000000006', 'Agent');
+  ('00000000-0000-4000-8000-000000000006', 'Agent'),
+  ('00000000-0000-4000-8000-000000000007', 'Operations')
+on conflict (id) do update set display_name = excluded.display_name;
 
 insert into public.user_roles (user_id, role) values
   ('00000000-0000-4000-8000-000000000001', 'admin'),
@@ -118,7 +121,44 @@ insert into public.user_roles (user_id, role) values
   ('00000000-0000-4000-8000-000000000004', 'content_editor'),
   ('00000000-0000-4000-8000-000000000005', 'compliance_reviewer'),
   ('00000000-0000-4000-8000-000000000006', 'agent'),
-  ('00000000-0000-4000-8000-000000000002', 'consumer');
+  ('00000000-0000-4000-8000-000000000007', 'operations'),
+  ('00000000-0000-4000-8000-000000000002', 'consumer')
+on conflict (user_id, role) do nothing;
+
+select tests.assert((select count(*) from public.profiles) = 7,
+  'Auth user trigger creates one profile per user');
+select tests.assert(
+  (select count(*) from public.user_roles where role = 'consumer') = 7,
+  'Auth user trigger grants every new account the baseline consumer role');
+
+insert into public.saved_properties (owner_user_id, listing_key, source_mode) values
+  ('00000000-0000-4000-8000-000000000002', 'FX-STP-0001', 'fixture'),
+  ('00000000-0000-4000-8000-000000000006', 'FX-ORL-0004', 'fixture');
+
+insert into public.saved_calculator_scenarios (
+  id, owner_user_id, source, version, calculation_version,
+  input_snapshot, result_snapshot, summary
+) values
+  (
+    '00000000-0000-4000-8000-000000000210',
+    '00000000-0000-4000-8000-000000000002',
+    'mortgage_payment','payment@1','mortgage-math@1',
+    jsonb_build_object('priceDollars',425000),
+    jsonb_build_object('totalMonthlyDollars',3100),
+    'Consumer payment fixture.'
+  ),
+  (
+    '00000000-0000-4000-8000-000000000211',
+    '00000000-0000-4000-8000-000000000006',
+    'affordability','affordability@1','mortgage-math@1',
+    jsonb_build_object('monthlyIncomeDollars',9000),
+    jsonb_build_object('estimatedPurchasePriceDollars',390000),
+    'Agent affordability fixture.'
+  );
+
+insert into public.notification_preferences (
+  owner_user_id, report_ready_email, report_failure_email
+) values ('00000000-0000-4000-8000-000000000002', true, false);
 
 select public.create_lead_with_receipt(
   jsonb_build_object(
@@ -129,10 +169,45 @@ select public.create_lead_with_receipt(
     'privacy_accepted',true,'contact_requested',true,'sms_marketing',false,
     'email_marketing',true,'disclosure_version','v1','disclosure_text_sha256','abc',
     'source_path','/mortgage/purchase','form_version','1'),
-  jsonb_build_object('landing_path','/mortgage/purchase','utm_source','google'),
+  jsonb_build_array(
+    jsonb_build_object('touch_kind','first','landing_path','/','utm_source','google'),
+    jsonb_build_object('touch_kind','last','landing_path','/mortgage/purchase','utm_source','google'),
+    jsonb_build_object('touch_kind','conversion','landing_path','/mortgage/purchase')
+  ),
   jsonb_build_object('event_type','lead.received','idempotency_key','k1','payload','{}'::jsonb),
-  gen_random_uuid()
+  '00000000-0000-4000-8000-000000000110',
+  jsonb_build_object(
+    'source','mortgage_planner','version','mortgage-planner@1.0.0',
+    'calculation_version','mortgage-math@1.0.0',
+    'input_snapshot',jsonb_build_object('intent','buying'),
+    'result_snapshot',jsonb_build_object('estimatedMonthlyDollars',3100),
+    'summary','Buying in Tampa in three to six months.'
+  )
 );
+
+-- The same browser submission id is an exact retry boundary. Even a malformed
+-- replay payload returns the original receipt before any new child row is
+-- considered; it cannot rewrite the original durable record.
+select public.create_lead_with_receipt(
+  '{}'::jsonb, '{}'::jsonb, '[]'::jsonb, '{}'::jsonb,
+  '00000000-0000-4000-8000-000000000110', null
+);
+select tests.assert(
+  (select count(*) from public.lead_submission_receipts
+   where submission_id = '00000000-0000-4000-8000-000000000110') = 1,
+  'exact lead retry creates one submission receipt');
+select tests.assert(
+  (select count(*) from public.leads l
+   join public.consent_receipts c on c.lead_id = l.id
+   join public.integration_outbox o on o.aggregate_id = l.id
+   join public.lead_plans p on p.lead_id = l.id
+   where l.dedupe_hash = 'hash-1') = 1,
+  'exact lead retry creates one lead, consent, outbox event, and planning snapshot');
+select tests.assert(
+  (select count(*) from public.attribution_touches a
+   join public.leads l on l.id = a.lead_id
+   where l.dedupe_hash = 'hash-1') = 3,
+  'exact lead retry preserves one first, last, and conversion attribution set');
 
 -- A second lead, created through the planner path. This exercises the single
 -- transaction that writes the lead, the consent receipt, the attribution touch,
@@ -159,8 +234,32 @@ select public.create_lead_with_planner_response(
     'current_mortgage_rate_band','6_7','credit_band','720_759','employment','w2',
     'income_band','8k_12k','monthly_debt_band','under_500','timing','within_30_days',
     'planner_version','lead-planner@1.0.0'),
-  gen_random_uuid()
+  '00000000-0000-4000-8000-000000000111'
 );
+
+select public.create_lead_with_planner_response(
+  '{}'::jsonb,
+  '{}'::jsonb,
+  '{}'::jsonb,
+  '{}'::jsonb,
+  jsonb_build_object(
+    'goal','refinance','property_state','fl','property_location','Tampa',
+    'property_type','single_family','property_stage','own_it','price_band','350k_500k',
+    'down_payment_band','20_plus','current_mortgage_balance_band','250k_500k',
+    'current_mortgage_rate_band','6_7','credit_band','720_759','employment','w2',
+    'income_band','8k_12k','monthly_debt_band','under_500','timing','within_30_days',
+    'planner_version','lead-planner@1.0.0'),
+  '00000000-0000-4000-8000-000000000111'
+);
+select tests.assert(
+  (select count(*) from public.lead_submission_receipts
+   where submission_id = '00000000-0000-4000-8000-000000000111') = 1,
+  'exact planner retry creates one submission receipt');
+select tests.assert(
+  (select count(*) from public.lead_planner_responses r
+   join public.leads l on l.id = r.lead_id
+   where l.dedupe_hash = 'hash-2') = 1,
+  'exact planner retry creates one immutable answer set');
 
 insert into public.vision_projects (id, owner_user_id, title, goal) values
   ('00000000-0000-4000-8000-0000000000a1', '00000000-0000-4000-8000-000000000002', 'My house', 'renovate'),
@@ -176,6 +275,18 @@ values
 
 insert into public.content_items (id, content_type, slug, title, description, body_mdx, status, indexation)
 values ('00000000-0000-4000-8000-0000000000c1', 'article', 'draft-post', 'Draft', 'A draft', '# draft', 'draft', 'noindex');
+
+insert into public.content_sources (
+  content_item_id, publisher, title, url, source_kind, accessed_at, is_primary
+) values (
+  '00000000-0000-4000-8000-0000000000c1',
+  'Florida Office of Financial Regulation',
+  'Mortgage Broker Resources',
+  'https://flofr.gov/',
+  'regulator',
+  now(),
+  true
+);
 
 insert into public.quota_policies (subject_kind, feature, period, request_limit, cost_limit_cents, concurrency_limit)
 values ('consumer', 'vision_report', 'day', 3, 500, 1);
@@ -286,6 +397,8 @@ select tests.assert(tests.visible_count('select count(*) from public.audit_event
   'anonymous sees no audit events');
 select tests.assert(tests.visible_count('select count(*) from public.ai_jobs') = 0,
   'anonymous cannot read AI jobs');
+select tests.assert(tests.visible_count('select count(*) from public.content_sources') = 0,
+  'anonymous cannot read sources attached only to draft content');
 select tests.assert(tests.visible_count('select count(*) from public.vision_projects') = 0,
   'anonymous cannot read Vision projects');
 
@@ -348,6 +461,8 @@ select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002
 
 select tests.assert(tests.visible_count('select count(*) from public.vision_projects') = 1,
   'consumer sees only their own Vision project');
+select tests.assert(tests.visible_count('select count(*) from public.vision_report_requests') = 0,
+  'consumer cannot read anonymous Vision report requests');
 select tests.assert(
   tests.visible_count($$select count(*) from public.vision_projects
     where id = '00000000-0000-4000-8000-0000000000a2'$$) = 0,
@@ -356,8 +471,72 @@ select tests.assert(tests.visible_count('select count(*) from public.leads') = 0
   'consumer cannot read the lead table');
 select tests.assert(tests.visible_count('select count(*) from public.consent_receipts') = 0,
   'consumer cannot read the consent ledger');
+select tests.assert(tests.visible_count('select count(*) from public.lead_plans') = 0,
+  'consumer cannot read lead planning snapshots');
 select tests.assert(tests.visible_count('select count(*) from public.usage_ledger') = 0,
   'consumer cannot read the usage ledger');
+select tests.assert(tests.visible_count('select count(*) from public.saved_properties') = 1,
+  'consumer sees only their own saved property');
+select tests.assert(
+  tests.visible_count('select count(*) from public.saved_calculator_scenarios') = 1,
+  'consumer sees only their own saved calculator scenario');
+select tests.assert(tests.visible_count('select count(*) from public.notification_preferences') = 1,
+  'consumer sees their own notification preferences');
+
+insert into public.saved_properties (owner_user_id, listing_key, source_mode)
+values ('00000000-0000-4000-8000-000000000002', 'FX-OWN-WRITE', 'fixture');
+insert into public.saved_calculator_scenarios (
+  id, owner_user_id, source, version, calculation_version,
+  input_snapshot, result_snapshot, summary
+) values (
+  '00000000-0000-4000-8000-000000000212',
+  '00000000-0000-4000-8000-000000000002',
+  'closing_cost','closing@1','mortgage-math@1','{}','{}','Own write fixture.'
+);
+update public.notification_preferences
+set report_ready_email = false
+where owner_user_id = '00000000-0000-4000-8000-000000000002';
+select tests.assert(tests.visible_count('select count(*) from public.saved_properties') = 2,
+  'consumer can create an owned saved property');
+select tests.assert(
+  tests.visible_count('select count(*) from public.saved_calculator_scenarios') = 2,
+  'consumer can create an owned saved calculator scenario');
+select tests.assert(
+  tests.visible_count($$select count(*) from public.notification_preferences
+    where report_ready_email = false$$) = 1,
+  'consumer can update their own notification preferences');
+
+select * from public.create_privacy_request(
+  '00000000-0000-4000-8000-000000000220', 'export');
+select * from public.create_privacy_request(
+  '00000000-0000-4000-8000-000000000220', 'delete');
+select tests.assert(tests.visible_count('select count(*) from public.privacy_requests') = 1,
+  'exact privacy-request retry creates one request');
+select tests.assert(
+  tests.visible_count($$select count(*) from public.privacy_requests
+    where request_type = 'export' and status = 'received'$$) = 1,
+  'exact privacy-request retry returns the original received request');
+
+select tests.assert_denied(
+  $$insert into public.saved_properties (owner_user_id, listing_key, source_mode)
+    values ('00000000-0000-4000-8000-000000000006','FX-HOSTILE-1','fixture')$$,
+  'consumer cannot save a property for another user');
+select tests.assert_denied(
+  $$insert into public.saved_calculator_scenarios (
+      id, owner_user_id, source, version, calculation_version,
+      input_snapshot, result_snapshot, summary
+    ) values (
+      gen_random_uuid(),'00000000-0000-4000-8000-000000000006',
+      'closing_cost','hostile@1','mortgage-math@1','{}','{}','Hostile write.'
+    )$$,
+  'consumer cannot save a calculator scenario for another user');
+select tests.assert_denied(
+  $$insert into public.notification_preferences (owner_user_id)
+    values ('00000000-0000-4000-8000-000000000006')$$,
+  'consumer cannot create notification preferences for another user');
+select tests.assert_affects_no_rows(
+  $$update public.privacy_requests set status = 'completed', completed_at = now()$$,
+  'consumer cannot mark their privacy request completed');
 
 -- Privilege escalation attempt.
 select tests.assert_denied(
@@ -383,6 +562,18 @@ select tests.assert_denied(
 select tests.assert_denied(
   $$select public.create_lead_with_receipt('{}'::jsonb,'{}'::jsonb,'{}'::jsonb,'{}'::jsonb, gen_random_uuid())$$,
   'consumer cannot call the lead creation function directly');
+select tests.assert_denied(
+  $$select public.create_vision_report_request(
+      gen_random_uuid(),'{}'::jsonb,'{}'::jsonb,'[]'::jsonb,'{}'::jsonb,
+      '{}'::jsonb,'{}'::jsonb,'{}'::jsonb)$$,
+  'consumer cannot call the Vision report creation function directly');
+select tests.assert_denied(
+  $$select public.claim_integration_outbox('hostile-worker', 25)$$,
+  'consumer cannot claim integration outbox work');
+select tests.assert_denied(
+  $$select public.complete_integration_outbox(
+      gen_random_uuid(),'hostile-worker','succeeded',null,0,'x')$$,
+  'consumer cannot complete integration outbox work');
 
 select tests.assert(tests.visible_count('select count(*) from public.lead_planner_responses') = 0,
   'consumer cannot read planner responses');
@@ -476,6 +667,13 @@ select tests.assert(tests.visible_count('select count(*) from public.leads') = 0
   'agent cannot read unrelated leads');
 select tests.assert(tests.visible_count('select count(*) from public.vision_projects') = 1,
   'agent sees only their own Vision project');
+select tests.assert(tests.visible_count('select count(*) from public.saved_properties') = 1,
+  'agent sees only their own saved property');
+select tests.assert(
+  tests.visible_count('select count(*) from public.saved_calculator_scenarios') = 1,
+  'agent sees only their own saved calculator scenario');
+select tests.assert(tests.visible_count('select count(*) from public.privacy_requests') = 0,
+  'agent cannot see another user privacy request');
 
 -- A DIFFERENT consumer. This account owns its own RendProp project, so a naive
 -- policy would pass a "sees exactly one row" test while leaking the other one.
@@ -539,6 +737,8 @@ select tests.assert_affects_no_rows(
   'loan officer cannot rewrite what the consumer answered');
 select tests.assert(tests.visible_count('select count(*) from public.consent_receipts') = 0,
   'loan officer cannot read the consent ledger');
+select tests.assert(tests.visible_count('select count(*) from public.lead_plans') = 0,
+  'loan officer cannot read an unassigned planning snapshot');
 select tests.assert(tests.visible_count('select count(*) from public.audit_events') = 0,
   'loan officer cannot read the audit log');
 
@@ -551,6 +751,20 @@ select tests.assert(tests.visible_count('select count(*) from public.rendprop_me
 select tests.assert(
   tests.visible_count('select count(*) from public.rendprop_generated_assets') = 0,
   'loan officer reads no RendProp generated media');
+
+reset role;
+
+/* ---------------------------------------------------------------- *
+ * Operations
+ * ---------------------------------------------------------------- */
+
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000007', false);
+
+select tests.assert(tests.visible_count('select count(*) from public.privacy_requests') = 1,
+  'operations can read privacy request lifecycle');
+select tests.assert(tests.visible_count('select count(*) from public.audit_events') = 0,
+  'operations cannot read compliance audit history');
 
 reset role;
 
@@ -572,6 +786,10 @@ select tests.assert_affects_no_rows(
   'compliance reviewer cannot delete planner answers');
 select tests.assert(tests.visible_count('select count(*) from public.audit_events') = 1,
   'compliance reviewer can read the audit log');
+select tests.assert(tests.visible_count('select count(*) from public.content_sources') = 1,
+  'compliance reviewer can inspect source completeness');
+select tests.assert(tests.visible_count('select count(*) from public.privacy_requests') = 1,
+  'compliance reviewer can read privacy request lifecycle');
 select tests.assert_affects_no_rows(
   $$update public.quota_policies set enabled = false$$,
   'compliance reviewer cannot change quota policy');
@@ -593,6 +811,8 @@ select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000004
 
 select tests.assert(tests.visible_count('select count(*) from public.content_items') = 1,
   'content editor can read drafts');
+select tests.assert(tests.visible_count('select count(*) from public.content_sources') = 1,
+  'content editor can inspect sources attached to drafts');
 
 -- The indexable_requires_review constraint is the real gate: an editor cannot
 -- flip a draft to index without a published status, an author, and a reviewer.
@@ -828,6 +1048,112 @@ select tests.assert(
    where table_schema = 'public' and table_name = 'rendprop_tour_inquiries'
      and column_name ~ '(ssn|social_security|date_of_birth|birth|account_number|credit_score|document|upload|pay_stub|tax_return)') = 0,
   'the tour inquiry table carries no application-grade identifier column');
+
+/* ---------------------------------------------------------------- *
+ * Anonymous Vision report transaction and exact retry
+ * ---------------------------------------------------------------- */
+
+set role service_role;
+
+select public.create_vision_report_request(
+  '00000000-0000-4000-8000-000000000310',
+  jsonb_build_object(
+    'first_name','Robin','last_name','Patel','email_normalized','robin@example.com',
+    'phone_e164','+18135550199','state_code','FL','message','Deterministic scenario summary.',
+    'source_path','/vision/start','dedupe_hash','vision-hash-1'),
+  jsonb_build_object(
+    'privacy_accepted',true,'contact_requested',true,'sms_marketing',false,
+    'email_marketing',true,'disclosure_version','vision-v1','disclosure_text_sha256','vision-hash',
+    'source_path','/vision/start','form_version','vision-report-request@1.0.0'),
+  jsonb_build_array(
+    jsonb_build_object('touch_kind','first','landing_path','/vision'),
+    jsonb_build_object('touch_kind','last','landing_path','/vision/start'),
+    jsonb_build_object('touch_kind','conversion','landing_path','/vision/start')
+  ),
+  jsonb_build_object(
+    'title','The corner house','goal','renovate','data_as_of',now(),
+    'assumptions',jsonb_build_object(
+      'contingencyRateBasisPoints',jsonb_build_object(
+        'value',1500,'unit','basis_points','source','user'),
+      'sellingCostRateBasisPoints',jsonb_build_object(
+        'value',700,'unit','basis_points','source','company_default')
+    )
+  ),
+  jsonb_build_object(
+    'scenario_name','The corner house','scenario_type','existing_home_renovation',
+    'input_snapshot',jsonb_build_object('purchasePriceCents',38900000),
+    'result_snapshot',jsonb_build_object('producedBy','deterministic_model'),
+    'calculation_version','vision-model@1.0.0'),
+  jsonb_build_object(
+    'facts_snapshot',jsonb_build_object('sourceKind','visitor_input'),
+    'assumptions_snapshot',jsonb_build_array(),
+    'calculations_snapshot',jsonb_build_object('producedBy','deterministic_model'),
+    'narrative_snapshot',jsonb_build_object('generatedByAi',false),
+    'limitations',jsonb_build_array('Not an appraisal.'),
+    'citation_manifest',jsonb_build_array(
+      jsonb_build_object('kind','calculation','version','vision-model@1.0.0'))),
+  jsonb_build_object('payload',jsonb_build_object('externalId','00000000-0000-4000-8000-000000000310'))
+);
+
+-- A repeated service call with the same browser id must return the original
+-- mapping and must not create any partial duplicate lifecycle rows.
+select public.create_vision_report_request(
+  '00000000-0000-4000-8000-000000000310',
+  '{}'::jsonb, '{}'::jsonb, '[]'::jsonb, '{}'::jsonb,
+  '{}'::jsonb, '{}'::jsonb, '{}'::jsonb
+);
+
+reset role;
+
+select tests.assert(
+  (select count(*) from public.vision_report_requests
+   where submission_id = '00000000-0000-4000-8000-000000000310') = 1,
+  'exact Vision retry creates one anonymous report mapping');
+select tests.assert(
+  (select count(*) from public.vision_report_requests r
+   join public.leads l on l.id = r.lead_id
+   join public.consent_receipts c on c.lead_id = l.id
+   join public.vision_projects p on p.id = r.project_id
+   join public.vision_reports report on report.id = r.report_id
+   join public.vision_scenarios scenario on scenario.project_id = p.id
+   join public.integration_outbox o on o.aggregate_id = l.id
+   where l.dedupe_hash = 'vision-hash-1') = 1,
+  'Vision request atomically creates its lead, consent, project, scenario, report, and outbox event');
+select tests.assert(
+  (select count(*) from public.attribution_touches a
+   join public.leads l on l.id = a.lead_id
+   where l.dedupe_hash = 'vision-hash-1') = 3,
+  'Vision request records first, last, and conversion attribution exactly once');
+select tests.assert(
+  (select count(*) from public.vision_assumptions a
+   join public.vision_projects p on p.id = a.project_id
+   join public.leads l on l.id = p.lead_id
+   where l.dedupe_hash = 'vision-hash-1') = 2,
+  'Vision request stores each resolved assumption exactly once');
+select tests.assert(
+  (select count(*) from public.vision_assumptions a
+   join public.vision_projects p on p.id = a.project_id
+   join public.leads l on l.id = p.lead_id
+   where l.dedupe_hash = 'vision-hash-1'
+     and a.source_kind = 'user' and a.confirmed_by_user) = 1,
+  'Vision request preserves visitor-selected assumption provenance');
+select tests.assert(
+  (select count(*) from public.vision_assumptions a
+   join public.vision_projects p on p.id = a.project_id
+   join public.leads l on l.id = p.lead_id
+   where l.dedupe_hash = 'vision-hash-1'
+     and a.source_kind = 'company_default' and not a.confirmed_by_user) = 1,
+  'Vision request does not mislabel model defaults as visitor-confirmed');
+select tests.assert(
+  not has_function_privilege('public',
+    'public.create_vision_report_request(uuid,jsonb,jsonb,jsonb,jsonb,jsonb,jsonb,jsonb)',
+    'execute'),
+  'PUBLIC holds no execute grant on the Vision report function');
+select tests.assert(
+  has_function_privilege('service_role',
+    'public.create_vision_report_request(uuid,jsonb,jsonb,jsonb,jsonb,jsonb,jsonb,jsonb)',
+    'execute'),
+  'service_role can execute the Vision report function');
 
 select tests.assert(
   (select count(*) from pg_tables t

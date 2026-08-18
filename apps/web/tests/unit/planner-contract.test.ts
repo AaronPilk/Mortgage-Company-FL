@@ -31,6 +31,7 @@ import {
 } from "../../components/planner/options";
 
 const contactFormPayload = {
+  submissionId: "00000000-0000-4000-8000-000000000010",
   intent: "general",
   firstName: "Dana",
   lastName: "Reyes",
@@ -43,7 +44,9 @@ const contactFormPayload = {
     emailMarketing: true,
     disclosureVersion: "lead-disclosure@2026-08-17"
   },
-  attribution: { landingPath: "/contact" },
+  firstTouch: { landingPath: "/contact", occurredAt: "2026-08-17T12:00:00.000Z" },
+  lastTouch: { landingPath: "/contact", occurredAt: "2026-08-17T12:05:00.000Z" },
+  conversionTouch: { landingPath: "/contact", occurredAt: "2026-08-17T12:06:00.000Z" },
   turnstileToken: "test-token"
 };
 

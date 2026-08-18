@@ -38,21 +38,28 @@ means a future operator can find it, point a domain at it, and serve 404s.
 
 ---
 
-## D-2 — Vercel stays connected but unused
+## D-2 — Cloudflare remains canonical; the public Vercel duplicate is a blocker
 
-**Decision.** The Vercel connector on the account is left alone and is **not**
-production. No second production deployment is created.
+**Decision.** Do not push, merge or deploy another release while Vercel
+automatically publishes `main` as a public `production` target. The owner must
+disable that Git production path or make its aliases non-public. Do not migrate
+TRACT to Vercel.
 
-**Reasoning.** Two live deployments of a regulated mortgage marketing site is a
-compliance hazard, not redundancy: two canonical origins, two sets of security
-headers to keep in sync, two places a stale disclosure can survive, and two
-surfaces a crawler can index. The site already has a working production host.
-There is no `vercel.json` and no `.vercel` directory in the repository, so
-nothing in the codebase depends on Vercel.
+**Reasoning.** The original read-only audit saw one protected Vercel deployment
+and classified the connector as unused. The refreshed 2026-08-18 inventory
+disproved that classification: the project now has three ready production
+deployments, its latest artifact maps to `7998ede`, and its aliases return HTTP
+200 without authentication. A canonical tag pointing to Cloudflare reduces
+search ambiguity but does not remove a second runtime, stale-disclosure surface
+or independent header/configuration boundary.
 
-**Revisit when.** Only if Cloudflare Workers is being deliberately replaced, in
-which case Vercel becomes the new single production host and Workers is torn
-down. Not additively. Never both at once.
+There is still no `vercel.json` or `.vercel` directory in the repository. The
+second architecture is a dashboard/Git integration, not an application
+dependency, and no source change should legitimize it.
+
+**Revisit when.** When the Vercel aliases no longer serve the site and a push to
+`main` no longer creates a public Vercel production artifact. A future host
+replacement still requires one-for-one migration, never additive dual hosting.
 
 ---
 
@@ -215,9 +222,12 @@ first and give both routes the same implementation; do not fork the checks.
 ## D-8 — A sibling SQL function, not a defaulted sixth parameter
 
 **Decision.** `create_lead_with_planner_response(p_lead, p_consent,
-p_attribution, p_outbox, p_planner, p_request_id)` is a new function that
-delegates to the existing five-argument `create_lead_with_receipt`. The existing
-function was not given a defaulted sixth parameter.
+p_attribution, p_outbox, p_planner, p_request_id)` remains a sibling function.
+After integration it delegates to the six-argument exact-retry
+`create_lead_with_receipt(..., p_request_id, p_plan)` with a null planning
+snapshot. The legacy five-argument receipt function remains only for migration
+compatibility and is not executable by `service_role`. The sixth parameter has
+no default.
 
 **Reasoning.** Adding a defaulted parameter to a PostgreSQL function does not
 replace the old signature; it creates an overload. Every existing five-argument
@@ -235,8 +245,9 @@ consumer still gets all-or-nothing.
 default, and revoking from `anon` and `authenticated` alone does not remove it —
 this exact mistake was already caught three times by the RLS suite (ADR-005).
 
-**Revisit when.** Never merge these two functions. If the planner data model
-changes, change the sibling.
+**Revisit when.** Never introduce an ambiguous defaulted overload. If the planner
+data model changes, change the sibling while keeping one exact-retry receipt
+implementation.
 
 ---
 
@@ -289,3 +300,30 @@ the most computation-heavy ones — the Vision engine at `/vision/start` and the
 amortization schedule at `/calculators/amortization`. The re-test procedure is in
 `docs/handoff/TEST_RESULTS.md`. Capture the Worker's observability logs at the
 same time; `observability` is already enabled in `wrangler.jsonc`.
+
+---
+
+## D-11 — Vision report persistence receives inputs and recomputes results
+
+**Decision.** The optional report form at `/vision/start` posts bounded scenario
+inputs to `POST /api/v1/vision/report-requests`. It never posts calculated
+figures. The server validates those inputs, reruns `@tract/vision-model`, and
+atomically persists the lead, consent, attribution, project, assumption
+provenance, scenario, report and outbox event.
+
+**Reasoning.** A durable report must be reconstructable and cannot trust a
+browser to author financial figures, calculation versions or provenance labels.
+The Vision transaction is materially wider than the ordinary lead receipt and
+uses a Vision-specific disclosure, so this satisfies D-7's revocation condition
+for a distinct endpoint. The route preserves the same body, origin, rate-limit,
+schema, honeypot, Turnstile, contact-normalization, exact-retry and no-store
+boundaries.
+
+User-selected overrides are stored as `source_kind = 'user'` and confirmed.
+Catalogue placeholders are stored as `company_default` and are not falsely
+marked visitor-confirmed. SQL assertions prove both states and exact replay.
+
+**Revisit when.** If another report-producing route appears, extract the shared
+request controls before duplicating them. Never accept a client-authored result
+snapshot merely to reduce server work; the deterministic model is the source of
+record.

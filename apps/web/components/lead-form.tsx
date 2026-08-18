@@ -3,6 +3,13 @@
 import { useId, useRef, useState } from "react";
 import { Button } from "@/components/ui";
 import { FIRST_TOUCH_STORAGE_KEY, LAST_TOUCH_STORAGE_KEY, safeLandingPath } from "@tract/analytics";
+import type { LeadAttributionTouch, LeadIntent, PlanningSnapshot } from "@tract/schemas";
+import {
+  attributionTouch,
+  currentAttributionTouch,
+  readStoredTouch
+} from "@/lib/attribution-browser";
+import { resetTurnstile } from "@/lib/turnstile-browser";
 
 /**
  * Marketing lead form.
@@ -17,35 +24,11 @@ import { FIRST_TOUCH_STORAGE_KEY, LAST_TOUCH_STORAGE_KEY, safeLandingPath } from
  * because a bundled consent is not a reliable consent.
  */
 
-type Intent =
-  | "purchase"
-  | "refinance"
-  | "investment"
-  | "first_time_buyer"
-  | "self_employed"
-  | "agent_partner"
-  | "general";
-
 type FormState =
   | { kind: "idle" }
   | { kind: "submitting" }
   | { kind: "error"; message: string; fields: Record<string, string[]> }
   | { kind: "success"; receiptId: string };
-
-type StoredTouch = {
-  landingPath?: string;
-  referrerHost?: string;
-  params?: Record<string, string>;
-};
-
-function readTouch(key: string): StoredTouch {
-  try {
-    const raw = window.localStorage.getItem(key);
-    return raw === null ? {} : (JSON.parse(raw) as StoredTouch);
-  } catch {
-    return {};
-  }
-}
 
 export function LeadForm({
   intent,
@@ -54,19 +37,28 @@ export function LeadForm({
   smsConsentText,
   emailConsentText,
   turnstileSiteKey,
+  planningSnapshot,
   heading = "Talk to a mortgage professional",
   submitLabel = "Request a call"
 }: {
-  intent: Intent;
+  intent: LeadIntent;
   formId: string;
   disclosureText: string;
   smsConsentText: string;
   emailConsentText: string;
   turnstileSiteKey?: string | undefined;
+  planningSnapshot?: PlanningSnapshot | undefined;
   heading?: string;
   submitLabel?: string;
 }) {
   const [state, setState] = useState<FormState>({ kind: "idle" });
+  const submissionRef = useRef<{
+    id: string;
+    fingerprint: string;
+    firstTouch: LeadAttributionTouch;
+    lastTouch: LeadAttributionTouch;
+    conversionTouch: LeadAttributionTouch;
+  } | null>(null);
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   const baseId = useId();
   const fieldId = (name: string) => `${baseId}-${name}`;
@@ -77,42 +69,58 @@ export function LeadForm({
     setState({ kind: "submitting" });
 
     const form = new FormData(event.currentTarget);
-    const firstTouch = readTouch(FIRST_TOUCH_STORAGE_KEY);
-    const lastTouch = readTouch(LAST_TOUCH_STORAGE_KEY);
-    const params = { ...firstTouch.params, ...lastTouch.params };
-
-    const payload = {
+    const preferredContact = form.get("preferredContact")
+      ? String(form.get("preferredContact"))
+      : undefined;
+    const timeline = form.get("timeline") ? String(form.get("timeline")) : undefined;
+    const message = form.get("message") ? String(form.get("message")) : undefined;
+    const consent = {
+      privacyAccepted: form.get("privacyAccepted") === "on",
+      contactRequested: true as const,
+      smsMarketing: form.get("smsMarketing") === "on",
+      emailMarketing: form.get("emailMarketing") === "on",
+      disclosureVersion: "lead-disclosure@2026-08-17"
+    };
+    const core = {
       intent,
       firstName: String(form.get("firstName") ?? ""),
       lastName: String(form.get("lastName") ?? ""),
       email: String(form.get("email") ?? ""),
       phone: String(form.get("phone") ?? ""),
-      preferredContact: form.get("preferredContact")
-        ? String(form.get("preferredContact"))
-        : undefined,
-      timeline: form.get("timeline") ? String(form.get("timeline")) : undefined,
-      message: form.get("message") ? String(form.get("message")) : undefined,
-      consent: {
-        privacyAccepted: form.get("privacyAccepted") === "on",
-        contactRequested: true,
-        smsMarketing: form.get("smsMarketing") === "on",
-        emailMarketing: form.get("emailMarketing") === "on",
-        disclosureVersion: "lead-disclosure@2026-08-17"
-      },
-      attribution: {
-        landingPath: safeLandingPath(window.location.pathname),
-        referrerHost: firstTouch.referrerHost,
-        utmSource: params.utm_source,
-        utmMedium: params.utm_medium,
-        utmCampaign: params.utm_campaign,
-        utmContent: params.utm_content,
-        utmTerm: params.utm_term,
-        gclid: params.gclid,
-        gbraid: params.gbraid,
-        wbraid: params.wbraid,
-        msclkid: params.msclkid,
-        fbclid: params.fbclid
-      },
+      preferredContact,
+      timeline,
+      message,
+      consent,
+      planningSnapshot
+    };
+    const fingerprint = JSON.stringify(core);
+    if (submissionRef.current === null || submissionRef.current.fingerprint !== fingerprint) {
+      const fallbackPath = safeLandingPath(window.location.pathname);
+      submissionRef.current = {
+        id: window.crypto.randomUUID(),
+        fingerprint,
+        firstTouch: attributionTouch(readStoredTouch(FIRST_TOUCH_STORAGE_KEY), fallbackPath),
+        lastTouch: attributionTouch(readStoredTouch(LAST_TOUCH_STORAGE_KEY), fallbackPath),
+        conversionTouch: currentAttributionTouch(window.location.pathname)
+      };
+    }
+    const submission = submissionRef.current;
+
+    const payload = {
+      submissionId: submission.id,
+      intent,
+      firstName: core.firstName,
+      lastName: core.lastName,
+      email: core.email,
+      phone: core.phone,
+      preferredContact,
+      timeline,
+      message,
+      planningSnapshot,
+      consent,
+      firstTouch: submission.firstTouch,
+      lastTouch: submission.lastTouch,
+      conversionTouch: submission.conversionTouch,
       turnstileToken: String(form.get("cf-turnstile-response") ?? "no-challenge-configured"),
       honeypot: String(form.get("company") ?? "")
     };
@@ -136,6 +144,7 @@ export function LeadForm({
         message: result.error.message,
         fields: result.error.fields ?? {}
       });
+      resetTurnstile();
       // Move focus to the summary so a screen reader user hears the problem
       // rather than being left at the submit button with no announcement.
       queueMicrotask(() => errorSummaryRef.current?.focus());
@@ -145,6 +154,7 @@ export function LeadForm({
         message: "We could not reach the server. Please check your connection and try again.",
         fields: {}
       });
+      resetTurnstile();
       queueMicrotask(() => errorSummaryRef.current?.focus());
     }
   }
@@ -378,7 +388,12 @@ export function LeadForm({
       </fieldset>
 
       {turnstileSiteKey !== undefined && (
-        <div className="mt-6 cf-turnstile" data-sitekey={turnstileSiteKey} data-theme="light" />
+        <div
+          className="mt-6 cf-turnstile"
+          data-sitekey={turnstileSiteKey}
+          data-action="lead"
+          data-theme="light"
+        />
       )}
 
       <div className="mt-7">

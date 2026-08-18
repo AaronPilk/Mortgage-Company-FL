@@ -55,7 +55,8 @@ export const PUBLIC_ERROR_MESSAGE: Record<ApiErrorCode, string> = {
   CONFLICT: "That request conflicts with something already in progress.",
   RATE_LIMITED: "Too many requests. Please wait a moment and try again.",
   BUDGET_EXCEEDED: "This feature has reached its usage limit for now.",
-  INTEGRATION_UNAVAILABLE: "That service is temporarily unavailable. Your request was saved.",
+  INTEGRATION_UNAVAILABLE:
+    "We could not save that request because a required service is unavailable. Please try again later.",
   INTERNAL_ERROR: "Something went wrong on our side. Please try again."
 };
 

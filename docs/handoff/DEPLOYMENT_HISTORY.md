@@ -1,88 +1,84 @@
 # Deployment history
 
-**As of 2026-08-18.**
-
-Deployment target for every entry is Cloudflare Workers, worker
-`mortgage-company-fl`, served at
+**As of 2026-08-18.** The intended production target is Cloudflare Worker
+`mortgage-company-fl` at
 `https://mortgage-company-fl.aaron-9c3.workers.dev`.
 
-Deploy mechanism: **manual** `pnpm cf:build && pnpm cf:deploy`. Pushing to `main`
-does not trigger a Cloudflare build — verified 2026-08-18 by comparing the pushed
-commits against the Worker's `modified_on`. See `docs/DEPLOYMENT.md`.
+## Cloudflare Workers
 
----
+The deploy mechanism is manual:
 
-## `main` — deployed
+```text
+pnpm cf:build && pnpm cf:deploy
+```
 
-| Commit    | Date       | Summary                                                    | Deployed | Production verification                                                                                                                                 |
-| --------- | ---------- | ---------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `f903d60` | 2026-08-17 | Give the site a visual language, in both themes            | **Yes**  | **Verified live.** Pushed, built, deployed, and confirmed serving. Subsequently crawled: 39 routes, then 390 requests at concurrency 16 — all HTTP 200. |
-| `39fb830` | 2026-08-17 | Read canonical origin from the committed env file          | Yes      | Superseded by `f903d60`.                                                                                                                                |
-| `6174688` | 2026-08-17 | Commit public site URL so deploys need no dashboard config | Yes      | Superseded.                                                                                                                                             |
-| `cb70410` | 2026-08-17 | Refuse a deploy build without a real canonical origin      | Yes      | Superseded.                                                                                                                                             |
-| `3a7a2ad` | 2026-08-17 | **Deploy as a Cloudflare Worker, not Pages**               | Yes      | The migration commit. Everything before this targeted Cloudflare Pages.                                                                                 |
-| `60d9fd7` | 2026-08-17 | Initial TRACT Mortgage platform build                      | Yes      | —                                                                                                                                                       |
+A GitHub push does not deploy Cloudflare. Four Worker deployments are visible:
 
-`f903d60` is the current tip of `origin/main` and is what
-`https://mortgage-company-fl.aaron-9c3.workers.dev` is serving.
+| Created UTC      | Version                                | Source evidence                                |
+| ---------------- | -------------------------------------- | ---------------------------------------------- |
+| 2026-08-17 20:31 | `f835203c-4143-411b-82b2-e93b9e7da288` | Upload                                         |
+| 2026-08-17 21:34 | `c7beef15-674f-4f9c-bc20-6c8713394c44` | Unknown deployment source                      |
+| 2026-08-17 22:18 | `02ff84bb-9f8e-41d4-9049-66f74deba249` | Previously verified live around `f903d60`      |
+| 2026-08-18 01:38 | `a8691060-83c5-473c-8858-cd20b81300ab` | Unknown version upload; current public version |
 
-**It is the rollback point.** Reverting to `f903d60` returns production to a
-known-good, verified-live state.
+The latest version uses compatibility date 2026-08-01, `nodejs_compat`, the
+assets binding and the visible non-secret brand variable. No Worker secrets are
+listed. Wrangler metadata does not encode a Git commit for the latest upload, so
+do not claim an exact commit-to-version mapping. Public probes confirm the newer
+`/plan`, `/vision/start`, `/rendprop/demo` and brand routes are present.
 
----
+The recovery integration branch has not been deployed. `pnpm cf:build` and a
+local Worker preview passed, but `pnpm cf:deploy` was not run.
 
-## `claude/tract-autonomous-build-20260817` — NOT deployed
+## Vercel
 
-**Four commits. None of this is live.** The sandbox git proxy denies writes to
-this repository (HTTP 403, "not in this session's authorized repository set"), so
-the branch exists only locally. Reads work; writes do not. See
-`docs/handoff/BLOCKERS.md`, blocker 1.
+Vercel currently performs an independent Git deployment from `main`. This is a
+public duplicate, not an approved preview-only connection.
 
-| Commit    | Date       | Summary                                                           | Deployed | Verification                                        |
-| --------- | ---------- | ----------------------------------------------------------------- | -------- | --------------------------------------------------- |
-| `f7ab61c` | 2026-08-18 | Build RendProp as a real workflow with an enforced job model      | **No**   | Local only: `pnpm check` and `pnpm db:verify` pass. |
-| `b5c1f3a` | 2026-08-18 | Add the progressive mortgage planner and make it the primary path | **No**   | Local only.                                         |
-| `14effc2` | 2026-08-17 | Build the property marketplace and the TRACT Vision engine        | **No**   | Local only.                                         |
-| `7eafc51` | 2026-08-17 | Add five calculators and five loan programs                       | **No**   | Local only.                                         |
+| Created UTC      | Vercel deployment                  | Git commit | Target     | State |
+| ---------------- | ---------------------------------- | ---------- | ---------- | ----- |
+| 2026-08-17 20:37 | `dpl_556Wr88RHPtj3Qe8Vjx4QhhXsqut` | `f903d60`  | production | READY |
+| 2026-08-18 00:59 | `dpl_6Y1NzPy36c9kzXE7JYnxippz6qGb` | `cdacd99`  | production | READY |
+| 2026-08-18 01:18 | `dpl_HAwXfY5vaJ3XjBWVHkV8d9YcSanp` | `7998ede`  | production | READY |
 
-Every one is committed locally and passes the full verification suite (606 tests,
-123 RLS assertions — see `docs/handoff/TEST_RESULTS.md`). **They have never run in
-production and have never been served to a visitor.**
+The latest deployment has public aliases including
+`mortgage-company-fl-web.vercel.app` and returns HTTP 200 without an
+authentication gate. Its canonical tag points to the Cloudflare Worker, but it
+still serves a second runtime. No Vercel project, alias, deployment or setting
+was changed during this audit.
 
----
+## Integration branch — not deployed
 
-## The Cloudflare Pages project
+`agent/tract-integrated-recovery-20260818` reconciles `origin/main` at `7998ede`
+with recovery Phases 0–5. Its complete local gates pass:
 
-Dead. It predates `3a7a2ad`.
+- `pnpm check`;
+- `pnpm db:verify`;
+- `pnpm test:e2e`;
+- `pnpm cf:build`;
+- 61-request local Worker smoke.
 
-Cloudflare Pages cannot serve this application's API routes or its server
-rendering, and the Pages deployment returned permanent 404s. It was replaced, not
-repaired.
+It must not be pushed or merged while `main` automatically creates another
+public Vercel production deployment. It must not be deployed to Cloudflare while
+production preflight is red.
 
-**It should be deleted.** Leaving it in place means a future operator can find it,
-point a domain at it, and serve 404s — or worse, serve a stale build of a
-regulated marketing site. Deleting it is a dashboard action for the Cloudflare
-account owner.
+## Required release sequence
 
----
+1. Disable or privatize the Vercel Git production path; verify its public aliases
+   no longer serve the application.
+2. Prove and approve the TRACT Supabase project, apply only reviewed additive
+   migrations and verify the remote schema/RLS under explicit authority.
+3. Provision approved Cloudflare configuration without exposing values.
+4. Re-run `pnpm check`, `pnpm db:verify`, `pnpm test:e2e`,
+   `pnpm deploy:preflight` and `pnpm cf:build`.
+5. Push/merge the reviewed integration.
+6. Run the manual Cloudflare deployment.
+7. Verify at minimum: `/api/v1/health`, `/`, `/plan`,
+   `/calculators/amortization`, `/vision/start`, `/rendprop/demo`,
+   `/robots.txt` and `/sitemap.xml`.
+8. Submit a controlled, consented test lead only if the production database,
+   Turnstile and operational test-data procedure are approved.
+9. Review Worker observability for the deploy window and record the exact Worker
+   version and Git commit mapping.
 
-## Verifying a deployment
-
-After any push to `main`, check the following against the live URL before
-considering it done:
-
-| Check                           | Expect                                                   |
-| ------------------------------- | -------------------------------------------------------- |
-| `GET /api/v1/health`            | HTTP 200                                                 |
-| `GET /`                         | HTTP 200, pre-launch banner present                      |
-| `GET /plan`                     | HTTP 200, planner renders                                |
-| `GET /calculators/amortization` | HTTP 200, schedule renders (CPU-heavy route)             |
-| `GET /vision/start`             | HTTP 200 (CPU-heavy route)                               |
-| `GET /rendprop/demo`            | HTTP 200                                                 |
-| `GET /robots.txt`               | Canonical origin matches `NEXT_PUBLIC_SITE_URL`          |
-| `GET /sitemap.xml`              | Contains only `indexable: true` routes from the registry |
-| `GET /properties`               | 404 while `SHOW_SAMPLE_LISTINGS=false` — that is correct |
-| Any page source                 | No string `NMLS #` in any JSON-LD block                  |
-
-Cloudflare Worker observability is enabled in `apps/web/wrangler.jsonc`. Read the
-logs for the deploy window rather than only the status codes.
+Do not call a release complete from a Git push or a build alone.

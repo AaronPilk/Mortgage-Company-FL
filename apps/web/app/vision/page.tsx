@@ -20,6 +20,7 @@ export const metadata: Metadata = pageMetadata({
   description:
     "Model a renovation, rental, construction, or flip scenario in your browser. Every assumption visible, every gap named, no contact details to see the result.",
   path: "/vision",
+  imagePath: "/images/og/vision.png",
   noIndex: true
 });
 

@@ -65,3 +65,10 @@ export const SMS_CONSENT_TEXT =
 
 export const EMAIL_CONSENT_TEXT =
   "Email me mortgage education and market updates. You can unsubscribe at any time.";
+
+export const VISION_REPORT_DISCLOSURE_VERSION = "vision-report-request@1.0.0";
+
+export const VISION_REPORT_DISCLOSURE_TEXT =
+  "By submitting this request you are asking TRACT to retain this planning scenario and contact you about it. " +
+  "The preview is an illustration based on inputs you can change. It is not an appraisal, construction bid, " +
+  "credit application, approval, rate quote, zoning opinion, or investment recommendation.";

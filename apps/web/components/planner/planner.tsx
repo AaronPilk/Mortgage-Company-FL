@@ -1,9 +1,15 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { FIRST_TOUCH_STORAGE_KEY, LAST_TOUCH_STORAGE_KEY, safeLandingPath } from "@tract/analytics";
+import { FIRST_TOUCH_STORAGE_KEY, LAST_TOUCH_STORAGE_KEY } from "@tract/analytics";
+import type { LeadAttributionTouch } from "@tract/schemas";
 import { Badge, Button, Card } from "@/components/ui";
 import { NumberInput } from "@/components/calculators/field";
+import {
+  attributionTouch,
+  currentAttributionTouch,
+  readStoredTouch
+} from "@/lib/attribution-browser";
 import { CheckboxField, RadioGroup, SelectField, TextField } from "./controls";
 import { EstimatePanel } from "./estimate";
 import { trackEstimateShown, trackPlannerLead, trackPlannerStarted } from "./analytics";
@@ -177,6 +183,13 @@ export function Planner({
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const shouldFocusHeading = useRef(false);
+  const submissionIdentityRef = useRef<{
+    id: string;
+    fingerprint: string;
+    firstTouch: LeadAttributionTouch;
+    lastTouch: LeadAttributionTouch;
+    conversionTouch: LeadAttributionTouch;
+  } | null>(null);
 
   const baseId = useId();
   const fieldId = (name: string) => `${baseId}-${name}`;
@@ -294,9 +307,21 @@ export function Planner({
     setSubmission({ kind: "submitting" });
 
     const form = formRef.current === null ? null : new FormData(formRef.current);
-    const firstTouch = readTouch(FIRST_TOUCH_STORAGE_KEY);
-    const lastTouch = readTouch(LAST_TOUCH_STORAGE_KEY);
-    const params = { ...firstTouch.params, ...lastTouch.params };
+    const fingerprint = JSON.stringify(state);
+    if (
+      submissionIdentityRef.current === null ||
+      submissionIdentityRef.current.fingerprint !== fingerprint
+    ) {
+      const fallbackPath = window.location.pathname;
+      submissionIdentityRef.current = {
+        id: window.crypto.randomUUID(),
+        fingerprint,
+        firstTouch: attributionTouch(readStoredTouch(FIRST_TOUCH_STORAGE_KEY), fallbackPath),
+        lastTouch: attributionTouch(readStoredTouch(LAST_TOUCH_STORAGE_KEY), fallbackPath),
+        conversionTouch: currentAttributionTouch(fallbackPath)
+      };
+    }
+    const submissionIdentity = submissionIdentityRef.current;
 
     const price = sanitizeNumber(state.priceDollars);
     const downPaymentBand: DownPaymentBandValue = isRefinance
@@ -307,6 +332,7 @@ export function Planner({
     );
 
     const payload = {
+      submissionId: submissionIdentity.id,
       intent: INTENT_BY_GOAL[state.goal],
       firstName: state.firstName.trim(),
       lastName: state.lastName.trim(),
@@ -344,20 +370,9 @@ export function Planner({
         monthlyDebtBand: state.monthlyDebtBand,
         timing: state.timing
       },
-      attribution: {
-        landingPath: safeLandingPath(window.location.pathname),
-        ...(firstTouch.referrerHost === undefined ? {} : { referrerHost: firstTouch.referrerHost }),
-        ...(params.utm_source === undefined ? {} : { utmSource: params.utm_source }),
-        ...(params.utm_medium === undefined ? {} : { utmMedium: params.utm_medium }),
-        ...(params.utm_campaign === undefined ? {} : { utmCampaign: params.utm_campaign }),
-        ...(params.utm_content === undefined ? {} : { utmContent: params.utm_content }),
-        ...(params.utm_term === undefined ? {} : { utmTerm: params.utm_term }),
-        ...(params.gclid === undefined ? {} : { gclid: params.gclid }),
-        ...(params.gbraid === undefined ? {} : { gbraid: params.gbraid }),
-        ...(params.wbraid === undefined ? {} : { wbraid: params.wbraid }),
-        ...(params.msclkid === undefined ? {} : { msclkid: params.msclkid }),
-        ...(params.fbclid === undefined ? {} : { fbclid: params.fbclid })
-      },
+      firstTouch: submissionIdentity.firstTouch,
+      lastTouch: submissionIdentity.lastTouch,
+      conversionTouch: submissionIdentity.conversionTouch,
       turnstileToken: String(form?.get("cf-turnstile-response") ?? "no-challenge-configured"),
       honeypot: String(form?.get("company") ?? "")
     };
@@ -944,19 +959,4 @@ function Progress({ current }: { current: number }) {
       </ol>
     </nav>
   );
-}
-
-type StoredTouch = {
-  landingPath?: string;
-  referrerHost?: string;
-  params?: Record<string, string>;
-};
-
-function readTouch(key: string): StoredTouch {
-  try {
-    const raw = window.localStorage.getItem(key);
-    return raw === null ? {} : (JSON.parse(raw) as StoredTouch);
-  } catch {
-    return {};
-  }
 }

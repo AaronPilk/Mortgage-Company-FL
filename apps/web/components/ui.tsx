@@ -86,16 +86,19 @@ export function Card({
   children,
   className = "",
   as: Element = "div",
-  interactive = false
+  interactive = false,
+  dataTestId
 }: {
   children: ReactNode;
   className?: string;
   as?: "div" | "article" | "section" | "li";
   /** Adds the lift and glow. Use only where the whole card is actually clickable. */
   interactive?: boolean;
+  dataTestId?: string;
 }) {
   return (
     <Element
+      data-testid={dataTestId}
       className={`surface hover-float rounded-2xl p-6 ${
         interactive
           ? "cursor-pointer hover:-translate-y-1 hover:border-[var(--purple)] hover:shadow-[0_16px_44px_var(--purple-glow)]"

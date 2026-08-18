@@ -23,6 +23,7 @@ export const metadata: Metadata = pageMetadata({
   description:
     "Listing media from a phone walkthrough: declutter, lighting, virtual staging, stills, floor plan, and a shareable tour — with every altered image labelled.",
   path: "/rendprop",
+  imagePath: "/images/og/rendprop.png",
   noIndex: true
 });
 

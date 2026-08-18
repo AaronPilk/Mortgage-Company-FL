@@ -13,9 +13,10 @@ import { SearchFilters } from "@/components/properties/search-filters";
 import { formatTimestamp } from "@/components/properties/listing-format";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Property search",
-  description: "Search properties and model the financing.",
+  title: "Property planning lab",
+  description: "Explore synthetic Florida property examples and model the financing.",
   path: "/properties",
+  imagePath: "/images/og/properties.png",
   noIndex: true
 });
 

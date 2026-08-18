@@ -28,6 +28,7 @@ export type Resource =
   | "integration_config"
   | "audit_event"
   | "vision_project"
+  | "privacy_request"
   | "kill_switch";
 
 export type Action = "read" | "create" | "update" | "delete" | "replay" | "publish";
@@ -58,6 +59,7 @@ export const AUTHORIZATION_MATRIX: Matrix = {
   integration_config: { read: ["admin"], update: ["admin"] },
   audit_event: { read: ["compliance_reviewer", "admin"] },
   vision_project: { read: ["operations", "admin"] },
+  privacy_request: { read: ["compliance_reviewer", "operations", "admin"] },
   kill_switch: { read: ["operations", "admin"], update: ["admin"] }
 };
 

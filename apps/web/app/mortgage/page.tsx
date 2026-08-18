@@ -52,8 +52,8 @@ export default function MortgageIndexPage() {
           title="Not sure which one applies to you?"
           body="That is the normal starting point. Tell us what you're working on and a licensed mortgage professional will walk through the options that actually fit."
           primary={{
-            href: "/contact",
-            label: "Talk to a mortgage professional",
+            href: "/plan",
+            label: "Build my mortgage plan",
             cta: "mortgage-hub"
           }}
           secondary={{ href: "/calculators", label: "Run the numbers first" }}

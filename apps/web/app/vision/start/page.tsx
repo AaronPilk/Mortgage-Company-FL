@@ -4,9 +4,9 @@ import { VisionWizard } from "@/components/vision/wizard";
 import { pageMetadata } from "@/lib/metadata";
 import {
   EMAIL_CONSENT_TEXT,
-  LEAD_DISCLOSURE_TEXT,
-  LEAD_DISCLOSURE_VERSION,
-  SMS_CONSENT_TEXT
+  SMS_CONSENT_TEXT,
+  VISION_REPORT_DISCLOSURE_TEXT,
+  VISION_REPORT_DISCLOSURE_VERSION
 } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata({
@@ -36,8 +36,8 @@ export default function VisionStartPage() {
       />
 
       <VisionWizard
-        disclosureText={LEAD_DISCLOSURE_TEXT}
-        disclosureVersion={LEAD_DISCLOSURE_VERSION}
+        disclosureText={VISION_REPORT_DISCLOSURE_TEXT}
+        disclosureVersion={VISION_REPORT_DISCLOSURE_VERSION}
         smsConsentText={SMS_CONSENT_TEXT}
         emailConsentText={EMAIL_CONSENT_TEXT}
         turnstileSiteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}

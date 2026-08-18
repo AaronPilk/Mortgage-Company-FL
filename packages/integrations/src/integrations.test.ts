@@ -181,6 +181,24 @@ describe("retry classification and outbox", () => {
     expect(outcome.status).toBe("retry");
   });
 
+  it("dead-letters an unsupported event instead of sending it as a lead", async () => {
+    const crm = new FixtureCrmAdapter();
+    const outcome = await processOutboxRow(
+      {
+        id: "row-unsupported",
+        aggregateType: "lead",
+        aggregateId: "lead-1",
+        eventType: "plan.email_requested",
+        idempotencyKey: "unsupported-1",
+        payload: lead as unknown as Record<string, unknown>,
+        attemptCount: 0
+      },
+      { crm }
+    );
+    expect(outcome).toEqual({ status: "dead", errorCode: "terminal:unsupported_event" });
+    expect(crm.contacts.size).toBe(0);
+  });
+
   it("dead-letters after the attempt ceiling rather than retrying forever", async () => {
     const crm = new FixtureCrmAdapter();
     crm.failNext(1);
@@ -213,6 +231,25 @@ describe("retry classification and outbox", () => {
       { crm: new FixtureCrmAdapter() }
     );
     expect(outcome.status).toBe("succeeded");
+  });
+
+  it("projects an exact outbox replay to one fixture CRM contact", async () => {
+    const crm = new FixtureCrmAdapter();
+    const row = {
+      id: "row-trace-1",
+      aggregateType: "lead",
+      aggregateId: "lead-trace-1",
+      eventType: "lead.received",
+      idempotencyKey: leadSyncIdempotencyKey("submission-trace-1", "lead.received"),
+      payload: { ...lead, externalId: "submission-trace-1" } as unknown as Record<string, unknown>,
+      attemptCount: 0
+    };
+
+    expect((await processOutboxRow(row, { crm })).status).toBe("succeeded");
+    expect((await processOutboxRow({ ...row, id: "row-trace-replay" }, { crm })).status).toBe(
+      "succeeded"
+    );
+    expect(crm.contacts.size).toBe(1);
   });
 
   it("produces a stable idempotency key across retries", () => {
@@ -655,6 +692,8 @@ describe("Turnstile verification", () => {
     const result = await verifyTurnstile("token", "203.0.113.9", {
       mode: "production",
       secretKey: "secret",
+      expectedAction: "lead",
+      expectedHostnames: ["tract.example"],
       fetchImpl: (async () => {
         throw new Error("network down");
       }) as unknown as typeof fetch
@@ -666,11 +705,31 @@ describe("Turnstile verification", () => {
     const result = await verifyTurnstile("token", undefined, {
       mode: "production",
       secretKey: "secret",
+      expectedAction: "lead",
+      expectedHostnames: ["tract.example"],
       fetchImpl: (async () =>
         new Response(JSON.stringify({ success: false }), {
           status: 200
         })) as unknown as typeof fetch
     });
     expect(result.ok === false && result.reason).toBe("rejected");
+  });
+
+  it("requires both the expected action and an approved hostname", async () => {
+    const verify = (action: string, hostname: string) =>
+      verifyTurnstile("token", undefined, {
+        mode: "production",
+        secretKey: "secret",
+        expectedAction: "lead",
+        expectedHostnames: ["tract.example"],
+        fetchImpl: (async () =>
+          new Response(JSON.stringify({ success: true, action, hostname }), {
+            status: 200
+          })) as unknown as typeof fetch
+      });
+
+    expect((await verify("lead", "tract.example")).ok).toBe(true);
+    expect((await verify("vision_report", "tract.example")).ok).toBe(false);
+    expect((await verify("lead", "localhost")).ok).toBe(false);
   });
 });

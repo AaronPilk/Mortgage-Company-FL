@@ -1,9 +1,15 @@
 "use client";
 
 import { useId, useRef, useState } from "react";
-import { FIRST_TOUCH_STORAGE_KEY, LAST_TOUCH_STORAGE_KEY, safeLandingPath } from "@tract/analytics";
-import { SUMMARY_MAX_LENGTH, type VisionResult, scenarioSummary } from "@tract/vision-model";
+import { FIRST_TOUCH_STORAGE_KEY, LAST_TOUCH_STORAGE_KEY } from "@tract/analytics";
+import type { LeadAttributionTouch } from "@tract/schemas";
+import type { VisionInput, VisionResult } from "@tract/vision-model";
 import { Button } from "@/components/ui";
+import {
+  attributionTouch,
+  currentAttributionTouch,
+  readStoredTouch
+} from "@/lib/attribution-browser";
 import { trackVisionReportRequested } from "./analytics";
 
 /**
@@ -13,13 +19,11 @@ import { trackVisionReportRequested } from "./analytics";
  * deliberately downstream of a working result: the preview is complete and
  * readable before this component is ever rendered.
  *
- * It posts to `/api/v1/leads` — the same endpoint every other form on the site
- * uses. That is not incidental. The consent receipt, the disclosure hash, the
- * attribution capture, the dedupe key, the rate limits, the bot challenge, and
- * the CRM outbox all live behind that one route, and a second path would have
- * to reimplement every one of them and would get at least one wrong. The
- * scenario travels in the schema's existing bounded `message` field rather than
- * as a new column, so nothing about the lead contract changes.
+ * It posts the bounded model inputs—not client-calculated figures—to the Vision
+ * report endpoint. The server re-runs the deterministic model and atomically
+ * stores the lead, consent, attribution, project, scenario, draft report, and
+ * CRM outbox event. That keeps durable Vision state reconstructable without
+ * trusting a browser-authored financial result.
  */
 
 type State =
@@ -28,22 +32,8 @@ type State =
   | { kind: "error"; message: string; fields: Record<string, string[]> }
   | { kind: "success"; receiptId: string };
 
-type StoredTouch = {
-  landingPath?: string;
-  referrerHost?: string;
-  params?: Record<string, string>;
-};
-
-function readTouch(key: string): StoredTouch {
-  try {
-    const raw = window.localStorage.getItem(key);
-    return raw === null ? {} : (JSON.parse(raw) as StoredTouch);
-  } catch {
-    return {};
-  }
-}
-
 export function VisionReportRequest({
+  scenario,
   result,
   scenarioRef,
   disclosureText,
@@ -52,6 +42,7 @@ export function VisionReportRequest({
   emailConsentText,
   turnstileSiteKey
 }: {
+  scenario: VisionInput;
   result: VisionResult;
   scenarioRef: string;
   disclosureText: string;
@@ -62,6 +53,13 @@ export function VisionReportRequest({
 }) {
   const [state, setState] = useState<State>({ kind: "idle" });
   const errorSummaryRef = useRef<HTMLDivElement>(null);
+  const submissionIdentityRef = useRef<{
+    id: string;
+    fingerprint: string;
+    firstTouch: LeadAttributionTouch;
+    lastTouch: LeadAttributionTouch;
+    conversionTouch: LeadAttributionTouch;
+  } | null>(null);
   const baseId = useId();
   const fieldId = (name: string) => `${baseId}-${name}`;
 
@@ -71,52 +69,52 @@ export function VisionReportRequest({
     setState({ kind: "submitting" });
 
     const form = new FormData(event.currentTarget);
-    const firstTouch = readTouch(FIRST_TOUCH_STORAGE_KEY);
-    const lastTouch = readTouch(LAST_TOUCH_STORAGE_KEY);
-    const params = { ...firstTouch.params, ...lastTouch.params };
-
     const note = String(form.get("note") ?? "").trim();
-    const summary = scenarioSummary(result, {
-      maxLength: Math.max(200, SUMMARY_MAX_LENGTH - (note.length + 2))
-    });
-    const message = note === "" ? summary : `${summary}\n\n${note}`.slice(0, SUMMARY_MAX_LENGTH);
 
-    const payload = {
-      // The lead schema already carries a vision intent. Nothing had to change.
-      intent: "vision_report",
+    const core = {
+      scenario,
       firstName: String(form.get("firstName") ?? ""),
       lastName: String(form.get("lastName") ?? ""),
       email: String(form.get("email") ?? ""),
       phone: String(form.get("phone") ?? ""),
       timeline: form.get("timeline") ? String(form.get("timeline")) : undefined,
-      message,
+      ...(note === "" ? {} : { note }),
       consent: {
         privacyAccepted: form.get("privacyAccepted") === "on",
         contactRequested: true,
         smsMarketing: form.get("smsMarketing") === "on",
         emailMarketing: form.get("emailMarketing") === "on",
         disclosureVersion
-      },
-      attribution: {
-        landingPath: safeLandingPath(window.location.pathname),
-        referrerHost: firstTouch.referrerHost,
-        utmSource: params.utm_source,
-        utmMedium: params.utm_medium,
-        utmCampaign: params.utm_campaign,
-        utmContent: params.utm_content,
-        utmTerm: params.utm_term,
-        gclid: params.gclid,
-        gbraid: params.gbraid,
-        wbraid: params.wbraid,
-        msclkid: params.msclkid,
-        fbclid: params.fbclid
-      },
+      }
+    };
+    const fingerprint = JSON.stringify(core);
+    if (
+      submissionIdentityRef.current === null ||
+      submissionIdentityRef.current.fingerprint !== fingerprint
+    ) {
+      const fallbackPath = window.location.pathname;
+      submissionIdentityRef.current = {
+        id: window.crypto.randomUUID(),
+        fingerprint,
+        firstTouch: attributionTouch(readStoredTouch(FIRST_TOUCH_STORAGE_KEY), fallbackPath),
+        lastTouch: attributionTouch(readStoredTouch(LAST_TOUCH_STORAGE_KEY), fallbackPath),
+        conversionTouch: currentAttributionTouch(fallbackPath)
+      };
+    }
+    const submissionIdentity = submissionIdentityRef.current;
+
+    const payload = {
+      ...core,
+      submissionId: submissionIdentity.id,
+      firstTouch: submissionIdentity.firstTouch,
+      lastTouch: submissionIdentity.lastTouch,
+      conversionTouch: submissionIdentity.conversionTouch,
       turnstileToken: String(form.get("cf-turnstile-response") ?? "no-challenge-configured"),
       honeypot: String(form.get("company") ?? "")
     };
 
     try {
-      const response = await fetch("/api/v1/leads", {
+      const response = await fetch("/api/v1/vision/report-requests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -367,7 +365,11 @@ export function VisionReportRequest({
       </fieldset>
 
       {turnstileSiteKey !== undefined && (
-        <div className="mt-6 cf-turnstile" data-sitekey={turnstileSiteKey} />
+        <div
+          className="mt-6 cf-turnstile"
+          data-sitekey={turnstileSiteKey}
+          data-action="vision_report"
+        />
       )}
 
       <div className="mt-7">

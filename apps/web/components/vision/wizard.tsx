@@ -495,9 +495,10 @@ export function VisionWizard({
         </div>
       )}
 
-      {step === "report" && result !== null && (
+      {step === "report" && result !== null && input !== null && (
         <div className="mt-6 grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <VisionReportRequest
+            scenario={input}
             result={result}
             scenarioRef={scenarioRef}
             disclosureText={disclosureText}

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 /**
@@ -62,6 +63,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
         </main>
         <SiteFooter />
+        {process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY !== undefined && (
+          <Script
+            src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+            strategy="afterInteractive"
+          />
+        )}
         <AttributionCapture />
         <JsonLd
           value={graph(

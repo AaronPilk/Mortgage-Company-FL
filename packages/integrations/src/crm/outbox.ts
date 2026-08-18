@@ -32,6 +32,9 @@ export type ProcessDeps = {
 };
 
 export async function processOutboxRow(row: OutboxRow, deps: ProcessDeps): Promise<OutboxOutcome> {
+  if (row.eventType !== "lead.received") {
+    return { status: "dead", errorCode: "terminal:unsupported_event" };
+  }
   const maxAttempts = deps.maxAttempts ?? MAX_OUTBOX_ATTEMPTS;
   try {
     const result = await deps.crm.upsertLead(row.payload as never, row.idempotencyKey);

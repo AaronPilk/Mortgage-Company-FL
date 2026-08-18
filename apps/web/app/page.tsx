@@ -14,6 +14,7 @@ import {
   Section,
   SectionHeading
 } from "@/components/ui";
+import { AssetImage } from "@/components/asset-image";
 import { PaymentCalculator } from "@/components/calculators/payment-calculator";
 import { JsonLd } from "@/components/json-ld";
 import { pageMetadata } from "@/lib/metadata";
@@ -26,7 +27,8 @@ export const metadata: Metadata = pageMetadata({
   title: "A clearer path from home search to mortgage plan",
   description:
     "A Florida mortgage brokerage. Compare financing paths with honest calculators, plain-language guides, and direct help from a licensed professional.",
-  path: "/"
+  path: "/",
+  imagePath: "/images/og/default.png"
 });
 
 const SCENARIOS = [
@@ -176,6 +178,51 @@ export default function HomePage() {
                 Explore payment calculators
               </ButtonLink>
             </div>
+
+            <Link
+              href="/properties/FX-TPA-0001"
+              className="group relative block overflow-hidden rounded-[2rem] border border-[var(--border)] bg-[var(--surface-2)] shadow-[var(--shadow-float)] focus-visible:outline-offset-4"
+              aria-label="Open the synthetic Tampa property planning example"
+              data-testid="hero-product-proof"
+            >
+              <div className="aspect-[4/3] overflow-hidden">
+                <AssetImage
+                  src="/images/home/tract-hero-property.webp"
+                  alt="Synthetic contemporary Tampa home used in the TRACT planning demo"
+                  width={1600}
+                  height={1000}
+                  sizes="(max-width: 1024px) 100vw, 54vw"
+                  priority
+                  className="object-cover transition duration-700 group-hover:scale-[1.02]"
+                  fallbackLabel="Synthetic property preview unavailable"
+                />
+              </div>
+              <div className="absolute left-4 top-4 rounded-full bg-black/75 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-sm sm:left-6 sm:top-6">
+                Synthetic planning demo
+              </div>
+              <div className="surface-raised absolute inset-x-4 bottom-4 rounded-2xl p-4 shadow-[var(--shadow-float)] sm:inset-x-auto sm:bottom-6 sm:left-6 sm:w-[22rem] sm:p-5">
+                <div className="flex items-center justify-between gap-4">
+                  <p className="text-sm font-semibold text-[var(--purple)]">
+                    Property search preview
+                  </p>
+                  <span className="text-xs text-[var(--text-muted)]">Tampa fixture</span>
+                </div>
+                <p className="mt-1 text-xl font-bold">$429k sample asking price</p>
+                <div className="mt-3 grid grid-cols-2 gap-3 border-t border-[var(--border)] pt-3 text-xs">
+                  <div>
+                    <span className="block text-[var(--text-muted)]">Bedrooms</span>
+                    <strong className="mt-1 block text-sm">3</strong>
+                  </div>
+                  <div>
+                    <span className="block text-[var(--text-muted)]">Living area</span>
+                    <strong className="mt-1 block text-sm">1,840 sq ft</strong>
+                  </div>
+                </div>
+                <p className="mt-3 text-xs font-semibold text-[var(--purple)]">
+                  Inspect the sample record <span aria-hidden="true">→</span>
+                </p>
+              </div>
+            </Link>
           </div>
 
           {/*
@@ -337,9 +384,18 @@ export default function HomePage() {
 
       <Section>
         <div className="grid gap-5 lg:grid-cols-2">
-          <Card className="relative overflow-hidden">
-            <Orbs variant="subtle" />
-            <div className="relative">
+          <Card className="overflow-hidden !p-0">
+            <div className="aspect-[8/5] overflow-hidden bg-[var(--surface-2)]">
+              <AssetImage
+                src="/images/home/tract-vision-preview.webp"
+                alt="Synthetic Florida bungalow used in the TRACT Vision planning preview"
+                width={1600}
+                height={1000}
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                fallbackLabel="Vision preview unavailable"
+              />
+            </div>
+            <div className="p-6">
               <Eyebrow>TRACT Vision</Eyebrow>
               <h3 className="text-2xl">Model a property before you commit</h3>
               <p className="mt-3.5" style={{ color: "var(--text-muted)" }}>
@@ -347,30 +403,38 @@ export default function HomePage() {
                 every assumption and every source, separates what&rsquo;s known from what&rsquo;s
                 estimated, and never hands you a single good-deal verdict.
               </p>
-              <div className="mt-6">
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                <ButtonLink href="/vision/start" variant="secondary">
+                  Open the planning demo
+                </ButtonLink>
                 <FeatureStatus label="Status" status={features.vision ? "live" : "coming_soon"} />
               </div>
             </div>
           </Card>
 
-          <Card className="relative overflow-hidden">
-            <Orbs variant="subtle" />
-            <div className="relative">
-              <Eyebrow>For real estate agents</Eyebrow>
-              <h3 className="text-2xl">A financing partner who communicates</h3>
+          <Card className="overflow-hidden !p-0">
+            <div className="aspect-[8/5] overflow-hidden bg-[var(--surface-2)] p-4 sm:p-6">
+              <AssetImage
+                src="/images/home/mortgage-planning-dashboard.webp"
+                alt="Rendered TRACT mortgage planner result with payment, loan and assumption details"
+                width={1060}
+                height={402}
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-contain"
+                fallbackLabel="Mortgage planner result unavailable"
+              />
+            </div>
+            <div className="p-6">
+              <Eyebrow>Mortgage planner</Eyebrow>
+              <h3 className="text-2xl">Get a useful range before a contact form</h3>
               <p className="mt-3.5" style={{ color: "var(--text-muted)" }}>
-                Status at every stage, education your buyers can actually use, and tools that make
-                you look good — built around service rather than anything resembling payment for
-                referrals.
+                Five short steps produce a deterministic payment range in your browser. Save it on
+                this device, inspect the assumptions, or choose to share it for a human review.
               </p>
-              <div className="mt-6 flex flex-wrap items-center gap-3">
-                <ButtonLink href="/partners/real-estate-agents" variant="secondary">
-                  See the partner page
+              <div className="mt-6">
+                <ButtonLink href="/plan" variant="secondary">
+                  Build a mortgage plan
                 </ButtonLink>
-                <FeatureStatus
-                  label="RendProp"
-                  status={features.rendProp ? "live" : "coming_soon"}
-                />
               </div>
             </div>
           </Card>

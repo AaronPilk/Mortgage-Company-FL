@@ -1,5 +1,13 @@
 import type { Metadata } from "next";
-import { Card, Disclosure, FeatureStatus, Section, SectionHeading } from "@/components/ui";
+import { AssetImage } from "@/components/asset-image";
+import {
+  ButtonLink,
+  Card,
+  Disclosure,
+  FeatureStatus,
+  Section,
+  SectionHeading
+} from "@/components/ui";
 import { LeadForm } from "@/components/lead-form";
 import { pageMetadata } from "@/lib/metadata";
 import { publicFeatures } from "@/lib/env";
@@ -31,13 +39,32 @@ export default function AgentPartnerPage() {
   const features = publicFeatures();
   return (
     <Section orbs>
-      <SectionHeading
-        as="h1"
-        eyebrow="For agents"
-        title="A financing partner who communicates"
-        gradientWord="communicates"
-        description="Built around service and education, not around anything that would resemble payment for referrals."
-      />
+      <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
+        <SectionHeading
+          as="h1"
+          eyebrow="For agents"
+          title="A financing partner who communicates"
+          gradientWord="communicates"
+          description="Built around service and education, not around anything that would resemble payment for referrals."
+        />
+        <div className="overflow-hidden rounded-[2rem] border border-[var(--border)] bg-[var(--surface-2)] shadow-[var(--shadow-float)]">
+          <div className="aspect-[8/5] overflow-hidden">
+            <AssetImage
+              src="/images/agents/agent-toolkit.webp"
+              alt="Synthetic flat lay of an agent toolkit with phone, tablet, tripod and open-house materials"
+              width={1440}
+              height={900}
+              sizes="(max-width: 1024px) 100vw, 58vw"
+              priority
+              fallbackLabel="Agent toolkit preview unavailable"
+            />
+          </div>
+          <p className="border-t border-[var(--border)] px-5 py-4 text-sm text-[var(--text-muted)]">
+            A synthetic toolkit fixture illustrating capture, share and client-education
+            touchpoints.
+          </p>
+        </div>
+      </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         {VALUE.map((item) => (
@@ -65,6 +92,41 @@ export default function AgentPartnerPage() {
         </p>
       </Card>
 
+      <div className="mt-10 grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
+        <Card className="overflow-hidden p-0">
+          <div className="aspect-square overflow-hidden bg-[var(--surface-2)]">
+            <AssetImage
+              src="/images/agents/open-house-qr-demo.webp"
+              alt="Synthetic open-house toolkit crop with an abstract non-scannable QR-style card"
+              width={900}
+              height={900}
+              sizes="(max-width: 1024px) 100vw, 40vw"
+              fallbackLabel="Open-house attribution preview unavailable"
+            />
+          </div>
+        </Card>
+        <div>
+          <p className="text-sm font-semibold text-[var(--purple)]">
+            Open-house attribution concept
+          </p>
+          <h2 className="mt-2 text-3xl font-bold">A useful handoff, not a referral payment.</h2>
+          <p className="mt-4 text-[var(--text-muted)]">
+            The fixture QR handoff demonstrates how an event source can travel into a local sample
+            tour and then into an inquiry. The pictured pattern is intentionally non-scannable; the
+            linked route below carries bounded first-party campaign labels and no compensation
+            arrangement is implied.
+          </p>
+          <div className="mt-6">
+            <ButtonLink
+              href="/tour/rendprop-coastal-demo?utm_source=agent_partner_page&utm_medium=onsite_qr&utm_campaign=rendprop_sample"
+              variant="secondary"
+            >
+              Open the attributed sample tour
+            </ButtonLink>
+          </div>
+        </div>
+      </div>
+
       <div className="mt-10 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
         <LeadForm
           intent="agent_partner"
@@ -80,12 +142,17 @@ export default function AgentPartnerPage() {
           <h2 className="text-lg font-semibold text-[var(--text)]">RendProp listing media</h2>
           <p className="mt-3 text-sm text-[var(--text-muted)]">
             A guided phone-capture workflow that turns a walkthrough into a shareable tour with
-            clear labeling for any enhanced or staged imagery. It is in development and is not
-            available yet — and we will not describe it as survey-grade or claim measurement
-            accuracy it has not been benchmarked against.
+            clear labeling for any enhanced or staged imagery. The synthetic fixture workflow is
+            available to try; uploads and production media service are not. It is never described as
+            survey-grade or given measurement accuracy it has not been benchmarked against.
           </p>
           <div className="mt-4">
             <FeatureStatus label="RendProp" status={features.rendProp ? "live" : "coming_soon"} />
+          </div>
+          <div className="mt-5">
+            <ButtonLink href="/rendprop/demo" variant="secondary">
+              Run the RendProp sample
+            </ButtonLink>
           </div>
         </Card>
       </div>

@@ -1,161 +1,122 @@
 # Test results
 
-**Date: 2026-08-18.** Branch `claude/tract-autonomous-build-20260817`.
+**Date: 2026-08-18.** Branch `agent/tract-integrated-recovery-20260818`.
 
-Two categories below. The first was re-executed while writing this document and
-the output is quoted. The second was measured earlier in the same session and is
-recorded with its method so it can be reproduced — it was not re-run here.
-
----
-
-## Re-executed while writing this document
-
-### `pnpm test`
-
-```
-pnpm test          # vitest run
-```
-
-```
- Test Files  24 passed (24)
-      Tests  606 passed (606)
-   Duration  7.07s
-```
-
-**606 unit and integration tests across 24 files. All pass.**
-
-Distribution, counted from source (raw `it`/`test` declarations; the executed
-total is higher because several suites use table-driven `.each`):
-
-| File                                                | Declarations |
-| --------------------------------------------------- | -----------: |
-| `apps/web/tests/unit/rendprop-jobs.test.ts`         |           85 |
-| `packages/integrations/src/integrations.test.ts`    |           53 |
-| `packages/integrations/src/listings/search.test.ts` |           44 |
-| `apps/web/tests/unit/property-search.test.ts`       |           25 |
-| `apps/web/tests/unit/site-contract.test.ts`         |           23 |
-| `packages/schemas/src/contact.test.ts`              |           23 |
-| `packages/vision-model/src/engine.test.ts`          |           22 |
-| `packages/vision-model/src/range.test.ts`           |           21 |
-| `packages/mortgage-math/src/scenarios.test.ts`      |           20 |
-| `packages/mortgage-math/src/amortization.test.ts`   |           19 |
-| `packages/vision-model/src/flip.test.ts`            |           19 |
-| `packages/vision-model/src/rental.test.ts`          |           17 |
-| `packages/seo/src/seo.test.ts`                      |           16 |
-| `packages/mortgage-math/src/payment.test.ts`        |           13 |
-| `apps/web/tests/unit/planner-contract.test.ts`      |           12 |
-| `packages/analytics/src/guard.test.ts`              |           12 |
-| `packages/mortgage-math/src/dscr.test.ts`           |           12 |
-| `packages/vision-model/src/assumptions.test.ts`     |           12 |
-| `packages/mortgage-math/src/dti.test.ts`            |           11 |
-| `packages/vision-model/src/summary.test.ts`         |           11 |
-| `packages/mortgage-math/src/rate-impact.test.ts`    |           10 |
-| `packages/vision-model/src/confidence.test.ts`      |            9 |
-| `apps/web/tests/unit/vision-analytics.test.ts`      |            8 |
-| `packages/tokens/src/tokens.test.ts`                |            5 |
-
-### `pnpm db:verify`
-
-```
-pnpm db:verify     # ./scripts/db-verify.sh
-```
-
-Applies all nine migrations in `supabase/migrations/` to a throwaway PostgreSQL
-database, installs the local auth shim, then executes `scripts/rls-tests.sql` as
-each role.
-
-```
-NOTICE:  passed: every table in the public schema has row level security enabled
-        result
-----------------------
- ALL RLS TESTS PASSED
-==> dropping tract_rls_check
-database contract verified
-```
-
-**123 assertion calls in `scripts/rls-tests.sql` (counted from source). All
-pass.** Assertion helpers used: `tests.assert`, `tests.assert_denied`,
-`tests.assert_affects_no_rows`, `tests.assert_rejected`.
-
-Requires a reachable PostgreSQL. Defaults: `PGHOST=localhost`, `PGPORT=5432`,
-`PGUSER=postgres`, `DB_NAME=tract_rls_check`.
-
----
-
-## Measured earlier in this session, not re-run here
+## Mandatory repository gates
 
 ### `pnpm check`
 
+Passes all six stages:
+
+- Prettier format check;
+- ESLint;
+- workspace TypeScript checks;
+- Vitest: **31 files, 633 tests, all passing**;
+- content lint: **46 page files and 53 registered routes, no structural
+  problems**;
+- Next.js 16.3.1 production build: **57 generated pages/routes**.
+
+The content gate initially found the noindex RendProp tour missing from the route
+registry. Registering `/tour/rendprop-coastal-demo` corrected the sitemap and
+content-group contract; the complete gate was then re-run from the beginning and
+passed.
+
+### `pnpm db:verify`
+
+Passes against disposable PostgreSQL 17 on a non-production local server:
+
+- 14 migrations applied in filename order;
+- 38 public tables;
+- 59 named RLS policies;
+- 165 SQL assertion calls;
+- every public table confirmed RLS-enabled;
+- `PUBLIC`, `anon`, `authenticated`, staff-role and owner privilege boundaries
+  confirmed;
+- exact retry confirmed for ordinary leads, planner leads, Vision report
+  requests and privacy requests;
+- Vision request confirmed atomic across lead, consent, attribution, project,
+  assumptions, scenario, report and outbox records;
+- user-selected and company-default Vision assumption provenance confirmed
+  distinct.
+
+The test database was dropped by the verification script. No remote Supabase
+schema or row was changed.
+
+### `pnpm test:e2e`
+
+**80/80 Playwright checks pass** using the production Next build:
+
+- 40 desktop;
+- 40 mobile;
+- mortgage-first home and disclosure contracts;
+- calculator behavior and keyboard operation;
+- exact lead retry and first/last/conversion attribution;
+- progressive planner value before contact capture;
+- labelled/noindex synthetic property marketplace;
+- deterministic Vision result before contact and bounded input-only report
+  submission;
+- RendProp fail-closed provider boundary and labelled tour;
+- account/admin unavailable or unauthorized behavior;
+- API origin, content-type, no-store/noindex and method boundaries.
+
+The expected server log for unconfigured durable lead storage appeared during the
+honest-failure test. The UI returned an error and never displayed a success
+receipt.
+
+## Cloudflare artifact gate
+
+### `pnpm cf:build`
+
+Pass. OpenNext generated `.open-next/worker.js` for compatibility date
+2026-08-01 with `nodejs_compat`.
+
+### Local Worker preview and `pnpm smoke:routes`
+
+Pass after starting the OpenNext Wrangler preview:
+
+```text
+61 requests
+0 failures
+10.1 ms average
+41.1 ms maximum
 ```
-pnpm check
-# = pnpm format && pnpm lint && pnpm typecheck && pnpm test && pnpm content:lint && pnpm build
-```
 
-**Result: pass.** Six stages: Prettier format check, ESLint, `tsc` typecheck
-across the workspace, Vitest, the content linter (`scripts/content-lint.ts`), and
-the production `next build`.
+Every registered route, `/api/v1/health` and repeated higher-value routes returned
+HTTP 200. No response contained a Cloudflare Error 1102 page. The stale fixture
+detail probe was replaced with `/vision/start` because production-like flags
+correctly keep sample detail pages unavailable.
 
-### Route crawl — Cloudflare Error 1102 investigation
+The local preview was shut down after the crawl. No deploy command was run.
 
-Error 1102 is a Worker CPU-time exceedance. The brief listed it as a critical
-release blocker. It was tested rather than assumed.
+## Read-only live probes
 
-| Target                                                       | Requests                       | Result                                       |
-| ------------------------------------------------------------ | ------------------------------ | -------------------------------------------- |
-| Live production, `mortgage-company-fl.aaron-9c3.workers.dev` | 39 routes crawled              | **All HTTP 200**                             |
-| Live production, same host                                   | 390 requests at concurrency 16 | **All HTTP 200. Zero 1102s, zero timeouts.** |
-| Local production build                                       | 56 routes × 10 passes = 560    | **560/560 HTTP 200, in 3.2 seconds**         |
+- Cloudflare Worker home, health, `/plan`, `/vision/start`, `/rendprop/demo` and
+  current brand asset: HTTP 200.
+- Latest Vercel production alias: HTTP 200 and publicly reachable.
+- Vercel canonical tag: Cloudflare Worker origin.
+- Vercel and Cloudflare health endpoints: both report database unconfigured,
+  CRM/AI/bot/email disabled and public product feature flags off.
+- Current Cloudflare deployment list: four versions, latest created 2026-08-18
+  01:38 UTC.
 
-**Not reproducible. No code change was made, because there was no defect to
-fix.** It was either resolved by the Pages-to-Workers migration (`3a7a2ad`) or it
-was observed on the dead Cloudflare Pages deployment. See
-`docs/handoff/DECISIONS.md`, D-10.
+These probes did not submit forms or mutate external state.
 
-**How to re-test if a 1102 is ever observed:**
+## Production preflight
 
-1. Build and serve a production build locally:
-   `NEXT_PUBLIC_SITE_URL=https://mortgage-company-fl.aaron-9c3.workers.dev pnpm build`
-   then `pnpm --filter @tract/web start`.
-2. Derive the route list from `apps/web/content/routes.ts` (52 entries) plus the
-   dynamic paths under `/mortgage/[slug]` and `/properties/[listingKey]`.
-3. Crawl every route, recording the status code and the response time for each.
-4. Repeat against the live Worker under concurrency.
-5. Weight the run toward the computation-heavy routes — `/vision/start` (the
-   Vision scenario engine) and `/calculators/amortization` (a full schedule).
-6. Read the Worker's observability logs for the same window. `observability` is
-   already enabled in `apps/web/wrangler.jsonc`.
+`pnpm deploy:preflight` correctly fails with four blocking configuration names:
 
-A 1102 is CPU time, not a network fault. If one appears, look at what the route
-computes, not at the host.
+- `HASH_PEPPER`;
+- `SUPABASE_SERVICE_ROLE_KEY`;
+- `TURNSTILE_MODE`;
+- `NEXT_PUBLIC_TURNSTILE_SITE_KEY`.
 
----
+No values are printed by the script. This expected failure prevents a production
+deployment and is not waived by the green code gates.
 
-## Session deltas
+## Not run or not claimed
 
-| Measure                  | Start of session | End of session |
-| ------------------------ | ---------------: | -------------: |
-| Unit / integration tests |              165 |        **606** |
-| Test files               |                8 |         **24** |
-| RLS assertions           |               39 |        **123** |
-| Migrations               |                7 |          **9** |
-| Tables                   |               24 |         **31** |
-
-The "start of session" figures come from `docs/build/handoff.md`, which was
-written on 2026-08-17 and records 163 tests rather than 165. The discrepancy is
-one or two tests and is not material; the end-of-session figures are the
-re-measured ones above.
-
-**`docs/build/handoff.md` and `docs/build/blocked-items.md` are now stale.** They
-still describe 7 migrations, 24 tables, 163 tests, and 39 RLS assertions. Treat
-`docs/handoff/` as authoritative.
-
----
-
-## Not run
-
-| Check                        | Status                                                                                                                                                                                                                  |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm test:e2e` (Playwright) | Not run in this session. Previously recorded at 54 passing on 2026-08-17.                                                                                                                                               |
-| `pnpm deploy:preflight`      | Not run against a production environment. It refuses on `HASH_PEPPER`, `SUPABASE_SERVICE_ROLE_KEY`, `TURNSTILE_MODE`, and fixture listings in the default configuration — that is the correct behaviour, not a failure. |
-| Full axe accessibility sweep | Not run. Contrast is proven by unit test; keyboard paths are covered by end-to-end tests. Neither is a substitute for an audit.                                                                                         |
-| Lighthouse                   | Not measured. Do not claim numbers.                                                                                                                                                                                     |
+- No remote Supabase migration, RLS, Auth or Storage test.
+- No production form submission or CRM delivery.
+- No Cloudflare deploy or post-deploy log window for this integration.
+- No measured Lighthouse score or full accessibility audit.
+- No paid AI/media provider call.

@@ -9,8 +9,14 @@
 export const TABLES = {
   profiles: "profiles",
   userRoles: "user_roles",
+  savedProperties: "saved_properties",
+  savedCalculatorScenarios: "saved_calculator_scenarios",
+  notificationPreferences: "notification_preferences",
+  privacyRequests: "privacy_requests",
   auditEvents: "audit_events",
   leads: "leads",
+  leadSubmissionReceipts: "lead_submission_receipts",
+  leadPlans: "lead_plans",
   consentReceipts: "consent_receipts",
   suppressions: "suppressions",
   attributionTouches: "attribution_touches",
@@ -23,6 +29,7 @@ export const TABLES = {
   visionAssumptions: "vision_assumptions",
   visionScenarios: "vision_scenarios",
   visionReports: "vision_reports",
+  visionReportRequests: "vision_report_requests",
   aiJobs: "ai_jobs",
   usageLedger: "usage_ledger",
   quotaPolicies: "quota_policies",
@@ -42,8 +49,12 @@ export const FUNCTIONS = {
   reserveAiBudget: "reserve_ai_budget",
   recordAuditEvent: "record_audit_event",
   getPublicReport: "get_public_report",
+  createVisionReportRequest: "create_vision_report_request",
+  claimIntegrationOutbox: "claim_integration_outbox",
+  completeIntegrationOutbox: "complete_integration_outbox",
   hasRole: "has_role",
-  isStaff: "is_staff"
+  isStaff: "is_staff",
+  createPrivacyRequest: "create_privacy_request"
 } as const;
 
 export type TableName = (typeof TABLES)[keyof typeof TABLES];

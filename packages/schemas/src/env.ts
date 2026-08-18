@@ -32,7 +32,9 @@ export const ServerEnvSchema = z
     SUPABASE_SERVICE_ROLE_KEY: optionalString,
 
     TURNSTILE_MODE: FeatureModeSchema.default("disabled"),
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY: optionalString,
     TURNSTILE_SECRET_KEY: optionalString,
+    TURNSTILE_HOSTNAMES: optionalString,
 
     GHL_MODE: FeatureModeSchema.default("disabled"),
     GHL_PRIVATE_INTEGRATION_TOKEN: optionalString,
@@ -40,6 +42,7 @@ export const ServerEnvSchema = z
     GHL_API_BASE_URL: z.string().url().default("https://services.leadconnectorhq.com"),
     GHL_API_VERSION: z.string().default("2021-07-28"),
     GHL_WEBHOOK_PUBLIC_KEY: optionalString,
+    OUTBOX_DRAIN_TOKEN: z.string().min(16).optional(),
 
     AI_MODE: FeatureModeSchema.default("disabled"),
     OPENAI_API_KEY: optionalString,
@@ -51,7 +54,7 @@ export const ServerEnvSchema = z
 
     MLS_PROVIDER: z
       .enum(["disabled", "fixture", "stellar", "bridge", "mlsgrid"])
-      .default("fixture"),
+      .default("disabled"),
     /**
      * Second switch required to render sample listings publicly. Off by default,
      * so sample data cannot ship because nobody noticed MLS_PROVIDER was still
@@ -101,7 +104,9 @@ export const ServerEnvSchema = z
 
     requireWhenLive(env.GHL_MODE, "GHL_PRIVATE_INTEGRATION_TOKEN", "GoHighLevel token");
     requireWhenLive(env.GHL_MODE, "GHL_LOCATION_ID", "GoHighLevel location id");
+    requireWhenLive(env.GHL_MODE, "OUTBOX_DRAIN_TOKEN", "Outbox drain token");
     requireWhenLive(env.TURNSTILE_MODE, "TURNSTILE_SECRET_KEY", "Turnstile secret");
+    requireWhenLive(env.TURNSTILE_MODE, "TURNSTILE_HOSTNAMES", "Turnstile hostnames");
   });
 
 export type ServerEnv = z.infer<typeof ServerEnvSchema>;
@@ -171,6 +176,12 @@ export function assertProductionReady(env: ServerEnv): ReadinessProblem[] {
       message: "Conversion forms must be protected by a real bot challenge in production."
     });
   }
+  if (env.NEXT_PUBLIC_TURNSTILE_SITE_KEY === undefined) {
+    problems.push({
+      key: "NEXT_PUBLIC_TURNSTILE_SITE_KEY",
+      message: "Conversion forms require the public Turnstile widget identifier."
+    });
+  }
 
   return problems;
 }
@@ -187,6 +198,7 @@ export const SECRET_ENV_KEYS = [
   "TURNSTILE_SECRET_KEY",
   "GHL_PRIVATE_INTEGRATION_TOKEN",
   "GHL_WEBHOOK_PUBLIC_KEY",
+  "OUTBOX_DRAIN_TOKEN",
   "OPENAI_API_KEY",
   "ANTHROPIC_API_KEY",
   "HIGGSFIELD_API_KEY",

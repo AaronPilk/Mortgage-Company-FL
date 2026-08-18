@@ -60,6 +60,7 @@ describe("masking", () => {
 
 describe("CreateLeadSchema", () => {
   const valid = {
+    submissionId: "00000000-0000-4000-8000-000000000010",
     intent: "purchase",
     firstName: "Dana",
     lastName: "Reyes",
@@ -72,7 +73,18 @@ describe("CreateLeadSchema", () => {
       emailMarketing: true,
       disclosureVersion: "lead-disclosure@2026-08-17"
     },
-    attribution: { landingPath: "/mortgage/purchase" },
+    firstTouch: {
+      landingPath: "/mortgage/purchase",
+      occurredAt: "2026-08-17T12:00:00.000Z"
+    },
+    lastTouch: {
+      landingPath: "/mortgage/purchase",
+      occurredAt: "2026-08-17T12:05:00.000Z"
+    },
+    conversionTouch: {
+      landingPath: "/mortgage/purchase",
+      occurredAt: "2026-08-17T12:10:00.000Z"
+    },
     turnstileToken: "test-token"
   };
 
@@ -112,6 +124,36 @@ describe("CreateLeadSchema", () => {
     const result = CreateLeadSchema.safeParse({ ...valid, message: "x".repeat(5000) });
     expect(result.success).toBe(false);
   });
+
+  it("accepts a bounded first-party planning snapshot", () => {
+    const parsed = CreateLeadSchema.parse({
+      ...valid,
+      planningSnapshot: {
+        source: "mortgage_planner",
+        version: "mortgage-planner@1.0.0",
+        calculationVersion: "mortgage-math@1.0.0",
+        inputSnapshot: { intent: "buying", targetPriceDollars: 425000 },
+        resultSnapshot: { estimatedMonthlyDollars: 3125 },
+        summary: "Buying in Tampa in three to six months."
+      }
+    });
+    expect(parsed.planningSnapshot?.source).toBe("mortgage_planner");
+  });
+
+  it("rejects application-only fields hidden in a planning snapshot", () => {
+    const result = CreateLeadSchema.safeParse({
+      ...valid,
+      planningSnapshot: {
+        source: "mortgage_planner",
+        version: "mortgage-planner@1.0.0",
+        calculationVersion: "mortgage-math@1.0.0",
+        inputSnapshot: { social_security_number: "123-45-6789" },
+        resultSnapshot: {},
+        summary: "Not allowed"
+      }
+    });
+    expect(result.success).toBe(false);
+  });
 });
 
 describe("parseServerEnv", () => {
@@ -119,7 +161,7 @@ describe("parseServerEnv", () => {
     const env = parseServerEnv({});
     expect(env.GHL_MODE).toBe("disabled");
     expect(env.AI_MODE).toBe("disabled");
-    expect(env.MLS_PROVIDER).toBe("fixture");
+    expect(env.MLS_PROVIDER).toBe("disabled");
     expect(env.FEATURE_VISION).toBe(false);
   });
 
@@ -129,7 +171,8 @@ describe("parseServerEnv", () => {
       parseServerEnv({
         GHL_MODE: "production",
         GHL_PRIVATE_INTEGRATION_TOKEN: "token",
-        GHL_LOCATION_ID: "loc"
+        GHL_LOCATION_ID: "loc",
+        OUTBOX_DRAIN_TOKEN: "outbox-worker-token"
       })
     ).not.toThrow();
   });
@@ -165,7 +208,9 @@ describe("assertProductionReady", () => {
         MLS_PROVIDER: "disabled",
         SUPABASE_SERVICE_ROLE_KEY: "service-key",
         TURNSTILE_MODE: "production",
-        TURNSTILE_SECRET_KEY: "turnstile-secret"
+        NEXT_PUBLIC_TURNSTILE_SITE_KEY: "public-site-key",
+        TURNSTILE_SECRET_KEY: "turnstile-secret",
+        TURNSTILE_HOSTNAMES: "mortgage-company-fl.aaron-9c3.workers.dev"
       })
     );
     expect(problems).toEqual([]);
