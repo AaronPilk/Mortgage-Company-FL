@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { ANALYSIS_TYPE_META } from "@/components/vision/copy";
+import { ConceptPair } from "@/components/vision/concept-media";
 import {
   Badge,
   ButtonLink,
@@ -141,6 +143,76 @@ export default function VisionPage() {
         </div>
       </Section>
 
+      {/*
+        Imagery, with the same rule the arithmetic gets: say what it is.
+
+        These illustrate what a scenario type means. They are not Vision output —
+        Vision produces no imagery at all today, which the section below says in
+        as many words — and the altered half of each pair carries its disclosure
+        in the layout, emitted by `ConceptVisual` rather than by this page, so it
+        cannot be laid out away.
+      */}
+      <Section width="default">
+        <SectionHeading
+          title="What a concept image is, and is not"
+          gradientWord="is not"
+          description="Three of those scenarios, drawn as a before and an after. Every altered image says so on the image. None of these is Vision output — Vision computes figures and produces no imagery at all — and none of them depicts a real project, a real client, or a real address."
+        />
+        <div className="space-y-10">
+          <ConceptPair
+            kind="renovation"
+            heading="Renovation"
+            body="A cosmetic refresh on an older bungalow. What a scenario like this actually turns on is the cost you enter and the resale assumption you choose, not how the picture looks."
+            before={{
+              src: "/images/vision/renovation-before.webp",
+              alt: "A dated single-storey Florida bungalow with a covered porch and tropical planting",
+              width: 1440,
+              height: 900
+            }}
+            after={{
+              src: "/images/vision/renovation-after-concept.webp",
+              alt: "The same bungalow illustrated with fresh paint, tidier planting and brighter trim",
+              width: 1440,
+              height: 900
+            }}
+          />
+          <ConceptPair
+            kind="addition"
+            heading="Addition"
+            body="A modest wing beside an existing house. Whether it may be built at all is a setback, zoning, and permitting question, and the model answers none of them — it lists them as unverified instead."
+            before={{
+              src: "/images/vision/addition-before.webp",
+              alt: "A two-storey Florida house with an attached garage on a suburban lot",
+              width: 1440,
+              height: 900
+            }}
+            after={{
+              src: "/images/vision/addition-after-concept.webp",
+              alt: "The same house illustrated with a single-storey wing added to one side",
+              width: 1440,
+              height: 900
+            }}
+          />
+          <ConceptPair
+            kind="land_placement"
+            heading="Land and new construction"
+            body="A house placed on open ground. Access, utility capacity, wetland delineation, and permitted use decide whether that placement is even possible, and a picture cannot settle any of them."
+            before={{
+              src: "/images/vision/land-aerial.webp",
+              alt: "Open Florida pasture with scattered oaks and a two-track sand drive",
+              width: 1440,
+              height: 900
+            }}
+            after={{
+              src: "/images/vision/land-home-concept.webp",
+              alt: "The same land illustrated with a single-storey house set back at the end of the drive",
+              width: 1440,
+              height: 900
+            }}
+          />
+        </div>
+      </Section>
+
       <Section width="narrow" tone="surface">
         <SectionHeading
           title="What it will never do"
@@ -204,6 +276,32 @@ export default function VisionPage() {
       </Section>
 
       <Section width="default" pad="tight">
+        {/*
+          Generic Florida photography, and nothing more. It carries no alteration
+          badge because nothing about it has been altered — but the caption still
+          states what it is not, because a cover image is exactly the kind of
+          picture a reader assumes belongs to somebody in particular.
+        */}
+        <figure className="m-0 mb-10 grid gap-6 sm:grid-cols-[minmax(0,20rem)_1fr] sm:items-center">
+          <Image
+            src="/images/vision/report-cover.webp"
+            alt="A single-storey Florida bungalow with a covered porch, framed as a cover image"
+            width={1200}
+            height={900}
+            sizes="(max-width: 640px) 100vw, 320px"
+            className="aspect-[4/3] w-full rounded-2xl object-cover"
+            style={{ boxShadow: "var(--shadow-float)" }}
+          />
+          <figcaption className="text-sm leading-relaxed" style={{ color: "var(--text-muted)" }}>
+            <span className="font-semibold" style={{ color: "var(--text)" }}>
+              If you want the write-up, ask for it after the result.
+            </span>{" "}
+            The scenario runs and displays without a contact detail; a written summary is something
+            you request afterwards, once you have already seen the figures. The cover image above is
+            generic photography chosen for this page — it is not a property anybody modelled, not a
+            client&rsquo;s home, and not a report about a real address.
+          </figcaption>
+        </figure>
         <CtaPanel
           title="See your numbers first"
           body="Run the scenario, read the assumptions, look at what nobody has verified. Then decide whether it is worth a conversation."

@@ -26,7 +26,7 @@ const manifest = JSON.parse(
 describe("canonical asset manifest", () => {
   it("tracks every required asset with local provenance and rights", () => {
     expect(manifest.assetDateDefault).toBe("2026-08-17");
-    expect(manifest.assets).toHaveLength(32);
+    expect(manifest.assets).toHaveLength(42);
     expect(new Set(manifest.assets.map((asset) => asset.key)).size).toBe(manifest.assets.length);
 
     for (const asset of manifest.assets) {
@@ -49,7 +49,15 @@ describe("canonical asset manifest", () => {
 
   it("covers every required product family and social preview", () => {
     const keys = manifest.assets.map((asset) => asset.key);
-    for (const prefix of ["home.", "properties.", "vision.", "rendprop.", "agents.", "og."]) {
+    for (const prefix of [
+      "home.",
+      "properties.",
+      "scenarios.",
+      "vision.",
+      "rendprop.",
+      "agents.",
+      "og."
+    ]) {
       expect(keys.some((key) => key.startsWith(prefix))).toBe(true);
     }
   });

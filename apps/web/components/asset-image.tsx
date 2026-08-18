@@ -27,8 +27,9 @@ export function AssetImage({
   if (failed) {
     return (
       <div
-        role="img"
-        aria-label={alt}
+        role={alt === "" ? undefined : "img"}
+        aria-label={alt === "" ? undefined : alt}
+        aria-hidden={alt === "" ? true : undefined}
         data-media-state="fallback"
         className="grid h-full min-h-48 w-full place-items-center bg-[var(--surface-2)] px-6 text-center text-sm font-semibold text-[var(--text-muted)]"
       >

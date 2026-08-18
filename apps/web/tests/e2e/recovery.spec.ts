@@ -1,17 +1,23 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("integrated recovery workflows", () => {
-  test("renders the canonical product proof with a bounded image fallback", async ({ page }) => {
+  test("renders the generated hero with a bounded image fallback", async ({ page }) => {
     await page.goto("/");
     const proof = page.getByTestId("hero-product-proof");
-    await expect(proof).toContainText("Synthetic planning demo");
+    await expect(proof).toContainText("Know the housing payment");
     expect(
       await proof.locator("img").evaluate((image: HTMLImageElement) => image.naturalWidth)
     ).toBeGreaterThan(0);
 
+    await page.route("**/images/home/hero-florida-home*.webp", async (route) => {
+      await route.fulfill({ status: 404, body: "missing responsive source in fallback test" });
+    });
     await page.route("**/_next/image?*", async (route) => {
       const source = new URL(route.request().url()).searchParams.get("url");
-      if (source === "/images/home/tract-hero-property.webp") {
+      if (
+        source === "/images/home/hero-florida-home.webp" ||
+        source === "/images/home/hero-florida-home-1200.webp"
+      ) {
         await route.fulfill({ status: 404, body: "missing in fallback test" });
         return;
       }
@@ -19,7 +25,7 @@ test.describe("integrated recovery workflows", () => {
     });
     await page.reload();
     await expect(proof.locator('[data-media-state="fallback"]')).toContainText(
-      "Synthetic property preview unavailable"
+      "Generated hero preview unavailable"
     );
   });
 

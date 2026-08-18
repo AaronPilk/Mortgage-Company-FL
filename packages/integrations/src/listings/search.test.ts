@@ -66,10 +66,35 @@ describe("fixture corpus", () => {
     }
   });
 
-  it("references no photograph, so nothing can hotlink a third-party image", () => {
+  /*
+   * The original rule here was "no image at all". What it was protecting was
+   * never the absence of a picture — it was that a fixture must not point at a
+   * listing source's photograph, which is someone else's copyright, someone
+   * else's bandwidth, and displayable only under an agreement we do not have.
+   * Company-generated illustrations served from this repository do not create
+   * that exposure, so the rule is now the one that was actually meant.
+   */
+  it("references only first-party images, so nothing can hotlink a third-party photograph", () => {
     for (const record of FLORIDA_FIXTURES) {
-      expect(record.primaryImage, record.listingKey).toBeUndefined();
+      const image = record.primaryImage;
+      if (image === undefined) continue;
+      expect(image.url, record.listingKey).toMatch(/^\/images\/properties\/[\w-]+\.webp$/);
+      expect(image.alt ?? "", record.listingKey).not.toHaveLength(0);
+      expect(image.attribution ?? "", record.listingKey).not.toHaveLength(0);
+      expect(image.width, record.listingKey).toBeGreaterThan(0);
+      expect(image.height, record.listingKey).toBeGreaterThan(0);
     }
+  });
+
+  it("keeps records without an image, so the placeholder path stays exercised", () => {
+    expect(FLORIDA_FIXTURES.some((record) => record.primaryImage === undefined)).toBe(true);
+  });
+
+  it("never reuses one image across two records", () => {
+    const urls = FLORIDA_FIXTURES.flatMap((record) =>
+      record.primaryImage === undefined ? [] : [record.primaryImage.url]
+    );
+    expect(new Set(urls).size).toBe(urls.length);
   });
 
   it("issues a unique listing key per record", () => {

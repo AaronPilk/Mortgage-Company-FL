@@ -4,13 +4,33 @@ import { runListingSearch } from "./search";
 /**
  * Synthetic Florida listings.
  *
- * Every record is invented. Street names use the reserved "Example" convention,
- * no photograph is referenced, and nothing here is derived from an MLS, a
- * portal, or a public record. `isFixture` travels with the record so production
- * configuration rejects it and so every surface that renders one can label it.
+ * Every record is invented. Street names use the reserved "Example" convention
+ * and nothing here is derived from an MLS, a portal, or a public record.
+ * `isFixture` travels with the record so production configuration rejects it and
+ * so every surface that renders one can label it.
+ *
+ * Some records carry a `primaryImage`. It is never a listing photograph: it is a
+ * company-generated illustration served from this repository's own `/images`
+ * directory, so no third party's copyright or bandwidth is involved and there is
+ * no URL a feed change could repoint at a portal. A picture makes an invented
+ * record look more real, which is why the image carries its own attribution line
+ * and why every surface that renders one still renders the sample-data label.
  */
 
 const SAMPLE_ATTRIBUTION = "Sample data. Not sourced from any MLS.";
+
+/** Rendered beside any fixture image, so the picture is labelled, not just the record. */
+const SAMPLE_IMAGE_ATTRIBUTION =
+  "Illustrative image generated for sample data. Not a photograph of a real property.";
+
+/** Every fixture image is 8:5 and lives in this repository. Never a remote URL. */
+const sampleImage = (file: string, alt: string) => ({
+  url: `/images/properties/${file}`,
+  width: 1600,
+  height: 1000,
+  attribution: SAMPLE_IMAGE_ATTRIBUTION,
+  alt
+});
 
 /** The single snapshot time these records represent. Rendered as data freshness. */
 export const FIXTURE_DATA_AS_OF = "2026-08-16T12:00:00.000Z";
@@ -27,6 +47,10 @@ export const FLORIDA_FIXTURES: ListingSummary[] = [
     bathrooms: 2,
     livingAreaSqft: 1840,
     propertyType: "Single Family Residence",
+    primaryImage: sampleImage(
+      "fixture-tampa-contemporary-01.webp",
+      "Illustrative photograph of a contemporary Florida home in warm natural light"
+    ),
     yearBuilt: 2004,
     lotSizeSqft: 6_500,
     daysOnMarket: 21,
@@ -48,6 +72,10 @@ export const FLORIDA_FIXTURES: ListingSummary[] = [
     bathrooms: 2.5,
     livingAreaSqft: 2110,
     propertyType: "Single Family Residence",
+    primaryImage: sampleImage(
+      "fixture-orlando-suburban-01.webp",
+      "Illustrative photograph of a two-storey suburban Florida home"
+    ),
     yearBuilt: 2016,
     lotSizeSqft: 5_800,
     daysOnMarket: 9,
@@ -149,6 +177,10 @@ export const FLORIDA_FIXTURES: ListingSummary[] = [
     bathrooms: 2,
     livingAreaSqft: 1710,
     propertyType: "Single Family Residence",
+    primaryImage: sampleImage(
+      "fixture-st-pete-bungalow-01.webp",
+      "Illustrative photograph of a Florida bungalow beneath mature tropical trees"
+    ),
     yearBuilt: 1952,
     lotSizeSqft: 7_200,
     daysOnMarket: 14,
@@ -304,6 +336,10 @@ export const FLORIDA_FIXTURES: ListingSummary[] = [
     },
     coordinates: { latitude: 27.9245, longitude: -82.3773 },
     propertyType: "Residential Lot",
+    primaryImage: sampleImage(
+      "fixture-florida-lot-01.webp",
+      "Illustrative photograph of a vacant Florida residential lot bordered by mature trees"
+    ),
     lotSizeSqft: 10_450,
     daysOnMarket: 63,
     description:
@@ -329,6 +365,10 @@ export const FLORIDA_FIXTURES: ListingSummary[] = [
     bathrooms: 2.5,
     livingAreaSqft: 2_050,
     propertyType: "Single Family Residence",
+    primaryImage: sampleImage(
+      "fixture-sarasota-coastal-01.webp",
+      "Illustrative photograph of a single-storey coastal-influenced Florida home"
+    ),
     yearBuilt: 2006,
     lotSizeSqft: 8_000,
     daysOnMarket: 25,
@@ -379,6 +419,10 @@ export const FLORIDA_FIXTURES: ListingSummary[] = [
     },
     coordinates: { latitude: 27.3421, longitude: -82.3902 },
     propertyType: "Land",
+    primaryImage: sampleImage(
+      "fixture-florida-land-01.webp",
+      "Illustrative elevated photograph across an undeveloped Florida land parcel"
+    ),
     lotSizeSqft: 1_742_400,
     daysOnMarket: 154,
     description:
@@ -484,6 +528,10 @@ export const FLORIDA_FIXTURES: ListingSummary[] = [
     bathrooms: 3,
     livingAreaSqft: 2_120,
     propertyType: "Duplex",
+    primaryImage: sampleImage(
+      "fixture-jacksonville-duplex-01.webp",
+      "Illustrative photograph of a Florida duplex of the kind held as a rental"
+    ),
     yearBuilt: 1981,
     lotSizeSqft: 7_100,
     daysOnMarket: 72,

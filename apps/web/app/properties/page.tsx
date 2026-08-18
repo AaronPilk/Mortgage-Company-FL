@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { ButtonLink, Card, CtaPanel, Disclosure, Section, SectionHeading } from "@/components/ui";
 import { pageMetadata } from "@/lib/metadata";
 import { publicFeatures } from "@/lib/env";
@@ -176,13 +177,43 @@ export default async function PropertiesPage({
 
       {page.items.length > 0 && (
         <Section pad="tight" tone="surface">
-          <h2 className="text-2xl">Why there are no photographs</h2>
+          <h2 className="text-2xl">About the images on these cards</h2>
           <p className="mt-3 max-w-2xl text-[var(--text-muted)]">
-            These records are invented, so there is nothing to photograph. Listing photographs also
-            belong to the listing source and may only be shown under a data agreement, which is why
-            no image is ever hotlinked from a portal here.
+            No photograph on this page is a listing photograph. These records are invented, so there
+            is nothing to photograph. Some cards carry an image we generated ourselves to show what
+            the layout looks like with one — it does not depict a building that exists, and it is
+            labelled on the image itself as well as on the card. The rest carry a drawn placeholder.
           </p>
-          <div className="mt-8 max-w-3xl">
+          <p className="mt-3 max-w-2xl text-[var(--text-muted)]">
+            Real listing photographs belong to the listing source and may only be shown under a data
+            agreement, which is why no image is ever hotlinked from a portal here.
+          </p>
+          <div className="mt-8 grid max-w-4xl gap-8 sm:grid-cols-2">
+            <figure className="m-0">
+              <div className="relative">
+                <Image
+                  src="/images/properties/fixture-st-pete-bungalow-02.webp"
+                  alt="Illustrative photograph of a bungalow porch and landscaping, generated for sample data"
+                  width={1200}
+                  height={1000}
+                  sizes="(max-width: 640px) 100vw, 50vw"
+                  className="aspect-[6/5] w-full rounded-xl object-cover"
+                />
+                <span
+                  className="absolute left-3 top-3 rounded-md border px-2 py-1 text-[0.7rem] font-bold uppercase tracking-wide"
+                  style={{
+                    background: "var(--surface)",
+                    borderColor: "var(--color-warning)",
+                    color: "var(--text)"
+                  }}
+                >
+                  Illustrative image — not a real property
+                </span>
+              </div>
+              <figcaption className="mt-3 text-sm font-medium text-[var(--text-muted)]">
+                A generated illustration, labelled where a reader will see it.
+              </figcaption>
+            </figure>
             <GalleryPlaceholder listingKey="search-example" />
           </div>
         </Section>

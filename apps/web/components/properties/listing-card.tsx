@@ -3,6 +3,7 @@ import type { ListingSummary } from "@tract/integrations";
 import { formatUsd } from "@tract/mortgage-math";
 import { Badge, Card } from "@/components/ui";
 import { SampleDataBadge } from "./sample-data-notice";
+import { ListingCardImage } from "./listing-gallery";
 import {
   STATUS_LABEL,
   cityLine,
@@ -20,6 +21,10 @@ import {
  * the sample-data badge (invariant 6 — a fixture may not be presented as real),
  * the attribution text the display agreement requires, and the record's own
  * modification timestamp. None of them are collapsed behind a disclosure.
+ *
+ * Some records now carry an illustration. It sits above the badge rather than
+ * replacing it: a picture makes an invented record read as real, so the badge
+ * matters more once there is one, not less. The image carries its own label too.
  */
 export function ListingCard({ listing }: { listing: ListingSummary }) {
   const facts = factSummary(listing);
@@ -29,8 +34,9 @@ export function ListingCard({ listing }: { listing: ListingSummary }) {
   const href = `/properties/${encodeURIComponent(listing.listingKey)}`;
 
   return (
-    <Card as="li" interactive className="relative !p-0">
+    <Card as="li" interactive className="relative overflow-hidden !p-0">
       <article className="flex h-full flex-col">
+        <ListingCardImage listing={listing} />
         <div className="p-5 pb-0">{listing.isFixture && <SampleDataBadge />}</div>
 
         <div className="flex flex-1 flex-col p-5 pt-4">

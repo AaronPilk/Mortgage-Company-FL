@@ -12,6 +12,7 @@ import {
 } from "@/components/ui";
 import { AlterationPolicyNote } from "@/components/rendprop/ai-label";
 import { PipelineDiagram } from "@/components/rendprop/frames";
+import { RendPropSampleMedia } from "@/components/rendprop/sample-media";
 import { pageMetadata } from "@/lib/metadata";
 import { publicFeatures } from "@/lib/env";
 import { mediaProviderStatus } from "@/lib/rendprop/adapter";
@@ -191,6 +192,16 @@ export default function RendPropPage() {
         <div className="mt-8">
           <AlterationPolicyNote />
         </div>
+      </Section>
+
+      <Section width="default">
+        <SectionHeading
+          eyebrow="What each one looks like"
+          title="The same room, labelled at every step"
+          gradientWord="labelled at every step"
+          description="A description of virtual staging is easy to agree with. Seeing the original beside the altered frame, with the disclosure attached to the altered one, is what makes the rule checkable."
+        />
+        <RendPropSampleMedia />
       </Section>
 
       <Section width="default" tone="surface">

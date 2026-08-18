@@ -13,7 +13,7 @@ test.describe("home page", () => {
   test("states the company type and both primary actions above the fold", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
-      "clearer path from home search to mortgage plan"
+      "Know the housing payment before you fall in love with the house"
     );
     await expect(page.getByText("Florida mortgage brokerage").first()).toBeVisible();
     await expect(page.getByRole("link", { name: "Build my mortgage plan" })).toBeVisible();

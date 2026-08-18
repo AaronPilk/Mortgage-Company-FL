@@ -66,6 +66,24 @@ export default function AgentPartnerPage() {
         </div>
       </div>
 
+      {/*
+        Illustrative Florida photography. The alt text describes a house, not a
+        team, an office, a client, or a listing — because none of those are what
+        this picture is, and a partner page is exactly where an image gets read
+        as evidence of a relationship that has not happened yet.
+      */}
+      <div className="mb-10 aspect-[16/9] overflow-hidden rounded-3xl shadow-[var(--shadow-float)]">
+        <AssetImage
+          src="/images/agents/open-house.webp"
+          alt="The lit entryway of a Florida home with its front door open, framed by palms and potted ferns"
+          width={1400}
+          height={781}
+          sizes="(max-width: 1024px) 100vw, 1024px"
+          className="object-cover"
+          fallbackLabel="Generated agent-partner illustration unavailable"
+        />
+      </div>
+
       <div className="grid gap-6 lg:grid-cols-3">
         {VALUE.map((item) => (
           <Card key={item.heading}>

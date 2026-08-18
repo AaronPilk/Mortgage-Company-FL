@@ -92,6 +92,20 @@
 }
 
 @layer base {
+  /*
+    Clearance for the sticky mobile action bar, which is fixed and would
+    otherwise cover the last row of the footer on a phone.
+  */
+  body {
+    padding-bottom: 4.75rem;
+  }
+
+  @media (min-width: 1024px) {
+    body {
+      padding-bottom: 0;
+    }
+  }
+
   * {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

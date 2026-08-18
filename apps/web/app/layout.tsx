@@ -13,6 +13,7 @@ const inter = Inter({
   variable: "--font-inter"
 });
 import { PreLaunchNotice, SiteFooter, SiteHeader } from "@/components/site-chrome";
+import { MobileCta } from "@/components/mobile-cta";
 import { AttributionCapture } from "@/components/attribution-capture";
 import { JsonLd } from "@/components/json-ld";
 import { businessIdentity, SITE_URL } from "@/lib/site";
@@ -69,6 +70,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             strategy="afterInteractive"
           />
         )}
+        <MobileCta />
         <AttributionCapture />
         <JsonLd
           value={graph(
