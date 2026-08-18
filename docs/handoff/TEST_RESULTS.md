@@ -75,3 +75,19 @@ Phase 2 exit decision: complete locally. Production persistence, Turnstile, CRM 
 | Direct OpenNext asset probes                 | Pass   | Home WebP, Vision WebP, RendProp WebP, default OG PNG and manifest JSON all returned 200 with expected types |
 
 Phase 3 exit decision: complete locally. All required media is local, synthetic, labeled and manifest-tracked. Manifest entries remain pending owner/compliance review, and RendProp processing/public-tour behavior remains Phase 4 work.
+
+## 2026-08-17 — Phase 4 completion
+
+| Command/check                                   | Result | Relevant output / unresolved issue                                                                                  |
+| ----------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------- |
+| `pnpm check`                                    | Pass   | Format, lint, 10-package typecheck, 183 tests, 40-page content lint and 43-page production generation               |
+| `pnpm db:verify` on disposable PostgreSQL 17    | Pass   | Ten migrations; RendProp exact retry yields one lead/receipt/outbox and three touches; complete RLS matrix; stopped |
+| `pnpm test:e2e`                                 | Pass   | 92/92 desktop/mobile checks for attestations, state recovery, labels, noindex, UTM bounds and exact request replay  |
+| Hydrated RendProp visual QA                     | Pass   | Demo/tour at 1440 and 390 pixels; zero console/page errors, final overflow or broken in-viewport media              |
+| `pnpm cf:build`                                 | Pass   | OpenNext 1.20.2 built both new routes without changing hosting configuration                                        |
+| `wrangler deploy --dry-run`                     | Pass   | 79 static files; 7,816.52 KiB uncompressed / 1,526.52 KiB gzip; no deployment                                       |
+| `pnpm smoke:routes` against OpenNext preview    | Pass   | 50 requests, zero failures, 11.8 ms average and 73.7 ms maximum; zero Error 1102 pages                              |
+| Direct demo/tour/unpublished probes and headers | Pass   | All return 200; tour carries CSP, disabled camera/microphone policy and `X-Robots-Tag: noindex, nofollow`           |
+| Secret-pattern scan and `git diff --check`      | Pass   | No credential-shaped value or whitespace error detected                                                             |
+
+Phase 4 exit decision: complete locally. The fixture proves the agent experience, bounded attribution and inquiry lifecycle without upload or remote provider infrastructure. Production media capture/storage/processing/deletion remains disabled and Phase 5 begins with account/admin completion.

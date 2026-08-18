@@ -1,6 +1,6 @@
 # TRACT runtime and infrastructure inventory
 
-Audit date: 2026-08-17  
+Audit date: 2026-08-17; local implementation last verified 2026-08-18
 Scope: read-only repository, Vercel, Supabase and Cloudflare inspection. No deployment, data, Auth, RLS, secret or production configuration was changed.
 
 ## Hosting architecture
@@ -34,16 +34,16 @@ This deployment is not the public TRACT host. It appears to be a newly connected
 
 ## Application runtime map
 
-| Layer                     | Implementation                                                                     | Runtime behavior                                                             |
-| ------------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| Web                       | Next.js 16.3.1 / React 19                                                          | 41 build routes                                                              |
-| Cloudflare adapter        | `@opennextjs/cloudflare` 1.20.2                                                    | One default Worker server function plus static assets/cache artifacts        |
-| Static public content     | Home, mortgage pages, calculators, company/legal, Vision and RendProp placeholders | Prerendered or SSG                                                           |
-| Dynamic public content    | Properties                                                                         | Server-rendered because provider/feature mode is runtime configuration       |
-| Dynamic protected content | Account and admin routes                                                           | Server-rendered and fail-closed without configured Auth                      |
-| APIs                      | Health, lead receipt, GHL webhook                                                  | Node runtime, force-dynamic, no-store                                        |
-| Data                      | Supabase/Postgres contracts                                                        | Unconfigured in deployed app; local migrations verify on PostgreSQL 17       |
-| Integrations              | CRM, listings, AI, property data, Turnstile                                        | Ports with disabled/fixture adapters; no paid/live provider required to boot |
+| Layer                     | Implementation                                                                   | Runtime behavior                                                             |
+| ------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| Web                       | Next.js 16.3.1 / React 19                                                        | 40 page files / 42 deliberate registry entries                               |
+| Cloudflare adapter        | `@opennextjs/cloudflare` 1.20.2                                                  | One default Worker server function plus static assets/cache artifacts        |
+| Static public content     | Home, mortgage, calculators, company/legal, Vision and RendProp fixture workflow | Prerendered or SSG                                                           |
+| Dynamic public content    | Properties, Vision and the noindex RendProp sample tour                          | Server-rendered where request/provider state is required                     |
+| Dynamic protected content | Account and admin routes                                                         | Server-rendered and fail-closed without configured Auth                      |
+| APIs                      | Health, lead/Vision receipts, outbox drain and GHL webhook                       | Node runtime, force-dynamic, no-store                                        |
+| Data                      | Supabase/Postgres contracts                                                      | Unconfigured in deployed app; local migrations verify on PostgreSQL 17       |
+| Integrations              | CRM, listings, AI, property data, Turnstile                                      | Ports with disabled/fixture adapters; no paid/live provider required to boot |
 
 No global middleware or proxy runs on every request. Provider clients are created lazily behind server modules; the root public layout does not initialize Supabase, CRM or AI clients.
 
@@ -71,23 +71,23 @@ Nothing establishes that project as TRACT. The deployed TRACT health endpoint re
 
 ### Local schema contract
 
-Seven additive migrations define 24 public tables, enable RLS on every table, create 37 named policies and define eight public functions. A disposable PostgreSQL 17 execution applies all migrations and passes all 39 RLS assertions.
+Ten additive migrations define 27 public tables, enable RLS on every table, create 40 named policies and define eleven current public function names. A disposable PostgreSQL 17 execution applies every migration and passes the full ownership, role, idempotency and outbox suite.
 
-| Recovery requirement | Local implementation                                                                        | Gap / next verification                                                                    |
-| -------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| Leads                | `leads` and service-only `create_lead_with_receipt` RPC                                     | Dedupe hash is not unique; RPC inserts a lead before outbox conflict handling              |
-| Consent              | Append-oriented `consent_receipts` plus `suppressions`                                      | Live configuration absent; immutability and channel semantics need vertical-slice coverage |
-| Attribution          | `attribution_touches`; browser captures and transaction stores first/last/conversion        | Remote rows and retention execution remain unverified                                      |
-| Outbox events        | `integration_outbox`, locked worker RPCs, webhook receipts and bounded retry processor      | Protected drain route exists; no remote scheduler is configured                            |
-| Properties           | Entities, records, facts, seven explicit demo fixtures and stable detail routes             | Live provider remains disabled; remote tables unverified                                   |
-| Vision projects      | Projects, assumptions, scenarios, reports, anonymous request mapping and atomic request RPC | Durable local path verified; production database unconfigured                              |
-| AI jobs              | Jobs, budget reservation, quota policies and kill switches                                  | Disabled and unused; no orchestrator or queue                                              |
-| Usage                | Append-oriented `usage_ledger` and adjustment constraints                                   | No live provider reconciliation                                                            |
-| Content              | Items, sources, revisions and link opportunities                                            | Admin views are not data-backed; no migrated content                                       |
-| Audit events         | Immutable `audit_events` and service-only recorder                                          | Few application actions emit audit events                                                  |
-| Auth                 | Profiles, roles and local email-signup config                                               | Remote Auth settings and redirect URLs unverified; no complete user flow                   |
-| Storage              | None in migrations                                                                          | Buckets, object policies and upload contracts are missing                                  |
-| Edge Functions       | None                                                                                        | No remote or local Edge Function implementation                                            |
+| Recovery requirement | Local implementation                                                                        | Gap / next verification                                                          |
+| -------------------- | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Leads                | `leads`, exact-retry submission receipts, bounded plans and service-only lead RPC           | Live configuration absent; production rows and delivery remain unverified        |
+| Consent              | Append-oriented `consent_receipts` plus `suppressions`                                      | Lead/Vision/RendProp fixture paths verified locally; live rows remain unverified |
+| Attribution          | `attribution_touches`; browser captures and transaction stores first/last/conversion        | Remote rows and retention execution remain unverified                            |
+| Outbox events        | `integration_outbox`, locked worker RPCs, webhook receipts and bounded retry processor      | Protected drain route exists; no remote scheduler is configured                  |
+| Properties           | Entities, records, facts, seven explicit demo fixtures and stable detail routes             | Live provider remains disabled; remote tables unverified                         |
+| Vision projects      | Projects, assumptions, scenarios, reports, anonymous request mapping and atomic request RPC | Durable local path verified; production database unconfigured                    |
+| AI jobs              | Jobs, budget reservation, quota policies and kill switches                                  | Disabled and unused; no orchestrator or queue                                    |
+| Usage                | Append-oriented `usage_ledger` and adjustment constraints                                   | No live provider reconciliation                                                  |
+| Content              | Items, sources, revisions and link opportunities                                            | Admin views are not data-backed; no migrated content                             |
+| Audit events         | Immutable `audit_events` and service-only recorder                                          | Few application actions emit audit events                                        |
+| Auth                 | Profiles, roles and local email-signup config                                               | Remote Auth settings and redirect URLs unverified; no complete user flow         |
+| Storage              | None in migrations                                                                          | Buckets, object policies and upload contracts are missing                        |
+| Edge Functions       | None                                                                                        | No remote or local Edge Function implementation                                  |
 
 Supabase's 2026 platform changes relevant to future work are recorded in the recovery decision process: Node 20 client support has ended, new public-schema tables may require explicit Data API exposure, extension version pinning is ignored and the realtime schema must not be modified.
 
@@ -152,14 +152,15 @@ Only names and requirements are recorded here. Values must remain in the appropr
 ## What appears unused
 
 - The protected Vercel deployment is not part of the public traffic path.
-- AI ports, usage controls, property-data ports and RendProp contracts are largely uninvoked.
+- AI ports, usage controls and property-data ports are largely uninvoked.
+- Production RendProp media jobs, uploads, Storage and provider contracts do not exist; the shipped demonstration is intentionally browser-only fixture state.
 - Content and audit tables have little or no application write traffic.
 - The protected outbox drain path has no configured remote scheduler or credentials.
 - Accounts are flagged on but do not provide a usable Auth lifecycle.
 
 ## Verify next
 
-1. Complete and review the Phase 3 asset manifest and product presentation locally.
+1. Complete Phase 5 account persistence and data-backed admin surfaces against disposable PostgreSQL.
 2. Prove the TRACT Supabase project identity before any remote database action.
 3. Inspect the Cloudflare environment-variable name inventory after project identity is known; do not read or copy values.
 4. Add Storage buckets and RLS through reviewed additive migrations only when the active checkpoint reaches uploads.

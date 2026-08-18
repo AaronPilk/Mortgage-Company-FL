@@ -1,7 +1,9 @@
 # RendProp
 
-Agent-facing listing media. Feature flagged off. Bounded so it cannot delay the
-mortgage launch.
+Agent-facing listing media. The production media service remains feature flagged
+off and bounded so it cannot delay the mortgage launch. A synthetic,
+browser-only fixture walkthrough is available at `/rendprop/demo` and publishes
+only the stable noindex sample at `/tour/rendprop-coastal-demo`.
 
 ## Promise
 
@@ -21,7 +23,7 @@ These limits are written down before the feature exists, on purpose. It is far
 easier to hold a line set in advance than to retrofit one onto marketing copy
 that already overpromised.
 
-## Capture states
+## Planned production capture states
 
 ```
 created → consent_confirmed → uploading → upload_complete → validation
@@ -37,7 +39,9 @@ reconstruction (engine chosen after benchmark) · floor-plan candidate · cleanu
 or staging variant · thumbnails and social exports · manifest assembly · quality
 gate · publish.
 
-No single model is assumed to do everything. Artifacts and lineage are tracked.
+No single model is assumed to do everything. Artifacts and lineage must be
+tracked when the production pipeline is designed; the current fixture calls no
+model or provider and creates no stored artifact.
 
 ## Disclosure
 
@@ -53,8 +57,11 @@ Rights are confirmed before processing. Capture guidance steers away from faces,
 personal documents, and neighbouring property. Deletion propagates to originals,
 derivatives, thumbnails, embeddings, and provider-held artifacts.
 
-## Native
+## Current fixture boundary and native follow-up
 
-The web build carries the shared contracts and a responsive upload prototype.
-Camera guidance, resumable background upload, and push notification belong in the
-later Expo client — see ADR-001.
+The web build carries a deterministic state machine for attestations, synthetic
+fixture selection, room tagging, processing/failure/retry, review and local tour
+handoff. It deliberately has no file input, camera permission, upload, Storage
+bucket, signed URL, provider job or deletion claim. Camera guidance, resumable
+background upload, deletion propagation and push notification belong in a later
+reviewed web/native implementation — see ADR-001.

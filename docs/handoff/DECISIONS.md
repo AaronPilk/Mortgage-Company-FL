@@ -111,3 +111,11 @@
 - Alternatives: bake labels into pixels; use unrelated before/after images; generate an imaginary interface.
 - Consequences: comparison media keeps materially matched viewpoints and permanent context, the kitchen retains its visible scuff, the floor plan carries an explicit non-measurement boundary and every asset remains pending owner/compliance approval.
 - Owner: Codex.
+
+## 2026-08-17 — Keep the RendProp sample ephemeral and reuse the lead ledger
+
+- Decision: implement capture and processing as a deterministic browser-only fixture state machine, publish only a stable noindex sample route and route tour/agent interest through the existing marketing-lead transaction.
+- Reason: Phase 4 must prove rights gates, failure/retry, disclosure, attribution and inquiry without accepting personal media or inventing a production upload/provider architecture.
+- Alternatives: add speculative media tables and Storage buckets; persist sample sessions; call a remote media or QR provider; create a separate RendProp lead endpoint.
+- Consequences: both attestations gate progress; the sample has queued/processing/failed/retry/ready states under one stable key; QR links use bounded first-party UTM fields; exact lead retries create one receipt/outbox event; production retention, deletion and media processing remain explicitly unimplemented.
+- Owner: Codex.
