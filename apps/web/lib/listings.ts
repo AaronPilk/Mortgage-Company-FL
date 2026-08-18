@@ -28,6 +28,22 @@ export function listings(): ListingProvider {
   }
 }
 
+/**
+ * Whether sample listings may be rendered.
+ *
+ * Outside production the answer is always yes. In production it takes a second,
+ * deliberate opt-in — `SHOW_SAMPLE_LISTINGS=true` on top of
+ * `MLS_PROVIDER=fixture`. Two independent switches, because the failure this
+ * guards against is not "someone decided to show sample data", it is "sample
+ * data shipped because nobody noticed the provider was still on its default".
+ *
+ * The opt-in exists because sample listings are a deliberate pre-MLS product
+ * decision (docs/handoff/DECISIONS.md). It is safe to turn on only because the
+ * listing surfaces label every record as sample data in the UI, stay noindex,
+ * and emit no listing structured data. If any of those three stop being true,
+ * this switch has to go back to being unconditional.
+ */
 export function fixturesAllowed(): boolean {
-  return env().NODE_ENV !== "production";
+  if (env().NODE_ENV !== "production") return true;
+  return env().MLS_PROVIDER === "fixture" && env().SHOW_SAMPLE_LISTINGS === true;
 }

@@ -52,6 +52,15 @@ export const ServerEnvSchema = z
     MLS_PROVIDER: z
       .enum(["disabled", "fixture", "stellar", "bridge", "mlsgrid"])
       .default("fixture"),
+    /**
+     * Second switch required to render sample listings publicly. Off by default,
+     * so sample data cannot ship because nobody noticed MLS_PROVIDER was still
+     * on its default.
+     */
+    SHOW_SAMPLE_LISTINGS: z
+      .enum(["true", "false"])
+      .default("false")
+      .transform((value) => value === "true"),
     MLS_BASE_URL: optionalString,
     MLS_ACCESS_TOKEN: optionalString,
     MLS_ATTRIBUTION_TEXT: optionalString,
@@ -135,11 +144,17 @@ export function assertProductionReady(env: ServerEnv): ReadinessProblem[] {
     });
   }
 
-  if (env.MLS_PROVIDER === "fixture") {
+  // Sample listings in production are a deliberate pre-MLS decision, recorded in
+  // docs/handoff/DECISIONS.md, and are safe only while the listing surfaces
+  // label every record in the UI, stay noindex, and emit no listing JSON-LD.
+  // Unacknowledged fixture data is still a blocking problem; acknowledged sample
+  // data is a warning, so the readiness board keeps reporting it until a
+  // licensed provider replaces it.
+  if (env.MLS_PROVIDER === "fixture" && !env.SHOW_SAMPLE_LISTINGS) {
     problems.push({
       key: "MLS_PROVIDER",
       message:
-        "Fixture listing data must never be served publicly. Set MLS_PROVIDER=disabled or a licensed provider."
+        "Fixture listing data is not published. Set SHOW_SAMPLE_LISTINGS=true to publish labelled sample listings, or MLS_PROVIDER=disabled, or a licensed provider."
     });
   }
 
