@@ -2,8 +2,9 @@
 
 **As of 2026-08-18.** This describes combined code commit `c1fa306` on
 `agent/tract-integrated-recovery-20260818`. Claude's consumer UI parent
-`e641019` is deployed; the combined recovery merge is verified but is not yet
-deployed to the canonical Cloudflare Worker.
+`e641019` is deployed to Cloudflare. The combined recovery handoff `7d948e7` is
+deployed to the duplicate Vercel production target, but not to the canonical
+Cloudflare Worker.
 
 ## Repository and hosting
 
@@ -28,10 +29,10 @@ health probe still reports database unconfigured and CRM, AI, bot and email
 disabled.
 
 Vercel team `TRACT Mortgage` contains one Next.js project,
-`mortgage-company-fl-web`. Its latest verified production artifact
-`dpl_WtmJkZvAjU3LSbWVMgwNURt17Jjy` maps to `e641019` and has public
-`vercel.app` aliases. Its canonical tag points back to the Cloudflare origin,
-but it is still a second publicly reachable runtime.
+`mortgage-company-fl-web`. Its verified combined production artifact
+`dpl_BsR97UTnkecioksnaxaEEcM8wryG` maps to combined handoff `7d948e7` and has
+public `vercel.app` aliases. Its canonical tag points back to the Cloudflare
+origin, but it is still a second publicly reachable runtime.
 
 The pushed recovery branch at `400c6d8` created an access-protected preview.
 The owner subsequently authorized a combined main-branch push despite the known

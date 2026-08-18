@@ -42,8 +42,9 @@ Team `TRACT Mortgage` contains one Next.js project,
 - Git `f903d60`;
 - Git `cdacd99`;
 - Git `7998ede`;
-- Git `e641019` (latest verified, deployment
-  `dpl_WtmJkZvAjU3LSbWVMgwNURt17Jjy`).
+- Git `e641019`;
+- Git `7d948e7` (verified combined handoff, deployment
+  `dpl_BsR97UTnkecioksnaxaEEcM8wryG`).
 
 The latest deployment exposes three `vercel.app` aliases, including
 `mortgage-company-fl-web.vercel.app`, and an unauthenticated request returns HTTP 200. The rendered canonical points to the Cloudflare origin, but Vercel is still

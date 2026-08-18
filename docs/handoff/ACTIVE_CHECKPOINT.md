@@ -24,6 +24,12 @@ Claude deployed `e641019` before the reconciliation finished:
 - Vercel production deployment `dpl_WtmJkZvAjU3LSbWVMgwNURt17Jjy` reached
   `READY` from the same commit.
 
+The combined main push then created Vercel production deployment
+`dpl_BsR97UTnkecioksnaxaEEcM8wryG` from handoff SHA `7d948e7`. It reached
+`READY` at 2026-08-18 04:03 UTC and its public home, health, Vision and RendProp
+routes return HTTP 200. This verifies the Git/Vercel copy only; it is not the
+canonical Cloudflare release.
+
 The Cloudflare deployment is healthy but contains Claude's UI on the old
 `7998ede` base, not the recovery implementation. The combined `c1fa306` artifact
 must not replace it until production preflight passes.
@@ -75,16 +81,14 @@ follow-up.
 
 ## Exact next action
 
-1. Verify the resulting Git commit and automatic Vercel deployment without
-   changing Vercel project settings.
-2. Provision the four required Cloudflare configuration names through approved
+1. Provision the four required Cloudflare configuration names through approved
    secret/public-variable channels and re-run `pnpm deploy:preflight`.
-3. Prove the Supabase project identity and separately authorize the reviewed
+2. Prove the Supabase project identity and separately authorize the reviewed
    additive migration plan before any remote migration.
-4. Only after preflight passes, deploy `c1fa306` or its handoff descendant to
+3. Only after preflight passes, deploy `c1fa306` or its handoff descendant to
    Cloudflare and verify the live routes and Worker version.
 
-Until steps 2–3 are complete, do not claim that the recovery database, durable
+Until steps 1–2 are complete, do not claim that the recovery database, durable
 lead capture, Auth, CRM delivery or production bot protection is live.
 
 ## Next engineering checkpoint

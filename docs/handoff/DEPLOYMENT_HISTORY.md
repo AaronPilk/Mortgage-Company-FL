@@ -44,6 +44,7 @@ public duplicate, not an approved preview-only connection.
 | 2026-08-18 01:18 | `dpl_HAwXfY5vaJ3XjBWVHkV8d9YcSanp` | `7998ede`  | production               | READY |
 | 2026-08-18 02:31 | `dpl_8zgxNAVkwSqcfpvSnZ7quBLXSEdo` | `400c6d8`  | protected branch preview | READY |
 | 2026-08-18 03:22 | `dpl_WtmJkZvAjU3LSbWVMgwNURt17Jjy` | `e641019`  | production               | READY |
+| 2026-08-18 04:02 | `dpl_BsR97UTnkecioksnaxaEEcM8wryG` | `7d948e7`  | production               | READY |
 
 The latest production deployment has public aliases including
 `mortgage-company-fl-web.vercel.app` and returns HTTP 200 without an
@@ -71,22 +72,20 @@ while production preflight is red.
 
 ## Required release sequence
 
-1. Record and verify the automatic Vercel deployment created by the combined
-   main-branch push; do not treat it as the canonical release.
-2. Disable or privatize the Vercel Git production path; verify its public aliases
+1. Disable or privatize the Vercel Git production path; verify its public aliases
    no longer serve the application.
-3. Prove and approve the TRACT Supabase project, apply only reviewed additive
+2. Prove and approve the TRACT Supabase project, apply only reviewed additive
    migrations and verify the remote schema/RLS under explicit authority.
-4. Provision approved Cloudflare configuration without exposing values.
-5. Re-run `pnpm check`, `pnpm db:verify`, `pnpm test:e2e`,
+3. Provision approved Cloudflare configuration without exposing values.
+4. Re-run `pnpm check`, `pnpm db:verify`, `pnpm test:e2e`,
    `pnpm deploy:preflight` and `pnpm cf:build`.
-6. Run the manual Cloudflare deployment.
-7. Verify at minimum: `/api/v1/health`, `/`, `/plan`,
+5. Run the manual Cloudflare deployment.
+6. Verify at minimum: `/api/v1/health`, `/`, `/plan`,
    `/calculators/amortization`, `/vision/start`, `/rendprop/demo`,
    `/robots.txt` and `/sitemap.xml`.
-8. Submit a controlled, consented test lead only if the production database,
+7. Submit a controlled, consented test lead only if the production database,
    Turnstile and operational test-data procedure are approved.
-9. Review Worker observability for the deploy window and record the exact Worker
+8. Review Worker observability for the deploy window and record the exact Worker
    version and Git commit mapping.
 
 Do not call a release complete from a Git push or a build alone.

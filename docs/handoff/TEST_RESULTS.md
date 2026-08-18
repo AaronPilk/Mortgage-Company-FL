@@ -96,9 +96,10 @@ The local preview was shut down after the crawl. No deploy command was run.
   and the new hero asset: HTTP 200.
 - Current Cloudflare version:
   `671ea10b-2d29-4278-b9e7-0a4b7c8af8a6`, uploaded at 2026-08-18 03:22 UTC.
-- Latest verified Vercel production deployment
-  `dpl_WtmJkZvAjU3LSbWVMgwNURt17Jjy` from `e641019`: `READY` and publicly
-  reachable.
+- Verified combined Vercel production deployment
+  `dpl_BsR97UTnkecioksnaxaEEcM8wryG` from combined handoff `7d948e7`: `READY`
+  and publicly reachable. Home, health, `/vision/start` and `/rendprop/demo`
+  return HTTP 200.
 - Vercel canonical tag: Cloudflare Worker origin.
 - Vercel and Cloudflare health endpoints: both report database unconfigured,
   CRM/AI/bot/email disabled and public product feature flags off.

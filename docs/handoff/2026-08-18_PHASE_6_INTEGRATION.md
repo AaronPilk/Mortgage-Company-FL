@@ -56,6 +56,9 @@ content work not complete; combined artifact not deployed to Cloudflare
 - Vercel is actively and publicly auto-deploying `main` as a production target.
   It is not merely connected or preview-only. The recovery-branch push also
   created an access-protected preview. No Vercel setting was changed.
+- The combined main handoff `7d948e7` created production deployment
+  `dpl_BsR97UTnkecioksnaxaEEcM8wryG`; it reached `READY` and public release
+  probes return HTTP 200.
 - The connector-visible Supabase project is healthy but has no TRACT migrations,
   public tables, buckets, objects, Edge Functions or Auth users. It is unproven
   and was not modified.

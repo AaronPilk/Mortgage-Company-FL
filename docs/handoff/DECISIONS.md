@@ -49,7 +49,7 @@ override, not authorization to migrate TRACT to Vercel or normalize dual hosting
 **Reasoning.** The original read-only audit saw one protected Vercel deployment
 and classified the connector as unused. The refreshed 2026-08-18 inventory
 disproved that classification: the project has multiple ready production
-deployments, its latest verified artifact maps to `e641019`, and its aliases
+deployments, its verified combined artifact maps to handoff `7d948e7`, and its aliases
 return HTTP 200 without authentication. A canonical tag pointing to Cloudflare
 reduces search ambiguity but does not remove a second runtime,
 stale-disclosure surface or independent header/configuration boundary.
