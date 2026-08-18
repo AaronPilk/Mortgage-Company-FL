@@ -177,6 +177,18 @@ describe("parseServerEnv", () => {
     ).not.toThrow();
   });
 
+  it("requires at least one AI provider key once AI is switched live", () => {
+    expect(() => parseServerEnv({ AI_MODE: "production" })).toThrow(EnvironmentError);
+    expect(() => parseServerEnv({ AI_MODE: "sandbox" })).toThrow(EnvironmentError);
+    // Either vendor's key satisfies a live mode; Anthropic is not special.
+    expect(() =>
+      parseServerEnv({ AI_MODE: "production", ANTHROPIC_API_KEY: "anthropic-key" })
+    ).not.toThrow();
+    expect(() =>
+      parseServerEnv({ AI_MODE: "production", OPENAI_API_KEY: "openai-key" })
+    ).not.toThrow();
+  });
+
   it("parses a build-time environment without demanding production secrets", () => {
     // A build legitimately parses the environment without being a deployment.
     // Coupling the two turns a missing secret into a confusing prerender error.

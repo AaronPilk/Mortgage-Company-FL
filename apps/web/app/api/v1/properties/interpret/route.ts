@@ -9,7 +9,7 @@ import {
   fieldErrors
 } from "@tract/schemas";
 import {
-  AnthropicApiError,
+  AiProviderApiError,
   selectRoute,
   type AiRequest,
   type QuotaPolicy,
@@ -194,8 +194,8 @@ async function interpretWithAi(
     });
     return interpretedToCriteria(extractionToInterpreted(result.output));
   } catch (error) {
-    if (error instanceof AnthropicApiError) {
-      // The provider answered with an error status; the request was not billed.
+    if (error instanceof AiProviderApiError) {
+      // Either vendor answered with an error status; the request was not billed.
       reserved.reservation.settle({ kind: "failed_before_billable" });
     } else {
       // Timeout or transport failure with the request possibly in flight. Hold

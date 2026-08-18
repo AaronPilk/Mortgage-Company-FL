@@ -107,7 +107,22 @@ export const ServerEnvSchema = z
     requireWhenLive(env.GHL_MODE, "OUTBOX_DRAIN_TOKEN", "Outbox drain token");
     requireWhenLive(env.TURNSTILE_MODE, "TURNSTILE_SECRET_KEY", "Turnstile secret");
     requireWhenLive(env.TURNSTILE_MODE, "TURNSTILE_HOSTNAMES", "Turnstile hostnames");
-    requireWhenLive(env.AI_MODE, "ANTHROPIC_API_KEY", "Anthropic API key");
+
+    // AI has interchangeable vendors, so a live mode needs one credential, not
+    // a specific one — requiring the Anthropic key alone would refuse a
+    // legitimate OpenAI-only deployment. Provider precedence when both are
+    // present is application policy (apps/web/lib/ai-vendor.ts), not schema.
+    if (
+      (env.AI_MODE === "sandbox" || env.AI_MODE === "production") &&
+      env.ANTHROPIC_API_KEY === undefined &&
+      env.OPENAI_API_KEY === undefined
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["AI_MODE"],
+        message: `at least one AI provider key (ANTHROPIC_API_KEY or OPENAI_API_KEY) is required when AI_MODE is "${env.AI_MODE}"`
+      });
+    }
   });
 
 export type ServerEnv = z.infer<typeof ServerEnvSchema>;

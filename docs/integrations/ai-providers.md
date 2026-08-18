@@ -5,7 +5,7 @@
 `AI_MODE=disabled` by default. The disabled provider refuses every request, so a
 misconfiguration cannot spend money.
 
-## Implemented: Anthropic, structured extraction only
+## Implemented: Anthropic and OpenAI, structured extraction only
 
 `AnthropicAiProvider` (packages/integrations/src/ai/adapters.ts) implements the
 `structured_extraction` capability against the Anthropic Messages API with a
@@ -14,6 +14,27 @@ One request per execute — no retries, because a retry is a second spend the
 reservation never covered. Timeouts throw `AnthropicTimeoutError`, which callers
 settle as an _unknown_ outcome (reservation held); HTTP errors throw
 `AnthropicApiError` and settle as failed-before-billable.
+
+`OpenAiAiProvider` (same file) mirrors that contract exactly against the OpenAI
+Chat Completions API: the same `StructuredExtractionInput` becomes a forced
+function tool call (`tools` + `tool_choice`), so call sites do not change per
+vendor. OpenAI returns the tool arguments as a JSON string the model composed;
+the adapter parses it defensively and a missing or malformed answer is a `null`
+output for the caller's validation, never a throw that masks the rules
+fallback. Its errors are `OpenAiApiError` and `OpenAiTimeoutError`. Both
+vendors' error classes extend the shared `AiProviderApiError` /
+`AiProviderTimeoutError` bases so a caller can classify any vendor's failure
+uniformly.
+
+### Vendor precedence
+
+Selection is application policy, in `apps/web/lib/ai-vendor.ts` as a pure
+function: in a live `AI_MODE` (sandbox or production), **Anthropic when
+`ANTHROPIC_API_KEY` is set, else OpenAI when `OPENAI_API_KEY` is set, else the
+disabled provider**. Non-live modes never select a vendor. The route registry
+(`apps/web/lib/ai.ts`) carries one model identifier per vendor and resolves the
+pair for whichever vendor the environment selected, so model ids stay in the
+registry and a vendor switch is a secret change, not a code change.
 
 First consumer: `/api/v1/properties/interpret`, which turns a shopper's free
 text into search criteria. It has a deterministic rule-based parser as its
@@ -24,10 +45,10 @@ refusal, error, or timeout. The response labels its provenance honestly:
 
 Activation is configuration, not code:
 
-- `AI_MODE=production` (or `sandbox`) — the environment schema requires
-  `ANTHROPIC_API_KEY` once the mode is live.
-- `ANTHROPIC_API_KEY` — deployment secret store only; already listed in
-  `SECRET_ENV_KEYS`.
+- `AI_MODE=production` (or `sandbox`) — the environment schema requires at
+  least one of `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` once the mode is live.
+- `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` — deployment secret store only; both
+  already listed in `SECRET_ENV_KEYS`.
 - `AI_DAILY_PLATFORM_BUDGET_CENTS` and `AI_DEFAULT_USER_DAILY_BUDGET_CENTS`
   non-zero — at their zero defaults every paid reservation is refused and the
   feature stays on the deterministic parser. Spending money is a deliberate act.
@@ -37,8 +58,17 @@ Data classification: the query is a consumer's own free text about a property
 echoed back; the response restates the validated criteria.
 
 Model identifiers live in the application's route registry
-(`apps/web/lib/ai.ts`, `PROPERTY_QUERY_ROUTE`), with
-`DEFAULT_ANTHROPIC_STRUCTURED_MODEL` as the constructor default.
+(`apps/web/lib/ai.ts`, `PROPERTY_QUERY_ROUTE`), one per vendor, with
+`DEFAULT_ANTHROPIC_STRUCTURED_MODEL` / `DEFAULT_OPENAI_STRUCTURED_MODEL` as the
+constructor defaults.
+
+Known asymmetry: the interpret route settles a caught `AnthropicApiError` as
+failed-before-billable, while any other failure — including `OpenAiApiError` —
+settles as _unknown_ and holds the reservation. With OpenAI selected, a
+provider HTTP error therefore holds budget until reconciliation instead of
+releasing it. That errs in the safe direction (invariant 8); switching the
+route's check to the shared `AiProviderApiError` base would remove the
+pessimism.
 
 ## Two layers
 
