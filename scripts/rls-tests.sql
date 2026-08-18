@@ -68,7 +68,26 @@ begin
 end;
 $$;
 
+-- Broader than assert_denied: also accepts the referential and uniqueness
+-- rejections, for the structural guarantees that are enforced by a foreign key
+-- or a unique index rather than by a policy or a check.
+create or replace function tests.assert_rejected(stmt text, label text)
+returns void language plpgsql as $$
+begin
+  begin
+    execute stmt;
+  exception
+    when insufficient_privilege or check_violation or raise_exception
+      or foreign_key_violation or unique_violation or not_null_violation then
+      raise notice 'passed: % (rejected as expected)', label;
+      return;
+  end;
+  raise exception 'FAILED: % — statement was permitted but should have been rejected', label;
+end;
+$$;
+
 grant execute on function tests.assert_affects_no_rows(text, text) to anon, authenticated;
+grant execute on function tests.assert_rejected(text, text) to anon, authenticated;
 grant execute on function tests.assert(boolean, text) to anon, authenticated;
 grant execute on function tests.assert_denied(text, text) to anon, authenticated;
 grant execute on function tests.visible_count(text) to anon, authenticated;
@@ -161,6 +180,67 @@ values ('00000000-0000-4000-8000-0000000000c1', 'article', 'draft-post', 'Draft'
 insert into public.quota_policies (subject_kind, feature, period, request_limit, cost_limit_cents, concurrency_limit)
 values ('consumer', 'vision_report', 'day', 3, 500, 1);
 
+-- RendProp fixtures. Two projects owned by two different people, each with an
+-- original clip, a processing job, a generated asset, and a tour. The pairing is
+-- the point: every assertion below is about one of them being invisible to the
+-- other, which an empty table would never have proved.
+insert into public.rendprop_projects
+  (id, owner_user_id, title, city, state_code, status, rights_confirmed_at,
+   rights_confirmed_by, rights_statement_version, attribution_text)
+values
+  ('00000000-0000-4000-8000-0000000000e1', '00000000-0000-4000-8000-000000000002',
+   'Consumer walkthrough', 'Tampa', 'FL', 'review', now(),
+   '00000000-0000-4000-8000-000000000002', 'rendprop-rights@1', 'Courtesy of the owner.'),
+  ('00000000-0000-4000-8000-0000000000e2', '00000000-0000-4000-8000-000000000006',
+   'Agent walkthrough', 'Tampa', 'FL', 'draft', now(),
+   '00000000-0000-4000-8000-000000000006', 'rendprop-rights@1', 'Courtesy of Example Brokerage.');
+
+insert into public.rendprop_media_assets
+  (id, project_id, asset_kind, content_type, byte_size, storage_key, upload_status)
+values
+  ('00000000-0000-4000-8000-0000000000f1', '00000000-0000-4000-8000-0000000000e1',
+   'walkthrough_video', 'video/quicktime', 182000000,
+   'rendprop/00000000-0000-4000-8000-0000000000e1/originals/f1.mov', 'verified'),
+  ('00000000-0000-4000-8000-0000000000f2', '00000000-0000-4000-8000-0000000000e2',
+   'walkthrough_video', 'video/quicktime', 214000000,
+   'rendprop/00000000-0000-4000-8000-0000000000e2/originals/f2.mov', 'verified');
+
+insert into public.rendprop_processing_jobs
+  (id, project_id, source_asset_id, transformation, state, idempotency_key, estimated_cost_cents)
+values
+  ('00000000-0000-4000-8000-0000000000f3', '00000000-0000-4000-8000-0000000000e1',
+   '00000000-0000-4000-8000-0000000000f1', 'virtual_staging', 'queued', 'rendprop:e1:f1:vs:0', 45),
+  ('00000000-0000-4000-8000-0000000000f4', '00000000-0000-4000-8000-0000000000e2',
+   '00000000-0000-4000-8000-0000000000f2', 'clutter_cleanup', 'queued', 'rendprop:e2:f2:cc:0', 18);
+
+insert into public.rendprop_generated_assets
+  (id, project_id, job_id, source_asset_id, transformation, storage_key, content_type,
+   disclosure_label, review_state, approved_by, approved_at)
+values
+  ('00000000-0000-4000-8000-0000000000f5', '00000000-0000-4000-8000-0000000000e1',
+   '00000000-0000-4000-8000-0000000000f3', '00000000-0000-4000-8000-0000000000f1',
+   'virtual_staging', 'rendprop/e1/generated/f5.jpg', 'image/jpeg',
+   'Virtually staged — furnishings are digital and not included in the sale',
+   'approved', '00000000-0000-4000-8000-000000000002', now()),
+  ('00000000-0000-4000-8000-0000000000f6', '00000000-0000-4000-8000-0000000000e2',
+   '00000000-0000-4000-8000-0000000000f4', '00000000-0000-4000-8000-0000000000f2',
+   'clutter_cleanup', 'rendprop/e2/generated/f6.jpg', 'image/jpeg',
+   'Digitally decluttered — movable items removed', 'pending', null, null);
+
+insert into public.rendprop_tours
+  (id, project_id, headline, status, public_token_hash, attribution_text,
+   disclosure_version, published_at)
+values
+  ('00000000-0000-4000-8000-0000000000f7', '00000000-0000-4000-8000-0000000000e1',
+   'Consumer tour', 'published', 'token-hash-e1', 'Courtesy of the owner.',
+   'rendprop-disclosure@0.1.0', now()),
+  ('00000000-0000-4000-8000-0000000000f8', '00000000-0000-4000-8000-0000000000e2',
+   'Agent tour', 'draft', null, null, null, null);
+
+insert into public.rendprop_tour_inquiries (id, tour_id, inquiry_kind, message, request_id)
+values ('00000000-0000-4000-8000-0000000000f9', '00000000-0000-4000-8000-0000000000f7',
+        'showing_request', 'Is Saturday possible?', gen_random_uuid());
+
 -- One real audit row, so the append-only trigger has something to protect and
 -- the reader policies are exercised against actual data rather than an empty set.
 insert into public.audit_events (actor_kind, action, target_type, target_id, reason)
@@ -208,6 +288,47 @@ select tests.assert(tests.visible_count('select count(*) from public.ai_jobs') =
   'anonymous cannot read AI jobs');
 select tests.assert(tests.visible_count('select count(*) from public.vision_projects') = 0,
   'anonymous cannot read Vision projects');
+
+-- RendProp. Every grant is revoked from anon, so each of these is a hard
+-- permission error rather than an empty result. A published tour does reach the
+-- public, but only through rendprop_published_tour, called server-side — and
+-- anon cannot execute that either.
+select tests.assert_denied('select count(*) from public.rendprop_projects',
+  'anonymous has no grant on RendProp projects');
+select tests.assert_denied('select count(*) from public.rendprop_media_assets',
+  'anonymous has no grant on RendProp original media');
+select tests.assert_denied('select count(*) from public.rendprop_processing_jobs',
+  'anonymous has no grant on the RendProp job queue');
+select tests.assert_denied('select count(*) from public.rendprop_generated_assets',
+  'anonymous has no grant on RendProp generated media');
+select tests.assert_denied('select count(*) from public.rendprop_tours',
+  'anonymous has no grant on RendProp tours, including published ones');
+select tests.assert_denied('select count(*) from public.rendprop_tour_inquiries',
+  'anonymous has no grant on RendProp tour inquiries');
+select tests.assert_denied(
+  $$insert into public.rendprop_projects (owner_user_id, title)
+    values ('00000000-0000-4000-8000-000000000002','Injected')$$,
+  'anonymous cannot create a RendProp project');
+select tests.assert_denied(
+  $$insert into public.rendprop_media_assets
+      (project_id, asset_kind, content_type, byte_size, storage_key)
+    values ('00000000-0000-4000-8000-0000000000e1','still_photo','image/jpeg',10,'x')$$,
+  'anonymous cannot upload media into somebody else''s project');
+select tests.assert_denied(
+  $$select public.rendprop_published_tour('token-hash-e1')$$,
+  'anonymous cannot call the published tour function directly');
+select tests.assert_denied(
+  $$select public.rendprop_enqueue_job('00000000-0000-4000-8000-0000000000e1',
+      '00000000-0000-4000-8000-000000000002','00000000-0000-4000-8000-0000000000f1',
+      'virtual_staging','{}'::jsonb, 45, 'anon-key', 4)$$,
+  'anonymous cannot enqueue RendProp work');
+select tests.assert_denied(
+  $$select public.rendprop_claim_job('worker','agent',300,60)$$,
+  'anonymous cannot claim a RendProp job and reserve spend');
+select tests.assert_denied(
+  $$select public.rendprop_settle_job('00000000-0000-4000-8000-0000000000f3',
+      'succeeded', 0, null, null, null, null)$$,
+  'anonymous cannot settle a RendProp job');
 
 -- Public listing visibility: the published, non-fixture record only.
 select tests.assert(tests.visible_count('select count(*) from public.listing_records') = 1,
@@ -278,6 +399,70 @@ select tests.assert_denied(
       'under_200k','3_5','unknown','w2','under_4k','none','researching','x')$$,
   'consumer cannot attach a planner response to a lead');
 
+-- RendProp, as the owner. Everything they can see is theirs and nothing else is.
+select tests.assert(tests.visible_count('select count(*) from public.rendprop_projects') = 1,
+  'owner sees only their own RendProp project');
+select tests.assert(
+  tests.visible_count($$select count(*) from public.rendprop_projects
+    where id = '00000000-0000-4000-8000-0000000000e2'$$) = 0,
+  'owner cannot see another user''s RendProp project');
+select tests.assert(tests.visible_count('select count(*) from public.rendprop_media_assets') = 1,
+  'owner sees only their own original media');
+select tests.assert(
+  tests.visible_count('select count(*) from public.rendprop_processing_jobs') = 1,
+  'owner sees only their own processing jobs');
+select tests.assert(
+  tests.visible_count('select count(*) from public.rendprop_generated_assets') = 1,
+  'owner sees only their own generated media');
+select tests.assert(tests.visible_count('select count(*) from public.rendprop_tours') = 1,
+  'owner sees only their own tours');
+select tests.assert(
+  tests.visible_count('select count(*) from public.rendprop_tour_inquiries') = 1,
+  'owner sees inquiries against their own tour');
+
+-- Approving is allowed. Relabelling is not, and the guard is a trigger rather
+-- than a policy, so it holds for every role including the table owner.
+select tests.assert_denied(
+  $$update public.rendprop_generated_assets
+    set disclosure_label = 'Photograph'
+    where id = '00000000-0000-4000-8000-0000000000f5'$$,
+  'owner cannot relabel their own AI-generated image as a photograph');
+select tests.assert_denied(
+  $$update public.rendprop_generated_assets set ai_generated = false
+    where id = '00000000-0000-4000-8000-0000000000f5'$$,
+  'owner cannot clear the AI-generated flag on their own asset');
+select tests.assert_denied(
+  $$update public.rendprop_generated_assets
+    set source_asset_id = '00000000-0000-4000-8000-0000000000f2'
+    where id = '00000000-0000-4000-8000-0000000000f5'$$,
+  'owner cannot rewrite the lineage of a generated asset');
+
+select tests.assert_affects_no_rows(
+  $$update public.rendprop_projects set status = 'archived'
+    where id = '00000000-0000-4000-8000-0000000000e2'$$,
+  'owner cannot modify another user''s RendProp project');
+select tests.assert_denied(
+  $$insert into public.rendprop_media_assets
+      (project_id, asset_kind, content_type, byte_size, storage_key)
+    values ('00000000-0000-4000-8000-0000000000e2','still_photo','image/jpeg',10,'intrusion')$$,
+  'owner cannot upload media into another user''s project');
+
+select tests.assert_denied(
+  $$select public.rendprop_enqueue_job('00000000-0000-4000-8000-0000000000e1',
+      '00000000-0000-4000-8000-000000000002','00000000-0000-4000-8000-0000000000f1',
+      'virtual_staging','{}'::jsonb, 45, 'consumer-key', 4)$$,
+  'owner cannot enqueue RendProp work by calling the function directly');
+select tests.assert_denied(
+  $$select public.rendprop_claim_job('worker','consumer',300,60)$$,
+  'owner cannot claim a job and reserve spend');
+select tests.assert_denied(
+  $$select public.rendprop_settle_job('00000000-0000-4000-8000-0000000000f3',
+      'succeeded', 0, null, null, null, null)$$,
+  'owner cannot settle a job and move the ledger');
+select tests.assert_denied(
+  $$select public.rendprop_published_tour('token-hash-e1')$$,
+  'owner cannot call the published tour function directly');
+
 reset role;
 
 /* ---------------------------------------------------------------- *
@@ -291,6 +476,49 @@ select tests.assert(tests.visible_count('select count(*) from public.leads') = 0
   'agent cannot read unrelated leads');
 select tests.assert(tests.visible_count('select count(*) from public.vision_projects') = 1,
   'agent sees only their own Vision project');
+
+-- A DIFFERENT consumer. This account owns its own RendProp project, so a naive
+-- policy would pass a "sees exactly one row" test while leaking the other one.
+-- Every assertion here is scoped to the first owner's rows specifically.
+select tests.assert(
+  tests.visible_count($$select count(*) from public.rendprop_projects
+    where id = '00000000-0000-4000-8000-0000000000e1'$$) = 0,
+  'a different consumer cannot see the owner''s RendProp project');
+select tests.assert(
+  tests.visible_count($$select count(*) from public.rendprop_media_assets
+    where project_id = '00000000-0000-4000-8000-0000000000e1'$$) = 0,
+  'a different consumer cannot see the owner''s original media');
+select tests.assert(
+  tests.visible_count($$select count(*) from public.rendprop_processing_jobs
+    where project_id = '00000000-0000-4000-8000-0000000000e1'$$) = 0,
+  'a different consumer cannot see the owner''s processing jobs');
+select tests.assert(
+  tests.visible_count($$select count(*) from public.rendprop_generated_assets
+    where project_id = '00000000-0000-4000-8000-0000000000e1'$$) = 0,
+  'a different consumer cannot see the owner''s generated media');
+select tests.assert(
+  tests.visible_count($$select count(*) from public.rendprop_tours
+    where project_id = '00000000-0000-4000-8000-0000000000e1'$$) = 0,
+  'a different consumer cannot see the owner''s published tour row');
+select tests.assert(
+  tests.visible_count($$select count(*) from public.rendprop_tour_inquiries
+    where tour_id = '00000000-0000-4000-8000-0000000000f7'$$) = 0,
+  'a different consumer cannot see inquiries against the owner''s tour');
+select tests.assert_affects_no_rows(
+  $$update public.rendprop_tours set status = 'unpublished'
+    where id = '00000000-0000-4000-8000-0000000000f7'$$,
+  'a different consumer cannot withdraw the owner''s tour');
+select tests.assert_affects_no_rows(
+  $$update public.rendprop_generated_assets set review_state = 'approved'
+    where id = '00000000-0000-4000-8000-0000000000f5'$$,
+  'a different consumer cannot approve the owner''s generated media');
+select tests.assert_affects_no_rows(
+  $$delete from public.rendprop_media_assets
+    where project_id = '00000000-0000-4000-8000-0000000000e1'$$,
+  'a different consumer cannot delete the owner''s originals');
+select tests.assert(
+  tests.visible_count('select count(*) from public.rendprop_projects') = 1,
+  'a different consumer still sees exactly their own project');
 
 reset role;
 
@@ -313,6 +541,16 @@ select tests.assert(tests.visible_count('select count(*) from public.consent_rec
   'loan officer cannot read the consent ledger');
 select tests.assert(tests.visible_count('select count(*) from public.audit_events') = 0,
   'loan officer cannot read the audit log');
+
+-- Staff is not one thing. RendProp media is operations and admin only; a loan
+-- officer has no reason to be looking inside somebody's house.
+select tests.assert(tests.visible_count('select count(*) from public.rendprop_projects') = 0,
+  'loan officer is not a RendProp staff role and reads no projects');
+select tests.assert(tests.visible_count('select count(*) from public.rendprop_media_assets') = 0,
+  'loan officer reads no RendProp original media');
+select tests.assert(
+  tests.visible_count('select count(*) from public.rendprop_generated_assets') = 0,
+  'loan officer reads no RendProp generated media');
 
 reset role;
 
@@ -382,6 +620,38 @@ select tests.assert(
   tests.visible_count($$select count(*) from public.lead_planner_responses r
     join public.leads l on l.id = r.lead_id where l.intent = 'refinance'$$) = 1,
   'admin can join a planner response to the lead it belongs to');
+
+-- RendProp, as staff. An admin can see every project for support and abuse
+-- review, and still cannot rewrite a disclosure.
+select tests.assert(tests.visible_count('select count(*) from public.rendprop_projects') = 2,
+  'admin can read every RendProp project');
+select tests.assert(tests.visible_count('select count(*) from public.rendprop_media_assets') = 2,
+  'admin can read every RendProp original');
+select tests.assert(
+  tests.visible_count('select count(*) from public.rendprop_processing_jobs') = 2,
+  'admin can read the whole RendProp job queue');
+select tests.assert(
+  tests.visible_count('select count(*) from public.rendprop_generated_assets') = 2,
+  'admin can read every RendProp generated asset');
+select tests.assert(tests.visible_count('select count(*) from public.rendprop_tours') = 2,
+  'admin can read every RendProp tour');
+select tests.assert(
+  tests.visible_count('select count(*) from public.rendprop_tour_inquiries') = 1,
+  'admin can read RendProp tour inquiries');
+-- Staff read RendProp media for support and abuse review. There is no staff
+-- write policy at all, so the relabelling attempt matches no row before the
+-- immutability trigger even gets a chance to refuse it.
+select tests.assert_affects_no_rows(
+  $$update public.rendprop_generated_assets set disclosure_label = 'Photograph'
+    where id = '00000000-0000-4000-8000-0000000000f5'$$,
+  'admin cannot relabel an AI-generated image as a photograph either');
+select tests.assert_affects_no_rows(
+  $$update public.rendprop_projects set title = 'Renamed by staff'
+    where id = '00000000-0000-4000-8000-0000000000e1'$$,
+  'admin can read a RendProp project but cannot edit somebody''s listing');
+select tests.assert_denied(
+  $$select public.rendprop_claim_job('worker','agent',300,60)$$,
+  'admin cannot claim a job and reserve spend from a client session');
 
 -- Audit history is append-only for everyone, including an admin.
 select tests.assert_denied(
@@ -464,6 +734,100 @@ select tests.assert_denied(
       'w2','under_4k','none','researching','x'
     from public.leads limit 1$$,
   'a credit band outside the self-reported set is rejected');
+
+/* ---------------------------------------------------------------- *
+ * RendProp structural guarantees
+ * ---------------------------------------------------------------- */
+
+select tests.assert(
+  (select count(*) from pg_class c
+   join pg_namespace n on n.oid = c.relnamespace
+   where n.nspname = 'public' and c.relrowsecurity
+     and c.relname in ('rendprop_projects','rendprop_media_assets','rendprop_processing_jobs',
+       'rendprop_generated_assets','rendprop_tours','rendprop_tour_inquiries')) = 6,
+  'row level security is enabled on all six RendProp tables');
+
+-- Invariant 5, for every function this migration added. EXECUTE is granted to
+-- PUBLIC by default, so revoking from anon and authenticated alone would have
+-- left all four of these reachable.
+select tests.assert(
+  not has_function_privilege('public',
+    'public.rendprop_enqueue_job(uuid,uuid,uuid,text,jsonb,integer,text,integer)', 'execute'),
+  'PUBLIC holds no execute grant on the RendProp enqueue function');
+select tests.assert(
+  not has_function_privilege('public',
+    'public.rendprop_claim_job(text,text,integer,integer)', 'execute'),
+  'PUBLIC holds no execute grant on the RendProp claim-and-reserve function');
+select tests.assert(
+  not has_function_privilege('public',
+    'public.rendprop_settle_job(uuid,text,integer,text,text,text,timestamptz)', 'execute'),
+  'PUBLIC holds no execute grant on the RendProp settlement function');
+select tests.assert(
+  not has_function_privilege('public', 'public.rendprop_published_tour(text)', 'execute'),
+  'PUBLIC holds no execute grant on the published tour function');
+select tests.assert(
+  not has_function_privilege('public', 'public.rendprop_freeze_disclosure()', 'execute'),
+  'PUBLIC holds no execute grant on the disclosure-freezing trigger function');
+
+-- The disclosure is a database-level guarantee, not a UI convention.
+select tests.assert_rejected(
+  $$insert into public.rendprop_generated_assets
+      (project_id, source_asset_id, transformation, storage_key, content_type, disclosure_label)
+    values ('00000000-0000-4000-8000-0000000000e1','00000000-0000-4000-8000-0000000000f1',
+      'virtual_staging','rendprop/e1/generated/unlabelled.jpg','image/jpeg','   ')$$,
+  'an AI-generated asset cannot be stored without a visible disclosure label');
+select tests.assert_rejected(
+  $$update public.rendprop_generated_assets set disclosure_label = 'Original photograph'
+    where id = '00000000-0000-4000-8000-0000000000f5'$$,
+  'a disclosure label cannot be rewritten even by the table owner');
+select tests.assert_rejected(
+  $$update public.rendprop_generated_assets set lineage = '[{"forged": true}]'::jsonb
+    where id = '00000000-0000-4000-8000-0000000000f5'$$,
+  'the lineage of a generated asset cannot be rewritten even by the table owner');
+
+-- An original is preserved. A derivative that claims to be a view of it cannot
+-- be left pointing at nothing.
+select tests.assert_rejected(
+  $$delete from public.rendprop_media_assets
+    where id = '00000000-0000-4000-8000-0000000000f1'$$,
+  'an original cannot be deleted while a generated asset still cites it');
+
+-- Publication is all-or-nothing: no token, no attribution, no disclosure
+-- version means no published tour.
+select tests.assert_rejected(
+  $$update public.rendprop_tours set status = 'published'
+    where id = '00000000-0000-4000-8000-0000000000f8'$$,
+  'a tour cannot be published without a share token, attribution, and a disclosure version');
+
+-- Upload policy, enforced where it counts rather than only in the browser.
+select tests.assert_rejected(
+  $$insert into public.rendprop_media_assets
+      (project_id, asset_kind, content_type, byte_size, storage_key)
+    values ('00000000-0000-4000-8000-0000000000e1','still_photo','image/svg+xml',10,'k-svg')$$,
+  'a content type outside the allowlist is rejected at the database');
+select tests.assert_rejected(
+  $$insert into public.rendprop_media_assets
+      (project_id, asset_kind, content_type, byte_size, storage_key)
+    values ('00000000-0000-4000-8000-0000000000e1','walkthrough_video','video/mp4',
+      2147483648,'k-huge')$$,
+  'an asset larger than the per-file ceiling is rejected at the database');
+
+-- Idempotency is a uniqueness guarantee, so a retried enqueue cannot buy the
+-- same output twice.
+select tests.assert_rejected(
+  $$insert into public.rendprop_processing_jobs
+      (project_id, source_asset_id, transformation, idempotency_key)
+    values ('00000000-0000-4000-8000-0000000000e1','00000000-0000-4000-8000-0000000000f1',
+      'virtual_staging','rendprop:e1:f1:vs:0')$$,
+  'a duplicate idempotency key cannot create a second processing job');
+
+-- Invariant 2, asserted against the schema: a tour inquiry is a marketing
+-- enquiry and must never grow into an application.
+select tests.assert(
+  (select count(*) from information_schema.columns
+   where table_schema = 'public' and table_name = 'rendprop_tour_inquiries'
+     and column_name ~ '(ssn|social_security|date_of_birth|birth|account_number|credit_score|document|upload|pay_stub|tax_return)') = 0,
+  'the tour inquiry table carries no application-grade identifier column');
 
 select tests.assert(
   (select count(*) from pg_tables t

@@ -353,6 +353,13 @@ export const ROUTE_REGISTRY: RouteEntry[] = [
     contentGroup: "rendprop"
   },
   {
+    path: "/rendprop/demo",
+    priority: 0.4,
+    changeFrequency: "monthly",
+    indexable: false,
+    contentGroup: "rendprop"
+  },
+  {
     path: "/properties",
     priority: 0.5,
     changeFrequency: "daily",
