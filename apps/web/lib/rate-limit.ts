@@ -68,3 +68,14 @@ export const LEAD_RATE_LIMITS = {
   // honest visitor out. The perNetwork limit still throttles abuse.
   perContact: { windowMs: 60 * 60 * 1000, limit: 5 }
 } as const;
+
+/**
+ * Agent directory join endpoint. One network dimension only: the endpoint is
+ * idempotent per agent by construction (email and license both dedupe to the
+ * same row), so a per-contact bucket would add nothing but a lockout for an
+ * agent fixing a typo. Tighter than the lead limit because a legitimate agent
+ * joins once, not twelve times.
+ */
+export const AGENT_JOIN_RATE_LIMITS = {
+  perNetwork: { windowMs: 10 * 60 * 1000, limit: 6 }
+} as const;

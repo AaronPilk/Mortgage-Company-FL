@@ -64,6 +64,16 @@ export const ServerEnvSchema = z
       .enum(["true", "false"])
       .default("false")
       .transform((value) => value === "true"),
+    /**
+     * Same two-switch shape as SHOW_SAMPLE_LISTINGS, for the agent directory:
+     * outside production sample agents always render (labelled), and in
+     * production they render only on this explicit opt-in. Off by default so
+     * fixture people cannot ship because nobody flipped a flag.
+     */
+    SHOW_SAMPLE_AGENTS: z
+      .enum(["true", "false"])
+      .default("false")
+      .transform((value) => value === "true"),
     MLS_BASE_URL: optionalString,
     MLS_ACCESS_TOKEN: optionalString,
     MLS_ATTRIBUTION_TEXT: optionalString,

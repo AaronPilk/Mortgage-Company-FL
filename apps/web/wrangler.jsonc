@@ -48,6 +48,10 @@
     "MLS_PROVIDER": "fixture",
     "SHOW_SAMPLE_LISTINGS": "true",
     "FEATURE_PROPERTY_SEARCH": "true",
+    // Labelled sample agent profiles in the directory, same deliberate opt-in
+    // as the sample listings. Real approved agents replace them, and the
+    // /agents registry entry flips indexable when the samples turn off.
+    "SHOW_SAMPLE_AGENTS": "true",
     // AI-assisted property search. Live mode requires the ANTHROPIC_API_KEY
     // secret (enforced by the environment schema), and spend happens only
     // inside these daily budgets — at 0 every paid call is refused and the

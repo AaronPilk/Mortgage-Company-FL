@@ -33,6 +33,11 @@ export const LeadIntentSchema = z.enum([
    * intent never carries or implies a rate, a limit, or an approval.
    */
   "heloc",
+  /**
+   * A consumer asking to be introduced to a real-estate agent from the
+   * directory. Connection framing only — TRACT brokers mortgages, not homes.
+   */
+  "agent_introduction",
   "general"
 ]);
 export type LeadIntent = z.infer<typeof LeadIntentSchema>;

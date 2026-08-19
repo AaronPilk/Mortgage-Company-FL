@@ -5,7 +5,8 @@ import { Badge, Button, ButtonLink, Card, Section, SectionHeading } from "@/comp
 import { publicFeatures } from "@/lib/env";
 import { demoListings, listings } from "@/lib/listings";
 import { pageMetadata } from "@/lib/metadata";
-import { createRequestClient } from "@/lib/supabase";
+import { claimAgentRowForUser } from "@/lib/agent-claim";
+import { createRequestClient, createServiceClient } from "@/lib/supabase";
 
 export const metadata: Metadata = pageMetadata({
   title: "Your account",
@@ -130,6 +131,17 @@ export default async function AccountPage({
         </Card>
       </Section>
     );
+  }
+
+  // An agent who joined the directory before creating this account gets their
+  // row linked here — one cheap, idempotent service-role update that only ever
+  // claims an unowned row matching this verified email. A failure is a silent
+  // no-op; the page renders regardless and the next visit retries.
+  if (user.email !== undefined) {
+    const serviceClient = createServiceClient();
+    if (serviceClient !== null) {
+      await claimAgentRowForUser(serviceClient, user.id, user.email);
+    }
   }
 
   const [

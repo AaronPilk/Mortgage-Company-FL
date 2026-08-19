@@ -84,6 +84,34 @@ export default function AgentPartnerPage() {
         />
       </div>
 
+      {/*
+        The directory is the concrete thing this page can offer an agent today,
+        so it gets the loud placement: join it, or see what a profile looks
+        like. The service pitch below remains the relationship story.
+      */}
+      <Card className="mb-10 border-[var(--purple)] bg-[var(--purple-subtle)]">
+        <div className="flex flex-wrap items-center justify-between gap-6">
+          <div className="max-w-xl">
+            <h2 className="text-lg font-semibold text-[var(--text)]">
+              The TRACT agent directory is open
+            </h2>
+            <p className="mt-2 text-sm text-[var(--text-muted)]">
+              List your profile, and when a buyer asks to work with you we make the introduction
+              personally. You stay the agent of record, and your contact details are never
+              published.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <ButtonLink href="/agents/join" data-cta="agent-partner-join-directory">
+              Join the directory
+            </ButtonLink>
+            <ButtonLink href="/agents" variant="secondary">
+              Browse agent profiles
+            </ButtonLink>
+          </div>
+        </div>
+      </Card>
+
       <div className="grid gap-6 lg:grid-cols-3">
         {VALUE.map((item) => (
           <Card key={item.heading}>

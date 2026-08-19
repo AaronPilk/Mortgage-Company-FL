@@ -1086,6 +1086,29 @@ export const ROUTE_REGISTRY: RouteEntry[] = [
     contentGroup: "properties"
   },
 
+  // Agent directory. Dynamic profile pages (/agents/[slug]) are covered by
+  // this prefix, the same way /properties/[listingKey] rides on /properties.
+  // Not indexable while sample profiles can render: a crawler cannot read the
+  // sample banner, so the surface stays out of the sitemap and the page's own
+  // metadata makes the matching per-request noindex decision. Flip this to
+  // true only when the directory renders real, reviewed agents exclusively.
+  {
+    path: "/agents",
+    priority: 0.5,
+    changeFrequency: "daily",
+    indexable: false,
+    contentGroup: "agents"
+  },
+  // The agent-side funnel carries no sample data and describes a real,
+  // currently offered program, so it is indexable like the partner page.
+  {
+    path: "/agents/join",
+    priority: 0.6,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "agents"
+  },
+
   // Ad campaign landing pages and the "Talk to us" chooser. Deliberately not
   // indexable: campaign pages exist to receive paid clicks and must not
   // compete with the organic program pages for ranking (and the site is

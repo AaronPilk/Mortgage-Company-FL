@@ -20,7 +20,13 @@ export const metadata: Metadata = pageMetadata({
  * visitors. Each card routes to the destination whose funnel already speaks
  * that visitor's language, which beats a generic contact form for everyone.
  */
-const CHOICES = [
+const CHOICES: {
+  href: string;
+  title: string;
+  detail: string;
+  /** A quiet second destination rendered below the card's main link. */
+  secondary?: { href: string; label: string };
+}[] = [
   {
     href: "/get-started/purchase",
     title: "Buying a home",
@@ -35,7 +41,8 @@ const CHOICES = [
   {
     href: "/partners/real-estate-agents",
     title: "I'm a real estate agent",
-    detail: "See how we work with agents, from co-marketing to keeping your clients moving."
+    detail: "See how we work with agents, from co-marketing to keeping your clients moving.",
+    secondary: { href: "/agents/join", label: "Or join the TRACT agent directory" }
   },
   {
     href: "/get-started/investment",
@@ -70,6 +77,19 @@ export default function TalkPage() {
                 Start here &rarr;
               </span>
             </Link>
+            {choice.secondary !== undefined && (
+              // A sibling of the main link, not a child: a nested anchor is
+              // invalid markup and unreachable to assistive technology.
+              <div className="border-t px-7 py-3" style={{ borderColor: "var(--border)" }}>
+                <Link
+                  href={choice.secondary.href}
+                  className="text-sm underline underline-offset-2 hover:text-[var(--purple)]"
+                  style={{ color: "var(--text-muted)" }}
+                >
+                  {choice.secondary.label} &rarr;
+                </Link>
+              </div>
+            )}
           </Card>
         ))}
       </ul>

@@ -56,6 +56,8 @@ const FOOTER_GROUPS = [
     links: [
       { href: "/about", label: "About" },
       { href: "/contact", label: "Contact" },
+      { href: "/agents", label: "Find an agent" },
+      { href: "/agents/join", label: "Join as an agent" },
       { href: "/licenses", label: "Licensing" },
       { href: "/disclosures", label: "Disclosures" },
       { href: "/security", label: "Security" }

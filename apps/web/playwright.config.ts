@@ -45,6 +45,7 @@ export default defineConfig({
       AI_MODE: "disabled",
       MLS_PROVIDER: "fixture",
       SHOW_SAMPLE_LISTINGS: "true",
+      SHOW_SAMPLE_AGENTS: "true",
       FEATURE_PROPERTY_SEARCH: "true",
       TURNSTILE_MODE: "fixture"
     }

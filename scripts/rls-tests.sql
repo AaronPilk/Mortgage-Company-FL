@@ -172,6 +172,32 @@ insert into public.saved_searches (id, owner_user_id, search_params, summary) va
     'q=Orlando', 'Listings in Orlando'
   );
 
+-- Agent directory rows in every visibility state the policies distinguish:
+-- publicly visible (approved + consented), owner-only pending, and approved
+-- but non-consenting. Names are synthetic fixtures, never real people.
+insert into public.agents (
+  id, owner_user_id, first_name, last_name, brokerage, license_number,
+  email_normalized, phone_e164, cities, bio, slug, status, display_consent
+) values
+  (
+    '00000000-0000-4000-8000-000000000240', null,
+    'Pat', 'Fixture', 'Sample Realty', 'SL-0000001',
+    'pat.fixture@example.com', '+18135550101', 'Tampa, St. Petersburg',
+    'Synthetic directory fixture.', 'pat-fixture', 'approved', true
+  ),
+  (
+    '00000000-0000-4000-8000-000000000241', '00000000-0000-4000-8000-000000000002',
+    'Casey', 'Pending', null, 'SL-0000002',
+    'casey.pending@example.com', '+18135550102', 'Orlando',
+    null, 'casey-pending', 'pending', true
+  ),
+  (
+    '00000000-0000-4000-8000-000000000242', '00000000-0000-4000-8000-000000000006',
+    'Robin', 'Private', 'Sample Realty', 'SL-0000003',
+    'robin.private@example.com', null, 'Brandon',
+    null, 'robin-private', 'approved', false
+  );
+
 select public.create_lead_with_receipt(
   jsonb_build_object(
     'intent','purchase','first_name','Dana','last_name','Reyes',
@@ -457,6 +483,28 @@ select tests.assert_denied(
       'succeeded', 0, null, null, null, null)$$,
   'anonymous cannot settle a RendProp job');
 
+-- Agent directory: approval and display consent are both required before a row
+-- reaches the public, and the anonymous key can never write the table at all.
+select tests.assert(tests.visible_count('select count(*) from public.agents') = 1,
+  'anonymous sees only the approved and consenting agent');
+select tests.assert(
+  tests.visible_count($$select count(*) from public.agents where status = 'pending'$$) = 0,
+  'anonymous never sees a pending agent');
+select tests.assert(
+  tests.visible_count($$select count(*) from public.agents where not display_consent$$) = 0,
+  'anonymous never sees an agent who did not consent to display');
+select tests.assert_denied(
+  $$insert into public.agents (first_name, last_name, license_number, email_normalized, slug)
+    values ('Injected', 'Agent', 'SL-9999999', 'injected@example.com', 'injected-agent')$$,
+  'anonymous cannot insert an agent row');
+select tests.assert_denied(
+  $$update public.agents set cities = 'Everywhere'
+    where id = '00000000-0000-4000-8000-000000000240'$$,
+  'anonymous cannot update an agent row');
+select tests.assert_denied(
+  $$delete from public.agents where id = '00000000-0000-4000-8000-000000000240'$$,
+  'anonymous cannot delete an agent row');
+
 -- Public listing visibility: the published, non-fixture record only.
 select tests.assert(tests.visible_count('select count(*) from public.listing_records') = 1,
   'anonymous sees exactly the published non-fixture listing');
@@ -686,6 +734,50 @@ select tests.assert_denied(
   $$select public.rendprop_published_tour('token-hash-e1')$$,
   'owner cannot call the published tour function directly');
 
+-- Agent directory, as the owner of a pending row: they see the public row and
+-- their own unpublished one, may edit their profile fields on their own row
+-- only, and cannot reach the moderation columns at all.
+select tests.assert(tests.visible_count('select count(*) from public.agents') = 2,
+  'agent row owner sees the public directory plus their own pending row');
+select tests.assert(
+  tests.visible_count($$select count(*) from public.agents
+    where id = '00000000-0000-4000-8000-000000000241'$$) = 1,
+  'agent row owner sees their own pending row');
+update public.agents set cities = 'Orlando, Winter Park'
+  where id = '00000000-0000-4000-8000-000000000241';
+select tests.assert(
+  tests.visible_count($$select count(*) from public.agents
+    where id = '00000000-0000-4000-8000-000000000241'
+      and cities = 'Orlando, Winter Park'$$) = 1,
+  'agent row owner can update their own profile fields');
+select tests.assert_affects_no_rows(
+  $$update public.agents set cities = 'Hijacked'
+    where id = '00000000-0000-4000-8000-000000000242'$$,
+  'cross-agent update is blocked: another owner''s row is untouchable');
+select tests.assert_affects_no_rows(
+  $$update public.agents set cities = 'Hijacked'
+    where id = '00000000-0000-4000-8000-000000000240'$$,
+  'an unowned directory row is not writable just because it is visible');
+select tests.assert_denied(
+  $$update public.agents set status = 'approved'
+    where id = '00000000-0000-4000-8000-000000000241'$$,
+  'agent row owner cannot approve their own row');
+select tests.assert_denied(
+  $$update public.agents set license_verified = true
+    where id = '00000000-0000-4000-8000-000000000241'$$,
+  'agent row owner cannot mark their own license verified');
+select tests.assert_denied(
+  $$update public.agents set license_number = 'SL-7777777'
+    where id = '00000000-0000-4000-8000-000000000241'$$,
+  'agent row owner cannot rewrite their license number through the browser key');
+select tests.assert_denied(
+  $$insert into public.agents (first_name, last_name, license_number, email_normalized, slug)
+    values ('Self', 'Service', 'SL-8888888', 'self.service@example.com', 'self-service')$$,
+  'authenticated users cannot insert agent rows directly');
+select tests.assert_denied(
+  $$delete from public.agents where id = '00000000-0000-4000-8000-000000000241'$$,
+  'agent row owner cannot delete their directory row directly');
+
 reset role;
 
 /* ---------------------------------------------------------------- *
@@ -708,6 +800,14 @@ select tests.assert(tests.visible_count('select count(*) from public.saved_searc
   'agent sees only their own saved search');
 select tests.assert(tests.visible_count('select count(*) from public.privacy_requests') = 0,
   'agent cannot see another user privacy request');
+-- This account owns the approved-but-non-consenting directory row: visible to
+-- them as owner, and to nobody else through the public policy.
+select tests.assert(tests.visible_count('select count(*) from public.agents') = 2,
+  'directory row owner sees the public row plus their own non-consenting row');
+select tests.assert(
+  tests.visible_count($$select count(*) from public.agents
+    where id = '00000000-0000-4000-8000-000000000242'$$) = 1,
+  'an approved agent who withheld display consent still sees their own row');
 
 -- A DIFFERENT consumer. This account owns its own RendProp project, so a naive
 -- policy would pass a "sees exactly one row" test while leaking the other one.
@@ -766,6 +866,8 @@ select tests.assert(tests.visible_count('select count(*) from public.leads') = 2
   'loan officer can read leads');
 select tests.assert(tests.visible_count('select count(*) from public.lead_planner_responses') = 1,
   'loan officer can read the planner answers a lead arrived with');
+select tests.assert(tests.visible_count('select count(*) from public.agents') = 3,
+  'loan officer reviews the whole agent directory, pending rows included');
 select tests.assert_affects_no_rows(
   $$update public.lead_planner_responses set goal = 'purchase'$$,
   'loan officer cannot rewrite what the consumer answered');
