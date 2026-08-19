@@ -3,11 +3,15 @@ import { Wordmark } from "./wordmark";
 import { ThemeToggle } from "./theme-toggle";
 import { ButtonLink, LicenseFact } from "./ui";
 import { businessIdentity, isPreLaunch } from "@/lib/site";
+import { createRequestClient } from "@/lib/supabase";
 
 const PRIMARY_NAV = [
   { href: "/properties", label: "Properties" },
   { href: "/plan", label: "Start planning" },
   { href: "/mortgage", label: "Mortgage" },
+  // A top-level destination on purpose: HELOC content kept being unfindable
+  // two levels down, and home equity is a primary product line.
+  { href: "/mortgage/home-equity", label: "Home equity" },
   { href: "/calculators", label: "Calculators" },
   { href: "/resources", label: "Resources" },
   { href: "/partners/real-estate-agents", label: "For agents" },
@@ -67,7 +71,30 @@ const LEGAL_LINKS = [
   { href: "/do-not-sell-or-share", label: "Do not sell or share" }
 ];
 
-export function SiteHeader() {
+/**
+ * Whether the request carries a signed-in Supabase session.
+ *
+ * Read server-side, the same way /account and /properties read it, so the
+ * header never flashes the wrong state. Reading cookies here makes every
+ * route dynamically rendered — a deliberate trade, accepted pre-launch, so
+ * the one persistent piece of chrome can tell a signed-in person where their
+ * account lives. Any failure renders the signed-out affordance: "Sign in"
+ * shown to a signed-in person is a dead-end-free mistake, the reverse is not.
+ */
+async function hasSignedInUser(): Promise<boolean> {
+  try {
+    const supabase = await createRequestClient();
+    if (supabase === null) return false;
+    const { data, error } = await supabase.auth.getUser();
+    return error === null && data.user !== null;
+  } catch {
+    return false;
+  }
+}
+
+export async function SiteHeader() {
+  const signedIn = await hasSignedInUser();
+  const accountLabel = signedIn ? "My account" : "Sign in";
   return (
     <header className="glass sticky top-0 z-40">
       <div className="container-wide flex items-center justify-between gap-6 py-3.5">
@@ -88,6 +115,14 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2.5">
+          {/* Quiet on purpose: the account is an amenity here, not the product. */}
+          <Link
+            href="/account"
+            data-nav="account"
+            className="hidden rounded-lg px-3.5 py-2 text-sm font-medium transition-colors hover:bg-[var(--purple-subtle)] hover:text-[var(--purple)] lg:block"
+          >
+            {accountLabel}
+          </Link>
           <ThemeToggle />
           {/*
             One button, four audiences. /talk asks what the visitor is here for
@@ -116,6 +151,15 @@ export function SiteHeader() {
               </Link>
             </li>
           ))}
+          <li className="shrink-0">
+            <Link
+              href="/account"
+              data-nav="account"
+              className="block rounded-lg px-3 py-1.5 font-medium hover:text-[var(--purple)]"
+            >
+              {accountLabel}
+            </Link>
+          </li>
         </ul>
       </nav>
     </header>

@@ -174,7 +174,7 @@ export function AccountPromptDialog({
         aria-modal="true"
         aria-labelledby={headingId}
         tabIndex={-1}
-        className="animate-fade-up relative w-full max-w-md rounded-3xl border p-7 sm:p-8"
+        className="animate-fade-up relative max-h-full w-full max-w-md overflow-y-auto rounded-3xl border p-7 sm:p-8"
         style={{
           background: "var(--bg)",
           borderColor: "var(--border)",

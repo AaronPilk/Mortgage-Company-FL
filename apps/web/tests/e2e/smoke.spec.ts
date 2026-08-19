@@ -600,6 +600,33 @@ test.describe("admin", () => {
 });
 
 test.describe("navigation and errors", () => {
+  test("puts home equity in the primary nav and offers a visible account entry", async ({
+    page
+  }) => {
+    await page.goto("/");
+
+    // Home equity is a top-level destination, ordered directly after Mortgage,
+    // in both the desktop and the mobile primary nav.
+    for (const navName of ["Primary", "Primary mobile"]) {
+      const labels = await page
+        .getByRole("navigation", { name: navName, includeHidden: true })
+        .locator("a")
+        .allTextContents();
+      const mortgageIndex = labels.indexOf("Mortgage");
+      expect(mortgageIndex, `${navName} nav is missing Mortgage`).toBeGreaterThanOrEqual(0);
+      expect(labels[mortgageIndex + 1], `${navName} nav order`).toBe("Home equity");
+    }
+    await expect(page.locator('header a[href="/mortgage/home-equity"]:visible').first()).toHaveText(
+      "Home equity"
+    );
+
+    // The site has a visible way in: signed out, the header offers a quiet
+    // "Sign in" link to /account in whichever layout is active.
+    const accountLink = page.locator('header a[data-nav="account"]:visible').first();
+    await expect(accountLink).toHaveAttribute("href", "/account");
+    await expect(accountLink).toHaveText("Sign in");
+  });
+
   test("serves a useful 404", async ({ page }) => {
     const response = await page.goto("/this-page-does-not-exist");
     expect(response?.status()).toBe(404);

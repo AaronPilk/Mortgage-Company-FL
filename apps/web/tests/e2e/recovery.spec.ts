@@ -63,13 +63,35 @@ test.describe("integrated recovery workflows", () => {
     await unlock.click();
     const dialog = page.getByRole("dialog", { name: "Unlock AI search" });
     await expect(dialog).toBeVisible();
+    // Create mode is a full consented lead capture: name, email, phone,
+    // password, and the same three unbundled consent checkboxes as every lead
+    // form — the required contact consent and the two optional marketing
+    // channels — plus the Turnstile container the lead endpoint requires.
+    await expect(dialog.getByLabel("First name")).toBeVisible();
+    await expect(dialog.getByLabel("Last name")).toBeVisible();
     await expect(dialog.getByLabel("Email address")).toBeVisible();
+    await expect(dialog.getByLabel("Phone")).toBeVisible();
     await expect(dialog.getByLabel("Password")).toBeVisible();
+    await expect(dialog.locator('input[name="privacyAccepted"]')).toHaveAttribute("required", "");
+    await expect(dialog.locator('input[name="smsMarketing"]')).not.toHaveAttribute("required", "");
+    await expect(dialog.locator('input[name="emailMarketing"]')).not.toHaveAttribute(
+      "required",
+      ""
+    );
+    await expect(dialog.getByTestId("account-turnstile")).toBeAttached();
     await expect(dialog.getByRole("button", { name: "Create my account" })).toBeVisible();
     await expect(dialog.getByRole("link", { name: "terms of use" })).toBeVisible();
-    await expect(dialog.getByRole("link", { name: "privacy policy" })).toBeVisible();
+    // Two privacy links on purpose: the consent disclosure's and the standing
+    // terms line's. Exact match separates them.
+    await expect(dialog.getByRole("link", { name: "Privacy policy", exact: true })).toBeVisible();
+    await expect(dialog.getByRole("link", { name: "privacy policy", exact: true })).toBeVisible();
     await dialog.getByRole("button", { name: "Sign in", exact: true }).click();
+    // Sign-in stays email + password only; the lead-capture fields are
+    // create-mode furniture.
     await expect(dialog.getByRole("button", { name: "Sign in", exact: true })).toBeVisible();
+    await expect(dialog.getByLabel("First name")).toHaveCount(0);
+    await expect(dialog.getByLabel("Phone")).toHaveCount(0);
+    await expect(dialog.locator('input[name="privacyAccepted"]')).toHaveCount(0);
     await expect(dialog.getByRole("button", { name: "Forgot password?" })).toBeVisible();
     await expect(dialog.getByRole("button", { name: "Create an account" })).toBeVisible();
     await page.keyboard.press("Escape");
@@ -220,6 +242,81 @@ test.describe("integrated recovery workflows", () => {
       timing: "within_30_days"
     });
     expect(String(payloads[2]?.submissionId)).not.toBe(String(payloads[1]?.submissionId));
+  });
+
+  test("account creation posts the consented lead first and stops on a validation rejection", async ({
+    page
+  }) => {
+    // The first-party write is authoritative: creating an account posts the
+    // person to /api/v1/leads BEFORE Supabase Auth is ever called. The lead
+    // POST is interceptable; auth.signUp is not — so this walk stops at the
+    // lead rejection, which also proves a validation failure blocks account
+    // creation instead of creating an account around bad contact data.
+    const payloads: Array<Record<string, unknown>> = [];
+    await page.route("**/api/v1/leads", async (route) => {
+      payloads.push(route.request().postDataJSON() as Record<string, unknown>);
+      await route.fulfill({
+        status: 400,
+        contentType: "application/json",
+        body: JSON.stringify({
+          ok: false,
+          error: {
+            code: "VALIDATION_ERROR",
+            message: "Please check the highlighted fields.",
+            fields: { phone: ["Enter a phone number we can reach you at."] },
+            requestId: "account-create-e2e"
+          }
+        })
+      });
+    });
+    // Any escape past the rejection toward Supabase Auth is a test failure,
+    // never a real network sign-up.
+    const authCalls: string[] = [];
+    await page.route("**/auth/v1/**", async (route) => {
+      authCalls.push(route.request().url());
+      await route.abort();
+    });
+
+    await page.goto("/account");
+    await page.getByRole("button", { name: "Create an account" }).click();
+    await page.getByLabel("First name").fill("Dana");
+    await page.getByLabel("Last name").fill("Reyes");
+    await page.getByLabel("Email address").fill("dana@example.com");
+    await page.getByLabel("Phone").fill("813-555-0147");
+    await page.getByLabel("Password", { exact: false }).first().fill("a-long-password");
+    await page.locator('input[name="privacyAccepted"]').check();
+    // One optional channel on, one off: the checkboxes must map through
+    // independently, not as a bundle.
+    await page.locator('input[name="emailMarketing"]').check();
+    await page.getByRole("button", { name: "Create my account" }).click();
+
+    // The rejection surfaces in the form's alert styling with the field detail.
+    const alert = page.locator('form [role="alert"]');
+    await expect(alert).toContainText("Please check the highlighted fields.");
+    await expect(alert).toContainText("Enter a phone number we can reach you at.");
+
+    expect(payloads.length).toBe(1);
+    expect(payloads[0]).toMatchObject({
+      intent: "general",
+      firstName: "Dana",
+      lastName: "Reyes",
+      email: "dana@example.com",
+      phone: "813-555-0147",
+      message: "Created a TRACT account.",
+      consent: {
+        privacyAccepted: true,
+        contactRequested: true,
+        smsMarketing: false,
+        emailMarketing: true
+      }
+    });
+    expect(String(payloads[0]?.submissionId)).toMatch(/^[0-9a-f-]{36}$/i);
+    expect(payloads[0]?.firstTouch).toMatchObject({ landingPath: "/account" });
+    expect(payloads[0]?.conversionTouch).toMatchObject({ landingPath: "/account" });
+    // The password never rides on the lead, under any name.
+    expect(JSON.stringify(payloads[0])).not.toContain("a-long-password");
+    // The walk stopped at the lead: Supabase Auth was never reached.
+    expect(authCalls).toEqual([]);
   });
 
   test("shows a deterministic Vision result before the optional report form", async ({ page }) => {
@@ -397,6 +494,15 @@ test.describe("recovery system boundaries", () => {
         .or(page.getByText(/sign in with your email and password/i))
         .first()
     ).toBeVisible();
+    // The header's account affordance reflects the signed-out state: a quiet
+    // "Sign in" link pointing here, in both the desktop cluster and the
+    // mobile nav.
+    const headerAccountLinks = page.locator('header a[data-nav="account"]');
+    expect(await headerAccountLinks.count()).toBe(2);
+    for (const link of await headerAccountLinks.all()) {
+      await expect(link).toHaveAttribute("href", "/account");
+      await expect(link).toHaveText("Sign in");
+    }
     await expect(
       page.getByRole("link", { name: "Use calculators without an account" })
     ).toBeVisible();
