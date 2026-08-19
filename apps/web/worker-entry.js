@@ -18,33 +18,33 @@ export default {
   /**
    * Drain the transactional outbox once a minute.
    *
-   * This makes a real HTTP request to the existing token-protected drain route
-   * over WORKER_SELF_ORIGIN — the same path a normal request takes and the one
-   * already proven to deliver — instead of invoking the Next.js handler
-   * in-process. An in-process call does not route reliably from the scheduled
-   * context: the tick fired every minute and left every lead sitting undrained.
-   * The origin is a configured var, not a hardcoded host, because the
-   * host-canonicalization middleware redirects any host it does not recognise.
+   * The drain runs through the SELF service binding — a binding from this Worker
+   * back to itself (see wrangler.jsonc). A Worker cannot fetch() its own public
+   * hostname: Cloudflare answers that self-loop with 404 / error 1042, which is
+   * precisely why an earlier version fired every minute and drained nothing. A
+   * service binding is the supported path: it delivers the request to this
+   * Worker's own fetch entrypoint, so the existing token-protected drain route
+   * runs with routing and configuration populated exactly as a normal request.
    *
-   * If WORKER_SELF_ORIGIN or OUTBOX_DRAIN_TOKEN is absent the tick is a no-op,
-   * and every outcome is logged so a silent cron is never a mystery again.
+   * Every outcome is logged so a silent cron can never recur — `wrangler tail`
+   * shows the drain's HTTP status on each tick.
    */
   async scheduled(controller, env, ctx) {
-    const origin = env.WORKER_SELF_ORIGIN;
     const token = env.OUTBOX_DRAIN_TOKEN;
-    if (typeof origin !== "string" || origin.length === 0) {
-      console.error("outbox cron: WORKER_SELF_ORIGIN is not set; skipping drain");
-      return;
-    }
     if (typeof token !== "string" || token.length === 0) {
       console.error("outbox cron: OUTBOX_DRAIN_TOKEN is not set; skipping drain");
       return;
     }
+    if (env.SELF === undefined || typeof env.SELF.fetch !== "function") {
+      console.error("outbox cron: SELF service binding is missing; skipping drain");
+      return;
+    }
+    const origin = env.WORKER_SELF_ORIGIN || "https://mortgage-company-fl.aaron-9c3.workers.dev";
 
     ctx.waitUntil(
       (async () => {
         try {
-          const response = await fetch(
+          const response = await env.SELF.fetch(
             new Request(`${origin}/api/v1/internal/outbox/drain`, {
               method: "POST",
               headers: { authorization: `Bearer ${token}` }
