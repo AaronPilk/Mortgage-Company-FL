@@ -105,18 +105,10 @@
 
 @layer base {
   /*
-    Clearance for the sticky mobile action bar, which is fixed and would
-    otherwise cover the last row of the footer on a phone.
+    Clearance for the sticky mobile action bar now travels with the bar
+    itself (a spacer inside MobileCta), so routes that suppress the bar do
+    not carry a dead 4.75rem of bottom padding.
   */
-  body {
-    padding-bottom: 4.75rem;
-  }
-
-  @media (min-width: 1024px) {
-    body {
-      padding-bottom: 0;
-    }
-  }
 
   * {
     -webkit-font-smoothing: antialiased;
@@ -126,6 +118,8 @@
   html {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+    /* In-page anchors land clear of the sticky header instead of under it. */
+    scroll-padding-top: 5rem;
   }
 
   body {
@@ -365,6 +359,53 @@ input::placeholder,
 textarea::placeholder {
   color: var(--text-muted);
   opacity: 1;
+}
+
+/* ---------------------------------------------------------------- *
+ * Touch ergonomics. Everything below applies only under the desktop
+ * breakpoint, where the pointer is a finger.
+ * ---------------------------------------------------------------- */
+
+@media (max-width: 1023.98px) {
+  /*
+    16px is the threshold below which iOS Safari zooms the page on focus.
+    The zoom is disorienting mid-form and never zooms back out, so every
+    focusable text control holds at least 1rem on touch layouts regardless
+    of the utility class it was authored with.
+  */
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="number"],
+  input[type="search"],
+  input[type="password"],
+  input[type="url"],
+  select,
+  textarea {
+    font-size: max(1rem, 1em);
+  }
+
+  /* A 16px checkbox is a miss half the time on a phone. */
+  input[type="checkbox"],
+  input[type="radio"] {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  /* Taller hit area for slider thumbs without changing the visual track. */
+  input[type="range"] {
+    min-height: 2.5rem;
+  }
+
+  /*
+    The glass header sits over scrolling content. At desktop widths the blur
+    has room to read as depth; on a phone the content is flush against it and
+    72% opacity lets headlines collide with the nav labels. Nearly opaque on
+    touch layouts, same treatment as the bottom action bar.
+  */
+  .glass {
+    background: color-mix(in srgb, var(--bg) 94%, transparent);
+  }
 }
 
 ::-webkit-scrollbar {

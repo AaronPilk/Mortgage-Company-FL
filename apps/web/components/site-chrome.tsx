@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Wordmark } from "./wordmark";
 import { ThemeToggle } from "./theme-toggle";
+import { MobileNav } from "./mobile-nav";
 import { ButtonLink, LicenseFact } from "./ui";
 import { businessIdentity, isPreLaunch } from "@/lib/site";
 import { createRequestClient } from "@/lib/supabase";
@@ -98,7 +99,9 @@ export async function SiteHeader() {
   const signedIn = await hasSignedInUser();
   const accountLabel = signedIn ? "My account" : "Sign in";
   return (
-    <header className="glass sticky top-0 z-40">
+    // z-[60]: the open mobile menu (a child of this header) must paint over
+    // the fixed bottom action bar, which sits at z-50.
+    <header className="glass sticky top-0 z-[60]">
       <div className="container-wide flex items-center justify-between gap-6 py-3.5">
         <Link href="/" aria-label={`${businessIdentity.brandName} home`}>
           <Wordmark />
@@ -116,7 +119,7 @@ export async function SiteHeader() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2 sm:gap-2.5">
           {/* Quiet on purpose: the account is an amenity here, not the product. */}
           <Link
             href="/account"
@@ -125,45 +128,26 @@ export async function SiteHeader() {
           >
             {accountLabel}
           </Link>
-          <ThemeToggle />
+          {/* On a phone the theme control lives inside the menu; the header
+              row keeps only the brand, the primary CTA, and the menu. */}
+          <div className="hidden lg:block">
+            <ThemeToggle />
+          </div>
           {/*
             One button, four audiences. /talk asks what the visitor is here for
             and routes each answer to the funnel built for it, which converts
             better than dropping everyone on a generic contact form.
           */}
-          <ButtonLink href="/talk" data-cta="header-consultation" className="!min-h-[42px] !px-5">
+          <ButtonLink
+            href="/talk"
+            data-cta="header-consultation"
+            className="!min-h-[44px] !px-4 sm:!px-5"
+          >
             Talk to us
           </ButtonLink>
+          <MobileNav items={PRIMARY_NAV} accountLabel={accountLabel} />
         </div>
       </div>
-
-      <nav
-        aria-label="Primary mobile"
-        className="lg:hidden"
-        style={{ borderTop: "1px solid var(--border)" }}
-      >
-        <ul className="container-wide flex gap-1 overflow-x-auto py-2 text-sm">
-          {PRIMARY_NAV.map((item) => (
-            <li key={item.href} className="shrink-0">
-              <Link
-                href={item.href}
-                className="block rounded-lg px-3 py-1.5 font-medium hover:text-[var(--purple)]"
-              >
-                {item.label}
-              </Link>
-            </li>
-          ))}
-          <li className="shrink-0">
-            <Link
-              href="/account"
-              data-nav="account"
-              className="block rounded-lg px-3 py-1.5 font-medium hover:text-[var(--purple)]"
-            >
-              {accountLabel}
-            </Link>
-          </li>
-        </ul>
-      </nav>
     </header>
   );
 }
@@ -180,7 +164,7 @@ export function PreLaunchNotice() {
   return (
     <div
       role="status"
-      className="relative px-4 py-2.5 text-center text-sm font-medium text-white"
+      className="relative px-4 py-2 text-center text-xs font-medium text-white sm:py-2.5 sm:text-sm"
       style={{ background: "linear-gradient(90deg, var(--purple-dark), var(--purple))" }}
     >
       {businessIdentity.brandName} is pre-launch — not yet accepting mortgage applications, and
@@ -195,9 +179,13 @@ export function SiteFooter() {
       className="relative mt-24"
       style={{ borderTop: "1px solid var(--border)", background: "var(--surface)" }}
     >
-      <div className="container-wide py-16">
-        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-5">
-          <div>
+      <div className="container-wide py-12 sm:py-16">
+        {/*
+          Two columns on a phone, not one. Four single-column link groups made
+          the footer several screens tall; the labels are short enough to pair.
+        */}
+        <div className="grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-5 lg:gap-12">
+          <div className="col-span-2 lg:col-span-1">
             <Wordmark />
             <p className="mt-5 max-w-xs text-sm" style={{ color: "var(--text-muted)" }}>
               A Florida mortgage brokerage. We help buyers and homeowners compare financing paths

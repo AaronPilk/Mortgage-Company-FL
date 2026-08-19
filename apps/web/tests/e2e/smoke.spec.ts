@@ -616,6 +616,16 @@ test.describe("navigation and errors", () => {
       expect(mortgageIndex, `${navName} nav is missing Mortgage`).toBeGreaterThanOrEqual(0);
       expect(labels[mortgageIndex + 1], `${navName} nav order`).toBe("Home equity");
     }
+
+    // On touch layouts the primary nav sits behind the menu disclosure, so the
+    // visibility half of the contract is asserted with the menu open there.
+    // Located by aria-controls, not accessible name — the name flips between
+    // "Open menu" and "Close menu" with state.
+    const menuButton = page.locator('header button[aria-controls="mobile-menu"]');
+    if (await menuButton.isVisible()) {
+      await menuButton.click();
+      await expect(menuButton).toHaveAttribute("aria-expanded", "true");
+    }
     await expect(page.locator('header a[href="/mortgage/home-equity"]:visible').first()).toHaveText(
       "Home equity"
     );

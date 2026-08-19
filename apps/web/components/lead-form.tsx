@@ -358,7 +358,7 @@ export function LeadForm({
             type="checkbox"
             name="privacyAccepted"
             required
-            className="mt-1 size-4 shrink-0 accent-[var(--purple)]"
+            className="mt-0.5 size-5 shrink-0 accent-[var(--purple)]"
           />
           <span>
             {disclosureText}{" "}
@@ -373,7 +373,7 @@ export function LeadForm({
           <input
             type="checkbox"
             name="smsMarketing"
-            className="mt-1 size-4 shrink-0 accent-[var(--purple)]"
+            className="mt-0.5 size-5 shrink-0 accent-[var(--purple)]"
           />
           <span>{smsConsentText}</span>
         </label>
@@ -382,7 +382,7 @@ export function LeadForm({
           <input
             type="checkbox"
             name="emailMarketing"
-            className="mt-1 size-4 shrink-0 accent-[var(--purple)]"
+            className="mt-0.5 size-5 shrink-0 accent-[var(--purple)]"
           />
           <span>{emailConsentText}</span>
         </label>

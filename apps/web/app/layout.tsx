@@ -35,7 +35,12 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: "#45217a",
   width: "device-width",
-  initialScale: 1
+  initialScale: 1,
+  /*
+    Without viewport-fit=cover, env(safe-area-inset-bottom) resolves to 0 on
+    iOS and the sticky action bar sits behind the home indicator.
+  */
+  viewportFit: "cover"
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
