@@ -101,6 +101,22 @@ test.describe("integrated recovery workflows", () => {
     const payloads: Array<Record<string, unknown>> = [];
     await page.route("**/api/v1/leads", async (route) => {
       payloads.push(route.request().postDataJSON() as Record<string, unknown>);
+      // The first gate attempt fails so the test proves the failure is
+      // recoverable in place: the error summary takes focus, and an unchanged
+      // retry posts the same submissionId (Turnstile, when configured, is
+      // reset for a fresh single-use token — see resetTurnstile in
+      // planner.tsx; the e2e build runs without a widget).
+      if (payloads.length === 1) {
+        await route.fulfill({
+          status: 500,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ok: false,
+            error: { code: "INTERNAL_ERROR", message: "Gate retry test response.", requestId: "t" }
+          })
+        });
+        return;
+      }
       await route.fulfill({
         status: 201,
         contentType: "application/json",
@@ -108,7 +124,7 @@ test.describe("integrated recovery workflows", () => {
           ok: true,
           data: {
             receiptId:
-              payloads.length === 1
+              payloads.length === 2
                 ? "00000000-0000-4000-8000-000000000501"
                 : "00000000-0000-4000-8000-000000000502",
             receivedAt: "2026-08-18T12:00:00.000Z",
@@ -133,16 +149,28 @@ test.describe("integrated recovery workflows", () => {
     await page.locator('input[name="privacyAccepted"]').check();
     await page.getByRole("button", { name: "Start planning" }).click();
 
-    // The abandonment-safe lead posts immediately, before any planner answer.
-    await expect.poll(() => payloads.length).toBe(1);
-    expect(payloads[0]).toMatchObject({
+    // The rejection is announced AND focused — the summary renders for the
+    // first time on this failure, which is exactly the case a pre-commit
+    // microtask used to miss.
+    const gateAlert = page.locator('form [role="alert"]');
+    await expect(gateAlert).toContainText("Gate retry test response.");
+    await expect(gateAlert).toBeFocused();
+
+    // An unchanged retry succeeds and reuses the same submissionId, so the
+    // server-side idempotency dedupe holds across the failure.
+    await page.getByRole("button", { name: "Start planning" }).click();
+    await expect.poll(() => payloads.length).toBe(2);
+    expect(payloads[1]).toEqual(payloads[0]);
+
+    // The abandonment-safe lead posts before any planner answer.
+    expect(payloads[1]).toMatchObject({
       intent: "general",
       firstName: "Dana",
       email: "dana@example.com",
       message: "Planner started — full answers may follow."
     });
-    expect(payloads[0]).not.toHaveProperty("planner");
-    expect(payloads[0]?.consent).toMatchObject({
+    expect(payloads[1]).not.toHaveProperty("planner");
+    expect(payloads[1]?.consent).toMatchObject({
       privacyAccepted: true,
       smsMarketing: false,
       emailMarketing: false
@@ -179,9 +207,9 @@ test.describe("integrated recovery workflows", () => {
 
     // The second, richer lead carries the full planner payload, exactly as the
     // pre-gate planner submitted it.
-    await expect.poll(() => payloads.length).toBe(2);
-    expect(payloads[1]).toMatchObject({ intent: "purchase", email: "dana@example.com" });
-    expect(payloads[1]?.planner).toMatchObject({
+    await expect.poll(() => payloads.length).toBe(3);
+    expect(payloads[2]).toMatchObject({ intent: "purchase", email: "dana@example.com" });
+    expect(payloads[2]?.planner).toMatchObject({
       goal: "purchase",
       propertyType: "single_family",
       propertyStage: "actively_looking",
@@ -191,7 +219,7 @@ test.describe("integrated recovery workflows", () => {
       monthlyDebtBand: "under_500",
       timing: "within_30_days"
     });
-    expect(String(payloads[1]?.submissionId)).not.toBe(String(payloads[0]?.submissionId));
+    expect(String(payloads[2]?.submissionId)).not.toBe(String(payloads[1]?.submissionId));
   });
 
   test("shows a deterministic Vision result before the optional report form", async ({ page }) => {

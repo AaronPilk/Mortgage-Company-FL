@@ -26,10 +26,10 @@ describe("account Auth callback redirect", () => {
 });
 
 /**
- * The interpret route uses this to decide between the AI path and the free
- * deterministic parser. Every non-session outcome must resolve to null —
- * anonymous — because the fallback for "not signed in" is a working rules
- * answer, never an error and never a spend.
+ * The interpret route uses this to decide whether a caller is signed in — an
+ * anonymous caller is refused with a 401 there. Every non-session outcome must
+ * resolve to null rather than throw, so the caller always gets a clean
+ * signed-in-or-anonymous answer and never an exception.
  */
 describe("resolveAuthenticatedUserId", () => {
   const client = (

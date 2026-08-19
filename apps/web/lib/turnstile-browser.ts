@@ -26,11 +26,21 @@ export function unregisterTurnstileWidget(widgetId: string): void {
   activeWidgetIds.delete(widgetId);
 }
 
-/** A Turnstile token is single-use. A visible form retry must obtain a fresh one. */
+/**
+ * A Turnstile token is single-use. A visible form retry must obtain a fresh one.
+ *
+ * Resetting every registered widget assumes at most one lead form — and so one
+ * widget — is on screen at a time, which holds for every current screen. A
+ * per-form reset that targets only the retried form's widget is the refactor
+ * if that assumption ever breaks.
+ */
 export function resetTurnstile(): void {
-  try {
-    for (const widgetId of activeWidgetIds) window.turnstile?.reset(widgetId);
-  } catch {
-    // The widget may not be configured or may already have been removed.
+  for (const widgetId of activeWidgetIds) {
+    try {
+      window.turnstile?.reset(widgetId);
+    } catch {
+      // This widget may not be configured or may already have been removed;
+      // one failed reset must not skip the remaining widgets.
+    }
   }
 }

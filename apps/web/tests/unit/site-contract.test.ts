@@ -200,6 +200,12 @@ describe("rate limiting", () => {
   it("applies a tighter ceiling per contact than per network", () => {
     expect(LEAD_RATE_LIMITS.perContact.limit).toBeLessThan(LEAD_RATE_LIMITS.perNetwork.limit);
   });
+
+  it("leaves the planner's two-post completion room for a retry and a contact form", () => {
+    // Gate lead + full planner lead + one failed-submission retry + a
+    // same-hour contact-form use must all fit under the per-contact ceiling.
+    expect(LEAD_RATE_LIMITS.perContact.limit).toBeGreaterThanOrEqual(5);
+  });
 });
 
 describe("CRM payload boundary as used by the lead route", () => {

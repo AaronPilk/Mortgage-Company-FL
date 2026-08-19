@@ -211,9 +211,10 @@ export type CampaignLeadFields = {
 /**
  * Map a completed funnel onto the fields CreateLeadSchema accepts.
  *
- * `propertyState` comes from the contact screen's state selector on planner
- * campaigns; non-planner campaigns pass nothing and the lead keeps the same
- * FL default the short funnel has always sent.
+ * `propertyState` comes from the contact screen's state selector, which every
+ * campaign now shows (FL preselected). A planner campaign must have it; a
+ * non-planner caller that passes nothing falls back to the FL default the
+ * select would have shown anyway.
  */
 export function campaignLeadFields(
   config: CampaignFunnelConfig,
@@ -254,7 +255,9 @@ export function campaignLeadFields(
 
   if (config.planner === undefined) {
     return {
-      stateCode: "FL",
+      // The selected property state, not a hardcoded FL: a Georgia seller is
+      // a Georgia lead.
+      stateCode: propertyState ?? "FL",
       // Non-planner funnels ask timing in the lead table's own vocabulary.
       ...(answers.choices.timeline === undefined ? {} : { timeline: answers.choices.timeline }),
       ...(answers.choices.creditBand === undefined

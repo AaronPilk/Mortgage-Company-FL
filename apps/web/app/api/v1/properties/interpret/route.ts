@@ -43,10 +43,11 @@ import { SITE_URL } from "@/lib/site";
  * them by navigating — the whole existing search pipeline, pagination, and
  * fixture gating are reused rather than duplicated.
  *
- * The AI path is optional on every axis. An anonymous request (the AI
- * understanding is an account perk and never runs without a signed-in user),
- * AI_MODE=disabled, a refused budget reservation, a provider timeout, or an
- * unusable model answer all land on the deterministic rule-based parser, and
+ * Interpretation requires a signed-in user — an anonymous request is refused
+ * with a 401 before any parsing happens. Past that gate the AI path is
+ * optional on every axis: AI_MODE=disabled, a refused budget reservation, a
+ * provider timeout, or an unusable model answer all land on the deterministic
+ * rule-based parser, and
  * `source` reports which one actually produced the result — "ai" is never
  * claimed for a rules answer.
  *
@@ -140,7 +141,7 @@ async function interpretWithAi(
 
   const configuration = env();
   const subjectPolicy: QuotaPolicy = {
-    subjectKind: "anonymous",
+    subjectKind: "consumer",
     feature: FEATURE,
     period: "day",
     requestLimit: 100,
@@ -306,7 +307,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   let source: InterpretSource = "rules";
-  let criteria = await interpretWithAi(query, context.requestId, context.ipPrefixHash ?? "unknown");
+  // The daily budget belongs to the signed-in person, not their network: an IP
+  // subject would hand rotating addresses a fresh budget each hop and make
+  // everyone behind one CGNAT egress share a single allowance. The per-network
+  // rate limit above still throttles raw request volume by address.
+  let criteria = await interpretWithAi(query, context.requestId, `user:${userId}`);
   if (criteria !== null) {
     source = "ai";
   } else {
@@ -324,7 +329,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     NextResponse.json(apiSuccess(body, context.requestId), {
       headers: { "Cache-Control": "no-store" }
     }),
-    // Whether a session existed, never who it was.
-    { source, queryLength: query.length, authenticated: userId !== null }
+    { source, queryLength: query.length }
   );
 }

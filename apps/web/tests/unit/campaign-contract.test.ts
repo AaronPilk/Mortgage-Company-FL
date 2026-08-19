@@ -75,12 +75,8 @@ function simulate(
 }
 
 /** The full payload shape the funnel component posts, around the tested mapping. */
-function apiPayload(campaign: CampaignDefinition, answers: CampaignAnswers) {
-  const fields = campaignLeadFields(
-    campaign.funnel,
-    answers,
-    campaign.funnel.planner === undefined ? undefined : "FL"
-  );
+function apiPayload(campaign: CampaignDefinition, answers: CampaignAnswers, propertyState = "FL") {
+  const fields = campaignLeadFields(campaign.funnel, answers, propertyState);
   return {
     submissionId: "00000000-0000-4000-8000-000000000010",
     intent: campaign.funnel.intent,
@@ -244,6 +240,25 @@ describe("campaign funnel answers map onto the lead schema", () => {
           result.success ? "" : JSON.stringify(result.error.issues)
         }`
       ).toBe(true);
+    }
+  });
+
+  it("stores the selected property state on every campaign, planner or not", () => {
+    // The contact screen's state select feeds stateCode everywhere. A Georgia
+    // seller on the non-planner sell funnel must be stored as GA, not as a
+    // hardcoded FL; a caller that passes nothing keeps the FL default the
+    // select preselects.
+    for (const campaign of CAMPAIGNS) {
+      const answers = simulate(campaign.funnel);
+      const fields = campaignLeadFields(campaign.funnel, answers, "GA");
+      expect(fields.stateCode, campaign.slug).toBe("GA");
+      if (campaign.funnel.planner !== undefined) {
+        expect(fields.planner?.propertyState, campaign.slug).toBe("GA");
+      } else {
+        expect(campaignLeadFields(campaign.funnel, answers).stateCode, campaign.slug).toBe("FL");
+      }
+      const result = CreateLeadSchema.safeParse(apiPayload(campaign, answers, "GA"));
+      expect(result.success, `${campaign.slug} GA payload fails CreateLeadSchema`).toBe(true);
     }
   });
 

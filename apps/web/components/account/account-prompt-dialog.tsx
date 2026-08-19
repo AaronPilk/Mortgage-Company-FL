@@ -33,6 +33,15 @@ import { AccountSignIn, type AccountSignInOutcome } from "./account-sign-in";
  * Rendered through a portal: triggers live inside cards whose hover transform
  * would otherwise become the containing block for a fixed overlay.
  */
+
+function focusablesIn(panel: HTMLElement | null): HTMLElement[] {
+  return Array.from(
+    panel?.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])'
+    ) ?? []
+  );
+}
+
 export function AccountPromptDialog({
   open,
   onClose,
@@ -64,6 +73,14 @@ export function AccountPromptDialog({
   const [mounted, setMounted] = useState(false);
   const [outcome, setOutcome] = useState<AccountSignInOutcome | null>(null);
 
+  // The parent recreates onClose every render (router.refresh() included), so
+  // effects read the latest via this ref instead of depending on its identity —
+  // a mid-dialog re-render must never tear down and re-run the focus lifecycle.
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
+
   // Portals cannot render during SSR; the dialog only exists after mount.
   useEffect(() => setMounted(true), []);
 
@@ -77,10 +94,14 @@ export function AccountPromptDialog({
   // page. The confirmation-email outcome stays open — it carries instructions.
   useEffect(() => {
     if (!open || outcome !== "signed_in") return;
-    const timer = window.setTimeout(onClose, 1800);
+    const timer = window.setTimeout(() => onCloseRef.current(), 1800);
     return () => window.clearTimeout(timer);
-  }, [open, outcome, onClose]);
+  }, [open, outcome]);
 
+  // Focus lifecycle, keyed on `open` alone: capture where focus came from,
+  // lock body scroll, move focus in, and undo both on close. Anything else in
+  // the deps would re-run this mid-dialog — recapturing "previous focus" from
+  // inside the panel and dropping the real trigger on final close.
   useEffect(() => {
     if (!open) return;
 
@@ -89,47 +110,52 @@ export function AccountPromptDialog({
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
-    const focusables = () =>
-      Array.from(
-        panelRef.current?.querySelectorAll<HTMLElement>(
-          'a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])'
-        ) ?? []
-      );
-
     // Initial focus lands on the email field when the form is up, otherwise on
     // the first focusable control (the close button).
     const email = panelRef.current?.querySelector<HTMLElement>('input[type="email"]');
-    (email ?? focusables()[0] ?? panelRef.current)?.focus();
+    (email ?? focusablesIn(panelRef.current)[0] ?? panelRef.current)?.focus();
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      previousFocusRef.current?.focus();
+    };
+  }, [open]);
+
+  // The keyboard trap, separate from the lifecycle above so re-attaching a
+  // listener never re-runs focus capture. The handler reads the latest onClose
+  // through the ref.
+  useEffect(() => {
+    if (!open) return;
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.stopPropagation();
-        onClose();
+        onCloseRef.current();
         return;
       }
       if (event.key !== "Tab") return;
-      const items = focusables();
+      const items = focusablesIn(panelRef.current);
       if (items.length === 0) return;
       const first = items[0];
       const last = items[items.length - 1];
       if (first === undefined || last === undefined) return;
       const active = document.activeElement;
-      if (event.shiftKey && (active === first || !panelRef.current?.contains(active))) {
+      // Both directions wrap when focus has escaped the panel entirely (e.g.
+      // the focused control was removed by a state change), not just at the
+      // edges — otherwise a forward Tab from outside walks the page behind.
+      const outsidePanel = !panelRef.current?.contains(active);
+      if (event.shiftKey && (active === first || outsidePanel)) {
         event.preventDefault();
         last.focus();
-      } else if (!event.shiftKey && active === last) {
+      } else if (!event.shiftKey && (active === last || outsidePanel)) {
         event.preventDefault();
         first.focus();
       }
     };
 
     document.addEventListener("keydown", onKeyDown, true);
-    return () => {
-      document.removeEventListener("keydown", onKeyDown, true);
-      document.body.style.overflow = previousOverflow;
-      previousFocusRef.current?.focus();
-    };
-  }, [open, onClose, outcome]);
+    return () => document.removeEventListener("keydown", onKeyDown, true);
+  }, [open]);
 
   if (!open || !mounted) return null;
 

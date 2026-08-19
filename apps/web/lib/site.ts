@@ -64,7 +64,8 @@ export const SMS_CONSENT_TEXT =
   "Reply STOP to opt out at any time. Consent is not a condition of any service.";
 
 export const EMAIL_CONSENT_TEXT =
-  "Email me mortgage education and market updates. You can unsubscribe at any time.";
+  "Email me mortgage education and market updates. You can unsubscribe at any time. " +
+  "Consent is not a condition of any service.";
 
 export const VISION_REPORT_DISCLOSURE_VERSION = "vision-report-request@1.0.0";
 

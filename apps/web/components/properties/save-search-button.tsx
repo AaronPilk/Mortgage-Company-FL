@@ -12,6 +12,10 @@ import { Button } from "@/components/ui";
  * keeps working. Signed in, it posts the current query string; the server
  * re-parses it with the same schema the page uses and stores only the
  * canonical form.
+ *
+ * "Saved" describes one exact set of criteria, so call sites key this
+ * component on the canonical search string — a filter change remounts it back
+ * to idle instead of claiming a different search was saved.
  */
 export function SaveSearchButton({
   signedIn,

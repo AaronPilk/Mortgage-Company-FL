@@ -177,6 +177,10 @@ export default async function PropertiesPage({
               </p>
             )}
             <SaveSearchButton
+              // Keyed on the canonical search string so a filter change remounts
+              // the button: "saved" describes one exact set of criteria, and it
+              // must not survive client-side navigation to a different set.
+              key={criteriaToQueryString(criteria)}
               signedIn={signedIn}
               search={criteriaToQueryString(criteria)}
               accountsConfigured={accountsConfigured}

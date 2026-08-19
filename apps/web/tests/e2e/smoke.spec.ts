@@ -230,8 +230,11 @@ test.describe("talk chooser and campaign landings", () => {
     await expect(form.getByText("Step 2 of 3", { exact: true })).toBeVisible();
     await form.getByRole("button", { name: "Skip" }).click();
 
-    // Straight to contact — a seller is never asked for a credit band.
+    // Straight to contact — a seller is never asked for a credit band. The
+    // property-state select rides on every campaign's contact screen now, FL
+    // preselected, so a Georgia seller is stored as a Georgia lead.
     await expect(form.getByText("Step 3 of 3", { exact: true })).toBeVisible();
+    await expect(form.locator('select[name="propertyState"]')).toHaveValue("FL");
     await expect(form.locator('input[name="firstName"]')).toBeVisible();
     expect(await form.locator('input[type="radio"][name="creditBand"]').count()).toBe(0);
   });
@@ -550,9 +553,14 @@ test.describe("lead API", () => {
     expect(response.status()).toBe(403);
   });
 
+  // A same-origin probe must carry the origin the build was told is its own
+  // (NEXT_PUBLIC_SITE_URL), which tracks E2E_BASE_URL when a run overrides the
+  // default port.
+  const sameOrigin = process.env.E2E_BASE_URL ?? "http://127.0.0.1:3100";
+
   test("rejects a wrong content type before parsing anything", async ({ request }) => {
     const response = await request.post("/api/v1/leads", {
-      headers: { "Content-Type": "text/plain", Origin: "http://127.0.0.1:3100" },
+      headers: { "Content-Type": "text/plain", Origin: sameOrigin },
       data: "intent=purchase"
     });
     expect(response.status()).toBe(400);
@@ -560,7 +568,7 @@ test.describe("lead API", () => {
 
   test("returns field errors without leaking internals", async ({ request }) => {
     const response = await request.post("/api/v1/leads", {
-      headers: { "Content-Type": "application/json", Origin: "http://127.0.0.1:3100" },
+      headers: { "Content-Type": "application/json", Origin: sameOrigin },
       data: { intent: "purchase" }
     });
     expect(response.status()).toBe(400);

@@ -62,6 +62,15 @@
   --purple-glow: rgb(124 58 237 / 0.3);
   --purple-subtle: rgb(124 58 237 / 0.07);
 
+  /*
+   * Warning as small text (the sample-data chips). --color-warning measures
+   * ~4.06:1 on the chip's tinted surface — fine for borders and large text,
+   * short of AA's 4.5:1 for body-size text — so small-text uses get this
+   * darker shade (≥4.9:1 on every chip backdrop) instead of darkening
+   * --color-warning globally, which borders and accents still depend on.
+   */
+  --color-warning-text: #8a4e06;
+
   --shadow-card: 0 2px 20px rgb(0 0 0 / 0.07);
   --shadow-card-hover: 0 8px 40px rgb(0 0 0 / 0.13);
   --shadow-float: 0 20px 60px rgb(0 0 0 / 0.12);
@@ -85,6 +94,9 @@
   --purple-light: #c084fc;
   --purple-glow: rgb(155 94 245 / 0.4);
   --purple-subtle: rgb(155 94 245 / 0.1);
+
+  /* Dark mode flips the direction: small warning text lightens to hold AA. */
+  --color-warning-text: #d98a24;
 
   --shadow-card: 0 2px 20px rgb(0 0 0 / 0.4);
   --shadow-card-hover: 0 8px 40px rgb(124 58 237 / 0.2);

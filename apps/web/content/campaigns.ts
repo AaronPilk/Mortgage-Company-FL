@@ -582,7 +582,7 @@ export const CAMPAIGNS: CampaignDefinition[] = [
     eyebrow: "Selling a home",
     headline: "Selling your home? We'll connect you with the right people",
     subhead:
-      "TRACT is a mortgage brokerage — we don't list homes. Tell us about the home you're selling and we'll connect you with trusted real estate professionals in our network.",
+      "TRACT is a mortgage brokerage — we don't list homes. Tell us about the home you're selling and we'll introduce you to a licensed real estate professional.",
     chips: ["Not a listing agreement", "No credit pull", "No obligation"],
     funnel: {
       intent: "sell_home",
@@ -590,7 +590,7 @@ export const CAMPAIGNS: CampaignDefinition[] = [
       contactHint:
         "Tell us where to reach you and we'll connect you with the right real estate professionals.",
       successBody:
-        "We have your request. TRACT is a mortgage brokerage — we don't list homes — so we'll connect you with trusted real estate professionals in our network who handle sales. You're not obligated to anything.",
+        "We have your request. TRACT is a mortgage brokerage — we don't list homes — so we'll introduce you to a licensed real estate professional who handles sales. You're not obligated to anything.",
       message: "Arrived via the home-selling campaign page. Real-estate-side handoff."
     },
     whatHappensNext: [

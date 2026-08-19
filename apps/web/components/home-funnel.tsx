@@ -79,6 +79,13 @@ const CREDIT_OPTIONS: ChoiceOption<CreditBandValue>[] = [
 ];
 
 const AUTO_ADVANCE_MS = 220;
+/**
+ * Arrow-keying through the radio cards fires a change per keypress; whisking
+ * the screen away 220ms after each one makes the options impossible to
+ * compare. Keyboard browsing gets a longer window; a pointer tap (or an
+ * explicit Enter/Space confirm) keeps the snappy delay.
+ */
+const KEYBOARD_AUTO_ADVANCE_MS = 900;
 
 type StepKey = "intent" | "timeline" | "credit" | "contact";
 
@@ -183,6 +190,9 @@ export function HomeFunnel({
   const headingRef = useRef<HTMLHeadingElement>(null);
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   const advanceTimer = useRef<number | undefined>(undefined);
+  // True while the pending advance came from arrow-key browsing; consumed by
+  // scheduleAdvance to pick the longer keyboard delay.
+  const keyboardArrowRef = useRef(false);
   const visitedRef = useRef(false);
   const baseId = useId();
   const fieldId = (name: string) => `${baseId}-${name}`;
@@ -213,12 +223,23 @@ export function HomeFunnel({
     []
   );
 
+  // Focus the error summary when a submission failure lands. An effect, not a
+  // microtask after setState: the microtask runs before React commits, so on
+  // the first failure the summary has not rendered and the ref is still null.
+  // Every failure produces a fresh state object, so this fires once per
+  // failure and never on unrelated re-renders.
+  useEffect(() => {
+    if (state.kind === "error") errorSummaryRef.current?.focus();
+  }, [state]);
+
   function scheduleAdvance() {
     if (advanceTimer.current !== undefined) window.clearTimeout(advanceTimer.current);
+    const delayMs = keyboardArrowRef.current ? KEYBOARD_AUTO_ADVANCE_MS : AUTO_ADVANCE_MS;
+    keyboardArrowRef.current = false;
     advanceTimer.current = window.setTimeout(() => {
       advanceTimer.current = undefined;
       setStep((current) => Math.min(current + 1, stepCount - 1));
-    }, AUTO_ADVANCE_MS);
+    }, delayMs);
   }
 
   function goBack() {
@@ -323,7 +344,6 @@ export function HomeFunnel({
         fieldMessages: serverFieldMessages(result.error.fields)
       });
       resetTurnstile();
-      queueMicrotask(() => errorSummaryRef.current?.focus());
     } catch {
       setState({
         kind: "error",
@@ -331,7 +351,6 @@ export function HomeFunnel({
         fieldMessages: []
       });
       resetTurnstile();
-      queueMicrotask(() => errorSummaryRef.current?.focus());
     }
   }
 
@@ -419,6 +438,21 @@ export function HomeFunnel({
                 onClick={() => {
                   // Re-tapping the already-selected card still advances.
                   if (selected) scheduleAdvance();
+                }}
+                onKeyDown={(event) => {
+                  if (event.key.startsWith("Arrow")) {
+                    keyboardArrowRef.current = true;
+                    return;
+                  }
+                  // Enter or Space on the already-checked radio fires no
+                  // change and no click, so after Back a keyboard user could
+                  // never re-confirm the existing choice. Mirror the re-tap
+                  // path; when unchecked, native behavior checks it and the
+                  // change handler advances.
+                  if ((event.key === "Enter" || event.key === " ") && event.currentTarget.checked) {
+                    event.preventDefault();
+                    scheduleAdvance();
+                  }
                 }}
               />
               <span

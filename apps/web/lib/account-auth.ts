@@ -23,9 +23,11 @@ export type UserResolvingClient = {
 /**
  * Resolves the authenticated user id from a request-scoped Supabase client, or
  * null for anything else: no configured client, an auth error, no session, or a
- * client that throws. Routes that treat authentication as a perk rather than a
- * requirement — the AI interpretation path — use this to decide, and a null
- * must always land on the free deterministic path, never on an error.
+ * client that throws. What null means is the caller's decision — the AI
+ * interpretation route deliberately refuses it with a 401, because
+ * natural-language search is an account feature. This helper's only contract
+ * is that every non-session outcome collapses to null and it never throws, so
+ * a flaky auth backend reads as "anonymous", not as a broken route.
  */
 export async function resolveAuthenticatedUserId(
   client: UserResolvingClient | null

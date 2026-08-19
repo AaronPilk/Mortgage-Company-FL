@@ -45,6 +45,13 @@ import {
  */
 
 const AUTO_ADVANCE_MS = 220;
+/**
+ * Arrow-keying through the radio cards fires a change per keypress; whisking
+ * the screen away 220ms after each one makes the options impossible to
+ * compare. Keyboard browsing gets a longer window; a pointer tap (or an
+ * explicit Enter/Space confirm) keeps the snappy delay.
+ */
+const KEYBOARD_AUTO_ADVANCE_MS = 900;
 
 /** Display formatting only. No arithmetic happens on this figure in the browser. */
 const usd = new Intl.NumberFormat("en-US", {
@@ -124,9 +131,10 @@ export function CampaignFunnel({
     text: {}
   }));
   const [state, setState] = useState<FormState>({ kind: "idle" });
-  // The state the property is in, asked on the contact screen of planner
-  // campaigns. FL first because that is where this brokerage is licensed —
-  // a fact the page states rather than something the list implies.
+  // The state the property is in, asked on every campaign's contact screen —
+  // without it a Georgia seller would be stored as Florida. FL first because
+  // that is where this brokerage is licensed — a fact the page states rather
+  // than something the list implies.
   const [propertyState, setPropertyState] = useState("FL");
 
   // The step list is derived from the answers, so the progress bar, the back
@@ -148,6 +156,9 @@ export function CampaignFunnel({
   const headingRef = useRef<HTMLHeadingElement>(null);
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   const advanceTimer = useRef<number | undefined>(undefined);
+  // True while the pending advance came from arrow-key browsing; consumed by
+  // scheduleAdvance to pick the longer keyboard delay.
+  const keyboardArrowRef = useRef(false);
   const visitedRef = useRef(false);
   const baseId = useId();
   const fieldId = (name: string) => `${baseId}-${name}`;
@@ -176,12 +187,23 @@ export function CampaignFunnel({
     []
   );
 
+  // Focus the error summary when a submission failure lands. An effect, not a
+  // microtask after setState: the microtask runs before React commits, so on
+  // the first failure the summary has not rendered and the ref is still null.
+  // Every failure produces a fresh state object, so this fires once per
+  // failure and never on unrelated re-renders.
+  useEffect(() => {
+    if (state.kind === "error") errorSummaryRef.current?.focus();
+  }, [state]);
+
   function scheduleAdvance() {
     if (advanceTimer.current !== undefined) window.clearTimeout(advanceTimer.current);
+    const delayMs = keyboardArrowRef.current ? KEYBOARD_AUTO_ADVANCE_MS : AUTO_ADVANCE_MS;
+    keyboardArrowRef.current = false;
     advanceTimer.current = window.setTimeout(() => {
       advanceTimer.current = undefined;
       setStep((current) => Math.min(current + 1, stepCount - 1));
-    }, AUTO_ADVANCE_MS);
+    }, delayMs);
   }
 
   function advanceNow() {
@@ -241,7 +263,14 @@ export function CampaignFunnel({
       const ready =
         question !== undefined &&
         (question.kind !== "choice" || answers.choices[question.id] !== undefined);
-      if (ready) advanceNow();
+      if (!ready) return;
+      // Enter agrees with the Continue button: the value the slider displays
+      // is recorded even when a previous visit skipped it, so the two paths
+      // can never submit different answers.
+      if (question.kind === "slider") {
+        setSlider(question, answers.sliders[question.id] ?? question.defaultValue);
+      }
+      advanceNow();
       return;
     }
     if (state.kind === "submitting") return;
@@ -255,53 +284,52 @@ export function CampaignFunnel({
       emailMarketing: form.get("emailMarketing") === "on",
       disclosureVersion
     };
-    // Bands and enumerated answers only; the mapping is the tested contract.
-    const leadFields = campaignLeadFields(
-      config,
-      answers,
-      config.planner === undefined ? undefined : propertyState
-    );
-    const core = {
-      intent: config.intent,
-      leadFields,
-      firstName: String(form.get("firstName") ?? ""),
-      lastName: String(form.get("lastName") ?? ""),
-      email: String(form.get("email") ?? ""),
-      phone: String(form.get("phone") ?? ""),
-      consent
-    };
-    // Same idempotency shape as lead-form.tsx: a retry of identical content
-    // reuses the submissionId, an edit gets a fresh one.
-    const fingerprint = JSON.stringify(core);
-    if (submissionRef.current === null || submissionRef.current.fingerprint !== fingerprint) {
-      const fallbackPath = safeLandingPath(window.location.pathname);
-      submissionRef.current = {
-        id: window.crypto.randomUUID(),
-        fingerprint,
-        firstTouch: attributionTouch(readStoredTouch(FIRST_TOUCH_STORAGE_KEY), fallbackPath),
-        lastTouch: attributionTouch(readStoredTouch(LAST_TOUCH_STORAGE_KEY), fallbackPath),
-        conversionTouch: currentAttributionTouch(window.location.pathname)
-      };
-    }
-    const submission = submissionRef.current;
-
-    const payload = {
-      submissionId: submission.id,
-      intent: config.intent,
-      firstName: core.firstName,
-      lastName: core.lastName,
-      email: core.email,
-      phone: core.phone,
-      ...leadFields,
-      consent,
-      firstTouch: submission.firstTouch,
-      lastTouch: submission.lastTouch,
-      conversionTouch: submission.conversionTouch,
-      turnstileToken: String(form.get("cf-turnstile-response") ?? "no-challenge-configured"),
-      honeypot: String(form.get("company") ?? "")
-    };
-
     try {
+      // Inside the try on purpose: campaignLeadFields throws when a config and
+      // its routing disagree, and a throw after setState("submitting") but
+      // before the try would wedge the form at "Sending…" forever.
+      // Bands and enumerated answers only; the mapping is the tested contract.
+      const leadFields = campaignLeadFields(config, answers, propertyState);
+      const core = {
+        intent: config.intent,
+        leadFields,
+        firstName: String(form.get("firstName") ?? ""),
+        lastName: String(form.get("lastName") ?? ""),
+        email: String(form.get("email") ?? ""),
+        phone: String(form.get("phone") ?? ""),
+        consent
+      };
+      // Same idempotency shape as lead-form.tsx: a retry of identical content
+      // reuses the submissionId, an edit gets a fresh one.
+      const fingerprint = JSON.stringify(core);
+      if (submissionRef.current === null || submissionRef.current.fingerprint !== fingerprint) {
+        const fallbackPath = safeLandingPath(window.location.pathname);
+        submissionRef.current = {
+          id: window.crypto.randomUUID(),
+          fingerprint,
+          firstTouch: attributionTouch(readStoredTouch(FIRST_TOUCH_STORAGE_KEY), fallbackPath),
+          lastTouch: attributionTouch(readStoredTouch(LAST_TOUCH_STORAGE_KEY), fallbackPath),
+          conversionTouch: currentAttributionTouch(window.location.pathname)
+        };
+      }
+      const submission = submissionRef.current;
+
+      const payload = {
+        submissionId: submission.id,
+        intent: config.intent,
+        firstName: core.firstName,
+        lastName: core.lastName,
+        email: core.email,
+        phone: core.phone,
+        ...leadFields,
+        consent,
+        firstTouch: submission.firstTouch,
+        lastTouch: submission.lastTouch,
+        conversionTouch: submission.conversionTouch,
+        turnstileToken: String(form.get("cf-turnstile-response") ?? "no-challenge-configured"),
+        honeypot: String(form.get("company") ?? "")
+      };
+
       const response = await fetch("/api/v1/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -321,7 +349,6 @@ export function CampaignFunnel({
         fieldMessages: serverFieldMessages(result.error.fields)
       });
       resetTurnstile();
-      queueMicrotask(() => errorSummaryRef.current?.focus());
     } catch {
       setState({
         kind: "error",
@@ -329,7 +356,6 @@ export function CampaignFunnel({
         fieldMessages: []
       });
       resetTurnstile();
-      queueMicrotask(() => errorSummaryRef.current?.focus());
     }
   }
 
@@ -418,6 +444,24 @@ export function CampaignFunnel({
                   onClick={() => {
                     // Re-tapping the already-selected card still advances.
                     if (selected) scheduleAdvance();
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key.startsWith("Arrow")) {
+                      keyboardArrowRef.current = true;
+                      return;
+                    }
+                    // Enter or Space on the already-checked radio fires no
+                    // change and no click, so after Back a keyboard user could
+                    // never re-confirm the existing choice. Mirror the re-tap
+                    // path; when unchecked, native behavior checks it and the
+                    // change handler advances.
+                    if (
+                      (event.key === "Enter" || event.key === " ") &&
+                      event.currentTarget.checked
+                    ) {
+                      event.preventDefault();
+                      scheduleAdvance();
+                    }
                   }}
                 />
                 <span
@@ -580,26 +624,26 @@ export function CampaignFunnel({
 
         {contactStep && (
           <>
-            {config.planner !== undefined && (
-              <div className="mt-5">
-                <label htmlFor={fieldId("propertyState")} className="text-sm font-semibold">
-                  State the property is in
-                </label>
-                <select
-                  id={fieldId("propertyState")}
-                  name="propertyState"
-                  value={propertyState}
-                  onChange={(event) => setPropertyState(event.currentTarget.value)}
-                  className={inputClass}
-                >
-                  {STATE_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
+            {/* Every campaign asks the property state: hardcoding FL here once
+                stored a Georgia seller as a Florida lead. */}
+            <div className="mt-5">
+              <label htmlFor={fieldId("propertyState")} className="text-sm font-semibold">
+                State the property is in
+              </label>
+              <select
+                id={fieldId("propertyState")}
+                name="propertyState"
+                value={propertyState}
+                onChange={(event) => setPropertyState(event.currentTarget.value)}
+                className={inputClass}
+              >
+                {STATE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               <div>
                 <label htmlFor={fieldId("firstName")} className="text-sm font-semibold">

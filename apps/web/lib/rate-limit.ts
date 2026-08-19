@@ -62,5 +62,9 @@ export const rateLimitStore: RateLimitStore = new MemoryRateLimitStore();
  */
 export const LEAD_RATE_LIMITS = {
   perNetwork: { windowMs: 10 * 60 * 1000, limit: 12 },
-  perContact: { windowMs: 60 * 60 * 1000, limit: 3 }
+  // 5, not 3: the planner posts twice per completion by design (the sign-up
+  // gate lead, then the full planner lead), and the same hour must also absorb
+  // one failed-submission retry and a contact-form use without locking an
+  // honest visitor out. The perNetwork limit still throttles abuse.
+  perContact: { windowMs: 60 * 60 * 1000, limit: 5 }
 } as const;

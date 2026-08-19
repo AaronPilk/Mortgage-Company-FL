@@ -329,7 +329,9 @@ export function Badge({
     },
     warning: {
       background: "rgb(164 93 7 / 0.1)",
-      color: "var(--color-warning)",
+      // Badge text is small, so it needs the AA small-text warning shade;
+      // --color-warning alone falls short of 4.5:1 on this tinted chip.
+      color: "var(--color-warning-text, var(--color-warning))",
       borderColor: "rgb(164 93 7 / 0.4)"
     },
     neutral: {

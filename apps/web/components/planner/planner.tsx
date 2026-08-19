@@ -10,6 +10,7 @@ import {
   currentAttributionTouch,
   readStoredTouch
 } from "@/lib/attribution-browser";
+import { resetTurnstile } from "@/lib/turnstile-browser";
 import { TurnstileWidget } from "@/components/turnstile-widget";
 import { AccountSignIn } from "@/components/account/account-sign-in";
 import { CheckboxField, RadioGroup, SelectField, TextField } from "./controls";
@@ -282,6 +283,21 @@ export function Planner({
     headingRef.current?.focus();
   }, [stepIndex, gateUnlocked]);
 
+  // Focus the error summary when a validation or submission failure lands.
+  // Effects, not a microtask after setState: the microtask runs before React
+  // commits, so on the first failure the summary has not rendered and the ref
+  // is still null. Every failed attempt produces a fresh state object, so each
+  // effect fires once per failure — and only on its own failure kind, so a
+  // stale failure does not steal the heading focus of a later navigation.
+  useEffect(() => {
+    if (Object.keys(errors).length > 0) errorSummaryRef.current?.focus();
+  }, [errors]);
+  useEffect(() => {
+    if (submission.kind === "failed" || gateSubmission.kind === "failed") {
+      errorSummaryRef.current?.focus();
+    }
+  }, [submission, gateSubmission]);
+
   useEffect(() => {
     if (state.goal === "" || startTracked) return;
     setStartTracked(true);
@@ -373,7 +389,6 @@ export function Planner({
     const found = validate(stepKey);
     if (Object.keys(found).length > 0) {
       setErrors(found);
-      queueMicrotask(() => errorSummaryRef.current?.focus());
       return;
     }
 
@@ -398,7 +413,6 @@ export function Planner({
     const found = contactFieldErrors();
     if (Object.keys(found).length > 0) {
       setErrors(found);
-      queueMicrotask(() => errorSummaryRef.current?.focus());
       return;
     }
 
@@ -470,14 +484,17 @@ export function Planner({
         message: result.error.message,
         fieldMessages: serverFieldMessages(result.error.fields)
       });
-      queueMicrotask(() => errorSummaryRef.current?.focus());
+      // A Turnstile token is single-use: the server consumed this one even to
+      // reject it, so without a reset the retry (and the later full send)
+      // would fail until a reload.
+      resetTurnstile();
     } catch {
       setGateSubmission({
         kind: "failed",
         message: "We could not reach the server. Please check your connection and try again.",
         fieldMessages: []
       });
-      queueMicrotask(() => errorSummaryRef.current?.focus());
+      resetTurnstile();
     }
   }
 
@@ -486,9 +503,21 @@ export function Planner({
     setSubmission({ kind: "submitting" });
 
     const form = formRef.current === null ? null : new FormData(formRef.current);
+    // The idempotency fingerprint covers only content that can reach the
+    // payload. The estimate assumptions are display-only knobs that never
+    // leave the browser, so tweaking one must not mint a fresh submissionId
+    // for an otherwise identical retry.
+    const {
+      rateBasisPoints: _rateBasisPoints,
+      termMonths: _termMonths,
+      propertyTaxRateBasisPoints: _propertyTaxRateBasisPoints,
+      annualInsuranceDollars: _annualInsuranceDollars,
+      monthlyHoaDollars: _monthlyHoaDollars,
+      ...fingerprinted
+    } = state;
     const submissionIdentity = ensureSubmissionIdentity(
       submissionIdentityRef,
-      JSON.stringify(state)
+      JSON.stringify(fingerprinted)
     );
 
     const price = sanitizeNumber(state.priceDollars);
@@ -565,14 +594,15 @@ export function Planner({
         message: result.error.message,
         fieldMessages: serverFieldMessages(result.error.fields)
       });
-      queueMicrotask(() => errorSummaryRef.current?.focus());
+      // Same single-use token rule as the gate: reset or the retry is bricked.
+      resetTurnstile();
     } catch {
       setSubmission({
         kind: "failed",
         message: "We could not reach the server. Please check your connection and try again.",
         fieldMessages: []
       });
-      queueMicrotask(() => errorSummaryRef.current?.focus());
+      resetTurnstile();
     }
   }
 

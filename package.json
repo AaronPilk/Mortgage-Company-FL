@@ -23,7 +23,7 @@
     "db:types": "supabase gen types typescript --local > packages/database/src/generated.ts",
     "deploy:preflight": "tsx scripts/deploy-preflight.ts",
     "db:verify": "./scripts/db-verify.sh",
-    "cf:build": "node scripts/check-site-url.mjs && pnpm --filter @tract/web exec opennextjs-cloudflare build",
+    "cf:build": "node scripts/check-site-url.mjs && node -e \"fs.rmSync('apps/web/.next',{recursive:true,force:true})\" && pnpm --filter @tract/web exec opennextjs-cloudflare build",
     "cf:deploy": "pnpm --filter @tract/web exec wrangler deploy",
     "cf:preview": "pnpm --filter @tract/web exec opennextjs-cloudflare preview",
     "smoke:routes": "tsx scripts/route-smoke.ts"
