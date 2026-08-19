@@ -38,6 +38,11 @@ const sample = (input: {
   bio: string;
 }): SampleAgent => ({
   isSample: true,
+  // A fixture is an invention, never a public record: it cannot be unclaimed
+  // and carries no county, because those two fields mean "imported from the
+  // state license roll" and no sample was.
+  unclaimed: false,
+  county: null,
   id: `sample-agent-${String(input.n).padStart(3, "0")}`,
   slug: input.slug,
   firstName: input.firstName,

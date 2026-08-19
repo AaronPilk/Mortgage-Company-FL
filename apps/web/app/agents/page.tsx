@@ -6,29 +6,38 @@ import { Button, ButtonLink, Card, CtaPanel, Section } from "@/components/ui";
 import { JsonLd } from "@/components/json-ld";
 import { pageMetadata } from "@/lib/metadata";
 import { SITE_URL, businessIdentity } from "@/lib/site";
-import { fetchApprovedAgents, sampleAgentsAllowed } from "@/lib/agents";
+import {
+  directoryHasRealAgents,
+  fetchDirectoryAgents,
+  sampleAgentsAllowed,
+  type AgentDirectoryPage
+} from "@/lib/agents";
 import { AgentCard } from "@/components/agents/agent-card";
+import { AgentPagination } from "@/components/agents/agent-pagination";
 import { realEstateAgentNode } from "@/components/agents/agent-jsonld";
 import { SampleProfilesBanner } from "@/components/agents/sample-profile-notice";
-import { cityList, sampleAgentsForCity } from "@/components/agents/sample-agents";
+import { sampleAgentsForCity } from "@/components/agents/sample-agents";
 
 export const dynamic = "force-dynamic";
 
 /**
- * The directory is index-ready copy over honest data, but it must not enter a
- * search index while any invented profile can render on it — a crawler cannot
- * see the sample banner the way a person does. The noindex decision therefore
- * tracks the sample gate per-request, exactly the way the property surfaces
- * decide, and the route registry keeps /agents out of the sitemap until the
- * page renders real agents only (see content/routes.ts).
+ * The directory is indexable now that it renders real records — joined agents
+ * and unclaimed public-record profiles from the state license roll. The one
+ * remaining honesty guard is per-request: if the database is empty (or
+ * unreachable) and the labelled sample fixtures render instead, the page says
+ * noindex for that response, because a crawler cannot read a sample banner the
+ * way a person does. content/routes.ts carries the matching sitemap decision.
  */
 export async function generateMetadata(): Promise<Metadata> {
+  // An unreachable database counts as "no real agents": the page would render
+  // fixtures for the same request, so the metadata must say noindex with it.
+  const hasRealAgents = await directoryHasRealAgents().catch(() => false);
   return pageMetadata({
     title: "Find a Florida real estate agent",
     description:
       "Browse Florida real estate agents and request an introduction. TRACT makes the connection personally — no cold calls, no handing your details around.",
     path: "/agents",
-    noIndex: sampleAgentsAllowed()
+    noIndex: !hasRealAgents && sampleAgentsAllowed()
   });
 }
 
@@ -41,11 +50,20 @@ export async function generateMetadata(): Promise<Metadata> {
  * connection personally. That is why no card and no profile ever renders agent
  * contact details.
  *
+ * Two kinds of real rows render here. Joined agents (approved + consenting)
+ * carry a bio and richer copy. Unclaimed rows restate Florida license records
+ * — name, license, city/county, employing brokerage — with a quiet provenance
+ * line instead of a sample badge, because the record is real even though the
+ * agent has not joined. Fixtures render only when the database has no public
+ * rows at all, so a dev machine without a database still shows the page.
+ *
  * License honesty (invariant 6): "verified" appears only where a profile's
- * `licenseVerified` is true. Samples and unverified real agents say "License
- * verification pending". RealEstateAgent structured data is emitted only for
- * real approved agents, never for fixtures — markup is a claim made to a party
- * that cannot read the sample badge.
+ * `licenseVerified` is true; everyone else — imported records included — says
+ * "License verification pending".
+ *
+ * Scale: the state import is ~68k rows, so fetching, filtering, and ordering
+ * happen in the database, 24 rows a page, with the filter and page number in
+ * the URL.
  */
 export default async function AgentsPage({
   searchParams
@@ -54,31 +72,31 @@ export default async function AgentsPage({
 }) {
   const params = await searchParams;
   const rawCity = params.city;
-  const city = typeof rawCity === "string" ? rawCity.trim() : "";
+  const city = (typeof rawCity === "string" ? rawCity.trim() : "").slice(0, 80);
+  const rawPage = typeof params.page === "string" ? Number.parseInt(params.page, 10) : 1;
+  const requestedPage = Number.isFinite(rawPage) && rawPage >= 1 ? rawPage : 1;
 
   const samplesAllowed = sampleAgentsAllowed();
 
   // A database problem degrades this page to the labelled sample set (or the
   // empty state), never to a 500: the directory read is display-only and holds
   // up no write anywhere.
-  let approved: AgentPublic[];
+  let directory: AgentDirectoryPage;
   try {
-    approved = await fetchApprovedAgents(city === "" ? undefined : city);
+    directory = await fetchDirectoryAgents({ city, page: requestedPage });
   } catch {
-    approved = [];
+    directory = { agents: [], totalCount: 0, page: 1, pageSize: 24 };
   }
 
-  const samples = samplesAllowed ? sampleAgentsForCity(city) : [];
-  const showingSamples = samples.length > 0 || (samplesAllowed && city === "");
-  const total = approved.length + samples.length;
-
-  const cityOptions = [
-    ...new Set(
-      [...approved, ...(samplesAllowed ? sampleAgentsForCity("") : [])].flatMap((agent) =>
-        cityList(agent.cities)
-      )
-    )
-  ].sort((a, b) => a.localeCompare(b));
+  // Fixtures are a fallback for an empty database, not a supplement to a real
+  // one: the moment any real row exists, samples disappear from this page.
+  const samples =
+    directory.totalCount === 0 && samplesAllowed && requestedPage === 1
+      ? sampleAgentsForCity(city)
+      : [];
+  const showingSamples = directory.totalCount === 0 && samplesAllowed;
+  const agents: AgentPublic[] = directory.agents.length > 0 ? directory.agents : samples;
+  const total = directory.totalCount > 0 ? directory.totalCount : samples.length;
 
   const url = absoluteUrl(SITE_URL, "/agents");
 
@@ -98,9 +116,9 @@ export default async function AgentsPage({
               { name: "Home", url: absoluteUrl(SITE_URL, "/") },
               { name: "Agents", url }
             ]),
-            // Real approved agents only. A fixture never becomes a schema.org
-            // assertion, and the e2e suite pins this.
-            ...approved.map((agent) =>
+            // Real rows only — joined or public-record. A fixture never
+            // becomes a schema.org assertion, and the e2e suite pins this.
+            ...directory.agents.map((agent) =>
               realEstateAgentNode(agent, absoluteUrl(SITE_URL, `/agents/${agent.slug}`))
             )
           ],
@@ -133,25 +151,23 @@ export default async function AgentsPage({
         {/*
           A plain GET form: the filter state is the URL, so a filtered view is a
           link somebody can share, and the page needs no client search state.
+          Free text rather than a select because the option list would need the
+          whole state-scale table to build.
         */}
         <form method="get" action="/agents" className="flex flex-wrap items-end gap-3">
           <div>
             <label htmlFor="agents-city" className="text-sm font-semibold">
-              City
+              City or county
             </label>
-            <select
+            <input
               id="agents-city"
               name="city"
+              type="text"
               defaultValue={city}
+              maxLength={80}
+              placeholder="e.g. Tampa or Pinellas"
               className="mt-1.5 min-h-[44px] w-56 rounded-lg border border-[var(--border)] bg-[var(--bg)] px-3 py-2.5 text-base"
-            >
-              <option value="">All cities</option>
-              {cityOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
+            />
           </div>
           <Button type="submit" variant="secondary">
             Filter
@@ -173,24 +189,21 @@ export default async function AgentsPage({
         >
           {total === 0
             ? "No agents match"
-            : `${total} ${total === 1 ? "agent" : "agents"}${city === "" ? "" : ` serving ${city}`}`}
+            : `${total.toLocaleString("en-US")} ${total === 1 ? "agent" : "agents"}${city === "" ? "" : ` serving ${city}`}`}
         </p>
 
-        {total > 0 ? (
+        {agents.length > 0 ? (
           <ul className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {approved.map((agent) => (
-              <AgentCard key={agent.id} agent={agent} isSample={false} />
-            ))}
-            {samples.map((agent) => (
-              <AgentCard key={agent.id} agent={agent} isSample />
+            {agents.map((agent) => (
+              <AgentCard key={agent.id} agent={agent} isSample={showingSamples} />
             ))}
           </ul>
         ) : (
           <Card className="mt-6">
             <h2 className="text-xl font-semibold">Nothing matched that city</h2>
             <p className="mt-3 text-[var(--text-muted)]">
-              The directory is young and grows as agents join and pass review. Clearing the filter
-              shows everyone currently listed.
+              The directory covers agents who joined TRACT and Florida license records. Clearing the
+              filter shows everyone currently listed.
             </p>
             <div className="mt-5">
               <ButtonLink href="/agents" variant="secondary">
@@ -199,6 +212,13 @@ export default async function AgentsPage({
             </div>
           </Card>
         )}
+
+        <AgentPagination
+          city={city}
+          page={directory.page}
+          totalCount={directory.totalCount}
+          pageSize={directory.pageSize}
+        />
       </Section>
 
       <Section pad="tight" tone="surface">

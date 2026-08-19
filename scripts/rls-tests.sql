@@ -198,6 +198,21 @@ insert into public.agents (
     null, 'robin-private', 'approved', false
   );
 
+-- An unclaimed public-record row, as the DBPR import writes it: no owner, no
+-- email, no phone, no bio, no display consent — public anyway, because it
+-- restates a state license record and holds no private contact data.
+insert into public.agents (
+  id, owner_user_id, first_name, last_name, brokerage, license_number,
+  email_normalized, phone_e164, cities, bio, slug, status, display_consent,
+  county, source, imported_at, license_rank
+) values
+  (
+    '00000000-0000-4000-8000-000000000243', null,
+    'Devon', 'Unclaimed', 'Public Records Realty', 'SL0000004',
+    null, null, 'Clearwater', null, 'devon-unclaimed-sl0000004', 'unclaimed', false,
+    'Pinellas', 'dbpr_import', now(), 'SL Sales Associate'
+  );
+
 select public.create_lead_with_receipt(
   jsonb_build_object(
     'intent','purchase','first_name','Dana','last_name','Reyes',
@@ -483,16 +498,29 @@ select tests.assert_denied(
       'succeeded', 0, null, null, null, null)$$,
   'anonymous cannot settle a RendProp job');
 
--- Agent directory: approval and display consent are both required before a row
--- reaches the public, and the anonymous key can never write the table at all.
-select tests.assert(tests.visible_count('select count(*) from public.agents') = 1,
-  'anonymous sees only the approved and consenting agent');
+-- Agent directory: a row reaches the public either as approved-and-consenting
+-- or as an unclaimed public-record import, and the anonymous key can never
+-- write the table at all.
+select tests.assert(tests.visible_count('select count(*) from public.agents') = 2,
+  'anonymous sees the approved consenting agent and the unclaimed import');
+select tests.assert(
+  tests.visible_count($$select count(*) from public.agents where status = 'unclaimed'$$) = 1,
+  'anonymous sees unclaimed public-record rows');
 select tests.assert(
   tests.visible_count($$select count(*) from public.agents where status = 'pending'$$) = 0,
   'anonymous never sees a pending agent');
 select tests.assert(
-  tests.visible_count($$select count(*) from public.agents where not display_consent$$) = 0,
-  'anonymous never sees an agent who did not consent to display');
+  tests.visible_count($$select count(*) from public.agents
+    where status <> 'unclaimed' and not display_consent$$) = 0,
+  'anonymous never sees a joined agent who did not consent to display');
+-- The privacy posture of an unclaimed row is structural, not just a policy:
+-- the import writes no contact data, so there is nothing for a policy bug to
+-- leak.
+select tests.assert(
+  tests.visible_count($$select count(*) from public.agents
+    where status = 'unclaimed'
+      and (email_normalized is not null or phone_e164 is not null or bio is not null)$$) = 0,
+  'unclaimed rows carry no email, phone, or bio to expose');
 select tests.assert_denied(
   $$insert into public.agents (first_name, last_name, license_number, email_normalized, slug)
     values ('Injected', 'Agent', 'SL-9999999', 'injected@example.com', 'injected-agent')$$,
@@ -504,6 +532,10 @@ select tests.assert_denied(
 select tests.assert_denied(
   $$delete from public.agents where id = '00000000-0000-4000-8000-000000000240'$$,
   'anonymous cannot delete an agent row');
+select tests.assert_denied(
+  $$update public.agents set first_name = 'Hijacked'
+    where id = '00000000-0000-4000-8000-000000000243'$$,
+  'anonymous cannot edit an unclaimed public-record row');
 
 -- Public listing visibility: the published, non-fixture record only.
 select tests.assert(tests.visible_count('select count(*) from public.listing_records') = 1,
@@ -737,8 +769,8 @@ select tests.assert_denied(
 -- Agent directory, as the owner of a pending row: they see the public row and
 -- their own unpublished one, may edit their profile fields on their own row
 -- only, and cannot reach the moderation columns at all.
-select tests.assert(tests.visible_count('select count(*) from public.agents') = 2,
-  'agent row owner sees the public directory plus their own pending row');
+select tests.assert(tests.visible_count('select count(*) from public.agents') = 3,
+  'agent row owner sees the public directory (including unclaimed) plus their own pending row');
 select tests.assert(
   tests.visible_count($$select count(*) from public.agents
     where id = '00000000-0000-4000-8000-000000000241'$$) = 1,
@@ -758,6 +790,10 @@ select tests.assert_affects_no_rows(
   $$update public.agents set cities = 'Hijacked'
     where id = '00000000-0000-4000-8000-000000000240'$$,
   'an unowned directory row is not writable just because it is visible');
+select tests.assert_affects_no_rows(
+  $$update public.agents set cities = 'Hijacked'
+    where id = '00000000-0000-4000-8000-000000000243'$$,
+  'an unclaimed row is not writable by an authenticated user: claiming goes through the join API');
 select tests.assert_denied(
   $$update public.agents set status = 'approved'
     where id = '00000000-0000-4000-8000-000000000241'$$,
@@ -802,8 +838,8 @@ select tests.assert(tests.visible_count('select count(*) from public.privacy_req
   'agent cannot see another user privacy request');
 -- This account owns the approved-but-non-consenting directory row: visible to
 -- them as owner, and to nobody else through the public policy.
-select tests.assert(tests.visible_count('select count(*) from public.agents') = 2,
-  'directory row owner sees the public row plus their own non-consenting row');
+select tests.assert(tests.visible_count('select count(*) from public.agents') = 3,
+  'directory row owner sees the public rows (including unclaimed) plus their own non-consenting row');
 select tests.assert(
   tests.visible_count($$select count(*) from public.agents
     where id = '00000000-0000-4000-8000-000000000242'$$) = 1,
@@ -866,8 +902,8 @@ select tests.assert(tests.visible_count('select count(*) from public.leads') = 2
   'loan officer can read leads');
 select tests.assert(tests.visible_count('select count(*) from public.lead_planner_responses') = 1,
   'loan officer can read the planner answers a lead arrived with');
-select tests.assert(tests.visible_count('select count(*) from public.agents') = 3,
-  'loan officer reviews the whole agent directory, pending rows included');
+select tests.assert(tests.visible_count('select count(*) from public.agents') = 4,
+  'loan officer reviews the whole agent directory, pending and unclaimed rows included');
 select tests.assert_affects_no_rows(
   $$update public.lead_planner_responses set goal = 'purchase'$$,
   'loan officer cannot rewrite what the consumer answered');

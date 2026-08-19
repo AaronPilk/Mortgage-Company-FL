@@ -77,6 +77,9 @@ export async function generateMetadata({
     });
   }
 
+  // Real profiles are indexable — including unclaimed ones, which restate
+  // Florida license records and claim nothing else. The page copy carries the
+  // provenance either way.
   const { agent } = resolved;
   return pageMetadata({
     title: `${agent.firstName} ${agent.lastName} — Florida real estate agent`,
@@ -179,6 +182,27 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
           <p className="mt-3 text-sm" style={{ color: "var(--text-muted)" }}>
             {licenseLine}
           </p>
+          {/*
+            Unclaimed provenance, stated quietly: this profile restates the
+            state license roll, the agent has not joined, and the claim path is
+            one link away. Nothing is prefilled on the join form — the license
+            number the claimant types is what matches them to this row, and
+            staff review the claim before anything changes publicly.
+          */}
+          {!isSample && agent.unclaimed && (
+            <div className="mt-4 text-sm" style={{ color: "var(--text-muted)" }}>
+              <p>Source: Florida license records. This agent hasn&rsquo;t joined TRACT yet.</p>
+              <p className="mt-1">
+                Are you {agent.firstName}?{" "}
+                <Link
+                  href="/agents/join"
+                  className="font-semibold text-[var(--purple)] underline underline-offset-2"
+                >
+                  Claim this profile
+                </Link>
+              </p>
+            </div>
+          )}
         </div>
       </Section>
 
@@ -230,7 +254,9 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
           body={
             isSample
               ? "This profile is an illustrative sample invented to demonstrate the directory. The name, brokerage, cities, bio, and license number are all made up, the license format is deliberately invalid, and no verification has occurred or could occur. TRACT Mortgage is a mortgage brokerage; requesting an introduction is not an application and involves no credit inquiry."
-              : "Profile details were provided by the agent and reviewed before publication. License status is stated exactly as established: a profile says 'verified against state records' only after that check has completed, and 'verification pending' otherwise. TRACT Mortgage is a mortgage brokerage; requesting an introduction is not an application, involves no credit inquiry, and no payment flows in either direction for referrals."
+              : agent.unclaimed
+                ? "This profile restates public Florida real estate license records — name, license number, license type, location, and employing brokerage — and nothing more. The agent has not joined TRACT, provided any information here, or endorsed TRACT in any way, and no contact details of theirs are held or published. License status is stated exactly as established: 'verification pending' means TRACT has not independently re-verified the record. TRACT Mortgage is a mortgage brokerage; requesting an introduction is not an application, involves no credit inquiry, and no payment flows in either direction for referrals."
+                : "Profile details were provided by the agent and reviewed before publication. License status is stated exactly as established: a profile says 'verified against state records' only after that check has completed, and 'verification pending' otherwise. TRACT Mortgage is a mortgage brokerage; requesting an introduction is not an application, involves no credit inquiry, and no payment flows in either direction for referrals."
           }
         />
       </Section>

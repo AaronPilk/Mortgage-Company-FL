@@ -11,38 +11,55 @@ import { expect, test } from "@playwright/test";
  *     DOM — the consumer requests an introduction, which is a TRACT lead.
  */
 test.describe("agent directory", () => {
-  test("renders the directory with sample labelling and noindex while samples show", async ({
+  test("renders the directory honestly in both worlds: labelled samples or real records", async ({
     page
   }) => {
+    // The e2e server carries the committed Supabase publics, so this test can
+    // meet either world: an empty database (fixtures, labelled and noindex)
+    // or the live directory seeded from Florida license records. The
+    // invariants differ per world and are asserted accordingly; what may
+    // never happen in either is an unverified card claiming verification.
     await page.goto("/agents");
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
       "Find a Florida real estate agent"
     );
-    await expect(page.getByRole("note", { name: "Sample profiles notice" })).toContainText(
-      "Sample profiles — not real agents."
-    );
-    await expect(page.getByText("Sample profile — not a real agent").first()).toBeVisible();
-    await expect(page.getByText("Sample Agent — Jordan Rivera")).toBeVisible();
-    // Every fixture is unverified, so the honest pending state must show and
-    // no card may claim verification.
     await expect(page.getByText("License verification pending").first()).toBeVisible();
     await expect(page.getByText("License verified", { exact: true })).toHaveCount(0);
 
-    // Noindex while sample profiles are displayed, and no RealEstateAgent
-    // markup for fixtures — a crawler cannot read the banner.
-    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
-    const structuredData = await page
-      .locator('script[type="application/ld+json"]')
-      .allTextContents();
-    expect(structuredData.join(" ")).not.toContain("RealEstateAgent");
+    const sampleBanner = page.getByRole("note", { name: "Sample profiles notice" });
+    const samplesShowing = (await sampleBanner.count()) > 0;
+    if (samplesShowing) {
+      // Fixture world: labelled everywhere, noindex, no structured data, no
+      // pagination at fixture scale, and no false public-record provenance —
+      // a sample is an invention, not a Florida license record.
+      await expect(sampleBanner).toContainText("Sample profiles — not real agents.");
+      await expect(page.getByText("Sample profile — not a real agent").first()).toBeVisible();
+      await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+      const structuredData = await page
+        .locator('script[type="application/ld+json"]')
+        .allTextContents();
+      expect(structuredData.join(" ")).not.toContain("RealEstateAgent");
+      await expect(page.getByRole("navigation", { name: "Directory pages" })).toHaveCount(0);
+      await expect(page.getByText("Source: Florida license records")).toHaveCount(0);
 
-    // The city filter is a plain GET form: the state is the URL.
-    await page.locator("#agents-city").selectOption("Tampa");
-    await page.getByRole("button", { name: "Filter" }).click();
-    await expect(page).toHaveURL(/\/agents\?city=Tampa/);
-    await expect(page.getByText(/agents serving Tampa/)).toBeVisible();
-    await expect(page.getByText("Sample Agent — Priya Natarajan")).toBeVisible();
-    await expect(page.getByText("Sample Agent — Caleb Osei")).toHaveCount(0);
+      await page.locator("#agents-city").fill("Tampa");
+      await page.getByRole("button", { name: "Filter" }).click();
+      await expect(page).toHaveURL(/\/agents\?city=Tampa/);
+      await expect(page.getByText("Sample Agent — Priya Natarajan")).toBeVisible();
+    } else {
+      // Real-records world: no sample labelling anywhere, honest provenance
+      // on unclaimed rows, pagination at state scale, and the page is
+      // eligible for the index.
+      await expect(page.getByText("Sample profile — not a real agent")).toHaveCount(0);
+      await expect(page.getByText("Source: Florida license records").first()).toBeVisible();
+      await expect(page.getByRole("navigation", { name: "Directory pages" })).toBeVisible();
+      await expect(page.locator('meta[name="robots"]')).not.toHaveAttribute("content", /noindex/);
+
+      await page.locator("#agents-city").fill("Tampa");
+      await page.getByRole("button", { name: "Filter" }).click();
+      await expect(page).toHaveURL(/\/agents\?city=Tampa/);
+      await expect(page.getByText(/Tampa/).first()).toBeVisible();
+    }
   });
 
   test("shows the introduction form on a profile and never an agent email or phone", async ({
@@ -84,6 +101,12 @@ test.describe("agent directory", () => {
       page.getByText(/Florida license SL-SAMPLE-001 — verification pending/)
     ).toBeVisible();
     await expect(page.getByText(/verified against state records/)).toHaveCount(0);
+
+    // Unclaimed framing belongs to real public-record rows only. A sample is
+    // an invention, so it must never claim state-record provenance or offer
+    // the claim path.
+    await expect(page.getByText("Source: Florida license records")).toHaveCount(0);
+    await expect(page.getByText("Claim this profile")).toHaveCount(0);
   });
 
   test("posts the introduction request as an agent_introduction TRACT lead", async ({ page }) => {

@@ -53,6 +53,23 @@ export function decideAgentUpsert(
   return { action: "update", targetId: target.id };
 }
 
+/**
+ * The status change a join-form submission may cause on the row it updates.
+ *
+ * Matching an 'unclaimed' public-record row is a claim: the submission fills in
+ * the profile, and the row moves to 'pending' because a claim is an assertion
+ * anyone could type — a license number is public — so staff must review it
+ * before it publishes with the claimant's details. Every other status is left
+ * exactly where it is: a resubmission never downgrades an approved row and
+ * never re-promotes a pending one. `source` is untouched everywhere, so an
+ * imported row stays auditable as 'dbpr_import' after its agent claims it.
+ */
+export function claimStatusUpdate(
+  targetStatus: string | null | undefined
+): { status: "pending" } | Record<string, never> {
+  return targetStatus === "unclaimed" ? { status: "pending" } : {};
+}
+
 /** Longest base that still leaves room for a "-99" collision suffix within 80. */
 const SLUG_BASE_MAX = 76;
 

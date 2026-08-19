@@ -1087,16 +1087,19 @@ export const ROUTE_REGISTRY: RouteEntry[] = [
   },
 
   // Agent directory. Dynamic profile pages (/agents/[slug]) are covered by
-  // this prefix, the same way /properties/[listingKey] rides on /properties.
-  // Not indexable while sample profiles can render: a crawler cannot read the
-  // sample banner, so the surface stays out of the sitemap and the page's own
-  // metadata makes the matching per-request noindex decision. Flip this to
-  // true only when the directory renders real, reviewed agents exclusively.
+  // this prefix, the same way /properties/[listingKey] rides on /properties —
+  // and only this literal path enters the sitemap: the ~68k imported profile
+  // pages are indexable but deliberately not enumerated there.
+  // Indexable since the DBPR import: every row the page renders is a real
+  // record — a reviewed joined agent or a factual state license record — so
+  // nothing invented can reach a crawler. The one residual case, an empty or
+  // unreachable database falling back to labelled sample fixtures, is handled
+  // per-request: the page emits noindex for exactly those responses.
   {
     path: "/agents",
     priority: 0.5,
     changeFrequency: "daily",
-    indexable: false,
+    indexable: true,
     contentGroup: "agents"
   },
   // The agent-side funnel carries no sample data and describes a real,

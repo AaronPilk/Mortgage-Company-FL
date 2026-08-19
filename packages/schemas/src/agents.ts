@@ -55,6 +55,14 @@ export const AgentPublicSchema = z.object({
   cities: z.string(),
   bio: z.string().nullable(),
   licenseNumber: z.string(),
-  licenseVerified: z.boolean()
+  licenseVerified: z.boolean(),
+  /**
+   * True for a public-record profile imported from the state license roll that
+   * no agent has claimed yet. The UI must say so — the honest framing is the
+   * condition for publishing the row without the agent's involvement.
+   */
+  unclaimed: z.boolean(),
+  /** County from the state extract; null for rows agents typed themselves. */
+  county: z.string().nullable()
 });
 export type AgentPublic = z.infer<typeof AgentPublicSchema>;

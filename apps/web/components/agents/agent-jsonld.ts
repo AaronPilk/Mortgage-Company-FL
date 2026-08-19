@@ -15,14 +15,26 @@ import { cityList } from "./sample-agents";
  * license identifier, because a license claim belongs in markup only once it is
  * verified against state records, and the page copy carries the honest
  * pending/verified state either way.
+ *
+ * An unclaimed public-record profile emits an even more conservative node:
+ * name and area served (city and county) only. The employing brokerage is a
+ * public-record fact and appears in page copy, but markup restates only what
+ * the profile is fundamentally about — a licensed person practicing in a place
+ * — until the agent claims the row and staff review it.
  */
 export function realEstateAgentNode(agent: AgentPublic, url: string): Record<string, unknown> {
+  const areaServed = [
+    ...cityList(agent.cities).map((name) => ({ "@type": "City", name })),
+    ...(agent.county === null ? [] : [{ "@type": "AdministrativeArea", name: agent.county }])
+  ];
   return {
     "@type": "RealEstateAgent",
     "@id": `${url}#agent`,
     name: `${agent.firstName} ${agent.lastName}`,
     url,
-    ...(agent.brokerage ? { worksFor: { "@type": "Organization", name: agent.brokerage } } : {}),
-    areaServed: cityList(agent.cities).map((name) => ({ "@type": "City", name }))
+    ...(agent.brokerage && !agent.unclaimed
+      ? { worksFor: { "@type": "Organization", name: agent.brokerage } }
+      : {}),
+    areaServed
   };
 }

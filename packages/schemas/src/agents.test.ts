@@ -127,8 +127,28 @@ describe("AgentPublicSchema", () => {
       cities: "Tampa",
       bio: null,
       licenseNumber: "SL-3512901",
-      licenseVerified: false
+      licenseVerified: false,
+      unclaimed: false,
+      county: null
     });
     expect(parsed.licenseVerified).toBe(false);
+  });
+
+  it("models an unclaimed public-record profile", () => {
+    const parsed = AgentPublicSchema.parse({
+      id: "00000000-0000-4000-8000-000000000243",
+      slug: "devon-unclaimed-sl0000004",
+      firstName: "Devon",
+      lastName: "Unclaimed",
+      brokerage: "Public Records Realty",
+      cities: "Clearwater",
+      bio: null,
+      licenseNumber: "SL0000004",
+      licenseVerified: false,
+      unclaimed: true,
+      county: "Pinellas"
+    });
+    expect(parsed.unclaimed).toBe(true);
+    expect(parsed.county).toBe("Pinellas");
   });
 });

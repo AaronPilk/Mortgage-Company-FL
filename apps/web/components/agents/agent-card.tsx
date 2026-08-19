@@ -50,6 +50,17 @@ export function AgentCard({ agent, isSample }: { agent: AgentPublic; isSample: b
         ) : (
           <span className="flex-1" />
         )}
+        {/*
+          Honest provenance for an unclaimed public-record row: the reader is
+          told this profile restates the state's license roll and that the
+          agent themselves has not joined. Quiet on purpose — it is a fact, not
+          a warning — and never a "sample" badge, because the record is real.
+        */}
+        {agent.unclaimed && (
+          <p className="mt-3 text-xs" style={{ color: "var(--text-muted)" }}>
+            Source: Florida license records. This agent hasn&rsquo;t joined TRACT yet.
+          </p>
+        )}
         <span
           aria-hidden="true"
           className="mt-5 text-sm font-semibold"

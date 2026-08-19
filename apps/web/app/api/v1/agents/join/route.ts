@@ -10,7 +10,12 @@ import {
   normalizeContact
 } from "@tract/schemas";
 import { verifyTurnstile } from "@tract/integrations";
-import { agentSlugBase, decideAgentUpsert, resolveAgentSlug } from "@/lib/agent-dedup";
+import {
+  agentSlugBase,
+  claimStatusUpdate,
+  decideAgentUpsert,
+  resolveAgentSlug
+} from "@/lib/agent-dedup";
 import { resolveAuthenticatedUserId } from "@/lib/account-auth";
 import { env } from "@/lib/env";
 import { log } from "@/lib/logger";
@@ -212,12 +217,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const [emailLookup, licenseLookup] = await Promise.all([
     supabase
       .from("agents")
-      .select("id,owner_user_id")
+      .select("id,owner_user_id,status")
       .eq("email_normalized", normalized.emailNormalized)
       .maybeSingle(),
     supabase
       .from("agents")
-      .select("id,owner_user_id")
+      .select("id,owner_user_id,status")
       .eq("license_number", input.licenseNumber)
       .maybeSingle()
   ]);
@@ -291,10 +296,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const target = licenseMatch?.id === decision.targetId ? licenseMatch : emailMatch;
     const canClaim =
       userId !== null && (target?.owner_user_id === null || target?.owner_user_id === userId);
+    // Matching an unclaimed public-record row is the claim path: the same
+    // update fills the profile, and claimStatusUpdate moves the row to
+    // 'pending' for staff review — a license number is public, so a claim is
+    // never self-approving. Any other status is left untouched, so an approved
+    // agent resubmitting the form is never downgraded.
     const { data: updated, error: updateError } = await supabase
       .from("agents")
       .update({
         ...profile,
+        ...claimStatusUpdate(target?.status ?? null),
         ...(canClaim ? { owner_user_id: userId } : {})
       })
       .eq("id", decision.targetId)

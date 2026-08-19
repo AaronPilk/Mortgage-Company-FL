@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { agentSlugBase, decideAgentUpsert, resolveAgentSlug } from "../../lib/agent-dedup";
+import {
+  agentSlugBase,
+  claimStatusUpdate,
+  decideAgentUpsert,
+  resolveAgentSlug
+} from "../../lib/agent-dedup";
 
 describe("agent join dedup decision", () => {
   const rowA = { id: "00000000-0000-4000-8000-00000000000a" };
@@ -31,6 +36,25 @@ describe("agent join dedup decision", () => {
       emailRowId: rowA.id,
       licenseRowId: rowB.id
     });
+  });
+});
+
+describe("claiming an unclaimed public-record row", () => {
+  it("moves an unclaimed row to pending: a claim still needs staff review", () => {
+    expect(claimStatusUpdate("unclaimed")).toEqual({ status: "pending" });
+  });
+
+  it("never downgrades an approved row on resubmission", () => {
+    expect(claimStatusUpdate("approved")).toEqual({});
+  });
+
+  it("leaves a pending row pending", () => {
+    expect(claimStatusUpdate("pending")).toEqual({});
+  });
+
+  it("writes no status when the target status is unknown", () => {
+    expect(claimStatusUpdate(null)).toEqual({});
+    expect(claimStatusUpdate(undefined)).toEqual({});
   });
 });
 
