@@ -185,6 +185,7 @@ export class GhlCrmAdapter implements CrmPort {
   async upsertLead(input: CrmLead, idempotencyKey: string): Promise<CrmSyncResult> {
     assertCrmPayloadSafe(input as unknown as Record<string, unknown>);
 
+    const planner = input.planner;
     const customFields = Object.entries({
       tract_receipt_id: input.externalId,
       tract_intent: input.intent,
@@ -196,7 +197,22 @@ export class GhlCrmAdapter implements CrmPort {
       tract_utm_medium: input.attribution.utmMedium ?? "",
       tract_utm_campaign: input.attribution.utmCampaign ?? "",
       tract_gclid: input.attribution.gclid ?? "",
-      tract_plan_summary: input.planningSummary ?? ""
+      tract_plan_summary: input.planningSummary ?? "",
+      // Planner qualifying bands. Present only when the lead completed the
+      // planner or a deep funnel; absent values become "" and are dropped by
+      // the filter below, so a plain contact lead sends none of them. Bands
+      // only — the same values the database and the schema already enforce.
+      tract_credit_band: planner?.creditBand ?? "",
+      tract_income_band: planner?.incomeBand ?? "",
+      tract_monthly_debt_band: planner?.monthlyDebtBand ?? "",
+      tract_price_band: planner?.priceBand ?? "",
+      tract_down_payment_band: planner?.downPaymentBand ?? "",
+      tract_employment: planner?.employment ?? "",
+      tract_property_type: planner?.propertyType ?? "",
+      tract_property_stage: planner?.propertyStage ?? "",
+      tract_property_location: planner?.propertyLocation ?? "",
+      tract_current_rate_band: planner?.currentMortgageRateBand ?? "",
+      tract_current_balance_band: planner?.currentMortgageBalanceBand ?? ""
     })
       .filter(([key, value]) => value !== "" && this.config.customFieldMap[key] !== undefined)
       .map(([key, value]) => ({ id: this.config.customFieldMap[key] as string, value }));

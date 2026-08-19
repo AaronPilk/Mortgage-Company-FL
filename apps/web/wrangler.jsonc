@@ -39,6 +39,14 @@
     "TURNSTILE_HOSTNAMES": "mortgage-company-fl.aaron-9c3.workers.dev",
     "GHL_MODE": "production",
     "GHL_LOCATION_ID": "rg3WUxqvDHrkiyBmEiCV",
+    // Maps each field the lead pipeline sends to its GoHighLevel custom-field
+    // ID (read from the live location on 19 Aug 2026). Field IDs are not
+    // secret, so this lives here where a deploy re-asserts it rather than in
+    // the secret store. A key absent from this map is simply not sent — the
+    // adapter filters it — so adding a field is: create it in GHL, add its id
+    // here. tract_credit_band and the other planner bands populate only on
+    // planner/funnel leads.
+    "GHL_CUSTOM_FIELD_MAP": "{\"tract_receipt_id\":\"K1qATW9d3M9ulYaGmFqD\",\"tract_intent\":\"9jphm36XMQsBiFxt4TCE\",\"tract_timeline\":\"dLJTGCwpNRtcjDKdYqxJ\",\"tract_source_path\":\"id4Ti8l8VyKTqIAnI3vb\",\"tract_disclosure_version\":\"Nkt8JgJj2CtYVQ4MNcJB\",\"tract_consent_received_at\":\"eML577wowahPcDZfnitF\",\"tract_utm_source\":\"xdzkeIZzKaYh8osvDPLq\",\"tract_utm_medium\":\"U1nHfmtNW8YSFPrYJ2Jc\",\"tract_utm_campaign\":\"Pq9gAzR9Lqj8JCoBKwSR\",\"tract_gclid\":\"daCb9Q8Pu9iuy5r9jku8\",\"tract_plan_summary\":\"vS0B2L6jyh50zCfj6OSR\",\"tract_credit_band\":\"jimNSqPseIyVySRYhQVQ\",\"tract_income_band\":\"aTLBL8OJlzhw9EKtc6w7\",\"tract_monthly_debt_band\":\"4xXSlSHw2FSFQAV9yLKm\",\"tract_price_band\":\"5vJqWFN5et6BjjOTXAnC\",\"tract_down_payment_band\":\"gTSW8DyIKNae9S02Eje8\",\"tract_employment\":\"5CgWnONuyD8anOWotAAh\",\"tract_property_type\":\"hRAUYFglRtKiCvN8BLXV\",\"tract_property_stage\":\"1U5mPStwi7rmWl5URgNr\",\"tract_property_location\":\"MSVou7ADSs2DB7USIlgZ\",\"tract_current_rate_band\":\"vZxKsE2PCUgG8piOSNKp\",\"tract_current_balance_band\":\"FtgY7OZvg5aeeBcTrFtg\"}",
     // Labelled sample listings, deliberately published pre-MLS (see
     // docs/handoff/DECISIONS.md and lib/listings.ts). Three switches are all
     // required: the fixture provider, the explicit sample-data opt-in, and the
