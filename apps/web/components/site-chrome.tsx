@@ -44,12 +44,23 @@ const FOOTER_GROUPS = [
   {
     heading: "Tools",
     links: [
+      { href: "/properties", label: "Search homes" },
       { href: "/plan", label: "Mortgage planner" },
+      { href: "/calculators", label: "All calculators" },
       { href: "/calculators/mortgage-payment", label: "Payment" },
       { href: "/calculators/affordability", label: "Affordability" },
-      { href: "/calculators/refinance-break-even", label: "Refinance break-even" },
-      { href: "/calculators/rent-vs-buy", label: "Rent vs buy" },
-      { href: "/calculators/closing-cost", label: "Cash to close" }
+      { href: "/calculators/refinance-break-even", label: "Refinance break-even" }
+    ]
+  },
+  {
+    heading: "Explore",
+    links: [
+      { href: "/resources", label: "Guides & resources" },
+      { href: "/mortgage", label: "All loan programs" },
+      { href: "/locations/florida", label: "Florida" },
+      { href: "/vision", label: "TRACT Vision" },
+      { href: "/rendprop", label: "RendProp tours" },
+      { href: "/talk", label: "Talk to us" }
     ]
   },
   {
@@ -59,6 +70,7 @@ const FOOTER_GROUPS = [
       { href: "/contact", label: "Contact" },
       { href: "/agents", label: "Find an agent" },
       { href: "/agents/join", label: "Join as an agent" },
+      { href: "/partners/real-estate-agents", label: "For agents" },
       { href: "/licenses", label: "Licensing" },
       { href: "/disclosures", label: "Disclosures" },
       { href: "/security", label: "Security" }

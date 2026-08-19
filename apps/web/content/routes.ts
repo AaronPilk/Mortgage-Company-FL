@@ -1047,7 +1047,7 @@ export const ROUTE_REGISTRY: RouteEntry[] = [
     path: "/vision",
     priority: 0.5,
     changeFrequency: "monthly",
-    indexable: false,
+    indexable: true,
     contentGroup: "vision"
   },
   {
@@ -1061,7 +1061,7 @@ export const ROUTE_REGISTRY: RouteEntry[] = [
     path: "/rendprop",
     priority: 0.5,
     changeFrequency: "monthly",
-    indexable: false,
+    indexable: true,
     contentGroup: "rendprop"
   },
   {
