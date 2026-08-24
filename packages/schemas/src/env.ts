@@ -87,6 +87,13 @@ export const ServerEnvSchema = z
     FEATURE_RENDPROP: z.coerce.boolean().default(false),
     FEATURE_ACCOUNTS: z.coerce.boolean().default(true),
     FEATURE_PROPERTY_SEARCH: z.coerce.boolean().default(false),
+    /**
+     * TRACT — the authenticated loan-origination surface (borrower intake,
+     * portal, loan-officer workspace). Dark by default: the whole surface is
+     * off until this is explicitly turned on, and it needs a database to do
+     * anything, so the derived public flag also gates on accounts being on.
+     */
+    FEATURE_TRACT: z.coerce.boolean().default(false),
 
     SENTRY_DSN: optionalString,
     RESEND_API_KEY: optionalString,

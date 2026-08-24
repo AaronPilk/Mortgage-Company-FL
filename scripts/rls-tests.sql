@@ -1327,6 +1327,94 @@ select tests.assert(
     'execute'),
   'service_role can execute the Vision report function');
 
+/* ---------------------------------------------------------------- *
+ * TRACT loan compartment
+ *
+ * The `loan` schema is off the REST surface and every default grant is
+ * revoked, so anon and authenticated have no direct path to a row. The only
+ * doors are the SECURITY DEFINER functions. These tests prove the compartment
+ * is sealed at the schema level, that the server door is server-only, and that
+ * a borrower's own reads are scoped to their own files.
+ * ---------------------------------------------------------------- */
+
+-- The compartment is sealed at the schema level: no usage, no table reads.
+select tests.assert(not has_schema_privilege('anon', 'loan', 'usage'),
+  'anon has no usage on the loan schema');
+select tests.assert(not has_schema_privilege('authenticated', 'loan', 'usage'),
+  'authenticated has no usage on the loan schema');
+select tests.assert(
+  (select count(*) from pg_class c
+   join pg_namespace n on n.oid = c.relnamespace
+   where n.nspname = 'loan' and c.relrowsecurity
+     and c.relname in
+       ('loan_files','loan_stage_events','loan_conditions','loan_documents','access_log')) = 5,
+  'row level security is enabled on all five loan tables');
+
+-- Seed two files through the server door, for two different borrowers. The file
+-- id is captured from the function's own return value — service_role has no
+-- direct read on the compartment either, which is exactly the point.
+set role service_role;
+select public.loan_open_file(
+  '00000000-0000-4000-8000-000000000002', 'purchase',
+  jsonb_build_object('loanPurpose','purchase','employmentType','w2'),
+  '400k_500k', '350k_450k') as loan_own_file \gset
+select public.loan_open_file(
+  '00000000-0000-4000-8000-000000000006', 'refinance',
+  jsonb_build_object('loanPurpose','refinance','employmentType','self_employed'),
+  null, null) as loan_other_file \gset
+reset role;
+
+-- Anonymous: the compartment does not exist as far as they can tell.
+set role anon;
+select set_config('request.jwt.claim.sub', '', false);
+select tests.assert_denied('select count(*) from loan.loan_files',
+  'anon cannot read the loan files table directly');
+select tests.assert_denied(
+  $$select public.loan_open_file('00000000-0000-4000-8000-000000000006','purchase',null,null,null)$$,
+  'anon cannot open a loan file');
+reset role;
+
+-- A borrower, only through the doors, only their own file.
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002', false);
+select tests.assert_denied('select count(*) from loan.loan_files',
+  'a signed-in borrower still cannot read the loan files table directly');
+select tests.assert_denied(
+  $$select public.loan_open_file('00000000-0000-4000-8000-000000000002','purchase',null,null,null)$$,
+  'a borrower cannot call the server open-file door');
+select tests.assert_denied(
+  $$select public.loan_advance_stage(gen_random_uuid(),'processing',
+      '00000000-0000-4000-8000-000000000002',null)$$,
+  'a borrower cannot advance a loan stage');
+select tests.assert(tests.visible_count('select count(*) from public.loan_list_my_files()') = 1,
+  'a borrower sees exactly their own loan file');
+select tests.assert(
+  (select public.loan_get_file(id) is not null from public.loan_list_my_files() limit 1),
+  'a borrower can read the full detail of their own file');
+select tests.assert(public.loan_get_file(:'loan_other_file') is null,
+  'a borrower cannot read another borrower''s file detail');
+reset role;
+
+-- Invariant 5: EXECUTE defaults to PUBLIC; prove every revoke holds.
+select tests.assert(
+  not has_function_privilege('public',
+    'public.loan_open_file(uuid, loan.loan_purpose, jsonb, text, text)', 'execute'),
+  'PUBLIC holds no execute grant on the loan open-file door');
+select tests.assert(
+  not has_function_privilege('authenticated',
+    'public.loan_open_file(uuid, loan.loan_purpose, jsonb, text, text)', 'execute'),
+  'authenticated holds no execute grant on the loan open-file door');
+select tests.assert(
+  not has_function_privilege('public',
+    'public.loan_create_file(uuid, loan.loan_purpose, text, text)', 'execute'),
+  'PUBLIC holds no execute grant on the loan create-file door');
+select tests.assert(
+  not has_function_privilege('anon', 'public.loan_get_file(uuid)', 'execute'),
+  'anon holds no execute grant on the loan detail read');
+select tests.assert(
+  has_function_privilege('authenticated', 'public.loan_get_file(uuid)', 'execute'),
+  'a borrower can execute the loan detail read for their own file');
+
 select tests.assert(
   (select count(*) from pg_tables t
    where t.schemaname = 'public' and not exists (

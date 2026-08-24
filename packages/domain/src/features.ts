@@ -15,6 +15,7 @@ export type ServerFeatures = {
   rendProp: boolean;
   accounts: boolean;
   propertySearch: boolean;
+  tract: boolean;
   secureApplicationConfigured: boolean;
 };
 
@@ -29,6 +30,7 @@ export function serverFeatures(env: ServerEnv): ServerFeatures {
     rendProp: env.FEATURE_RENDPROP,
     accounts: env.FEATURE_ACCOUNTS,
     propertySearch: env.FEATURE_PROPERTY_SEARCH,
+    tract: env.FEATURE_TRACT,
     secureApplicationConfigured: env.SECURE_APPLICATION_URL !== undefined
   };
 }
@@ -38,6 +40,7 @@ export type PublicFeatureState = {
   rendProp: boolean;
   propertySearch: boolean;
   accounts: boolean;
+  tract: boolean;
   secureApplication: boolean;
 };
 
@@ -48,6 +51,9 @@ export function publicFeatureState(features: ServerFeatures): PublicFeatureState
     rendProp: features.rendProp,
     propertySearch: features.propertySearch && features.mls !== "disabled",
     accounts: features.accounts,
+    // TRACT is an authenticated surface: a borrower must be able to hold an
+    // account, so the loan portal is only live when accounts are on too.
+    tract: features.tract && features.accounts,
     secureApplication: features.secureApplicationConfigured
   };
 }

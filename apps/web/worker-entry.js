@@ -27,14 +27,10 @@ function parseJsonMap(raw) {
 /**
  * Drain the transactional outbox directly against Supabase and the CRM.
  *
- * Earlier versions asked the cron to call the site's own drain *route* — first
- * in-process, then over a self fetch, then through a self service binding.
- * Every one of those is a Worker invoking itself, and Cloudflare blocks that
- * (error 1042); the route's claim query was never reached and leads sat
- * undrained. A cron that drains a queue should talk to the queue, so this does
- * the same claim -> deliver -> settle the route does, but as ordinary outbound
- * calls to Supabase and GoHighLevel — different origins, nothing self-referential
- * for the platform to reject. It mirrors app/api/v1/internal/outbox/drain.
+ * The cron cannot call the site's own drain route — a Worker invoking itself is
+ * blocked by Cloudflare (error 1042 / redirect loop). So this does the same
+ * claim -> deliver -> settle the route does, as ordinary outbound calls to
+ * Supabase and GoHighLevel. Mirrors app/api/v1/internal/outbox/drain.
  */
 async function drainOutbox(env) {
   const url = env.NEXT_PUBLIC_SUPABASE_URL;
@@ -61,8 +57,25 @@ async function drainOutbox(env) {
     token,
     locationId,
     customFieldMap: parseJsonMap(env.GHL_CUSTOM_FIELD_MAP),
-    pipelineMap: parseJsonMap(env.GHL_PIPELINE_MAP)
+    pipelineMap: parseJsonMap(env.GHL_PIPELINE_MAP),
+    // The default 10s abort was firing as retryable:0. Give the CRM real room.
+    timeoutMs: 25000
   });
+
+  // processOutboxRow collapses a thrown delivery error to a coarse code
+  // (retryable:0) that hides the cause. Capture the underlying error so its
+  // real name and message land both in the tail and in the settled outbox row.
+  let lastError = null;
+  const rawUpsertLead = crm.upsertLead.bind(crm);
+  crm.upsertLead = async (payload, key) => {
+    try {
+      return await rawUpsertLead(payload, key);
+    } catch (error) {
+      lastError = error;
+      console.error("outbox cron: GHL upsert threw", error && error.name, error && error.message);
+      throw error;
+    }
+  };
 
   const workerId = `cron:${crypto.randomUUID()}`;
   const { data: rows, error: claimError } = await supabase.rpc("claim_integration_outbox", {
@@ -81,6 +94,7 @@ async function drainOutbox(env) {
   let completionFailures = 0;
 
   for (const row of claimed) {
+    lastError = null;
     const outcome = await processOutboxRow(
       {
         id: row.id,
@@ -94,13 +108,20 @@ async function drainOutbox(env) {
       { crm }
     );
 
+    let errorCode = outcome.status === "succeeded" ? null : outcome.errorCode;
+    if (errorCode !== null && lastError !== null) {
+      const name = lastError.name || "Error";
+      const message = String(lastError.message || "").slice(0, 200);
+      errorCode = `${errorCode}|${name}:${message}`;
+    }
+
     const { data: completed, error: completionError } = await supabase.rpc(
       "complete_integration_outbox",
       {
         p_id: row.id,
         p_worker_id: workerId,
         p_outcome: outcome.status,
-        p_error_code: outcome.status === "succeeded" ? null : outcome.errorCode,
+        p_error_code: errorCode,
         p_available_in_ms: outcome.status === "retry" ? outcome.availableInMs : 0,
         p_crm_contact_id: outcome.status === "succeeded" ? outcome.contactId : null
       }

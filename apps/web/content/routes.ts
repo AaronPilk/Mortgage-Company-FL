@@ -1195,6 +1195,22 @@ export const ROUTE_REGISTRY: RouteEntry[] = [
     indexable: false,
     contentGroup: "system"
   },
+  // TRACT — the authenticated loan portal. Never indexable, never in the
+  // sitemap: it is a signed-in application surface, not a marketing page.
+  {
+    path: "/loan",
+    priority: 0.1,
+    changeFrequency: "yearly",
+    indexable: false,
+    contentGroup: "loan"
+  },
+  {
+    path: "/loan/apply",
+    priority: 0.1,
+    changeFrequency: "yearly",
+    indexable: false,
+    contentGroup: "loan"
+  },
   // Password-reset completion. Reached only from the emailed recovery link
   // via /auth/callback; never indexable, never in the sitemap.
   {

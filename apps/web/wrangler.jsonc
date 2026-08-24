@@ -56,6 +56,9 @@
     "MLS_PROVIDER": "fixture",
     "SHOW_SAMPLE_LISTINGS": "true",
     "FEATURE_PROPERTY_SEARCH": "true",
+    // TRACT borrower portal (/loan). Login-gated and noindex. Set to "false" to
+    // keep the whole loan surface dark; "true" turns it on for internal testing.
+    "FEATURE_TRACT": "true",
     // Labelled sample agent profiles in the directory, same deliberate opt-in
     // as the sample listings. Real approved agents replace them, and the
     // /agents registry entry flips indexable when the samples turn off.
