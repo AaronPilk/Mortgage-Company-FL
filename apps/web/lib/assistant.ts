@@ -33,20 +33,32 @@ const PROMPT_VERSION = "1.0.0";
 const MAX_COST_CENTS = 3;
 const MAX_REPLY_CHARS = 900;
 
-/** The only links the assistant may surface — keys the model picks from, mapped to real routes here. */
+/**
+ * The only links the assistant may surface — keys the model picks from and the
+ * deterministic router maps to, resolved to real routes here. The set spans the
+ * whole TRACT product (homes, value, calculators, the loan portal, agents), not
+ * only mortgages, so the assistant can route a visitor to anything the site does.
+ */
 const ASSISTANT_LINKS: Record<string, AssistantLink> = {
   payment: { label: "Payment calculator", href: "/calculators/mortgage-payment" },
   affordability: { label: "Affordability calculator", href: "/calculators/affordability" },
+  calculators: { label: "All calculators", href: "/calculators" },
   down_payment_assistance: {
     label: "Down payment assistance",
     href: "/florida-down-payment-assistance"
   },
   first_time: { label: "First-time buyer guide", href: "/mortgage/first-time-home-buyers" },
+  purchase: { label: "Buying a home", href: "/mortgage/purchase" },
   refinance: { label: "Refinancing", href: "/mortgage/refinance" },
   rates: { label: "Today's rates", href: "/mortgage-rates" },
   loan_options: { label: "Loan options", href: "/mortgage" },
-  properties: { label: "Property search", href: "/properties" },
+  plan: { label: "Build a plan", href: "/plan" },
+  properties: { label: "Search homes", href: "/properties" },
   home_lookup: { label: "Look up a home", href: "/home-lookup" },
+  home_value: { label: "What's my home worth", href: "/what-is-my-home-worth" },
+  agents: { label: "Find an agent", href: "/agents" },
+  resources: { label: "Guides & resources", href: "/resources" },
+  account: { label: "Client login", href: "/account" },
   talk: { label: "Talk to a licensed officer", href: "/talk" }
 };
 const ASSISTANT_LINK_KEYS = Object.keys(ASSISTANT_LINKS);
@@ -85,11 +97,22 @@ const ASSISTANT_SYSTEM_PROMPT = [
   "Always answer by calling the assistant_reply tool."
 ].join("\n");
 
-/** Shown whenever the AI path is unavailable or fails, so the visitor always gets a useful answer. */
+/**
+ * The capability menu — the assistant's product-wide answer when nothing more
+ * specific fits. It stands in for the AI path whenever that path is unavailable
+ * or fails, so the visitor always gets a useful, TRACT-wide answer instead of a
+ * dead end, and it is what the greeting-style intents reuse.
+ */
+const CAPABILITY_TEXT =
+  "There's a lot here beyond the mortgage itself — you can search Florida homes with the true monthly cost shown, size up a payment or what you can afford, look at refinancing, track your home's value, or talk to a licensed officer. What would help most?";
+
 const FALLBACK_REPLY: AssistantReply = {
-  reply:
-    "I can point you to our calculators and program guides, or connect you with a licensed loan officer who can talk through your situation. What are you working on — buying, refinancing, or just exploring?",
-  links: [ASSISTANT_LINKS.payment as AssistantLink, ASSISTANT_LINKS.talk as AssistantLink],
+  reply: CAPABILITY_TEXT,
+  links: [
+    ASSISTANT_LINKS.properties as AssistantLink,
+    ASSISTANT_LINKS.payment as AssistantLink,
+    ASSISTANT_LINKS.talk as AssistantLink
+  ],
   offerConnect: true
 };
 
@@ -130,6 +153,164 @@ function resolveLinks(keys: unknown): AssistantLink[] {
   return out;
 }
 
+/**
+ * Deterministic intent routing.
+ *
+ * This is the assistant's backend logic, and it runs BEFORE any paid model call.
+ * Most visitors ask a handful of recognisable things — find a home, a payment, a
+ * refinance, my home's value, talk to someone — and each gets a tailored,
+ * compliant answer here for zero cost. Two things fall out of that:
+ *
+ *   - Coverage: the assistant speaks to the whole TRACT product, not just
+ *     mortgages — property search, the value dashboard, calculators, the loan
+ *     portal, agents — because those are the intents below.
+ *   - Cost safety: a bot that spams the common questions never reaches the model,
+ *     so it cannot run up the AI bill. The paid path is only ever touched by a
+ *     genuinely novel message, and even then behind the rate limit and budget.
+ *
+ * Rules are ordered most-specific first; the first match wins. Every reply is
+ * hand-written to satisfy the same compliance bar as the model output: no rate
+ * quotes, no "you qualify", no individualized advice.
+ */
+type Intent = { match: RegExp; reply: string; links: string[]; offerConnect: boolean };
+
+const INTENTS: Intent[] = [
+  {
+    // Wanting a person comes first: if they ask to talk, route them, whatever else they said.
+    match:
+      /\b(talk|speak|call me|connect me|human|real person|loan officer|representative|advisor|contact you)\b/,
+    reply:
+      "Happy to connect you. A licensed loan officer can talk through your situation and answer the specifics I'm not able to. Want me to set that up?",
+    links: ["talk"],
+    offerConnect: true
+  },
+  {
+    match:
+      /\b(find|search|searching|look(ing)?|browse|see|show me)\b[^.?!]*\b(house|home|homes|property|properties|listing|listings|place|neighborhood)\b|homes? for sale|house hunt/,
+    reply:
+      "Let's find your place. You can search Florida homes with the full monthly carrying cost shown — taxes, insurance and dues included, not just the list price. Want to browse, or figure out your budget first?",
+    links: ["properties", "affordability", "plan"],
+    offerConnect: false
+  },
+  {
+    match:
+      /home ?value|(what|how much).{0,20}(home|house|place).{0,12}worth|worth.{0,12}(home|house)|\bmy equity\b|how much equity|zestimate/,
+    reply:
+      "You can track your home's estimated value and equity over time here — handy whether you're weighing a refinance, a home-equity option, or just keeping an eye on it. Want to look yours up?",
+    links: ["home_value", "home_lookup"],
+    offerConnect: false
+  },
+  {
+    match: /\b(refi|refinance|refinancing|cash.?out)\b|lower my (rate|payment)/,
+    reply:
+      "Refinancing only makes sense when the math works. I'll point you to the break-even calculator so you can see whether a new rate or term actually pays off, and a licensed officer can run your real numbers.",
+    links: ["refinance", "payment"],
+    offerConnect: true
+  },
+  {
+    match: /first.?time|first home|never bought|new buyer|starter home/,
+    reply:
+      "First mortgages carry the most unknowns. There's a first-time-buyer guide that walks the sequence, plus Florida down-payment-assistance programs worth a look. Want to start with a quick plan?",
+    links: ["first_time", "down_payment_assistance", "plan"],
+    offerConnect: true
+  },
+  {
+    match: /down.?payment|\bdpa\b|assistance program|closing cost help|\bgrant\b/,
+    reply:
+      "Florida has real down-payment-assistance programs, and there are ways to structure a smaller down payment. Here's the overview — a licensed officer can tell you which you'd actually use.",
+    links: ["down_payment_assistance", "first_time"],
+    offerConnect: true
+  },
+  {
+    // Rates: never quote. Deflect to the market-average page and a human.
+    match: /\b(rate|rates|apr|interest)\b/,
+    reply:
+      "I can't quote a rate — that's exactly what a licensed officer sorts out for your situation, since it turns on your credit, the property, and the loan. You can see today's market averages, or I can connect you.",
+    links: ["rates", "talk"],
+    offerConnect: true
+  },
+  {
+    match:
+      /\b(payment|afford|affordability|monthly|budget|price range)\b|how much.{0,16}(can i|home|house|mortgage)|pre.?qual/,
+    reply:
+      "Let's put real numbers on it. The payment calculator shows what a Florida payment is actually made of, and the affordability tool works backward from a comfortable monthly number — both run in your browser, nothing saved.",
+    links: ["payment", "affordability", "plan"],
+    offerConnect: false
+  },
+  {
+    match: /calculator|calculators|calculate|run the numbers|\bestimate\b/,
+    reply:
+      "There's a full set of calculators — payment, affordability, refinance break-even, closing costs and more — all running on your device with nothing sent anywhere. Want the payment one to start?",
+    links: ["calculators", "payment", "affordability"],
+    offerConnect: false
+  },
+  {
+    match:
+      /\b(portal|log ?in|sign ?in|account|dashboard)\b|my (loan|application|file|documents)|application status|upload.{0,12}document/,
+    reply:
+      "If you're already working with us, your client portal is where your status, tasks and documents live — you can sign in there. If you're just getting started, tell me what you're after and I'll point you the right way.",
+    links: ["account", "talk"],
+    offerConnect: false
+  },
+  {
+    match: /real estate agent|realtor|find an agent|listing agent|buyer.?s? agent/,
+    reply:
+      "We can connect you with a real-estate agent in our Florida network alongside the financing side. Want to see agents, or line up the mortgage piece first?",
+    links: ["agents", "properties"],
+    offerConnect: false
+  },
+  {
+    match:
+      /\bva loan\b|veteran|\bfha\b|\busda\b|jumbo|conventional|investment property|self.?employed|\bdscr\b|bank statement|heloc|home equity/,
+    reply:
+      "There's a plain-language page for each loan program — what it's for and where people get surprised. Here's the full set, and a licensed officer can tell you which fits your situation.",
+    links: ["loan_options", "talk"],
+    offerConnect: true
+  },
+  {
+    match: /\b(buy|buying|purchase|purchasing)\b|get a mortgage|mortgage to buy/,
+    reply:
+      "Buying in Florida is more than the sticker price — taxes, insurance and dues drive the real monthly cost. I can help you search homes, size up a budget, or start a quick plan. Where do you want to begin?",
+    links: ["properties", "affordability", "plan"],
+    offerConnect: true
+  },
+  {
+    match: /get started|where do i (start|begin)|\bplan\b|planning|next step/,
+    reply:
+      "Easiest start is a short plan — five quick questions to a payment range, right in your browser. From there I can point you to homes, calculators, or a licensed officer. Want to build it?",
+    links: ["plan", "properties", "talk"],
+    offerConnect: false
+  },
+  {
+    match:
+      /^\s*(hi|hey|hello|yo|sup|good (morning|afternoon|evening))\b|what can you do|what do you do|how can you help|\bhelp\b|\boptions\b|\bmenu\b/,
+    reply: CAPABILITY_TEXT,
+    links: ["properties", "payment", "home_value"],
+    offerConnect: false
+  }
+];
+
+/**
+ * The most recent thing the visitor actually typed, matched against the intent
+ * table. Returns a tailored reply, or null when nothing fits and the caller
+ * should escalate (to the model, or to the capability menu).
+ */
+export function deterministicReply(messages: AssistantMessage[]): AssistantReply | null {
+  const lastUser = [...messages].reverse().find((message) => message.role === "user");
+  if (lastUser === undefined) return null;
+  const text = lastUser.content.toLowerCase();
+  for (const intent of INTENTS) {
+    if (intent.match.test(text)) {
+      return {
+        reply: intent.reply,
+        links: resolveLinks(intent.links),
+        offerConnect: intent.offerConnect
+      };
+    }
+  }
+  return null;
+}
+
 function serializeConversation(messages: AssistantMessage[]): string {
   const transcript = messages
     .map((message) => `${message.role === "user" ? "Visitor" : "Assistant"}: ${message.content}`)
@@ -152,6 +333,11 @@ export async function runAssistant(params: {
   subjectKey: string;
   requestId: string;
 }): Promise<AssistantReply> {
+  // Deterministic first: a recognised intent is answered here for free, so the
+  // common questions — and any bot spamming them — never reach the paid model.
+  const routed = deterministicReply(params.messages);
+  if (routed !== null) return routed;
+
   const provider = ai();
   if (provider.key === "disabled") return FALLBACK_REPLY;
 

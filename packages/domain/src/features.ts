@@ -97,9 +97,11 @@ export function publicFeatureState(features: ServerFeatures): PublicFeatureState
     // Rate-watch shows a live market average, so it requires a live rate-feed
     // mode — the fixture average can never reach production.
     rateWatch: features.rateWatch && features.rateFeed !== "disabled",
-    // The assistant needs a live AI mode; without one it would have nothing to
-    // answer with, and the budget gates every paid call regardless.
-    assistant: features.assistant && features.ai !== "disabled",
+    // The assistant answers common intents deterministically, with no model
+    // call, so it is useful — and free — even with AI off. A live AI mode only
+    // adds model answers for genuinely novel questions, and the per-call budget
+    // gates those. So the surface is on whenever its own flag is.
+    assistant: features.assistant,
     accounts: features.accounts,
     // TRACT is an authenticated surface: a borrower must be able to hold an
     // account, so the loan portal is only live when accounts are on too.

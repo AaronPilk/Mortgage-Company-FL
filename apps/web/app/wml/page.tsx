@@ -115,10 +115,10 @@ const WML_FAQS = [
 
 const btnPrimary =
   "inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl px-6 py-3 " +
-  "text-[0.95rem] font-semibold text-white transition-all duration-200 hover:-translate-y-0.5";
+  "text-[0.95rem] font-semibold text-white transition duration-200 hover:-translate-y-0.5";
 const btnSecondary =
   "inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl border px-6 py-3 " +
-  "text-[0.95rem] font-semibold transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--purple)] hover:text-[var(--purple)]";
+  "text-[0.95rem] font-semibold transition duration-200 hover:-translate-y-0.5 hover:border-[var(--purple)] hover:text-[var(--purple)]";
 
 export default function WmlLandingPage() {
   const url = `${WML}/`;

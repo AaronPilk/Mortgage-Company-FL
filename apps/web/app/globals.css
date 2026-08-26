@@ -84,6 +84,18 @@
   --shadow-float: 0 20px 60px rgb(0 0 0 / 0.12);
   --shadow-glow: 0 4px 24px rgb(124 58 237 / 0.4);
 
+  /*
+   * Motion. One place to tune easing and speed, so the whole site moves as one
+   * system. The curves are stronger than the browser defaults: --ease-out
+   * decelerates hard for entrances and hover lifts that settle crisply instead
+   * of drifting. Motion tokens are theme-independent, so they live only here and
+   * cascade under .dark. prefers-reduced-motion (below) still overrides all.
+   */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --duration-fast: 160ms;
+  --duration-base: 220ms;
+
   --content-narrow: 46rem;
   --content-default: 74rem;
   --content-wide: 88rem;
@@ -246,9 +258,9 @@
 
 @utility hover-float {
   transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease,
-    border-color 0.3s ease;
+    transform var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out),
+    border-color var(--duration-base) var(--ease-out);
 }
 
 @utility glass {
@@ -331,7 +343,7 @@
 }
 
 .animate-fade-up {
-  animation: fadeUp 0.5s ease-out both;
+  animation: fadeUp 0.45s var(--ease-out) both;
 }
 
 @keyframes shimmer {

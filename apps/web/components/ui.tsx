@@ -17,7 +17,7 @@ type ButtonVariant = "primary" | "secondary" | "ghost";
 const buttonBase =
   "inline-flex items-center justify-center gap-2 rounded-xl font-semibold " +
   "min-h-[48px] px-6 py-3 text-[0.95rem] tracking-[-0.01em] " +
-  "transition-all duration-200 will-change-transform " +
+  "transition duration-200 will-change-transform " +
   "disabled:opacity-45 disabled:cursor-not-allowed disabled:transform-none";
 
 const buttonVariants: Record<ButtonVariant, string> = {

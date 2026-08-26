@@ -22,7 +22,7 @@ type ChatEntry = {
 const GREETING: ChatEntry = {
   role: "assistant",
   content:
-    "Hi! I can help you understand your options or find the right tool — buying, refinancing, or just exploring. What's on your mind?",
+    "Hi! I can help you find a Florida home, size up a payment or what you can afford, look at refinancing, check your home's value, or connect you with a licensed officer. What's on your mind?",
   offerConnect: false
 };
 
@@ -91,7 +91,7 @@ export function AssistantWidget({ enabled }: { enabled: boolean }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        aria-label="Open the mortgage assistant"
+        aria-label="Open the TRACT assistant"
         className="fixed bottom-4 right-4 z-40 flex min-h-[52px] items-center gap-2 rounded-full px-5 text-sm font-semibold text-white shadow-lg"
         style={{ background: "var(--purple)" }}
       >
@@ -105,13 +105,13 @@ export function AssistantWidget({ enabled }: { enabled: boolean }) {
       className="fixed bottom-4 right-4 z-40 flex max-h-[min(70vh,560px)] w-[min(92vw,380px)] flex-col overflow-hidden rounded-2xl border shadow-2xl"
       style={{ borderColor: "var(--border)", background: "var(--bg)" }}
       role="dialog"
-      aria-label="Mortgage assistant"
+      aria-label="TRACT assistant"
     >
       <div
         className="flex items-center justify-between px-4 py-3"
         style={{ background: "var(--purple)" }}
       >
-        <p className="text-sm font-semibold text-white">Mortgage assistant</p>
+        <p className="text-sm font-semibold text-white">TRACT assistant</p>
         <button
           type="button"
           onClick={() => setOpen(false)}
@@ -191,7 +191,7 @@ export function AssistantWidget({ enabled }: { enabled: boolean }) {
           type="text"
           value={input}
           onChange={(event) => setInput(event.target.value)}
-          placeholder="Ask about buying, refinancing…"
+          placeholder="Ask about homes, payments, refinancing…"
           aria-label="Your question"
           maxLength={1500}
           className="min-h-[44px] flex-1 rounded-lg border bg-transparent px-3 text-sm outline-none focus:border-[var(--purple)]"
