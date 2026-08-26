@@ -33,6 +33,23 @@ const CHOICES: {
     detail: "Two quick questions, then a licensed mortgage professional lays out your options."
   },
   {
+    href: "/get-started/first-home",
+    title: "Buying my first home",
+    detail: "First-time buyer programs, down-payment help, and what to expect — start to finish."
+  },
+  {
+    href: "/get-started/refinance",
+    title: "Refinancing",
+    detail:
+      "Lower the rate, change the term, or free up cash — we'll show what a refinance would actually do."
+  },
+  {
+    href: "/get-started/heloc",
+    title: "Home equity or HELOC",
+    detail:
+      "Tap the equity you've built with a line of credit or a cash-out, without guessing at the numbers."
+  },
+  {
     href: "/get-started/sell",
     title: "Selling a home",
     detail:

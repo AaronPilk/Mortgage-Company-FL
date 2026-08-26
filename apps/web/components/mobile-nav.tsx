@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ThemeToggle } from "./theme-toggle";
 
 type NavItem = { href: string; label: string };
@@ -27,6 +27,7 @@ type NavItem = { href: string; label: string };
 export function MobileNav({ items, accountLabel }: { items: NavItem[]; accountLabel: string }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   // Navigating is the strongest possible "I'm done with the menu" signal.
   useEffect(() => {
@@ -38,7 +39,11 @@ export function MobileNav({ items, accountLabel }: { items: NavItem[]; accountLa
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") {
+        setOpen(false);
+        // Return focus to the trigger, not to nowhere, on close.
+        buttonRef.current?.focus();
+      }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => {
@@ -48,8 +53,11 @@ export function MobileNav({ items, accountLabel }: { items: NavItem[]; accountLa
   }, [open]);
 
   return (
-    <div className="lg:hidden">
+    // Mirrors the header's inline-nav breakpoint: the menu button is the
+    // navigation for every window narrower than min-[1360px].
+    <div className="min-[1360px]:hidden">
       <button
+        ref={buttonRef}
         type="button"
         onClick={() => setOpen(!open)}
         aria-expanded={open}
@@ -84,16 +92,25 @@ export function MobileNav({ items, accountLabel }: { items: NavItem[]; accountLa
       >
         <nav aria-label="Primary mobile" className="container-wide py-3">
           <ul>
-            {items.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className="flex min-h-[48px] items-center rounded-xl px-3 text-base font-medium transition-colors hover:bg-[var(--purple-subtle)] hover:text-[var(--purple)]"
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
+            {items.map((item) => {
+              const active =
+                pathname === item.href ||
+                (item.href !== "/" && pathname.startsWith(`${item.href}/`));
+              return (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    aria-current={active ? "page" : undefined}
+                    className={`flex min-h-[48px] items-center rounded-xl px-3 text-base transition-colors hover:bg-[var(--purple-subtle)] hover:text-[var(--purple)] ${
+                      active ? "font-semibold" : "font-medium"
+                    }`}
+                    style={active ? { color: "var(--purple)" } : undefined}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              );
+            })}
             <li style={{ borderTop: "1px solid var(--border)" }} className="mt-2 pt-2">
               <Link
                 href="/account"

@@ -21,6 +21,7 @@ export function SaveSearchButton({
   signedIn,
   search,
   accountsConfigured,
+  alertsAvailable = false,
   supabaseUrl,
   anonKey
 }: {
@@ -28,11 +29,18 @@ export function SaveSearchButton({
   /** Query-string form of the criteria currently on screen (no leading "?"). */
   search: string;
   accountsConfigured: boolean;
+  /**
+   * Whether new-listing email alerts can be promised here. Derived public flag:
+   * true only when a licensed listing feed and the backend feature are both on,
+   * so the opt-in is hidden — never dead — until it can actually fire.
+   */
+  alertsAvailable?: boolean;
   supabaseUrl?: string | undefined;
   anonKey?: string | undefined;
 }) {
   const [state, setState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [promptOpen, setPromptOpen] = useState(false);
+  const [wantAlerts, setWantAlerts] = useState(false);
 
   async function save() {
     if (!signedIn) {
@@ -40,13 +48,32 @@ export function SaveSearchButton({
       return;
     }
     setState("saving");
+    const saveId = window.crypto.randomUUID();
     try {
       const response = await fetch("/api/v1/account/saved-searches", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ saveId: window.crypto.randomUUID(), search })
+        body: JSON.stringify({ saveId, search })
       });
-      setState(response.ok ? "saved" : "error");
+      if (!response.ok) {
+        setState("error");
+        return;
+      }
+      // Opting in is a second, best-effort write against the row just saved — its
+      // id comes back from the server, which may differ from ours when re-saving
+      // a search already kept. A failed opt-in never unsays "saved".
+      if (wantAlerts) {
+        const body = (await response.json().catch(() => null)) as {
+          data?: { saveId?: string };
+        } | null;
+        const savedId = body?.data?.saveId ?? saveId;
+        await fetch("/api/v1/account/saved-searches/alerts", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ saveId: savedId, alertsEnabled: true })
+        }).catch(() => undefined);
+      }
+      setState("saved");
     } catch {
       setState("error");
     }
@@ -56,6 +83,17 @@ export function SaveSearchButton({
 
   return (
     <div>
+      {signedIn && alertsAvailable && (
+        <label className="mb-2 flex items-start gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={wantAlerts}
+            onChange={(event) => setWantAlerts(event.target.checked)}
+            className="mt-1 size-4"
+          />
+          Email me when new listings match this search.
+        </label>
+      )}
       <Button
         type="button"
         variant="secondary"

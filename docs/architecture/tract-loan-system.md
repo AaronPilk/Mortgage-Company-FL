@@ -14,7 +14,7 @@ always assumed would be a separate "approved POS/LOS."
   loan actually happens. Model: Quicken Loans is the company, Rocket Mortgage is
   the software — WML is the company, TRACT is the software.
 
-TRACT is the *experience and orchestration* layer. It owns intake, the borrower
+TRACT is the _experience and orchestration_ layer. It owns intake, the borrower
 portal, and the loan-officer workspace. It does **not** replace the regulated
 engines (credit pull, AUS findings, pricing, disclosures) — it integrates them
 as they come online (see §5).
@@ -27,6 +27,7 @@ not loosen the marketing site's rules.
 
 **Decision (default, pending Dan's compliance read): an isolated `loan` Postgres
 schema inside the existing Supabase project.**
+
 - The `loan` schema is **not** added to `config.toml` `api.schemas`, so it is
   never exposed on the public PostgREST/REST surface.
 - It is reached only through `security definer` RPCs called by authenticated
@@ -48,8 +49,8 @@ isolated schema unless he says otherwise.
 
 This boundary change is recorded in `docs/architecture/decisions.md` and the
 `docs/security/data-classification.md` matrix and invariant #2 get an explicit
-carve-out: *application/restricted data is permitted only inside the `loan`
-compartment, never in `public`, the CRM, git, email, or any public web form.*
+carve-out: _application/restricted data is permitted only inside the `loan`
+compartment, never in `public`, the CRM, git, email, or any public web form._
 
 ## 3. Data model (Phase 0)
 
@@ -76,7 +77,7 @@ EXECUTE revoked from `anon`/`authenticated` (invariant #5), all covered in
 detail (exact income, SSN, DOB, account numbers). Those are only needed when we
 pull credit / submit to AUS, they demand column-level encryption (pgsodium /
 Supabase Vault), and they should land coupled to that integration — not sitting
-in a table months early. Phase 0's intake collects the *structured, banded*
+in a table months early. Phase 0's intake collects the _structured, banded_
 pre-application (the same band approach the planner already uses), which is all a
 broker needs to pre-qualify and hand to a wholesale lender.
 
@@ -84,14 +85,14 @@ broker needs to pre-qualify and hand to a wholesale lender.
 
 1. **Migration 1 — the `loan` compartment + backbone** (files, stage events,
    conditions, documents, access log) with RLS, revoked grants, service-role
-   RPCs, and rls-tests. *(Drafted now — see the delivered migration.)*
+   RPCs, and rls-tests. _(Drafted now — see the delivered migration.)_
 2. **`FEATURE_TRACT` flag** + env wiring, so the whole surface is dark until we
    turn it on.
 3. **Borrower portal** — the color-coded stage tracker, conditions list, and
    document upload (signed-URL storage). This is the piece that wows clients.
 4. **Intake engine** — the pre-application wizard with Dan's detective
    question-tree (income type, employment, self-employed/1099, overtime/bonus
-   history…). Logic *guides which questions to ask*; it never decides approval.
+   history…). Logic _guides which questions to ask_; it never decides approval.
 5. **Loan-officer workspace** — a `loan_officer`-gated section (the existing
    admin-layout pattern): pipeline, per-file view, condition management, notes,
    and pushing marketing context to GoHighLevel.
@@ -103,7 +104,7 @@ broker needs to pre-qualify and hand to a wholesale lender.
 - **Broker phase (now):** real loans are submitted through your wholesale
   lenders' portals; TRACT is intake + portal + workspace around that.
 - **Broker + integrations:** credit pull (tri-merge via a reseller, credentialed
-  + encrypted), pricing (a PPE or lender rate sheets), e-sign disclosures.
+  - encrypted), pricing (a PPE or lender rate sheets), e-sign disclosures.
 - **Correspondent phase (Dan's couple-year vision):** your own AUS findings
   (Fannie DU / Freddie LPA), your own pricing engine wiring investor rate sheets,
   selling each loan to the best-paying investor.
@@ -114,7 +115,7 @@ convention), gated by a mode flag that requires its credential when live.
 ## 6. Compliance guardrails (non-negotiable)
 
 - **ECOA / Reg B:** no AI or automated logic ever makes or influences an approval
-  decision. TRACT's logic decides *which questions to ask*, never *who qualifies*.
+  decision. TRACT's logic decides _which questions to ask_, never _who qualifies_.
 - **GLBA / FTC Safeguards Rule:** the `loan` compartment is access-controlled,
   audited, encrypted where sensitive, minimally retained. (The readiness board
   already flags Safeguards as required before real borrower data enters.)

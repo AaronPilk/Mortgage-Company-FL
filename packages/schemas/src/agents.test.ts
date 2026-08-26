@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { AGENT_LICENSE_NUMBER_REGEX, AgentJoinRequestSchema, AgentPublicSchema } from "./agents";
+import {
+  AGENT_COVERAGE_MAX_ZIPS,
+  AGENT_LICENSE_NUMBER_REGEX,
+  AgentCoverageSchema,
+  AgentJoinRequestSchema,
+  AgentPublicSchema
+} from "./agents";
 
 const valid = {
   firstName: "Pat",
@@ -113,6 +119,36 @@ describe("AgentJoinRequestSchema", () => {
     expect(AgentJoinRequestSchema.safeParse({ ...valid, submissionId: "not-a-uuid" }).success).toBe(
       false
     );
+  });
+});
+
+describe("AgentCoverageSchema", () => {
+  it("accepts a set of five-digit ZIPs", () => {
+    const parsed = AgentCoverageSchema.parse({ zips: ["33602", "33701", "34600"] });
+    expect(parsed.zips).toEqual(["33602", "33701", "34600"]);
+  });
+
+  it("accepts an empty set — clearing coverage is a valid replace-set", () => {
+    expect(AgentCoverageSchema.parse({ zips: [] }).zips).toEqual([]);
+  });
+
+  it("dedupes repeated ZIPs rather than rejecting them", () => {
+    const parsed = AgentCoverageSchema.parse({ zips: ["33602", "33602", " 33602 "] });
+    expect(parsed.zips).toEqual(["33602"]);
+  });
+
+  it("rejects anything that is not exactly five digits", () => {
+    for (const bad of ["3360", "336022", "abcde", "3360a", ""]) {
+      expect(AgentCoverageSchema.safeParse({ zips: [bad] }).success).toBe(false);
+    }
+  });
+
+  it("enforces the per-request ZIP ceiling", () => {
+    const atLimit = Array.from({ length: AGENT_COVERAGE_MAX_ZIPS }, (_, index) =>
+      String(30000 + index)
+    );
+    expect(AgentCoverageSchema.safeParse({ zips: atLimit }).success).toBe(true);
+    expect(AgentCoverageSchema.safeParse({ zips: [...atLimit, "39999"] }).success).toBe(false);
   });
 });
 

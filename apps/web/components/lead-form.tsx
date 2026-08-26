@@ -9,6 +9,7 @@ import {
   currentAttributionTouch,
   readStoredTouch
 } from "@/lib/attribution-browser";
+import { readReferralSlug } from "@/lib/referral-browser";
 import { resetTurnstile } from "@/lib/turnstile-browser";
 import { TurnstileWidget } from "@/components/turnstile-widget";
 
@@ -40,7 +41,8 @@ export function LeadForm({
   turnstileSiteKey,
   planningSnapshot,
   heading = "Talk to a mortgage professional",
-  submitLabel = "Request a call"
+  submitLabel = "Request a call",
+  initialMessage
 }: {
   intent: LeadIntent;
   formId: string;
@@ -51,6 +53,14 @@ export function LeadForm({
   planningSnapshot?: PlanningSnapshot | undefined;
   heading?: string;
   submitLabel?: string;
+  /**
+   * Prefill for the message field, editable by the person. The seller funnel
+   * uses it to carry the address they entered so the follow-up knows which home
+   * — an address is allowed context (invariant 2), never a financial figure or
+   * identifier. Uncontrolled, so it seeds the field once at mount; host it under
+   * a `key` if it must re-seed when the value changes.
+   */
+  initialMessage?: string | undefined;
 }) {
   const [state, setState] = useState<FormState>({ kind: "idle" });
   const submissionRef = useRef<{
@@ -118,6 +128,10 @@ export function LeadForm({
       timeline,
       message,
       planningSnapshot,
+      // A referral slug remembered from a /r/<agent> visit, if any. Undefined
+      // when there is none — the server re-checks it before it is trusted, so
+      // the browser only ever proposes the attribution, never establishes it.
+      referringAgentSlug: readReferralSlug(),
       consent,
       firstTouch: submission.firstTouch,
       lastTouch: submission.lastTouch,
@@ -336,6 +350,7 @@ export function LeadForm({
           name="message"
           rows={3}
           maxLength={1500}
+          defaultValue={initialMessage}
           className={inputClass}
         />
         <p className="mt-1 text-xs text-[var(--text-muted)]">

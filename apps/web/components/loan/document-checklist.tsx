@@ -1,5 +1,6 @@
 import { requiredDocuments, type IntakeAnswers, type RequirementCategory } from "@tract/domain";
 import { Badge } from "@/components/ui";
+import { DocumentUploadButton } from "@/components/loan/document-upload-button";
 import type { LoanDocumentMeta } from "@/lib/loan";
 
 /**
@@ -8,7 +9,8 @@ import type { LoanDocumentMeta } from "@/lib/loan";
  * Built deterministically from their intake answers by @tract/domain
  * requiredDocuments — the encoding of the standard agency documentation logic
  * Dan refines with experience. Each item says, in plain English, WHY it's
- * needed. This is a checklist generator, never a credit decision (ECOA / Reg B).
+ * needed, and carries a one-tap upload. This is a checklist generator, never a
+ * credit decision (ECOA / Reg B).
  *
  * Per-item status is derived from document metadata: an item is "received" once
  * a matching upload is recorded against its requirement id.
@@ -42,9 +44,11 @@ function statusOf(requirementId: string, required: boolean, provided: Set<string
 }
 
 export function DocumentChecklist({
+  loanFileId,
   intake,
   documents
 }: {
+  loanFileId: string;
   intake: IntakeAnswers;
   documents: LoanDocumentMeta[];
 }) {
@@ -123,6 +127,13 @@ export function DocumentChecklist({
                     <p className="mt-1.5 text-sm" style={{ color: "var(--text-muted)" }}>
                       {item.why}
                     </p>
+                    <div className="mt-3 flex justify-end">
+                      <DocumentUploadButton
+                        loanFileId={loanFileId}
+                        requirementId={item.id}
+                        received={status === "received"}
+                      />
+                    </div>
                   </li>
                 );
               })}

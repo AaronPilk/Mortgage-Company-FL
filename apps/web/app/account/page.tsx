@@ -2,6 +2,15 @@ import type { Metadata } from "next";
 import { AccountSettings } from "@/components/account/account-settings";
 import { AccountSignIn } from "@/components/account/account-sign-in";
 import { Badge, Button, ButtonLink, Card, Section, SectionHeading } from "@/components/ui";
+import { AffordabilityCard } from "@/components/account/affordability-card";
+import { HomeValueCard } from "@/components/account/home-value-card";
+import { RateWatchCard } from "@/components/account/rate-watch-card";
+import { SavedSearchAlertToggle } from "@/components/account/saved-search-alert-toggle";
+import { readAffordabilityProfile } from "@/lib/affordability";
+import { readHomeDashboard } from "@/lib/home-value";
+import { homeValueAvailable } from "@/lib/property";
+import { rateWatchAvailable, readMarketRates } from "@/lib/rates";
+import { readRateWatch } from "@/lib/rate-watch";
 import { publicFeatures } from "@/lib/env";
 import { demoListings, listings } from "@/lib/listings";
 import { pageMetadata } from "@/lib/metadata";
@@ -35,6 +44,7 @@ type SavedSearch = {
   search_params: string;
   summary: string;
   saved_at: string;
+  alerts_enabled: boolean;
 };
 type VisionProject = {
   id: string;
@@ -167,7 +177,7 @@ export default async function AccountPage({
       .limit(50),
     supabase
       .from("saved_searches")
-      .select("id,search_params,summary,saved_at")
+      .select("id,search_params,summary,saved_at,alerts_enabled")
       .eq("owner_user_id", user.id)
       .order("saved_at", { ascending: false })
       .limit(50),
@@ -248,6 +258,23 @@ export default async function AccountPage({
     })
   );
 
+  const affordabilityProfile = await readAffordabilityProfile(supabase, user.id);
+  const homeValueDashboard = features.homeValue ? await readHomeDashboard(supabase, user.id) : null;
+  // Show the card when the valuation provider can serve, or when a saved
+  // dashboard already exists (so a temporary provider outage still shows history).
+  const homeValueCanLookup = features.homeValue && homeValueAvailable();
+  const showHomeValue = homeValueCanLookup || homeValueDashboard !== null;
+
+  const showRateWatch = features.rateWatch && rateWatchAvailable();
+  // The market rate powers both the rate-watch card and the home-value refi
+  // signal, so read it whenever either surface is showing (it returns null on its
+  // own when the feed is off). Kept concurrent with the watch read.
+  const needsMarketRates = showRateWatch || showHomeValue;
+  const [marketRates, rateWatch] = await Promise.all([
+    needsMarketRates ? readMarketRates() : Promise.resolve(null),
+    showRateWatch ? readRateWatch(supabase, user.id) : Promise.resolve(null)
+  ]);
+
   return (
     <Section width="wide">
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -267,6 +294,79 @@ export default async function AccountPage({
           <p className="text-danger" role="alert">
             Some account records are unavailable. No broader database access was attempted.
           </p>
+        </Card>
+      )}
+
+      {features.tract && (
+        <div
+          className="mb-6 rounded-2xl p-6"
+          style={{ border: "1px solid var(--purple)", background: "var(--purple-subtle)" }}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-bold">Your loan</h2>
+              <p className="mt-2 max-w-xl text-sm text-[var(--text-muted)]">
+                Your application, your document checklist, and your loan status — all in one secure
+                place. Upload a document straight from your phone.
+              </p>
+            </div>
+            <ButtonLink href="/loan" variant="primary">
+              Open my loan
+            </ButtonLink>
+          </div>
+        </div>
+      )}
+
+      <Card className="mb-6">
+        <h2 className="text-2xl font-bold">What can I afford?</h2>
+        <p className="mt-2 max-w-2xl text-sm text-[var(--text-muted)]">
+          Save your numbers once and we&apos;ll tailor the site to them — your search and your home
+          lookups. It stays private to your account and is never an application.
+        </p>
+        <div className="mt-5">
+          <AffordabilityCard
+            initial={
+              affordabilityProfile === null
+                ? null
+                : {
+                    annualIncome: Math.round(affordabilityProfile.annualIncomeCents / 100),
+                    downPayment: Math.round(affordabilityProfile.downPaymentCents / 100),
+                    monthlyDebts: Math.round(affordabilityProfile.monthlyDebtsCents / 100),
+                    creditBand: affordabilityProfile.creditBand
+                  }
+            }
+          />
+        </div>
+      </Card>
+
+      {showHomeValue && (
+        <Card className="mb-6">
+          <h2 className="text-2xl font-bold">What&apos;s my home worth?</h2>
+          <p className="mt-2 max-w-2xl text-sm text-[var(--text-muted)]">
+            Track your home&apos;s estimated value over time and watch the equity you&apos;re
+            building. An automated estimate — never an appraisal or an offer — kept private to your
+            account.
+          </p>
+          <div className="mt-5">
+            <HomeValueCard
+              initial={homeValueDashboard}
+              canLookup={homeValueCanLookup}
+              marketThirtyYearBp={marketRates?.thirtyYearBp ?? null}
+            />
+          </div>
+        </Card>
+      )}
+
+      {showRateWatch && (
+        <Card className="mb-6">
+          <h2 className="text-2xl font-bold">Watch mortgage rates</h2>
+          <p className="mt-2 max-w-2xl text-sm text-[var(--text-muted)]">
+            Keep an eye on the national average and get a nudge when it moves. Market information,
+            never a quote — your rate is always a conversation.
+          </p>
+          <div className="mt-5">
+            <RateWatchCard rates={marketRates} initial={rateWatch} />
+          </div>
         </Card>
       )}
 
@@ -334,6 +434,12 @@ export default async function AccountPage({
                   >
                     Run this search
                   </ButtonLink>
+                  {features.savedSearchAlerts && (
+                    <SavedSearchAlertToggle
+                      saveId={search.id}
+                      initialEnabled={search.alerts_enabled}
+                    />
+                  )}
                 </li>
               ))}
             </ul>

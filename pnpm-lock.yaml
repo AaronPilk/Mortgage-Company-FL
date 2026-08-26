@@ -140,6 +140,9 @@ importers:
       '@tract/domain':
         specifier: workspace:*
         version: link:../domain
+      '@tract/mortgage-math':
+        specifier: workspace:*
+        version: link:../mortgage-math
       '@tract/schemas':
         specifier: workspace:*
         version: link:../schemas

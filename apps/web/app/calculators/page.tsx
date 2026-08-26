@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Card, CtaPanel, Disclosure, Section, SectionHeading } from "@/components/ui";
 import { pageMetadata } from "@/lib/metadata";
+import { publicFeatures } from "@/lib/env";
 
 export const metadata: Metadata = pageMetadata({
   title: "Mortgage calculators",
@@ -35,6 +36,31 @@ const CALCULATORS = [
     href: "/calculators/closing-cost",
     title: "Cash to close",
     body: "Down payment, closing costs, prepaid items, and credits — the number people are most often surprised by."
+  },
+  {
+    href: "/calculators/amortization",
+    title: "Amortization schedule",
+    body: "How each payment splits between principal and interest over the life of the loan, and what an extra payment does to the payoff date."
+  },
+  {
+    href: "/calculators/rate-impact",
+    title: "Rate impact",
+    body: "What a change in interest rate does to your monthly payment and the total interest you pay, side by side."
+  },
+  {
+    href: "/calculators/debt-to-income",
+    title: "Debt-to-income ratio",
+    body: "Your front-end and back-end DTI from your income and monthly debts — the ratios underwriting actually checks."
+  },
+  {
+    href: "/calculators/investment-property-cash-flow",
+    title: "Investment property cash flow",
+    body: "Rent against the mortgage, taxes, insurance, and expenses to see monthly cash flow and cap rate on a rental."
+  },
+  {
+    href: "/calculators/dscr",
+    title: "DSCR — rental coverage",
+    body: "Whether a rental's income covers its debt: the debt-service-coverage ratio lenders use for investor loans."
   }
 ];
 
@@ -49,6 +75,25 @@ export default function CalculatorsIndexPage() {
           gradientWord="show their work"
           description="Every one of these runs entirely on your device. Nothing you type is sent anywhere, stored, or used to contact you."
         />
+        {publicFeatures().homeLookup && (
+          <Link
+            href="/home-lookup"
+            className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-5 transition-colors hover:border-[var(--purple)]"
+            style={{ borderColor: "var(--purple)", background: "var(--purple-subtle)" }}
+          >
+            <span>
+              <span className="block font-semibold" style={{ color: "var(--text)" }}>
+                Have a specific home in mind?
+              </span>
+              <span className="block text-sm" style={{ color: "var(--text-muted)" }}>
+                Paste its listing link and we&apos;ll pull the price, taxes, and payment for you.
+              </span>
+            </span>
+            <span className="text-sm font-semibold" style={{ color: "var(--purple)" }}>
+              Look up a home →
+            </span>
+          </Link>
+        )}
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {CALCULATORS.map((calculator) => (
             <Card as="li" key={calculator.href} interactive className="!p-0">

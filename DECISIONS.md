@@ -3,6 +3,22 @@
 Business and operating decisions. Architecture decisions live in
 `docs/architecture/decisions.md`.
 
+## 2026-08-26
+
+**City pages ship, on the county bar (supersedes "No city pages", 2026-08-17).**
+The earlier decision was against a _templated_ city page — a county paragraph with
+a city name swapped in — not against a substantive local page. City pages now ship
+where each carries its own real, city-specific material: the settlement's geography
+and its flood and wind reality, and the questions a buyer there must research,
+coupled to a real parent county and asserting no market figure or tax rate. A
+name-substitution page still does not qualify, and the unit test enforces that a
+city's flood copy is not its county's. They ship **noindex** and off the sitemap
+until a named human reviewer verifies each city's sources
+(`docs/compliance/city-pages.md`); flipping the single `CITY_PAGES_INDEXABLE`
+switch turns both the registry entry and the page meta indexable together. Live
+market figures (median price, days on market, inventory) stay behind the dark
+`marketData` flag, so no fabricated stat can publish (invariant 6).
+
 ## 2026-08-17
 
 **Do not publish rates.** Pricing depends on credit profile, loan-to-value,
@@ -26,7 +42,9 @@ templated articles is worse than one that is briefly empty.
 
 **No city pages.** A template with a city name substituted has no local value and
 is a scaled-content risk. County material ships when it carries real county data
-and a named reviewer.
+and a named reviewer. _(Superseded 2026-08-26: substantive per-city pages ship on
+the same bar as counties — real local material and a named reviewer; a templated
+name-substitution page is still prohibited.)_
 
 **Family experience is described precisely.** `/about` states that TRACT is new
 and that the family's decades belong to the family. The content linter rejects

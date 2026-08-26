@@ -29,6 +29,7 @@ export default async function LoanApplyPage() {
         defaultMode="create"
         title="Create your account to begin"
         intro="Your application saves as you go, so you can start now and finish whenever. First, a quick account to keep everything secure and in one place."
+        nextPath="/loan/apply"
       />
     );
   }

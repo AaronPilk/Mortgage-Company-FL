@@ -187,6 +187,106 @@ export function cashToClose(input: CashToCloseInput): CashToCloseResult {
 }
 
 /* ------------------------------------------------------------------ *
+ * Closing-cost estimate
+ * ------------------------------------------------------------------ */
+
+/**
+ * A round, illustrative fraction of the purchase price. Buyer-side closing
+ * costs in Florida commonly land near here, but the real number is a lender's
+ * Loan Estimate line by line — this is a planning placeholder, never a quote.
+ */
+export const DEFAULT_CLOSING_COST_RATE_BP = 250; // 2.5% of price
+
+export function estimateClosingCostsCents(
+  purchasePriceCents: Cents,
+  rateBasisPointsOfPrice: BasisPoints = DEFAULT_CLOSING_COST_RATE_BP
+): Cents {
+  const price = assertNonNegativeCents(purchasePriceCents, "purchasePriceCents");
+  const rate = assertBasisPoints(rateBasisPointsOfPrice, "rateBasisPointsOfPrice");
+  return annualRateOfCents(price, rate);
+}
+
+/**
+ * The basis-point rate an annual property-tax amount represents against a price.
+ * `affordability` scales tax with price as it searches, so a fixed dollar tax
+ * from one home is converted to a rate to seed it.
+ */
+export function propertyTaxRateBasisPoints(annualTaxCents: Cents, priceCents: Cents): BasisPoints {
+  const tax = assertNonNegativeCents(annualTaxCents, "annualTaxCents");
+  const price = assertNonNegativeCents(priceCents, "priceCents");
+  if (price === 0) return 0;
+  return Math.round((tax / price) * 10_000);
+}
+
+/* ------------------------------------------------------------------ *
+ * Illustrative Florida ownership costs
+ *
+ * Placeholders that make the real cost of owning a home visible, never quotes.
+ * Florida homeowners premiums are among the highest in the country and vary
+ * enormously by carrier, roof age, and claims history; flood insurance depends
+ * on the exact flood zone and elevation. These exist so the number is on the
+ * page instead of hidden, and every surface that shows them says "estimate".
+ * ------------------------------------------------------------------ */
+
+/** Annual homeowners insurance as a fraction of home value. ~1% is a round, Florida-high placeholder. */
+export const DEFAULT_HOME_INSURANCE_RATE_BP = 100;
+
+export function estimateAnnualHomeInsuranceCents(
+  homeValueCents: Cents,
+  rateBasisPointsOfValue: BasisPoints = DEFAULT_HOME_INSURANCE_RATE_BP
+): Cents {
+  const value = assertNonNegativeCents(homeValueCents, "homeValueCents");
+  const rate = assertBasisPoints(rateBasisPointsOfValue, "rateBasisPointsOfValue");
+  return annualRateOfCents(value, rate);
+}
+
+/** Illustrative annual flood premium for a home in a Special Flood Hazard Area; zero otherwise. */
+export const DEFAULT_SFHA_FLOOD_INSURANCE_CENTS = 1_400_00;
+
+export function estimateAnnualFloodInsuranceCents(
+  inSpecialFloodHazardArea: boolean,
+  sfhaAnnualCents: Cents = DEFAULT_SFHA_FLOOD_INSURANCE_CENTS
+): Cents {
+  return inSpecialFloodHazardArea ? assertNonNegativeCents(sfhaAnnualCents, "sfhaAnnualCents") : 0;
+}
+
+/* ------------------------------------------------------------------ *
+ * Home equity — estimated value less what is still owed
+ *
+ * The one figure behind the homeowner value dashboard. It is an estimate built
+ * on an automated valuation and a balance the owner typed in; never an
+ * appraisal, a statement of borrowable funds, or a credit decision. Equity is
+ * clamped at zero — a balance above the estimate reads as no equity, not a
+ * negative one — and the two ratios are reported independently.
+ * ------------------------------------------------------------------ */
+
+export type HomeEquityResult = {
+  estimatedValueCents: Cents;
+  balanceCents: Cents;
+  equityCents: Cents;
+  /** Equity as a share of the estimated value, in basis points; 0 when value is 0. */
+  equityShareBasisPoints: BasisPoints;
+  /** Balance as a share of the estimated value (loan-to-value), in basis points; 0 when value is 0. */
+  loanToValueBasisPoints: BasisPoints;
+};
+
+export function homeEquity(estimatedValueCents: Cents, balanceCents: Cents): HomeEquityResult {
+  const value = assertNonNegativeCents(estimatedValueCents, "estimatedValueCents");
+  const balance = assertNonNegativeCents(balanceCents, "balanceCents");
+  const equityCents = Math.max(0, value - balance);
+  return {
+    estimatedValueCents: value,
+    balanceCents: balance,
+    equityCents,
+    equityShareBasisPoints: value === 0 ? 0 : Math.round((equityCents / value) * 10_000),
+    // Balance never counts as more than the whole value: a home worth less than
+    // its balance is 100% LTV here, not more.
+    loanToValueBasisPoints:
+      value === 0 ? 0 : Math.round((Math.min(balance, value) / value) * 10_000)
+  };
+}
+
+/* ------------------------------------------------------------------ *
  * Refinance break-even
  * ------------------------------------------------------------------ */
 

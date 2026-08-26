@@ -8,6 +8,8 @@ import { pageMetadata } from "@/lib/metadata";
 import { publicFeatures } from "@/lib/env";
 import { fixturesAllowed, listings } from "@/lib/listings";
 import { ListingGallery } from "@/components/properties/listing-gallery";
+import { SavePropertyButton } from "@/components/account/save-property-button";
+import { createRequestClient } from "@/lib/supabase";
 import { PaymentEstimatePanel } from "@/components/properties/payment-estimate-panel";
 import { SampleDataBadge, SampleDataBanner } from "@/components/properties/sample-data-notice";
 import {
@@ -91,6 +93,29 @@ export default async function PropertyDetailPage({
   // accident — a withdrawn or closed record must disappear from public surfaces
   // promptly, and 404 is how that is enforced here.
   if (listing === null || !isDisplayable(listing, fixturesAllowed())) notFound();
+
+  // Same account gating as the search grid, so a signed-in visitor can save the
+  // home they're actually looking at — not only from the results list.
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const accountsConfigured =
+    features.accounts && supabaseUrl !== undefined && anonKey !== undefined;
+
+  // Read the session so this listing connects to the signed-in borrower's world:
+  // reflect whether they've already saved it, and offer a path to their loan.
+  const supabase = accountsConfigured ? await createRequestClient() : null;
+  const userResult = supabase === null ? null : await supabase.auth.getUser();
+  const signedInUser = userResult?.error === null ? userResult.data.user : null;
+  let alreadySaved = false;
+  if (supabase !== null && signedInUser !== null) {
+    const { data: savedRow } = await supabase
+      .from("saved_properties")
+      .select("id")
+      .eq("owner_user_id", signedInUser.id)
+      .eq("listing_key", listing.listingKey)
+      .maybeSingle();
+    alreadySaved = savedRow !== null;
+  }
 
   const dataAsOf = formatTimestamp(await provider.dataAsOf());
   const updated = formatTimestamp(listing.modificationTimestamp);
@@ -272,6 +297,21 @@ export default async function PropertyDetailPage({
                 specific building, and the program you use. That takes a conversation.
               </p>
               <div className="mt-5 flex flex-col gap-3">
+                {accountsConfigured && (
+                  <SavePropertyButton
+                    listingKey={listing.listingKey}
+                    sourceMode={listing.isFixture ? "fixture" : "live"}
+                    accountsConfigured={accountsConfigured}
+                    supabaseUrl={supabaseUrl}
+                    anonKey={anonKey}
+                    initiallySaved={alreadySaved}
+                  />
+                )}
+                {signedInUser !== null && features.tract && (
+                  <ButtonLink href="/loan" variant="secondary">
+                    Go to your loan
+                  </ButtonLink>
+                )}
                 <ButtonLink href="/contact" data-cta={`property-detail-${listing.listingKey}`}>
                   Talk to a mortgage professional
                 </ButtonLink>

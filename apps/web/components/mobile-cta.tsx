@@ -18,6 +18,7 @@ const SUPPRESSED_PREFIXES = [
   "/apply",
   "/auth",
   "/account",
+  "/loan",
   "/admin",
   "/agents/join"
 ];

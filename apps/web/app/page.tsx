@@ -26,6 +26,7 @@ import {
   businessIdentity
 } from "@/lib/site";
 import { absoluteUrl, breadcrumbNode, graph, webPageNode } from "@tract/seo";
+import { createRequestClient } from "@/lib/supabase";
 
 export const metadata: Metadata = pageMetadata({
   title: "Florida mortgage brokerage — honest guidance, no pressure",
@@ -106,8 +107,13 @@ const HOME_FAQS = [
   }
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
   const url = absoluteUrl(SITE_URL, "/");
+  // The homepage is where the logo leads, so a returning borrower lands here.
+  // Greet them and point at their own stuff instead of treating them as a
+  // cold lead. (Every route is already dynamic — the header reads the session.)
+  const supabase = await createRequestClient();
+  const signedIn = supabase !== null && (await supabase.auth.getUser()).data.user !== null;
 
   return (
     <>
@@ -126,6 +132,25 @@ export default function HomePage() {
           businessIdentity
         )}
       />
+
+      {signedIn && (
+        <div
+          style={{ background: "var(--purple-subtle)", borderBottom: "1px solid var(--border)" }}
+        >
+          <div className="container-wide flex flex-wrap items-center justify-between gap-3 py-3">
+            <p className="text-sm font-medium" style={{ color: "var(--text)" }}>
+              Welcome back — pick up where you left off.
+            </p>
+            <Link
+              href="/account"
+              className="rounded-lg px-3.5 py-2 text-sm font-semibold"
+              style={{ background: "var(--purple)", color: "#fff" }}
+            >
+              My account
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/*
         Hero.

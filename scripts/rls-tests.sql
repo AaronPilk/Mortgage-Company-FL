@@ -92,6 +92,12 @@ grant execute on function tests.assert(boolean, text) to anon, authenticated;
 grant execute on function tests.assert_denied(text, text) to anon, authenticated;
 grant execute on function tests.visible_count(text) to anon, authenticated;
 
+-- service_role asserts too, so a door granted only to service_role can be
+-- exercised (and its ownership guard proven) from within that role.
+grant usage on schema tests to service_role;
+grant execute on function tests.assert(boolean, text) to service_role;
+grant execute on function tests.assert_denied(text, text) to service_role;
+
 /* ---------------------------------------------------------------- *
  * Fixtures
  * ---------------------------------------------------------------- */
@@ -172,6 +178,33 @@ insert into public.saved_searches (id, owner_user_id, search_params, summary) va
     'q=Orlando', 'Listings in Orlando'
   );
 
+insert into public.affordability_profiles (
+  owner_user_id, annual_income_cents, down_payment_cents, monthly_debts_cents, credit_band
+) values
+  ('00000000-0000-4000-8000-000000000002', 9500000, 4000000, 50000, 'good'),
+  ('00000000-0000-4000-8000-000000000006', 12000000, 6000000, 80000, 'excellent');
+
+insert into public.home_profiles (
+  owner_user_id, address_line1, address_city, address_state, address_postal_code,
+  latitude, longitude, estimated_balance_cents
+) values
+  ('00000000-0000-4000-8000-000000000002',
+    '123 Bayshore Blvd', 'Tampa', 'FL', '33606', 27.9, -82.5, 28000000),
+  ('00000000-0000-4000-8000-000000000006',
+    '9 Beach Dr', 'St Petersburg', 'FL', '33701', 27.77, -82.63, 15000000);
+
+-- Two snapshots for the consumer (a trend), one for the other owner.
+insert into public.home_value_snapshots (
+  owner_user_id, captured_on, estimated_value_cents, value_low_cents, value_high_cents, source
+) values
+  ('00000000-0000-4000-8000-000000000002', '2026-06-01', 42000000, 40000000, 44000000, 'fixture'),
+  ('00000000-0000-4000-8000-000000000002', '2026-08-01', 43500000, 41000000, 46000000, 'fixture'),
+  ('00000000-0000-4000-8000-000000000006', '2026-08-01', 60000000, 57000000, 63000000, 'fixture');
+
+insert into public.rate_watches (owner_user_id, term, target_rate_bp, notify_email) values
+  ('00000000-0000-4000-8000-000000000002', 'thirtyYearFixed', 600, true),
+  ('00000000-0000-4000-8000-000000000006', 'fifteenYearFixed', null, false);
+
 -- Agent directory rows in every visibility state the policies distinguish:
 -- publicly visible (approved + consented), owner-only pending, and approved
 -- but non-consenting. Names are synthetic fixtures, never real people.
@@ -217,7 +250,8 @@ select public.create_lead_with_receipt(
   jsonb_build_object(
     'intent','purchase','first_name','Dana','last_name','Reyes',
     'email_normalized','dana@example.com','phone_e164','+18135550147',
-    'source_path','/mortgage/purchase','dedupe_hash','hash-1'),
+    'source_path','/mortgage/purchase','dedupe_hash','hash-1',
+    'referring_agent_id','00000000-0000-4000-8000-000000000242'),
   jsonb_build_object(
     'privacy_accepted',true,'contact_requested',true,'sms_marketing',false,
     'email_marketing',true,'disclosure_version','v1','disclosure_text_sha256','abc',
@@ -273,7 +307,8 @@ select public.create_lead_with_planner_response(
   jsonb_build_object(
     'intent','refinance','first_name','Sam','last_name','Ortiz',
     'email_normalized','sam@example.com','phone_e164','+18135550188',
-    'source_path','/plan','dedupe_hash','hash-2'),
+    'source_path','/plan','dedupe_hash','hash-2',
+    'referring_agent_id','00000000-0000-4000-8000-000000000240'),
   jsonb_build_object(
     'privacy_accepted',true,'contact_requested',true,'sms_marketing',true,
     'email_marketing',false,'disclosure_version','v1','disclosure_text_sha256','def',
@@ -456,6 +491,18 @@ select tests.assert(tests.visible_count('select count(*) from public.vision_proj
   'anonymous cannot read Vision projects');
 select tests.assert_denied('select count(*) from public.saved_searches',
   'anonymous has no grant on saved searches');
+select tests.assert_denied(
+  $$update public.saved_searches set alerts_enabled = true
+    where id = '00000000-0000-4000-8000-000000000230'$$,
+  'anonymous cannot toggle saved-search alerts');
+select tests.assert_denied('select count(*) from public.affordability_profiles',
+  'anonymous has no grant on affordability profiles');
+select tests.assert_denied('select count(*) from public.home_profiles',
+  'anonymous has no grant on home profiles');
+select tests.assert_denied('select count(*) from public.home_value_snapshots',
+  'anonymous has no grant on home value snapshots');
+select tests.assert_denied('select count(*) from public.rate_watches',
+  'anonymous has no grant on rate watches');
 
 -- RendProp. Every grant is revoked from anon, so each of these is a hard
 -- permission error rather than an empty result. A published tour does reach the
@@ -578,6 +625,14 @@ select tests.assert(tests.visible_count('select count(*) from public.notificatio
   'consumer sees their own notification preferences');
 select tests.assert(tests.visible_count('select count(*) from public.saved_searches') = 1,
   'consumer sees only their own saved search');
+select tests.assert(tests.visible_count('select count(*) from public.affordability_profiles') = 1,
+  'consumer sees only their own affordability profile');
+select tests.assert(tests.visible_count('select count(*) from public.home_profiles') = 1,
+  'consumer sees only their own home profile');
+select tests.assert(tests.visible_count('select count(*) from public.home_value_snapshots') = 2,
+  'consumer sees only their own home value snapshots');
+select tests.assert(tests.visible_count('select count(*) from public.rate_watches') = 1,
+  'consumer sees only their own rate watch');
 
 insert into public.saved_properties (owner_user_id, listing_key, source_mode)
 values ('00000000-0000-4000-8000-000000000002', 'FX-OWN-WRITE', 'fixture');
@@ -602,6 +657,52 @@ select tests.assert(tests.visible_count('select count(*) from public.saved_prope
   'consumer can create an owned saved property');
 select tests.assert(tests.visible_count('select count(*) from public.saved_searches') = 2,
   'consumer can create an owned saved search');
+
+-- Owner CAN toggle only alerts_enabled on their own search.
+update public.saved_searches set alerts_enabled = true
+  where id = '00000000-0000-4000-8000-000000000230';
+select tests.assert(
+  tests.visible_count($$select count(*) from public.saved_searches
+    where id = '00000000-0000-4000-8000-000000000230' and alerts_enabled$$) = 1,
+  'owner can enable alerts on their own saved search');
+
+-- The column grant does NOT leak other columns (42501 from column privilege).
+select tests.assert_denied(
+  $$update public.saved_searches set summary = 'hijack'
+    where id = '00000000-0000-4000-8000-000000000230'$$,
+  'owner cannot update non-alert columns of their saved search');
+select tests.assert_denied(
+  $$update public.saved_searches set alert_watermark = now()
+    where id = '00000000-0000-4000-8000-000000000230'$$,
+  'owner cannot write the alert watermark column');
+
+-- Cannot flip another user's search (RLS filters the row → no rows affected).
+select tests.assert_affects_no_rows(
+  $$update public.saved_searches set alerts_enabled = true
+    where id = '00000000-0000-4000-8000-000000000231'$$,
+  'owner cannot enable alerts on another user''s saved search');
+update public.affordability_profiles set monthly_debts_cents = 60000
+where owner_user_id = '00000000-0000-4000-8000-000000000002';
+select tests.assert(
+  tests.visible_count($$select count(*) from public.affordability_profiles
+    where monthly_debts_cents = 60000$$) = 1,
+  'consumer can update their own affordability profile');
+update public.home_profiles set estimated_balance_cents = 25000000
+where owner_user_id = '00000000-0000-4000-8000-000000000002';
+select tests.assert(
+  tests.visible_count($$select count(*) from public.home_profiles
+    where estimated_balance_cents = 25000000$$) = 1,
+  'consumer can update their own home profile');
+insert into public.home_value_snapshots (owner_user_id, captured_on, estimated_value_cents, source)
+values ('00000000-0000-4000-8000-000000000002', '2026-08-20', 44000000, 'fixture');
+select tests.assert(tests.visible_count('select count(*) from public.home_value_snapshots') = 3,
+  'consumer can add an owned home value snapshot');
+update public.rate_watches set target_rate_bp = 575
+where owner_user_id = '00000000-0000-4000-8000-000000000002';
+select tests.assert(
+  tests.visible_count($$select count(*) from public.rate_watches
+    where target_rate_bp = 575$$) = 1,
+  'consumer can update their own rate watch');
 select tests.assert(
   tests.visible_count('select count(*) from public.saved_calculator_scenarios') = 2,
   'consumer can create an owned saved calculator scenario');
@@ -642,6 +743,25 @@ select tests.assert_denied(
   $$insert into public.saved_searches (id, owner_user_id, search_params, summary)
     values (gen_random_uuid(),'00000000-0000-4000-8000-000000000006','q=Hostile','Hostile write.')$$,
   'consumer cannot save a search for another user');
+select tests.assert_denied(
+  $$insert into public.affordability_profiles (
+      owner_user_id, annual_income_cents, down_payment_cents, credit_band
+    ) values ('00000000-0000-4000-8000-000000000006', 1, 1, 'good')$$,
+  'consumer cannot create an affordability profile for another user');
+select tests.assert_denied(
+  $$insert into public.home_profiles (
+      owner_user_id, address_line1, address_city, address_state, address_postal_code
+    ) values ('00000000-0000-4000-8000-000000000006', '1 Hostile Way', 'Tampa', 'FL', '33607')$$,
+  'consumer cannot create a home profile for another user');
+select tests.assert_denied(
+  $$insert into public.home_value_snapshots (
+      owner_user_id, captured_on, estimated_value_cents
+    ) values ('00000000-0000-4000-8000-000000000006', '2026-09-01', 12345600)$$,
+  'consumer cannot add a home value snapshot for another user');
+select tests.assert_denied(
+  $$insert into public.rate_watches (owner_user_id, term, notify_email)
+    values ('00000000-0000-4000-8000-000000000006', 'thirtyYearFixed', true)$$,
+  'consumer cannot create a rate watch for another user');
 select tests.assert_affects_no_rows(
   $$delete from public.saved_searches
     where id = '00000000-0000-4000-8000-000000000231'$$,
@@ -1414,6 +1534,239 @@ select tests.assert(
 select tests.assert(
   has_function_privilege('authenticated', 'public.loan_get_file(uuid)', 'execute'),
   'a borrower can execute the loan detail read for their own file');
+
+-- Document doors are server-only (service_role), and each verifies ownership.
+select tests.assert(
+  not has_function_privilege('authenticated',
+    'public.loan_add_document(uuid, uuid, text, loan.document_type, text, text, bigint)', 'execute'),
+  'authenticated cannot record a document (server door only)');
+select tests.assert(
+  not has_function_privilege('public',
+    'public.loan_mark_document_uploaded(uuid, uuid)', 'execute'),
+  'PUBLIC holds no execute grant on the document-uploaded door');
+
+set role service_role;
+select public.loan_add_document(
+  '00000000-0000-4000-8000-000000000002', :'loan_own_file'::uuid,
+  'income.w2_2yr', 'w2', 'loan/own/doc-a', 'application/pdf', 1024) as loan_doc_a \gset
+select tests.assert(:'loan_doc_a' is not null, 'the server door records a document for the file owner');
+select tests.assert_denied(
+  format('select public.loan_add_document(%L,%L,%L,%L,%L,%L,%L)',
+    '00000000-0000-4000-8000-000000000002', :'loan_other_file',
+    'x', 'other', 'loan/other/doc-x', 'application/pdf', 10),
+  'the document door rejects a file the borrower does not own');
+select public.loan_mark_document_uploaded(
+  '00000000-0000-4000-8000-000000000002', :'loan_doc_a'::uuid);
+select tests.assert_denied(
+  format('select public.loan_mark_document_uploaded(%L,%L)',
+    '00000000-0000-4000-8000-000000000002', '00000000-0000-4000-8000-0000000009ff'),
+  'the uploaded door rejects a document that is not the borrower''s');
+reset role;
+
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002', false);
+select tests.assert(
+  (public.loan_get_file(:'loan_own_file'::uuid) -> 'documents') @> '[{"upload_status":"uploaded"}]'::jsonb,
+  'an uploaded document shows on the borrower''s own file as uploaded');
+reset role;
+
+/* ---------------------------------------------------------------- *
+ * Agent referral dashboard (agent_referral_summary / _timeline)
+ * ---------------------------------------------------------------- *
+ * Dana's lead is referred by approved agent …242 (owner …006); Sam's lead is
+ * referred by approved agent …240, which has NO owner, so it is visible to
+ * nobody. The partner's read never touches public.leads directly.                */
+
+set role anon;
+select set_config('request.jwt.claim.sub', '', false);
+select tests.assert_denied('select * from public.agent_referral_summary()',
+  'anonymous cannot execute the agent referral summary');
+select tests.assert_denied('select * from public.agent_referral_timeline()',
+  'anonymous cannot execute the agent referral timeline');
+reset role;
+
+-- Consumer …002 owns only a PENDING agent row (…241); eligibility is
+-- status='approved', so the dashboard is empty for them.
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002', false);
+select tests.assert((select total_count from public.agent_referral_summary()) = 0,
+  'a pending (non-approved) agent row yields an empty referral summary');
+select tests.assert(
+  tests.visible_count('select count(*) from public.agent_referral_timeline()') = 0,
+  'a pending agent sees an empty referral timeline');
+reset role;
+
+-- Approved partner …006 (owns approved …242) sees exactly the one lead their
+-- link drove, as coarse aggregates — Sam (referred to owner-less …240) is
+-- excluded, and the agent has zero direct row access to public.leads.
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000006', false);
+select tests.assert((select total_count from public.agent_referral_summary()) = 1,
+  'approved agent summary counts exactly the lead their link referred');
+select tests.assert((select new_count from public.agent_referral_summary()) = 1,
+  'the referred lead is bucketed coarsely (queued -> new), never by raw status');
+select tests.assert(
+  tests.visible_count('select count(*) from public.agent_referral_timeline()') = 1,
+  'the coarse timeline lists only the agent''s own referred lead');
+select tests.assert(
+  tests.visible_count('select count(*) from public.leads') = 0,
+  'an agent cannot read any lead row directly, referred or not');
+reset role;
+
+/* ---------------------------------------------------------------- *
+ * Agent marketplace — ZIP coverage + routing lookup
+ * ---------------------------------------------------------------- */
+
+-- Seed through the service role: …240 is ownerless, so an authenticated insert
+-- could not create its coverage. service_role bypasses RLS.
+set role service_role;
+insert into public.agent_zip_coverage (agent_id, zip5) values
+  ('00000000-0000-4000-8000-000000000242', '33701'),  -- approved, owned by …006, consent=false
+  ('00000000-0000-4000-8000-000000000240', '33602'),  -- approved, ownerless, consent=true
+  ('00000000-0000-4000-8000-000000000241', '34600');  -- PENDING, owned by …002
+reset role;
+
+-- Anonymous: no grant on the table, no EXECUTE on the routing lookup.
+set role anon;
+select set_config('request.jwt.claim.sub', '', false);
+select tests.assert_denied('select count(*) from public.agent_zip_coverage',
+  'anonymous has no grant on agent coverage');
+select tests.assert_denied($$select * from public.agent_coverage_for_zip('33701')$$,
+  'anonymous cannot execute the coverage routing lookup');
+reset role;
+
+-- Owner …006 (owns approved …242): sees only their coverage, may add/remove
+-- their own ZIPs, and cannot touch coverage for an agent they do not own.
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000006', false);
+select tests.assert(tests.visible_count('select count(*) from public.agent_zip_coverage') = 1,
+  'agent owner sees only their own coverage rows');
+insert into public.agent_zip_coverage (agent_id, zip5)
+  values ('00000000-0000-4000-8000-000000000242', '33702');
+select tests.assert(tests.visible_count('select count(*) from public.agent_zip_coverage') = 2,
+  'agent owner can add a ZIP to their own coverage');
+select tests.assert_denied(
+  $$insert into public.agent_zip_coverage (agent_id, zip5)
+      values ('00000000-0000-4000-8000-000000000240','33603')$$,
+  'agent owner cannot add coverage for an agent they do not own (ownerless)');
+select tests.assert_denied(
+  $$insert into public.agent_zip_coverage (agent_id, zip5)
+      values ('00000000-0000-4000-8000-000000000241','34601')$$,
+  'agent owner cannot add coverage for another user''s agent');
+select tests.assert_affects_no_rows(
+  $$delete from public.agent_zip_coverage
+      where agent_id='00000000-0000-4000-8000-000000000240'$$,
+  'agent owner cannot delete coverage they do not own');
+delete from public.agent_zip_coverage
+  where agent_id='00000000-0000-4000-8000-000000000242' and zip5='33702';
+select tests.assert(tests.visible_count('select count(*) from public.agent_zip_coverage') = 1,
+  'agent owner can remove their own ZIP');
+reset role;
+
+-- A different owner …002 (owns PENDING …241): isolated from …006's coverage,
+-- and may still pre-register coverage for their own pending agent.
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002', false);
+select tests.assert(
+  tests.visible_count($$select count(*) from public.agent_zip_coverage
+    where agent_id='00000000-0000-4000-8000-000000000242'$$) = 0,
+  'a different owner cannot see another agent''s coverage');
+insert into public.agent_zip_coverage (agent_id, zip5)
+  values ('00000000-0000-4000-8000-000000000241','34601');
+select tests.assert(tests.visible_count('select count(*) from public.agent_zip_coverage') = 2,
+  'a pending agent''s owner can pre-register coverage (routing gates on approval, not this)');
+reset role;
+
+-- Routing lookup (server-side): approved agents only, correct agent, pending
+-- excluded, and approval — not directory consent — is what routing turns on.
+set role service_role;
+select tests.assert((select count(*) from public.agent_coverage_for_zip('33701')) = 1,
+  'routing returns the approved covering agent for a ZIP');
+select tests.assert(
+  (select agent_id from public.agent_coverage_for_zip('33701'))
+    = '00000000-0000-4000-8000-000000000242',
+  'routing resolves to the correct approved agent even though it withheld directory consent');
+select tests.assert((select count(*) from public.agent_coverage_for_zip('34600')) = 0,
+  'routing excludes a pending agent''s coverage');
+select tests.assert((select count(*) from public.agent_coverage_for_zip('33602')) = 1,
+  'routing includes an approved ownerless (imported) agent''s coverage');
+reset role;
+
+-- Invariant 5: EXECUTE was revoked from PUBLIC and granted only to service_role.
+select tests.assert(
+  not has_function_privilege('public','public.agent_coverage_for_zip(text)','execute'),
+  'PUBLIC holds no execute grant on the coverage routing lookup');
+select tests.assert(
+  not has_function_privilege('authenticated','public.agent_coverage_for_zip(text)','execute'),
+  'authenticated holds no execute grant on the coverage routing lookup');
+select tests.assert(
+  has_function_privilege('service_role','public.agent_coverage_for_zip(text)','execute'),
+  'service_role can execute the coverage routing lookup');
+reset role;
+
+/* ---------------------------------------------------------------- *
+ * Engagement email ledger (email_notifications + reserve/settle)
+ * ---------------------------------------------------------------- */
+
+reset role;
+-- Seeded as the table owner (bypasses RLS), so the staff read policy and the
+-- consumer's zero-visibility both have a row to prove.
+insert into public.email_notifications
+  (id, kind, owner_user_id, recipient_email_normalized, dedupe_key, status, run_id)
+values
+  ('00000000-0000-4000-8000-000000000260', 'home_value_move',
+   '00000000-0000-4000-8000-000000000002', 'consumer@example.com',
+   'home_value_move:00000000-0000-4000-8000-000000000002:seed', 'reserved', 'rls-fixture');
+
+-- Anonymous: no grant on the ledger, no EXECUTE on the definer functions.
+set role anon;
+select set_config('request.jwt.claim.sub', '', false);
+select tests.assert_denied('select count(*) from public.email_notifications',
+  'anonymous has no grant on the email notification ledger');
+select tests.assert_denied(
+  $$select public.email_alert_reserve('home_value_move',
+      '00000000-0000-4000-8000-000000000002','k','{}'::jsonb,'run',500)$$,
+  'anonymous cannot reserve an email send');
+select tests.assert_denied(
+  $$select public.email_alert_settle(
+      '00000000-0000-4000-8000-000000000260','sent',null,null,null)$$,
+  'anonymous cannot settle an email send');
+reset role;
+
+-- Consumer: staff-only read means zero rows, and no EXECUTE on the ledger fns.
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002', false);
+select tests.assert(
+  tests.visible_count('select count(*) from public.email_notifications') = 0,
+  'consumer cannot read the email notification ledger');
+select tests.assert_denied(
+  $$select public.email_alert_reserve('home_value_move',
+      '00000000-0000-4000-8000-000000000002','k','{}'::jsonb,'run',500)$$,
+  'consumer cannot reserve an email send directly');
+select tests.assert_denied(
+  $$select public.email_alert_settle(
+      '00000000-0000-4000-8000-000000000260','sent',null,null,null)$$,
+  'consumer cannot settle an email send directly');
+reset role;
+
+-- Operations: the staff read policy exposes the ledger for reconciliation.
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000007', false);
+select tests.assert(
+  tests.visible_count('select count(*) from public.email_notifications') = 1,
+  'operations can read the email notification ledger');
+reset role;
+
+/* ---------------------------------------------------------------- *
+ * Do-not-sell/share suppression channel
+ * ---------------------------------------------------------------- */
+reset role;
+insert into public.suppressions (channel, email_normalized, reason, source)
+  values ('ads', 'dns-optout@example.com', 'do-not-sell-or-share', 'rls-test');
+select tests.assert(
+  (select count(*) from public.suppressions
+     where channel = 'ads' and email_normalized = 'dns-optout@example.com') = 1,
+  'the ads (do-not-sell/share) suppression channel is accepted by the constraint');
 
 select tests.assert(
   (select count(*) from pg_tables t

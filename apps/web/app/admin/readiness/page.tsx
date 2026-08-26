@@ -80,10 +80,55 @@ function technicalGates(): Gate[] {
     },
     {
       area: "Platform",
+      item: "Property data (ATTOM) agreement in place",
+      state: state.attom === "fixture" || state.attom === "disabled" ? "blocked" : "approved",
+      owner: "founders",
+      note: "Home lookup runs on labelled sample data until a licensed ATTOM key is set; fixtures are never presented as a real property record."
+    },
+    {
+      area: "Platform",
+      item: "Rate feed live and market-rate display reviewed",
+      state:
+        state.rateFeed === "fixture" || state.rateFeed === "disabled" ? "blocked" : "in_progress",
+      owner: "compliance",
+      note: "The rate-watch surface shows a published national weekly average (Freddie Mac PMMS via FRED), never a quote. It stays dark until a live feed is set and advertising review clears the public display of market rates."
+    },
+    {
+      area: "Platform",
       item: "AI provider budgets and quotas provisioned",
       state: state.ai === "disabled" ? "not_applicable" : "in_progress",
       owner: "engineering",
       note: "Spend is reserved before any provider call and a kill switch exists per feature and per provider."
+    },
+    {
+      area: "Platform",
+      item: "Engagement email alerts live and reviewed",
+      state: !state.emailAlerts
+        ? "not_applicable"
+        : state.email === "disabled"
+          ? "blocked"
+          : "in_progress",
+      owner: "compliance",
+      note: "Cron-driven value-move and rate-cross emails. Dark until FEATURE_EMAIL_ALERTS and a live EMAIL_MODE are both set; every send is consent-gated, suppression-checked, reserved before spend, and carries one-click unsubscribe."
+    },
+    {
+      area: "Platform",
+      item: "Server-side conversions (Meta CAPI) connected",
+      state:
+        state.metaCapi === "production"
+          ? "approved"
+          : state.metaCapi === "disabled"
+            ? "not_applicable"
+            : "in_progress",
+      owner: "compliance",
+      note: "Sends hashed identifiers to Meta on consented leads only — never raw PII or any financial field. Paid-advertising infrastructure: it stays dark until the advertising-review gate operates and licensing clears."
+    },
+    {
+      area: "Platform",
+      item: "Agent partner referral dashboard",
+      state: !state.agentDashboard ? "not_applicable" : "in_progress",
+      owner: "engineering",
+      note: "A signed-in partner sees coarse counts and recency of the leads their link drove — no consumer identity. Dark behind FEATURE_AGENT_DASHBOARD (+accounts); scoped by RLS and an application check."
     }
   ];
 }

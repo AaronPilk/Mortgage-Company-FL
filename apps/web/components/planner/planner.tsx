@@ -111,7 +111,9 @@ type State = {
   monthlyHoaDollars: number;
 };
 
-function initialState(goal: PlannerGoalValue | ""): State {
+type PrefillIdentity = { firstName: string; lastName: string; email: string; phone: string };
+
+function initialState(goal: PlannerGoalValue | "", identity?: PrefillIdentity): State {
   return {
     goal,
     propertyState: "FL",
@@ -127,12 +129,14 @@ function initialState(goal: PlannerGoalValue | ""): State {
     incomeBand: "",
     monthlyDebtBand: "",
     timing: "",
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
+    firstName: identity?.firstName ?? "",
+    lastName: identity?.lastName ?? "",
+    email: identity?.email ?? "",
+    phone: identity?.phone ?? "",
     preferredContact: "",
-    privacyAccepted: false,
+    // A signed-in visitor is already a consented account contact, so their
+    // standing agreement carries the planner inquiry — we don't re-ask here.
+    privacyAccepted: identity !== undefined,
     smsMarketing: false,
     emailMarketing: false,
     rateBasisPoints: 650,
@@ -232,7 +236,9 @@ export function Planner({
   turnstileSiteKey,
   accountsConfigured = false,
   supabaseUrl,
-  anonKey
+  anonKey,
+  signedIn = false,
+  identity
 }: {
   initialGoal: PlannerGoalValue | "";
   disclosureText: string;
@@ -244,8 +250,14 @@ export function Planner({
   accountsConfigured?: boolean;
   supabaseUrl?: string | undefined;
   anonKey?: string | undefined;
+  /** True when a session already exists — the sign-up gate becomes a confirm. */
+  signedIn?: boolean;
+  /** Pre-fill for a signed-in visitor, drawn from their account profile. */
+  identity?: PrefillIdentity | undefined;
 }) {
-  const [state, setState] = useState<State>(() => initialState(initialGoal));
+  const [state, setState] = useState<State>(() =>
+    initialState(initialGoal, signedIn ? identity : undefined)
+  );
   const [stepIndex, setStepIndex] = useState(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submission, setSubmission] = useState<Submission>({ kind: "idle" });
@@ -398,6 +410,19 @@ export function Planner({
     }
 
     await send();
+  }
+
+  /**
+   * A signed-in visitor is already a consented account contact, so the gate is
+   * just a confirmation: no re-entered identity, no second lead here. Their
+   * details are pre-filled, and the full planner submission carries the inquiry.
+   */
+  function startAsSignedIn(): void {
+    shouldFocusHeading.current = true;
+    setGateUnlocked(true);
+    setAnnouncement(
+      `Planner unlocked. Step 1 of ${STEPS.length}. ${STEPS[0]?.label}. ${STEPS[0]?.heading}`
+    );
   }
 
   /**
@@ -640,6 +665,60 @@ export function Planner({
   // question is asked before it. The estimate promise stays visible alongside.
   if (!gateUnlocked) {
     const gateFailed = gateSubmission.kind === "failed";
+
+    // Signed in: no sign-up, nothing to re-type. Confirm and go.
+    if (signedIn) {
+      const fullName =
+        `${state.firstName}${state.lastName !== "" ? ` ${state.lastName}` : ""}`.trim();
+      return (
+        <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+          <Card>
+            <h2 className="text-2xl font-bold text-[var(--text)]">
+              You&rsquo;re signed in &mdash; let&rsquo;s build your plan
+            </h2>
+            <p className="mt-2 text-sm text-[var(--text-muted)]">
+              No new account, and nothing to re-enter. We&rsquo;ll use your account details and open
+              the four steps. Still no credit pull, and still not an application.
+            </p>
+            <div
+              className="mt-6 rounded-xl border p-4"
+              style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+            >
+              <p className="font-semibold text-[var(--text)]">
+                Planning as {fullName === "" ? "your account" : fullName}
+              </p>
+              {(state.email !== "" || state.phone !== "") && (
+                <p className="mt-0.5 text-sm text-[var(--text-muted)]">
+                  {state.email}
+                  {state.email !== "" && state.phone !== "" ? " · " : ""}
+                  {state.phone}
+                </p>
+              )}
+            </div>
+            <div className="mt-8">
+              <Button type="button" onClick={startAsSignedIn}>
+                Start planning
+              </Button>
+            </div>
+          </Card>
+
+          <div className="lg:sticky lg:top-24 lg:self-start">
+            <Card>
+              <div className="flex flex-wrap items-center gap-3">
+                <h2 className="text-lg font-semibold text-[var(--text)]">What opens up</h2>
+                <Badge tone="neutral">No credit pull</Badge>
+              </div>
+              <p className="mt-3 text-sm text-[var(--text-muted)]">
+                Four short steps, and a live payment estimate that appears from the second question
+                and keeps updating as you answer &mdash; an illustration built from your own
+                numbers, not a quote, an approval, or a decision.
+              </p>
+            </Card>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
         <Card>

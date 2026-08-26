@@ -91,6 +91,86 @@ export async function getLoanFileDetail(
   return data as LoanFileDetail;
 }
 
+// ---------------------------------------------------------------------------
+// Document upload. Contents go to a private Storage bucket via a short-lived,
+// server-minted signed URL; only metadata is recorded, through the service-role
+// doors. The Worker never streams the bytes (Cloudflare CPU budget).
+// ---------------------------------------------------------------------------
+
+/** Private bucket. Never public; reached only through signed URLs. */
+export const LOAN_DOCS_BUCKET = "loan-docs";
+
+/** Matches the bucket's file_size_limit (25 MB). */
+export const LOAN_DOC_MAX_BYTES = 25 * 1024 * 1024;
+
+/** Accepted upload types → file extension. Mirrors the bucket allowlist. */
+export const LOAN_DOC_EXTENSIONS: Record<string, string> = {
+  "application/pdf": "pdf",
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/heic": "heic",
+  "image/heif": "heif"
+};
+
+export function isAllowedDocContentType(contentType: string): boolean {
+  return Object.prototype.hasOwnProperty.call(LOAN_DOC_EXTENSIONS, contentType);
+}
+
+/** Record a pending document. Service-role; borrower id comes from the session. */
+export async function addLoanDocument(
+  service: SupabaseClient,
+  params: {
+    borrowerUserId: string;
+    loanFileId: string;
+    requirementId: string;
+    docType: LoanDocType;
+    storageKey: string;
+    contentType: string;
+    byteSize: number;
+  }
+): Promise<string | null> {
+  const { data, error } = await service.rpc("loan_add_document", {
+    p_borrower_user_id: params.borrowerUserId,
+    p_loan_file_id: params.loanFileId,
+    p_requirement_id: params.requirementId,
+    p_doc_type: params.docType,
+    p_storage_key: params.storageKey,
+    p_content_type: params.contentType,
+    p_byte_size: params.byteSize
+  });
+  if (error !== null || typeof data !== "string") return null;
+  return data;
+}
+
+/** Flip a document to 'uploaded' once the browser confirms the PUT. Service-role. */
+export async function markLoanDocumentUploaded(
+  service: SupabaseClient,
+  params: { borrowerUserId: string; documentId: string }
+): Promise<boolean> {
+  const { error } = await service.rpc("loan_mark_document_uploaded", {
+    p_borrower_user_id: params.borrowerUserId,
+    p_document_id: params.documentId
+  });
+  return error === null;
+}
+
+/**
+ * Mint a one-shot signed upload URL for a server-derived key. The browser PUTs
+ * the file straight to this URL — the token is embedded, so no client-side key
+ * is needed and the bucket stays fully private.
+ */
+export async function createSignedDocumentUpload(
+  service: SupabaseClient,
+  storageKey: string
+): Promise<string | null> {
+  const { data, error } = await service.storage
+    .from(LOAN_DOCS_BUCKET)
+    .createSignedUploadUrl(storageKey);
+  if (error !== null || data === null) return null;
+  return data.signedUrl;
+}
+
 /**
  * Open a new file after intake. Service-role only. `borrowerUserId` MUST come
  * from the verified session, never from the request body.

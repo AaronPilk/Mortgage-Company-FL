@@ -197,6 +197,9 @@ export class GhlCrmAdapter implements CrmPort {
       tract_utm_medium: input.attribution.utmMedium ?? "",
       tract_utm_campaign: input.attribution.utmCampaign ?? "",
       tract_gclid: input.attribution.gclid ?? "",
+      // Referring partner agent (a slug), when the lead came through a referral
+      // link. Dropped by the filter below unless mapped in GHL_CUSTOM_FIELD_MAP.
+      tract_referring_agent: input.referringAgentSlug ?? "",
       tract_plan_summary: input.planningSummary ?? "",
       // Planner qualifying bands. Present only when the lead completed the
       // planner or a deep funnel; absent values become "" and are dropped by

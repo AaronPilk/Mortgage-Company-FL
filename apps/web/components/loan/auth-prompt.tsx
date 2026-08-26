@@ -11,11 +11,14 @@ import { publicFeatures } from "@/lib/env";
 export function LoanAuthPrompt({
   defaultMode,
   title,
-  intro
+  intro,
+  nextPath = "/loan"
 }: {
   defaultMode: Extract<AccountSignInMode, "create" | "signIn">;
   title: string;
   intro: string;
+  /** Where to return the borrower after they authenticate. */
+  nextPath?: string;
 }) {
   const features = publicFeatures();
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -32,6 +35,7 @@ export function LoanAuthPrompt({
           supabaseUrl={supabaseUrl}
           anonKey={anonKey}
           defaultMode={defaultMode}
+          nextPath={nextPath}
         />
       </Card>
     </Section>

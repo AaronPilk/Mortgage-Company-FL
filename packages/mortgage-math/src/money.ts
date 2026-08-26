@@ -85,3 +85,13 @@ export function formatUsd(cents: Cents, options: { cents?: boolean } = {}): stri
 export function formatRate(basisPoints: BasisPoints): string {
   return `${(basisPoints / 100).toFixed(3).replace(/0+$/, "").replace(/\.$/, "")}%`;
 }
+
+/**
+ * Signed change between two basis-point observations, for showing rate movement
+ * ("down 12 bp this week"). Positive means the current reading is higher. This is
+ * the only arithmetic behind a rate-movement display, so it lives here rather
+ * than inline in a component (invariant 1).
+ */
+export function basisPointChange(currentBp: BasisPoints, previousBp: BasisPoints): number {
+  return assertBasisPoints(currentBp, "currentBp") - assertBasisPoints(previousBp, "previousBp");
+}

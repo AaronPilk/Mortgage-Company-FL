@@ -329,6 +329,18 @@ export const CreateLeadSchema = z.object({
   estimatedCreditBand: CreditBandSchema.optional(),
   /** Free-text context from the consumer. Length-bounded and never parsed as instructions. */
   message: bounded(1500).optional(),
+  /**
+   * Slug of the real-estate agent who referred this visitor, from a shared
+   * referral link. Validated to the agent-slug shape here; the server re-checks
+   * it against the public directory before it is trusted, so a bogus code can
+   * never fabricate an attribution.
+   */
+  referringAgentSlug: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .regex(/^[a-z0-9-]{1,80}$/)
+    .optional(),
   planningSnapshot: PlanningSnapshotSchema.optional(),
   consent: ConsentSchema,
   firstTouch: LeadAttributionTouchSchema,

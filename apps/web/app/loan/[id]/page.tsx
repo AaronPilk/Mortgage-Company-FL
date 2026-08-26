@@ -65,9 +65,12 @@ export default async function LoanFilePage({ params }: { params: Promise<{ id: s
 
   return (
     <Section width="wide">
-      <div className="mb-2">
+      <div className="mb-2 flex flex-wrap gap-x-5 gap-y-1">
         <ButtonLink href="/loan" variant="ghost" className="px-0 text-sm">
           ← All my loans
+        </ButtonLink>
+        <ButtonLink href="/account" variant="ghost" className="px-0 text-sm">
+          Account &amp; saved homes
         </ButtonLink>
       </div>
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -156,12 +159,16 @@ export default async function LoanFilePage({ params }: { params: Promise<{ id: s
               color: "var(--text-muted)"
             }}
           >
-            Secure upload is being switched on. For now this is your prepared checklist — your loan
-            officer will confirm the fastest way to send each item.
+            Snap a photo or upload a PDF for any item — it's encrypted, private to your file, and
+            checks itself off the moment it lands. Do them one at a time, at your own pace.
           </div>
           <div className="mt-6">
             {parsedIntake !== null && parsedIntake.success ? (
-              <DocumentChecklist intake={parsedIntake.data} documents={detail.documents} />
+              <DocumentChecklist
+                loanFileId={detail.id}
+                intake={parsedIntake.data}
+                documents={detail.documents}
+              />
             ) : (
               <p className="text-sm" style={{ color: "var(--text-muted)" }}>
                 We'll show your personalized checklist here as soon as your intake is on file.
@@ -169,6 +176,12 @@ export default async function LoanFilePage({ params }: { params: Promise<{ id: s
             )}
           </div>
         </Card>
+      </div>
+
+      <div className="mt-10 border-t pt-6" style={{ borderColor: "var(--border)" }}>
+        <ButtonLink href="/contact" variant="ghost" className="px-0 text-sm">
+          Questions about your loan? Reach your loan officer →
+        </ButtonLink>
       </div>
     </Section>
   );

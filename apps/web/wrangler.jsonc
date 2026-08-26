@@ -63,6 +63,36 @@
     // as the sample listings. Real approved agents replace them, and the
     // /agents registry entry flips indexable when the samples turn off.
     "SHOW_SAMPLE_AGENTS": "true",
+    // Home lookup (/home-lookup): paste a listing link or address to pull
+    // property facts and seed the calculators. Runs on ATTOM. Until a licensed
+    // key is set, ATTOM_MODE=fixture + SHOW_SAMPLE_PROPERTY_DATA=true serve
+    // clearly-labelled sample data (the same posture as SHOW_SAMPLE_LISTINGS).
+    // To go live on real data: set ATTOM_MODE=production and add the
+    // ATTOM_API_KEY secret — SHOW_SAMPLE_PROPERTY_DATA then has no effect.
+    "FEATURE_HOME_LOOKUP": "true",
+    "ATTOM_MODE": "production",
+    // FEMA flood zone on the home lookup — free public NFHL, no key. "production"
+    // calls FEMA live using the property's coordinates.
+    "FLOOD_MODE": "production",
+    "SHOW_SAMPLE_PROPERTY_DATA": "true",
+    // Homeowner value dashboard (/account): a signed-in homeowner tracks their
+    // home's automated value (ATTOM AVM) over time and sees estimated equity.
+    // Reuses ATTOM_MODE above; its public flag also requires a live ATTOM mode.
+    "FEATURE_HOME_VALUE": "true",
+    // Rate watch (/mortgage-rates + /account): shows the Freddie Mac PMMS weekly
+    // national average via FRED — market info, never a quote — and lets a signed-in
+    // visitor watch it. DELIBERATELY DARK: displaying market rates is advertising-
+    // adjacent, so it stays off until (1) `wrangler secret put FRED_API_KEY`,
+    // (2) RATE_FEED_MODE="production", (3) FEATURE_RATE_WATCH="true", after legal
+    // clears the public display. The /mortgage-rates page is noindex until then.
+    "RATE_FEED_MODE": "production",
+    "FEATURE_RATE_WATCH": "true",
+    // Site assistant (floating chat): educates and routes, never quotes. Runs on
+    // the existing AI provider + budget. DELIBERATELY DARK: it talks to consumers
+    // about mortgages, so it stays off until AI is funded (AI_MODE + a key +
+    // non-zero AI budgets) and the flow is reviewed. Set FEATURE_ASSISTANT="true"
+    // then; the AI budget still caps every paid call.
+    "FEATURE_ASSISTANT": "false",
     // AI-assisted property search. Live mode requires the ANTHROPIC_API_KEY
     // secret (enforced by the environment schema), and spend happens only
     // inside these daily budgets — at 0 every paid call is refused and the

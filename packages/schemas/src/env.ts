@@ -74,19 +74,99 @@ export const ServerEnvSchema = z
       .enum(["true", "false"])
       .default("false")
       .transform((value) => value === "true"),
+    /**
+     * The two-switch gate for the home-lookup surface, mirroring
+     * SHOW_SAMPLE_LISTINGS. Fixture property data always renders outside
+     * production; in production it renders only on this explicit opt-in, and
+     * always labelled as sample data in the response.
+     */
+    SHOW_SAMPLE_PROPERTY_DATA: z
+      .enum(["true", "false"])
+      .default("false")
+      .transform((value) => value === "true"),
     MLS_BASE_URL: optionalString,
     MLS_ACCESS_TOKEN: optionalString,
     MLS_ATTRIBUTION_TEXT: optionalString,
 
+    ATTOM_MODE: FeatureModeSchema.default("disabled"),
     ATTOM_API_KEY: optionalString,
+    /**
+     * Flood zone from FEMA's public NFHL (no key needed). A live mode
+     * (sandbox/production) calls FEMA; "fixture" is the dev double; "disabled"
+     * turns flood off. Safety-relevant, so fixture flood is never served in
+     * production — see floodLookupAllowed().
+     */
+    FLOOD_MODE: FeatureModeSchema.default("disabled"),
+    /**
+     * Market mortgage rates for the rate-watch surface. A live mode reads the
+     * Freddie Mac PMMS weekly averages from FRED (needs FRED_API_KEY); "fixture"
+     * is the dev double; "disabled" turns the feed off. Only ever a published
+     * market average — never a quote — so it carries no per-user credit data.
+     */
+    RATE_FEED_MODE: FeatureModeSchema.default("disabled"),
+    FRED_API_KEY: optionalString,
     REGRID_API_KEY: optionalString,
     SHOVELS_API_KEY: optionalString,
     AIRDNA_API_KEY: optionalString,
+
+    /**
+     * Meta (Facebook) Conversions API — server-side conversion events for the
+     * lead pipeline, so paid-social campaigns optimize on real leads rather than
+     * clicks. A live mode posts hashed identifiers to Meta and needs the pixel
+     * id and access token; "fixture" is the dev double; "disabled" sends
+     * nothing. Consent-gated at the call site: a lead without email/SMS
+     * marketing consent is never transmitted, and only hashed identifiers ever
+     * leave — never a raw email, a name, or any financial field.
+     */
+    META_CAPI_MODE: FeatureModeSchema.default("disabled"),
+    META_PIXEL_ID: optionalString,
+    META_CAPI_ACCESS_TOKEN: optionalString,
+    /** Meta's test-event code, used only to route events to the Events Manager test tab. */
+    META_CAPI_TEST_EVENT_CODE: optionalString,
+    /**
+     * The explicit launch switch for server-side conversions. Sending hashed
+     * identifiers to Meta stays off until this is deliberately set true — the one
+     * operational acknowledgement that licensing and advertising review have
+     * cleared. It is the interlock the Cloudflare worker checks (it cannot read
+     * the code-level isPreLaunch() the way the app can), and the app gates on it
+     * too, so a live mode alone can never turn Meta on. Dark by default.
+     */
+    META_CAPI_LIVE_CLEARED: z.coerce.boolean().default(false),
 
     FEATURE_VISION: z.coerce.boolean().default(false),
     FEATURE_RENDPROP: z.coerce.boolean().default(false),
     FEATURE_ACCOUNTS: z.coerce.boolean().default(true),
     FEATURE_PROPERTY_SEARCH: z.coerce.boolean().default(false),
+    /**
+     * Home lookup — paste a listing link or an address and pull licensed
+     * property facts (ATTOM) to seed the calculators. Dark by default, and its
+     * derived public flag also requires a live ATTOM mode, so fixture property
+     * data can never reach a consumer in production.
+     */
+    FEATURE_HOME_LOOKUP: z.coerce.boolean().default(false),
+    /**
+     * Homeowner value dashboard — a signed-in homeowner tracks their own home's
+     * automated value (ATTOM AVM) over time and sees estimated equity, with a
+     * soft refi/HELOC prompt. Reuses the ATTOM integration; dark by default, and
+     * its derived public flag also requires a live ATTOM mode so fixture value
+     * data can never reach a consumer in production.
+     */
+    FEATURE_HOME_VALUE: z.coerce.boolean().default(false),
+    /**
+     * Rate-watch — a signed-in visitor tracks the market average and can ask to
+     * be alerted when it moves. Dark by default, and its derived public flag also
+     * requires a live rate-feed mode, so the fixture average can never reach a
+     * consumer in production. Never a personalized quote — only the market survey.
+     */
+    FEATURE_RATE_WATCH: z.coerce.boolean().default(false),
+    /**
+     * Site assistant — an on-site helper that educates about mortgage concepts,
+     * points to the right tool or page, and offers to connect the visitor with a
+     * licensed officer. It never quotes a rate or makes a decision. Dark by
+     * default, and its derived public flag also requires a live AI mode (the
+     * budget still gates every paid call), so it cannot run without AI configured.
+     */
+    FEATURE_ASSISTANT: z.coerce.boolean().default(false),
     /**
      * TRACT — the authenticated loan-origination surface (borrower intake,
      * portal, loan-officer workspace). Dark by default: the whole surface is
@@ -94,10 +174,73 @@ export const ServerEnvSchema = z
      * anything, so the derived public flag also gates on accounts being on.
      */
     FEATURE_TRACT: z.coerce.boolean().default(false),
+    /**
+     * Engagement email alerts — the cron-driven outreach loops that turn the
+     * home-value and rate-watch features into recurring touches: a homeowner
+     * whose estimated value moved, or a rate-watcher when the market average
+     * crosses their threshold. Dark by default; each loop also requires a live
+     * EMAIL_MODE and its own source feature to be on, and every send is gated on
+     * the recipient's stored email-marketing consent.
+     */
+    FEATURE_EMAIL_ALERTS: z.coerce.boolean().default(false),
+    /**
+     * Agent partner dashboard — a signed-in real-estate-agent partner sees the
+     * leads their referral link drove (count, coarse status, recency) and
+     * nothing more. Dark by default; the data is scoped to the agent's own
+     * referred leads by RLS and a second application check.
+     */
+    FEATURE_AGENT_DASHBOARD: z.coerce.boolean().default(false),
+    /**
+     * Saved-search listing alerts — a cron loop that emails a signed-in visitor
+     * when a new property matches a search they saved. Backend only (no public
+     * flag); each send is consent-gated, reserve-before-spend, and unsubscribable
+     * like the other email alerts. Dark by default.
+     */
+    FEATURE_SAVED_SEARCH_ALERTS: z.coerce.boolean().default(false),
+    /**
+     * AI-native home search — natural-language property search and AI-generated
+     * neighborhood/affordability reports. Dark by default; its derived public
+     * flag also requires a live AI mode, and the budget gates every paid call, so
+     * it cannot run without AI configured. Educate/route only — never a quote.
+     */
+    FEATURE_AI_SEARCH: z.coerce.boolean().default(false),
+    /**
+     * Live market-data widgets on the location pages (median price, days on
+     * market, trends). The city/neighborhood pages themselves are static content;
+     * this flag gates only the live-data component, which also requires a live
+     * data mode so a fabricated figure can never publish. Dark by default.
+     */
+    FEATURE_MARKET_DATA: z.coerce.boolean().default(false),
+    /**
+     * Seller tools — the "what's my home worth" funnel that turns a homeowner
+     * into a seller lead (intent sell_home) for hand-off to the real-estate
+     * network. Connection framing only; TRACT brokers mortgages, not homes. Dark
+     * by default.
+     */
+    FEATURE_SELLER_TOOLS: z.coerce.boolean().default(false),
+    /**
+     * Agent marketplace — an agent partner claims coverage (ZIPs/areas) and
+     * referred leads route to them. v1 carries no payment flow. A signed-in
+     * partner surface, so its public flag also requires accounts. Dark by default.
+     */
+    FEATURE_AGENT_MARKETPLACE: z.coerce.boolean().default(false),
 
     SENTRY_DSN: optionalString,
     RESEND_API_KEY: optionalString,
     EMAIL_MODE: FeatureModeSchema.default("disabled"),
+    /** Verified sender address; required when EMAIL_MODE is live. */
+    EMAIL_FROM: optionalString,
+    /** Bearer token for the cron-invoked /api/v1/internal/alerts/run entrypoint. */
+    ALERTS_RUN_TOKEN: z.string().min(16).optional(),
+    /** Per-run and per-day ceilings for engagement email sends (reserve-before-spend caps). */
+    EMAIL_ALERTS_MAX_PER_RUN: z.coerce.number().int().min(0).default(50),
+    EMAIL_ALERTS_DAILY_CAP: z.coerce.number().int().min(0).default(500),
+    /** A home-value move at or above this many basis points of the prior value triggers an alert (200 = 2%). */
+    HOME_VALUE_ALERT_THRESHOLD_BP: z.coerce.number().int().min(0).default(200),
+    /** Only re-snapshot a home whose latest snapshot is older than this many days. */
+    HOME_VALUE_RESNAPSHOT_INTERVAL_DAYS: z.coerce.number().int().min(1).default(1),
+    /** Max new listings emailed per saved search per run (batch cap + watermark step). */
+    SAVED_SEARCH_ALERT_MAX_MATCHES: z.coerce.number().int().min(1).max(50).default(10),
 
     SECURE_APPLICATION_URL: z.string().url().optional(),
 
@@ -124,6 +267,12 @@ export const ServerEnvSchema = z
     requireWhenLive(env.GHL_MODE, "OUTBOX_DRAIN_TOKEN", "Outbox drain token");
     requireWhenLive(env.TURNSTILE_MODE, "TURNSTILE_SECRET_KEY", "Turnstile secret");
     requireWhenLive(env.TURNSTILE_MODE, "TURNSTILE_HOSTNAMES", "Turnstile hostnames");
+    requireWhenLive(env.ATTOM_MODE, "ATTOM_API_KEY", "ATTOM API key");
+    requireWhenLive(env.RATE_FEED_MODE, "FRED_API_KEY", "FRED API key");
+    requireWhenLive(env.EMAIL_MODE, "RESEND_API_KEY", "Resend API key");
+    requireWhenLive(env.EMAIL_MODE, "EMAIL_FROM", "Email from address");
+    requireWhenLive(env.META_CAPI_MODE, "META_PIXEL_ID", "Meta pixel id");
+    requireWhenLive(env.META_CAPI_MODE, "META_CAPI_ACCESS_TOKEN", "Meta CAPI access token");
 
     // AI has interchangeable vendors, so a live mode needs one credential, not
     // a specific one — requiring the Anthropic key alone would refuse a
@@ -242,6 +391,8 @@ export const SECRET_ENV_KEYS = [
   "SHOVELS_API_KEY",
   "AIRDNA_API_KEY",
   "RESEND_API_KEY",
+  "META_CAPI_ACCESS_TOKEN",
+  "ALERTS_RUN_TOKEN",
   "SENTRY_DSN",
   "HASH_PEPPER"
 ] as const;

@@ -16,6 +16,7 @@
   "dependencies": {
     "@tract/schemas": "workspace:*",
     "@tract/domain": "workspace:*",
+    "@tract/mortgage-math": "workspace:*",
     "zod": "^4.4.3"
   }
 }

@@ -19,6 +19,8 @@ export type CrmLead = {
   timeline?: string;
   sourcePath: string;
   tags: string[];
+  /** Slug of the consenting partner agent who referred the lead, resolved server-side. Marketing attribution only. */
+  referringAgentSlug?: string;
   /** Approved concise context only; never raw income, debt, credit, or report narrative. */
   planningSummary?: string;
   /**

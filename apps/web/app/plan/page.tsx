@@ -4,6 +4,7 @@ import { Planner } from "@/components/planner/planner";
 import { GOAL_OPTIONS, type PlannerGoalValue } from "@/components/planner/options";
 import { pageMetadata } from "@/lib/metadata";
 import { publicFeatures } from "@/lib/env";
+import { createRequestClient } from "@/lib/supabase";
 import {
   EMAIL_CONSENT_TEXT,
   LEAD_DISCLOSURE_TEXT,
@@ -17,6 +18,9 @@ export const metadata: Metadata = pageMetadata({
     "Sign up with your name, email, and phone, then answer a few questions and watch a payment estimate build as you go. No credit pull and no application.",
   path: "/plan"
 });
+
+// Reads the session so a signed-in visitor skips the sign-up gate.
+export const dynamic = "force-dynamic";
 
 /**
  * The planner is deep-linkable: /plan?goal=refinance opens with that goal
@@ -42,6 +46,31 @@ export default async function PlanPage({
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const accountsConfigured =
     publicFeatures().accounts && supabaseUrl !== undefined && anonKey !== undefined;
+
+  // A signed-in visitor should never be asked to "sign up" to plan. Read their
+  // session and profile so the planner opens as a confirmation, pre-filled.
+  const supabase = accountsConfigured ? await createRequestClient() : null;
+  const userResult = supabase === null ? null : await supabase.auth.getUser();
+  const user = userResult?.error === null ? userResult.data.user : null;
+
+  let identity: { firstName: string; lastName: string; email: string; phone: string } | undefined;
+  if (user !== null && supabase !== null) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("display_name, phone_e164")
+      .eq("id", user.id)
+      .maybeSingle();
+    const nameParts = ((profile?.display_name as string | null) ?? "")
+      .trim()
+      .split(/\s+/)
+      .filter((part) => part !== "");
+    identity = {
+      firstName: nameParts[0] ?? "",
+      lastName: nameParts.slice(1).join(" "),
+      email: user.email ?? "",
+      phone: (profile?.phone_e164 as string | null) ?? ""
+    };
+  }
 
   return (
     <>
@@ -89,6 +118,8 @@ export default async function PlanPage({
           accountsConfigured={accountsConfigured}
           supabaseUrl={supabaseUrl}
           anonKey={anonKey}
+          signedIn={user !== null}
+          identity={identity}
         />
         <Disclosure
           headline="Nothing here is a credit decision."

@@ -15,7 +15,7 @@ const PRIMARY_NAV = [
   { href: "/mortgage/home-equity", label: "Home equity" },
   { href: "/calculators", label: "Calculators" },
   { href: "/resources", label: "Resources" },
-  { href: "/partners/real-estate-agents", label: "For agents" },
+  { href: "/partners/real-estate-agents", label: "Agent partners" },
   { href: "/about", label: "About" }
 ];
 
@@ -56,6 +56,8 @@ const FOOTER_GROUPS = [
     heading: "Explore",
     links: [
       { href: "/resources", label: "Guides & resources" },
+      { href: "/mortgage-glossary", label: "Mortgage glossary" },
+      { href: "/florida-buyers-guide", label: "First-time buyer's guide" },
       { href: "/mortgage", label: "All loan programs" },
       { href: "/locations/florida", label: "Florida" },
       { href: "/vision", label: "TRACT Vision" },
@@ -68,6 +70,7 @@ const FOOTER_GROUPS = [
     links: [
       { href: "/about", label: "About" },
       { href: "/contact", label: "Contact" },
+      { href: "/account", label: "Client login" },
       { href: "/agents", label: "Find an agent" },
       { href: "/agents/join", label: "Join as an agent" },
       { href: "/partners/real-estate-agents", label: "For agents" },
@@ -114,17 +117,25 @@ export async function SiteHeader() {
     // z-[60]: the open mobile menu (a child of this header) must paint over
     // the fixed bottom action bar, which sits at z-50.
     <header className="glass sticky top-0 z-[60]">
-      <div className="container-wide flex items-center justify-between gap-6 py-3.5">
+      <div className="container-wide flex items-center justify-between gap-4 py-3.5">
         <Link href="/" aria-label={`${businessIdentity.brandName} home`}>
           <Wordmark />
         </Link>
 
-        <nav aria-label="Primary" className="hidden items-center gap-1 lg:flex">
+        {/*
+          Eight primary links plus the CTA cluster only clear the 88rem
+          container above ~1320px; below that they wrapped mid-label. So the
+          inline nav appears at min-[1360px] (with headroom for a scrollbar and
+          font variance) and the menu button covers every narrower window.
+          whitespace-nowrap is the belt to that braces: a label never breaks
+          across two lines even at the tightest inline width.
+        */}
+        <nav aria-label="Primary" className="hidden items-center gap-1 min-[1360px]:flex">
           {PRIMARY_NAV.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="rounded-lg px-3.5 py-2 text-sm font-medium transition-colors hover:bg-[var(--purple-subtle)] hover:text-[var(--purple)]"
+              className="whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-[var(--purple-subtle)] hover:text-[var(--purple)]"
             >
               {item.label}
             </Link>
@@ -132,17 +143,20 @@ export async function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-2.5">
-          {/* Quiet on purpose: the account is an amenity here, not the product. */}
+          {/* Quiet on purpose: the account is an amenity here, not the product.
+              A signed-in borrower's loan lives one level in, on /account —
+              there is no separate loan entry in the header. */}
           <Link
             href="/account"
             data-nav="account"
-            className="hidden rounded-lg px-3.5 py-2 text-sm font-medium transition-colors hover:bg-[var(--purple-subtle)] hover:text-[var(--purple)] lg:block"
+            className="hidden whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-[var(--purple-subtle)] hover:text-[var(--purple)] min-[1360px]:block"
           >
             {accountLabel}
           </Link>
-          {/* On a phone the theme control lives inside the menu; the header
-              row keeps only the brand, the primary CTA, and the menu. */}
-          <div className="hidden lg:block">
+          {/* Below the inline-nav breakpoint the theme control lives inside the
+              menu; the header row keeps only the brand, the primary CTA, and
+              the menu button. */}
+          <div className="hidden min-[1360px]:block">
             <ThemeToggle />
           </div>
           {/*
@@ -153,7 +167,7 @@ export async function SiteHeader() {
           <ButtonLink
             href="/talk"
             data-cta="header-consultation"
-            className="!min-h-[44px] !px-4 sm:!px-5"
+            className="whitespace-nowrap !min-h-[44px] !px-4 sm:!px-5"
           >
             Talk to us
           </ButtonLink>

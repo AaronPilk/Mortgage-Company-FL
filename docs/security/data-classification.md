@@ -50,3 +50,15 @@ the numbers are a compliance decision.
 `ip_prefix_hash` and `dedupe_hash` are one-way and peppered. They reduce risk;
 they do not make the underlying value anonymous, and they are treated as personal
 data for access-control purposes.
+
+## Ad platforms: one narrow, consented exception
+
+The Marketing-contact row lists ad platforms under **Never**. There is exactly
+one carve-out: the Meta Conversions API projection may send **one-way SHA-256
+hashes** of a lead's email and phone (plus Meta's own click id, `fbc`) to Meta —
+and only when the lead gave marketing consent, and only from the server-side
+outbox drain. A raw email, a raw phone, a name, and every financial or
+application field remain **Never**. Consistent with "Hashing is not
+anonymization", the hashed identifiers are still personal data; this exception is
+scoped to a consented marketing conversion signal and requires the advertising
+review and licensing gates before `META_CAPI_MODE` goes live.

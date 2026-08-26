@@ -41,6 +41,34 @@ export const AgentJoinRequestSchema = z.object({
 export type AgentJoinRequestInput = z.input<typeof AgentJoinRequestSchema>;
 export type AgentJoinRequestParsed = z.output<typeof AgentJoinRequestSchema>;
 
+/** Five-digit US ZIP. */
+export const ZIP5_REGEX = /^\d{5}$/;
+
+/**
+ * Upper bound on how many ZIPs one agent may register at once. A generous
+ * ceiling — an agent covering a metro can list a lot of ZIPs — but bounded, so
+ * a single request cannot post an unbounded set.
+ */
+export const AGENT_COVERAGE_MAX_ZIPS = 200;
+
+/**
+ * AGENT MARKETPLACE v1 — coverage registration (replace-set).
+ *
+ * The agent submits the complete set of ZIPs they cover; the server replaces
+ * their coverage with it. This is not an application and inherits the lead
+ * form's prohibitions in full: it carries ZIP strings only — no government
+ * identifier, account number, income figure, or upload. The array is deduped
+ * here so a repeated ZIP is a no-op rather than a rejection.
+ */
+export const AgentCoverageSchema = z.object({
+  zips: z
+    .array(z.string().trim().regex(ZIP5_REGEX, "Each ZIP must be five digits."))
+    .max(AGENT_COVERAGE_MAX_ZIPS, "Too many ZIP codes in one request.")
+    .transform((zips) => Array.from(new Set(zips)))
+});
+export type AgentCoverageInput = z.input<typeof AgentCoverageSchema>;
+export type AgentCoverageParsed = z.output<typeof AgentCoverageSchema>;
+
 /**
  * What the public directory renders. licenseVerified false means the UI shows
  * "verification pending" — the field is a fact about our process, never a claim

@@ -27,6 +27,7 @@ import {
   sha256Hex
 } from "@/lib/request-context";
 import { createServiceClient } from "@/lib/supabase";
+import { resolveReferralAgent } from "@/lib/referral";
 import { LEAD_DISCLOSURE_TEXT, LEAD_DISCLOSURE_VERSION, SITE_URL } from "@/lib/site";
 
 /**
@@ -338,6 +339,24 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     (planner === undefined ? null : LEAD_TIMELINE_BY_PLANNER_TIMING[planner.timing]);
   const creditBand = input.estimatedCreditBand ?? planner?.creditBand ?? null;
 
+  // A referral is re-checked against the public directory (a consenting partner,
+  // never an imported record); a bogus or unresolvable code yields no referral
+  // and never blocks the lead. It rides to the CRM as a tag/custom field and is
+  // also persisted as a queryable referring_agent_id on the lead (in the same
+  // transaction, NULL-safe) so a consenting partner can see the leads their link
+  // drove — the marketing status, never any borrower detail.
+  const referralAgent = await resolveReferralAgent(input.referringAgentSlug);
+  const referralSlug = referralAgent?.slug ?? null;
+  const referralAgentId = referralAgent?.id ?? null;
+
+  // FUTURE (Wave 4 agent marketplace — deferred): when there is no explicit
+  // referral and the lead carries a property ZIP, `coveringAgentForZip(zip)`
+  // (lib/lead-routing.ts) would supply `referring_agent_id`, routing the lead to
+  // an approved agent who covers that area. The lookup and its tests ship now;
+  // the wiring does NOT, on purpose — auto-assignment waits on real coverage
+  // data, a tie-break policy for overlapping coverage, and a structured property
+  // ZIP on the seller lead. This is the one call site; nothing here changes yet.
+
   // 10. One transaction: lead, consent receipt, attribution, outbox row, and —
   // when the planner supplied them — the qualifying answers. A partial write is
   // not a possible outcome: either the consumer has a receipt and a queued sync,
@@ -355,7 +374,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       estimated_credit_band: creditBand,
       message: input.message ?? null,
       source_path: input.conversionTouch.landingPath,
-      dedupe_hash: dedupe
+      dedupe_hash: dedupe,
+      referring_agent_id: referralAgentId
     },
     p_consent: {
       privacy_accepted: input.consent.privacyAccepted,
@@ -390,10 +410,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         intent: input.intent,
         timeline,
         sourcePath: input.conversionTouch.landingPath,
-        tags:
-          planner === undefined
-            ? ["web-lead", `intent:${input.intent}`]
-            : ["web-lead", `intent:${input.intent}`, "planner", `goal:${planner.goal}`],
+        tags: [
+          "web-lead",
+          `intent:${input.intent}`,
+          ...(planner === undefined ? [] : ["planner", `goal:${planner.goal}`]),
+          ...(referralSlug === null ? [] : [`agent:${referralSlug}`])
+        ],
         // Planner context travels to the CRM as bands only, so a loan officer
         // opens the record already knowing the shape of the conversation. No
         // exact income, no exact debt, and no credit score crosses this line —
@@ -429,9 +451,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           utmSource: input.lastTouch.utmSource ?? null,
           utmMedium: input.lastTouch.utmMedium ?? null,
           utmCampaign: input.lastTouch.utmCampaign ?? null,
-          gclid: input.lastTouch.gclid ?? null
+          gclid: input.lastTouch.gclid ?? null,
+          // Carried so the outbox drain can reconstruct Meta's `fbc` for the
+          // server-side conversion; GHL ignores it (no tract_ mapping).
+          fbclid: input.lastTouch.fbclid ?? null
         },
-        planningSummary
+        planningSummary,
+        ...(referralSlug === null ? {} : { referringAgentSlug: referralSlug })
       }
     },
     p_request_id: input.submissionId

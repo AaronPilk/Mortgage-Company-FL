@@ -111,6 +111,11 @@ export function AgentIntroductionForm({
       email: core.email,
       phone: core.phone,
       message: `Requested an introduction to agent ${agentSlug} (${cities})`,
+      // The profile being viewed is the referring agent for this lead. The
+      // server only honors it as a CRM tag when the slug resolves to a
+      // consenting partner, so an unclaimed public-record profile still routes
+      // the introduction but adds no partner attribution.
+      referringAgentSlug: agentSlug,
       consent,
       firstTouch: submission.firstTouch,
       lastTouch: submission.lastTouch,

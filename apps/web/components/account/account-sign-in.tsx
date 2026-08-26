@@ -67,6 +67,7 @@ export function AccountSignIn({
   anonKey,
   initialEmail = "",
   defaultMode = "create",
+  nextPath = "/account",
   onSuccess
 }: {
   configured: boolean;
@@ -76,6 +77,8 @@ export function AccountSignIn({
   initialEmail?: string;
   /** Which form to show first; the person can toggle freely. */
   defaultMode?: Extract<AccountSignInMode, "create" | "signIn">;
+  /** Where to land after auth (default /account). Threaded from the host page. */
+  nextPath?: string;
   /**
    * Fires once per successful submission so a host (the account prompt
    * dialog) can show its own success surface. The auth logic stays here —
@@ -227,7 +230,7 @@ export function AccountSignIn({
        * Step 2 — the account. Name and phone ride in user metadata so the
        * account itself carries what the lead captured.
        */
-      callback.searchParams.set("next", "/account");
+      callback.searchParams.set("next", nextPath);
       const { data, error: signUpError } = await client.auth.signUp({
         email,
         password,

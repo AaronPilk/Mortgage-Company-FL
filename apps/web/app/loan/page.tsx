@@ -42,6 +42,11 @@ export default async function LoanHomePage() {
   if (files.length === 0) {
     return (
       <Section width="narrow">
+        <div className="mb-2">
+          <ButtonLink href="/account" variant="ghost" className="px-0 text-sm">
+            ← Account &amp; saved homes
+          </ButtonLink>
+        </div>
         <SectionHeading
           as="h1"
           eyebrow="TRACT"
@@ -94,6 +99,11 @@ export default async function LoanHomePage() {
 
   return (
     <Section width="wide">
+      <div className="mb-2">
+        <ButtonLink href="/account" variant="ghost" className="px-0 text-sm">
+          ← Account &amp; saved homes
+        </ButtonLink>
+      </div>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <SectionHeading as="h1" eyebrow="TRACT" title="Your loans" />
         <ButtonLink href="/loan/apply" variant="secondary">

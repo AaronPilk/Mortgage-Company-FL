@@ -14,7 +14,9 @@ const inter = Inter({
 });
 import { PreLaunchNotice, SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { MobileCta } from "@/components/mobile-cta";
+import { AssistantWidget } from "@/components/assistant/assistant-widget";
 import { AttributionCapture } from "@/components/attribution-capture";
+import { publicFeatures } from "@/lib/env";
 import { JsonLd } from "@/components/json-ld";
 import { businessIdentity, SITE_URL } from "@/lib/site";
 import { graph, organizationNode, webSiteNode } from "@tract/seo";
@@ -65,7 +67,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
         <PreLaunchNotice />
         <SiteHeader />
-        <main id="main" className="flex-1">
+        <main id="main" tabIndex={-1} className="flex-1">
           {children}
         </main>
         <SiteFooter />
@@ -76,6 +78,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           />
         )}
         <MobileCta />
+        <AssistantWidget enabled={publicFeatures().assistant} />
         <AttributionCapture />
         <JsonLd
           value={graph(

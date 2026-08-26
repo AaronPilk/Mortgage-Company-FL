@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { ButtonLink, Card, CtaPanel, Disclosure, Section, SectionHeading } from "@/components/ui";
 import { pageMetadata } from "@/lib/metadata";
 import { publicFeatures } from "@/lib/env";
@@ -141,6 +142,27 @@ export default async function PropertiesPage({
             anonKey={anonKey}
           />
         </div>
+        {features.homeLookup && (
+          <div className="mx-auto mt-8 max-w-3xl">
+            <Link
+              href="/home-lookup"
+              className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-5 text-left transition-colors hover:border-[var(--purple)]"
+              style={{ borderColor: "var(--purple)", background: "var(--purple-subtle)" }}
+            >
+              <span>
+                <span className="block font-semibold" style={{ color: "var(--text)" }}>
+                  Already found one on Zillow or Redfin?
+                </span>
+                <span className="block text-sm" style={{ color: "var(--text-muted)" }}>
+                  Paste the link and we&apos;ll pull the price, taxes, and monthly payment.
+                </span>
+              </span>
+              <span className="shrink-0 text-sm font-semibold" style={{ color: "var(--purple)" }}>
+                Look it up →
+              </span>
+            </Link>
+          </div>
+        )}
         <div className="mx-auto mt-12 max-w-3xl">
           <SampleDataBanner scope="search" />
         </div>
@@ -184,6 +206,7 @@ export default async function PropertiesPage({
               signedIn={signedIn}
               search={criteriaToQueryString(criteria)}
               accountsConfigured={accountsConfigured}
+              alertsAvailable={features.savedSearchAlerts}
               supabaseUrl={supabaseUrl}
               anonKey={anonKey}
             />
