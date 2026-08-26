@@ -20,7 +20,7 @@ import { GalleryPlaceholder } from "@/components/properties/gallery-placeholder"
 import { ListingCard } from "@/components/properties/listing-card";
 import { ListingPagination } from "@/components/properties/pagination";
 import { SampleDataBanner } from "@/components/properties/sample-data-notice";
-import { SearchFilters } from "@/components/properties/search-filters";
+import { ActiveFilterChips, SearchFilters } from "@/components/properties/search-filters";
 import { formatTimestamp } from "@/components/properties/listing-format";
 
 export const metadata: Metadata = pageMetadata({
@@ -170,6 +170,7 @@ export default async function PropertiesPage({
 
       <Section pad="tight">
         <SearchFilters criteria={criteria} />
+        <ActiveFilterChips criteria={criteria} />
 
         {!valid && (
           <p
@@ -218,7 +219,7 @@ export default async function PropertiesPage({
         )}
 
         {page.items.length > 0 ? (
-          <ul className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="mt-6 grid gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {page.items.map((listing) => (
               <ListingCard
                 key={`${listing.provider}:${listing.listingKey}`}

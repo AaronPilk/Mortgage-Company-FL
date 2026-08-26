@@ -4,6 +4,7 @@ import {
   SORT_LABELS,
   STATUS_LABELS,
   hasActiveFilters,
+  propertiesHref,
   type PropertySearchCriteria
 } from "./criteria";
 
@@ -58,7 +59,7 @@ export function SearchFilters({ criteria }: { criteria: PropertySearchCriteria }
   return (
     <details className="group" open={activeCount > 0 ? true : undefined}>
       <summary
-        className="inline-flex min-h-[44px] cursor-pointer list-none items-center gap-2 rounded-full border px-5 text-sm font-semibold transition-colors hover:border-[var(--purple)] hover:text-[var(--purple)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--purple)] [&::-webkit-details-marker]:hidden"
+        className="inline-flex min-h-[48px] w-full cursor-pointer list-none items-center justify-center gap-2 rounded-full border px-5 text-sm font-semibold transition-colors hover:border-[var(--purple)] hover:text-[var(--purple)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--purple)] sm:w-auto sm:justify-start [&::-webkit-details-marker]:hidden"
         style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--text)" }}
       >
         <svg
@@ -301,5 +302,115 @@ export function SearchFilters({ criteria }: { criteria: PropertySearchCriteria }
         </div>
       </form>
     </details>
+  );
+}
+
+/**
+ * Removable active-filter chips.
+ *
+ * On a phone the filter panel is collapsed, so what is currently constraining
+ * the results is otherwise invisible until you reopen it. Each chip names one
+ * applied filter and links to the same search with that one filter removed —
+ * server-rendered, works without JavaScript, and always resets to page one
+ * because a narrower or wider set is a new result set, not page four of the old
+ * one. Sort is deliberately not a chip: it reorders, it does not constrain.
+ */
+export function ActiveFilterChips({ criteria }: { criteria: PropertySearchCriteria }) {
+  const chips: { id: string; label: string; href: string }[] = [];
+
+  if (criteria.q !== undefined) {
+    chips.push({
+      id: "q",
+      label: `“${criteria.q}”`,
+      href: propertiesHref(criteria, { q: undefined, page: 1 })
+    });
+  }
+  if (criteria.minPrice !== undefined) {
+    chips.push({
+      id: "min",
+      label: `Min $${criteria.minPrice.toLocaleString("en-US")}`,
+      href: propertiesHref(criteria, { minPrice: undefined, page: 1 })
+    });
+  }
+  if (criteria.maxPrice !== undefined) {
+    chips.push({
+      id: "max",
+      label: `Max $${criteria.maxPrice.toLocaleString("en-US")}`,
+      href: propertiesHref(criteria, { maxPrice: undefined, page: 1 })
+    });
+  }
+  if (criteria.beds !== undefined) {
+    chips.push({
+      id: "beds",
+      label: `${criteria.beds}+ beds`,
+      href: propertiesHref(criteria, { beds: undefined, page: 1 })
+    });
+  }
+  if (criteria.baths !== undefined) {
+    chips.push({
+      id: "baths",
+      label: `${criteria.baths}+ baths`,
+      href: propertiesHref(criteria, { baths: undefined, page: 1 })
+    });
+  }
+  for (const option of criteria.type) {
+    chips.push({
+      id: `type:${option}`,
+      label: option,
+      href: propertiesHref(criteria, {
+        type: criteria.type.filter((value) => value !== option),
+        page: 1
+      })
+    });
+  }
+  for (const option of criteria.status) {
+    chips.push({
+      id: `status:${option}`,
+      label: STATUS_LABELS[option],
+      href: propertiesHref(criteria, {
+        status: criteria.status.filter((value) => value !== option),
+        page: 1
+      })
+    });
+  }
+
+  if (chips.length === 0) return null;
+
+  return (
+    <div className="mt-4 flex flex-wrap items-center gap-2">
+      {chips.map((chip) => (
+        <Link
+          key={chip.id}
+          href={chip.href}
+          aria-label={`Remove filter: ${chip.label}`}
+          className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full border px-3 text-sm font-medium transition-colors hover:border-[var(--purple)] hover:text-[var(--purple)]"
+          style={{
+            borderColor: "var(--border)",
+            background: "var(--surface)",
+            color: "var(--text)"
+          }}
+        >
+          <span>{chip.label}</span>
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 20 20"
+            className="h-3.5 w-3.5 opacity-60"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          >
+            <path d="M6 6l8 8M14 6l-8 8" />
+          </svg>
+        </Link>
+      ))}
+      <Link
+        href="/properties"
+        className="ml-1 text-sm font-semibold underline underline-offset-4"
+        style={{ color: "var(--purple)" }}
+      >
+        Clear all
+      </Link>
+    </div>
   );
 }

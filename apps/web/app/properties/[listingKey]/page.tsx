@@ -209,8 +209,13 @@ export default async function PropertyDetailPage({
       </Section>
 
       <Section pad="tight">
+        {/* On a phone the payment estimate and the primary calls to action are
+            what the visitor came for; the full facts grid is reference they read
+            after. `order` flips the two columns on mobile so the estimate and CTA
+            sit right under the gallery, then restores facts-left / rail-right at
+            lg. It is CSS only — the DOM order (facts first) is unchanged. */}
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
-          <div className="space-y-8">
+          <div className="order-2 space-y-8 lg:order-1">
             <Card>
               <h2 className="text-xl font-semibold">Property facts</h2>
               <dl className="mt-6 grid gap-x-10 gap-y-6 sm:grid-cols-2">
@@ -286,7 +291,9 @@ export default async function PropertyDetailPage({
             </Card>
           </div>
 
-          <div className="space-y-6">
+          {/* Sticky on desktop so the estimate and CTA follow the eye down the
+              long facts column; static and first in the flow on mobile. */}
+          <div className="order-1 space-y-6 lg:order-2 lg:sticky lg:top-24 lg:self-start">
             <PaymentEstimatePanel listing={listing} />
 
             <Card>

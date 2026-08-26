@@ -93,7 +93,11 @@ export function AssistantWidget({ enabled }: { enabled: boolean }) {
         onClick={() => setOpen(true)}
         aria-label="Open the TRACT assistant"
         className="fixed bottom-4 right-4 z-40 flex min-h-[52px] items-center gap-2 rounded-full px-5 text-sm font-semibold text-white shadow-lg"
-        style={{ background: "var(--purple)" }}
+        style={{
+          background: "var(--purple)",
+          // Clear the iOS home indicator on notched phones, mirroring the bottom CTA bar.
+          bottom: "calc(1rem + env(safe-area-inset-bottom))"
+        }}
       >
         <span aria-hidden>💬</span> Ask a question
       </button>
@@ -103,7 +107,11 @@ export function AssistantWidget({ enabled }: { enabled: boolean }) {
   return (
     <div
       className="fixed bottom-4 right-4 z-40 flex max-h-[min(70vh,560px)] w-[min(92vw,380px)] flex-col overflow-hidden rounded-2xl border shadow-2xl"
-      style={{ borderColor: "var(--border)", background: "var(--bg)" }}
+      style={{
+        borderColor: "var(--border)",
+        background: "var(--bg)",
+        bottom: "calc(1rem + env(safe-area-inset-bottom))"
+      }}
       role="dialog"
       aria-label="TRACT assistant"
     >
