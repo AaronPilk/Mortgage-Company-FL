@@ -1,40 +1,46 @@
+import Image from "next/image";
+
 /**
- * Typographic wordmark placeholder.
+ * The unified brand lockup, shown in the header and footer on every page.
  *
- * A permanent logo is a brand decision the founders own. This is deliberately a
- * type treatment with a mark built from the brand idea — a tract being a defined
- * parcel — so nothing here becomes the accidental final logo.
+ * Two names, one identity: TRACT is the product people use, powered by Wholesale
+ * Mortgage Lending — the company behind it. Locking them together everywhere is
+ * what makes the two read as one brand.
+ *
+ * The mark is the real TRACT wordmark (the letters, with the purple house as the
+ * "A"), not a type treatment. The source art is white-on-dark, so it ships in two
+ * recolored, transparent variants — dark letters for light surfaces, white for
+ * dark — and the theme picks one with `brand-light-only` / `brand-dark-only`
+ * (defined in globals.css against the same `.dark` class the toggle sets). The
+ * "powered by" line is hidden on the narrowest screens to keep the header row
+ * clean; the footer always carries the full co-brand.
  */
 export function Wordmark({ className = "" }: { className?: string }) {
   return (
-    <span className={`inline-flex items-center gap-2.5 ${className}`}>
-      <span
-        className="grid size-9 place-items-center rounded-xl"
-        style={{
-          background: "linear-gradient(135deg, var(--purple), var(--purple-light))",
-          boxShadow: "0 4px 16px var(--purple-glow)"
-        }}
-        aria-hidden="true"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          className="size-[18px]"
-          fill="none"
-          stroke="#fff"
-          strokeWidth="2.1"
-        >
-          <path d="M4 9.5 12 4l8 5.5V20H4V9.5Z" strokeLinejoin="round" />
-          <path d="M9.5 20v-6h5v6" strokeLinejoin="round" />
-        </svg>
+    <span className={`inline-flex flex-col leading-none ${className}`}>
+      <span className="inline-flex items-center">
+        <Image
+          src="/brand/tract-word-light.png"
+          alt="TRACT"
+          width={640}
+          height={118}
+          className="brand-light-only h-[26px] w-auto"
+          priority
+        />
+        <Image
+          src="/brand/tract-word-dark.png"
+          alt="TRACT"
+          width={640}
+          height={118}
+          className="brand-dark-only h-[26px] w-auto"
+          priority
+        />
       </span>
-      <span className="flex flex-col leading-none">
-        <span className="text-[1.05rem] font-bold tracking-[0.2em]">TRACT</span>
-        <span
-          className="mt-0.5 text-[0.6rem] font-semibold uppercase tracking-[0.22em]"
-          style={{ color: "var(--text-muted)" }}
-        >
-          Mortgage
-        </span>
+      <span
+        className="mt-1.5 hidden text-[0.56rem] font-semibold uppercase tracking-[0.13em] sm:block"
+        style={{ color: "var(--text-muted)" }}
+      >
+        Powered by Wholesale Mortgage Lending
       </span>
     </span>
   );

@@ -229,7 +229,7 @@ export default async function CityMortgagePage({
 
       <Disclosure
         headline="General local education, not advice about a specific property or an offer of credit."
-        body="Tax, insurance, flood, and program details are property-specific and change. Confirm anything here against the responsible county office, the current FEMA map, your insurance carrier, and the program's official source. Nothing here is a commitment to lend or a determination that you qualify; a licensed loan officer confirms your options. TRACT Mortgage arranges, but does not make, mortgage loans."
+        body="Tax, insurance, flood, and program details are property-specific and change. Confirm anything here against the responsible county office, the current FEMA map, your insurance carrier, and the program's official source. Nothing here is a commitment to lend or a determination that you qualify; a licensed loan officer confirms your options. Wholesale Mortgage Lending arranges, but does not make, mortgage loans."
       />
     </Section>
   );

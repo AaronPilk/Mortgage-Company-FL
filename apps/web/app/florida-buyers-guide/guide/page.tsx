@@ -229,7 +229,7 @@ export default function FloridaBuyersGuidePage() {
 
       <Disclosure
         headline="Education, not advice — and never an offer of credit."
-        body="This guide explains how home buying and financing generally work in Florida. It is not financial, legal, or tax advice, not an offer of credit, a rate quote, or a preapproval, and program rules, tax figures, and insurance costs change and are property-specific. Confirm anything here against the responsible official source, and a licensed loan officer confirms what you actually qualify for. TRACT Mortgage arranges, but does not make, mortgage loans."
+        body="This guide explains how home buying and financing generally work in Florida. It is not financial, legal, or tax advice, not an offer of credit, a rate quote, or a preapproval, and program rules, tax figures, and insurance costs change and are property-specific. Confirm anything here against the responsible official source, and a licensed loan officer confirms what you actually qualify for. Wholesale Mortgage Lending arranges, but does not make, mortgage loans."
       />
     </Section>
   );

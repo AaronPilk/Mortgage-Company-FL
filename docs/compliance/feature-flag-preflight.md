@@ -15,7 +15,7 @@ The loop is dark-gated on the listing provider key, so it sends nothing until a
 licensed MLS feed exists. Before enabling:
 
 - **[blocker] A licensed MLS/listing feed must be live.** The `stellar/bridge/
-  mlsgrid` adapters are unimplemented (require an executed display agreement).
+mlsgrid` adapters are unimplemented (require an executed display agreement).
   Emailing a person about a fixture listing is an invariant-6 violation; the loop
   refuses to, but there is nothing to send regardless.
 - **[blocker] Burst coverage beyond `SAVED_SEARCH_FETCH_LIMIT` (100).** The loop
@@ -76,7 +76,7 @@ licensed MLS feed exists. Before enabling:
 ## FEATURE_AGENT_MARKETPLACE (Wave 4 — ZIP coverage + routing foundation)
 
 - **[blocker] Atomic coverage replace before heavy use.** `replaceCoverageZips`
-  inserts-before-deletes so a mid-write failure fails safe to a *superset* (never
+  inserts-before-deletes so a mid-write failure fails safe to a _superset_ (never
   strips an agent's coverage), but it is not transactional. Add a single
   SECURITY DEFINER replace RPC (delete+insert in one tx, owner-scoped) before the
   marketplace carries real routing weight.

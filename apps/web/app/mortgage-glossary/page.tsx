@@ -173,7 +173,7 @@ export default function MortgageGlossaryPage() {
 
         <Disclosure
           headline="Definitions for education, not advice about your situation."
-          body="These entries explain how mortgage and Florida home-buying concepts generally work. They are not financial, legal, or tax advice, not an offer of credit or a rate quote, and specifics change. Confirm any figure against the responsible official source — the county Property Appraiser for tax numbers — and a licensed loan officer confirms what you qualify for. TRACT Mortgage arranges, but does not make, mortgage loans."
+          body="These entries explain how mortgage and Florida home-buying concepts generally work. They are not financial, legal, or tax advice, not an offer of credit or a rate quote, and specifics change. Confirm any figure against the responsible official source — the county Property Appraiser for tax numbers — and a licensed loan officer confirms what you qualify for. Wholesale Mortgage Lending arranges, but does not make, mortgage loans."
         />
       </Section>
     </>

@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "TRACT Mortgage",
+    name: "Wholesale Mortgage Lending",
     short_name: "TRACT",
     description:
       "A Florida mortgage brokerage. Payment and affordability tools, plain-language guides, and direct help from a licensed professional.",

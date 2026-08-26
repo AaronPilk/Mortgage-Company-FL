@@ -273,7 +273,7 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
         />
         <Disclosure
           headline="This page is educational, not an offer."
-          body="TRACT Mortgage is a mortgage brokerage and arranges, but does not make, mortgage loans. Nothing here is a rate quote, a preapproval, a commitment to lend, or a statement that you qualify for any program. Program terms are set by the agency, insurer, or investor and by each lender's own overlays, and they change."
+          body="Wholesale Mortgage Lending is a mortgage brokerage and arranges, but does not make, mortgage loans. Nothing here is a rate quote, a preapproval, a commitment to lend, or a statement that you qualify for any program. Program terms are set by the agency, insurer, or investor and by each lender's own overlays, and they change."
         />
       </Section>
     </>

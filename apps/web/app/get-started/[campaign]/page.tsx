@@ -136,7 +136,7 @@ export default async function CampaignLandingPage({
         </div>
         <Disclosure
           headline="Nothing on this page is an offer of credit."
-          body="TRACT Mortgage is a mortgage brokerage. We arrange, but do not make, mortgage loans. Sending this form is not an application, does not result in a credit inquiry, and does not obligate you to anything. Loan terms and availability depend on the lender, the loan program, the property, and a complete review of your application."
+          body="Wholesale Mortgage Lending is a mortgage brokerage. We arrange, but do not make, mortgage loans. Sending this form is not an application, does not result in a credit inquiry, and does not obligate you to anything. Loan terms and availability depend on the lender, the loan program, the property, and a complete review of your application."
         />
       </Section>
     </>

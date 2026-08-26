@@ -27,9 +27,9 @@ export default function Page() {
         <Prose>
           <h2>Nothing here is an offer of credit</h2>
           <p>
-            TRACT Mortgage is a mortgage brokerage. We arrange, but do not make, mortgage loans.
-            Nothing on this website is an offer of credit, a rate quote, a preapproval, a commitment
-            to lend, or a statement that you qualify for any loan program.
+            Wholesale Mortgage Lending is a mortgage brokerage. We arrange, but do not make,
+            mortgage loans. Nothing on this website is an offer of credit, a rate quote, a
+            preapproval, a commitment to lend, or a statement that you qualify for any loan program.
           </p>
           <h2>Estimates are estimates</h2>
           <p>

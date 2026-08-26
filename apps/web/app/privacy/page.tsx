@@ -4,7 +4,7 @@ import { pageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = pageMetadata({
   title: "Privacy policy",
-  description: "How TRACT Mortgage collects, uses, protects, and shares information.",
+  description: "How Wholesale Mortgage Lending collects, uses, protects, and shares information.",
   path: "/privacy"
 });
 

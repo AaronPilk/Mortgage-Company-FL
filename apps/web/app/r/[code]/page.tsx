@@ -35,9 +35,9 @@ export const dynamic = "force-dynamic";
 /** Personalized and never for search — noindex regardless of the code. */
 export function generateMetadata(): Metadata {
   return pageMetadata({
-    title: "You've been referred to TRACT Mortgage",
+    title: "You've been referred to Wholesale Mortgage Lending",
     description:
-      "A warm introduction to TRACT Mortgage, a licensed Florida mortgage brokerage. Start your plan or talk to a licensed loan officer.",
+      "A warm introduction to Wholesale Mortgage Lending, a licensed Florida mortgage brokerage. Start your plan or talk to a licensed loan officer.",
     path: "/r",
     noIndex: true
   });
@@ -61,7 +61,7 @@ export default async function ReferralLandingPage({
           eyebrow="Welcome"
           title="You've been referred to TRACT"
           gradientWord="TRACT"
-          description="TRACT Mortgage is a licensed Florida mortgage brokerage. Whoever pointed you here thought we could help with the financing — here's where to start."
+          description="Wholesale Mortgage Lending is a licensed Florida mortgage brokerage. Whoever pointed you here thought we could help with the financing — here's where to start."
         />
         <NextSteps />
         <ReferralDisclosure />
@@ -86,7 +86,7 @@ export default async function ReferralLandingPage({
         eyebrow="A personal introduction"
         title={`${firstName} sent you to TRACT`}
         gradientWord="TRACT"
-        description={`${fullName} works with TRACT Mortgage on the financing side. TRACT is a licensed Florida mortgage brokerage — separate from ${firstName}'s real-estate business — and there's no cost to you for the introduction.`}
+        description={`${fullName} works with Wholesale Mortgage Lending on the financing side. TRACT is a licensed Florida mortgage brokerage — separate from ${firstName}'s real-estate business — and there's no cost to you for the introduction.`}
       />
 
       <Prose>
@@ -159,7 +159,7 @@ function ReferralDisclosure() {
   return (
     <Disclosure
       headline="What a referral here means — and what it doesn't."
-      body="TRACT Mortgage is a licensed Florida mortgage brokerage. A referral is an introduction only: it is not an application, it involves no credit inquiry, and no payment flows in either direction between TRACT and the person who referred you. You are never obligated to work with anyone, and your financial details are shared with no one until you choose to move forward with a licensed loan officer."
+      body="Wholesale Mortgage Lending is a licensed Florida mortgage brokerage. A referral is an introduction only: it is not an application, it involves no credit inquiry, and no payment flows in either direction between TRACT and the person who referred you. You are never obligated to work with anyone, and your financial details are shared with no one until you choose to move forward with a licensed loan officer."
     />
   );
 }

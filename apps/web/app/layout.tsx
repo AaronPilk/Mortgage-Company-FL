@@ -24,12 +24,12 @@ import { graph, organizationNode, webSiteNode } from "@tract/seo";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "TRACT Mortgage — A Florida mortgage brokerage",
-    template: "%s | TRACT Mortgage"
+    default: "Wholesale Mortgage Lending — A Florida mortgage brokerage",
+    template: "%s | Wholesale Mortgage Lending"
   },
   description:
     "A Florida mortgage brokerage. Compare financing paths with clear calculators, plain-language guides, and direct help from a licensed professional.",
-  applicationName: "TRACT Mortgage",
+  applicationName: "Wholesale Mortgage Lending",
   formatDetection: { telephone: false, address: false, email: false },
   manifest: "/manifest.webmanifest"
 };

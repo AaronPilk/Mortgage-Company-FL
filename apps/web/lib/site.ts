@@ -12,13 +12,26 @@ import type { BusinessIdentity } from "@tract/seo";
  */
 
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-export const BRAND_NAME = process.env.NEXT_PUBLIC_BRAND_NAME ?? "TRACT Mortgage";
+
+/**
+ * Two names, one identity. The COMPANY is Wholesale Mortgage Lending — the legal,
+ * licensed (pending) brokerage entity that the compliance statements, the NMSL
+ * record, and the ad front door all attach to. The PRODUCT is TRACT — the
+ * platform people actually use (calculators, properties, home value, the loan
+ * portal). The site runs under one domain and one SEO identity: "TRACT, powered
+ * by Wholesale Mortgage Lending." In schema, the company is the Organization name
+ * and TRACT is its brand/alternateName (see @tract/seo organizationNode).
+ */
+export const COMPANY_NAME = process.env.NEXT_PUBLIC_COMPANY_NAME ?? "Wholesale Mortgage Lending";
+export const PRODUCT_NAME = process.env.NEXT_PUBLIC_PRODUCT_NAME ?? "TRACT";
+/** Kept for existing callers; the product brand shown in the UI. */
+export const BRAND_NAME = process.env.NEXT_PUBLIC_BRAND_NAME ?? PRODUCT_NAME;
 
 export const businessIdentity: BusinessIdentity = {
-  legalName: "TRACT Mortgage",
+  legalName: COMPANY_NAME,
   brandName: BRAND_NAME,
   siteUrl: SITE_URL,
-  logoPath: "/brand/wordmark.svg",
+  logoPath: "/brand/wml-logo.png",
   nmlsId: null,
   companyLicenseId: null,
   telephone: null,

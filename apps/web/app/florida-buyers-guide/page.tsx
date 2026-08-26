@@ -125,7 +125,7 @@ export default function FloridaBuyersGuideLandingPage() {
 
         <Disclosure
           headline="This is a free educational guide, not an application or an offer of credit."
-          body="Requesting the guide is not a mortgage application and does not result in a credit inquiry or obligate you to anything. TRACT Mortgage is a Florida mortgage brokerage: we arrange, but do not make, mortgage loans. Program terms, tax figures, and insurance costs change and are property-specific — confirm them with the responsible official source, and a licensed loan officer confirms what you actually qualify for."
+          body="Requesting the guide is not a mortgage application and does not result in a credit inquiry or obligate you to anything. Wholesale Mortgage Lending is a Florida mortgage brokerage: we arrange, but do not make, mortgage loans. Program terms, tax figures, and insurance costs change and are property-specific — confirm them with the responsible official source, and a licensed loan officer confirms what you actually qualify for."
         />
       </Section>
     </>

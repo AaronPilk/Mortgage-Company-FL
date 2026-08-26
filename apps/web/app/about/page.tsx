@@ -4,7 +4,7 @@ import { pageMetadata } from "@/lib/metadata";
 import { businessIdentity } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata({
-  title: "About TRACT Mortgage",
+  title: "About Wholesale Mortgage Lending",
   description: "Who we are, what we do, and the precise version of our story.",
   path: "/about"
 });
@@ -23,8 +23,8 @@ export default function AboutPage() {
         <Prose>
           <h2>What we are</h2>
           <p>
-            TRACT Mortgage is a mortgage brokerage serving Florida. We arrange financing with
-            lenders; we do not make loans ourselves. In practice that means we compare options
+            Wholesale Mortgage Lending is a mortgage brokerage serving Florida. We arrange financing
+            with lenders; we do not make loans ourselves. In practice that means we compare options
             across lenders rather than fitting you to a single institution&rsquo;s product set.
           </p>
 

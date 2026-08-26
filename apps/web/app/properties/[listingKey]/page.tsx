@@ -340,7 +340,7 @@ export default async function PropertyDetailPage({
         />
         <Disclosure
           headline="This property is an illustrative sample, not a listing."
-          body="This record was invented to demonstrate how a property detail page works. The address uses a reserved example street name, and the price, facts, and description are made up. It is not for sale, it does not exist, and none of it comes from an MLS, a public record, or a listing portal. TRACT Mortgage is a mortgage brokerage and arranges, but does not make, mortgage loans. Nothing here is a rate quote, a preapproval, or a commitment to lend."
+          body="This record was invented to demonstrate how a property detail page works. The address uses a reserved example street name, and the price, facts, and description are made up. It is not for sale, it does not exist, and none of it comes from an MLS, a public record, or a listing portal. Wholesale Mortgage Lending is a mortgage brokerage and arranges, but does not make, mortgage loans. Nothing here is a rate quote, a preapproval, or a commitment to lend."
         />
       </Section>
     </>

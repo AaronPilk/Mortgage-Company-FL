@@ -29,7 +29,7 @@ import { absoluteUrl, breadcrumbNode, graph, webPageNode } from "@tract/seo";
 import { createRequestClient } from "@/lib/supabase";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Florida mortgage brokerage — honest guidance, no pressure",
+  title: "Honest Florida mortgage guidance, no pressure",
   description:
     "Tell us whether you are buying, refinancing, or buying your first home, and a licensed mortgage professional will lay out your real options. No credit pull.",
   path: "/",
@@ -123,7 +123,7 @@ export default async function HomePage() {
             webPageNode({
               identity: businessIdentity,
               url,
-              name: "TRACT Mortgage — A Florida mortgage brokerage",
+              name: "Wholesale Mortgage Lending — Florida mortgage brokerage, powered by TRACT",
               description:
                 "A Florida mortgage brokerage. Tell us what you are working on and a licensed mortgage professional lays out your options — no application, no credit pull."
             }),
@@ -403,7 +403,7 @@ export default async function HomePage() {
         </div>
         <Disclosure
           headline="Nothing on this page is an offer of credit."
-          body="TRACT Mortgage is a mortgage brokerage. We arrange, but do not make, mortgage loans. Every figure shown here is an estimate based on values you entered, and is not a rate quote, a preapproval, or a commitment to lend."
+          body="Wholesale Mortgage Lending is a mortgage brokerage. We arrange, but do not make, mortgage loans. Every figure shown here is an estimate based on values you entered, and is not a rate quote, a preapproval, or a commitment to lend."
         />
       </Section>
     </>

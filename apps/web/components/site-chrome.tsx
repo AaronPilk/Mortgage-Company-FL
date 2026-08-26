@@ -193,7 +193,7 @@ export function PreLaunchNotice() {
       className="relative px-4 py-2 text-center text-xs font-medium text-white sm:py-2.5 sm:text-sm"
       style={{ background: "linear-gradient(90deg, var(--purple-dark), var(--purple))" }}
     >
-      {businessIdentity.brandName} is pre-launch — not yet accepting mortgage applications, and
+      {businessIdentity.legalName} is pre-launch — not yet accepting mortgage applications, and
       nothing here is an offer of credit or a rate quote.
     </div>
   );
@@ -271,7 +271,7 @@ export function SiteFooter() {
           */}
           <p className="text-sm font-semibold">Equal Housing Opportunity.</p>
           <p className="max-w-3xl text-xs leading-relaxed" style={{ color: "var(--text-muted)" }}>
-            {businessIdentity.brandName} is a mortgage brokerage. We arrange, but do not make,
+            {businessIdentity.legalName} is a mortgage brokerage. We arrange, but do not make,
             mortgage loans. All figures shown on this site are estimates based on information you
             provide and are not an offer of credit, a rate quote, a preapproval, or a commitment to
             lend. Loan approval, terms, and availability depend on the lender, the loan program, the
