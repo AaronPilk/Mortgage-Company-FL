@@ -24,6 +24,13 @@ export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:30
  */
 export const COMPANY_NAME = process.env.NEXT_PUBLIC_COMPANY_NAME ?? "Wholesale Mortgage Lending";
 export const PRODUCT_NAME = process.env.NEXT_PUBLIC_PRODUCT_NAME ?? "TRACT";
+/**
+ * The company's own marketing domain — the Wholesale Mortgage Lending front door
+ * (wsmlending.com), a separate domain from this product app (tractrealestate.com).
+ * They are one brand: the footer links here and the org schema lists it as the
+ * same entity (sameAs), which is how two domains read as one SEO umbrella.
+ */
+export const COMPANY_URL = process.env.NEXT_PUBLIC_COMPANY_URL ?? "https://wsmlending.com";
 /** Kept for existing callers; the product brand shown in the UI. */
 export const BRAND_NAME = process.env.NEXT_PUBLIC_BRAND_NAME ?? PRODUCT_NAME;
 
@@ -37,7 +44,9 @@ export const businessIdentity: BusinessIdentity = {
   telephone: null,
   address: null,
   areaServed: ["Florida"],
-  sameAs: []
+  // The company's other domain, so search engines read wsmlending.com and this
+  // product domain as one entity rather than two unrelated sites.
+  sameAs: [COMPANY_URL]
 };
 
 export type LicensingStatus = {

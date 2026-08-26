@@ -10,15 +10,33 @@ import type { NextConfig } from "next";
  */
 const isProduction = process.env.NODE_ENV === "production";
 
+/**
+ * Analytics/ad origins are added to the CSP ONLY when a GTM container is
+ * configured, so the policy stays as tight as it is until analytics is
+ * deliberately turned on. GA4, Google Ads, and the Meta pixel are all fired
+ * from inside GTM; these are the origins those tags reach. Adding a new tag in
+ * GTM that calls a different origin means adding that origin here too.
+ */
+const gtmConfigured = Boolean(process.env.NEXT_PUBLIC_GTM_CONTAINER_ID);
+const gtmScriptSrc = gtmConfigured
+  ? " https://www.googletagmanager.com https://connect.facebook.net"
+  : "";
+const gtmConnectSrc = gtmConfigured
+  ? " https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.g.doubleclick.net https://www.google.com https://www.facebook.com https://connect.facebook.net"
+  : "";
+const gtmFrameSrc = gtmConfigured
+  ? " https://td.doubleclick.net https://www.googletagmanager.com"
+  : "";
+
 const contentSecurityPolicy = [
   "default-src 'self'",
   // Next.js requires 'unsafe-eval' in development for React Refresh only.
-  `script-src 'self' 'unsafe-inline'${isProduction ? "" : " 'unsafe-eval'"} https://challenges.cloudflare.com https://www.googletagmanager.com`,
+  `script-src 'self' 'unsafe-inline'${isProduction ? "" : " 'unsafe-eval'"} https://challenges.cloudflare.com${gtmScriptSrc}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  "connect-src 'self' https://*.supabase.co https://challenges.cloudflare.com https://www.google-analytics.com",
-  "frame-src https://challenges.cloudflare.com",
+  `connect-src 'self' https://*.supabase.co https://challenges.cloudflare.com${gtmConnectSrc}`,
+  `frame-src https://challenges.cloudflare.com${gtmFrameSrc}`,
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",

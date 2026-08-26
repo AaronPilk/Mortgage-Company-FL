@@ -3,7 +3,7 @@ import { Wordmark } from "./wordmark";
 import { ThemeToggle } from "./theme-toggle";
 import { MobileNav } from "./mobile-nav";
 import { ButtonLink, LicenseFact } from "./ui";
-import { businessIdentity, isPreLaunch } from "@/lib/site";
+import { businessIdentity, COMPANY_URL, isPreLaunch } from "@/lib/site";
 import { createRequestClient } from "@/lib/supabase";
 
 const PRIMARY_NAV = [
@@ -217,6 +217,13 @@ export function SiteFooter() {
               A Florida mortgage brokerage. We help buyers and homeowners compare financing paths
               with clear tools and direct guidance.
             </p>
+            <a
+              href={COMPANY_URL}
+              className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold transition-colors hover:opacity-80"
+              style={{ color: "var(--purple)" }}
+            >
+              Visit Wholesale Mortgage Lending →
+            </a>
           </div>
           {FOOTER_GROUPS.map((group) => (
             <nav key={group.heading} aria-label={group.heading}>

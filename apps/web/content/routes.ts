@@ -26,6 +26,18 @@ export type RouteEntry = {
 
 export const ROUTE_REGISTRY: RouteEntry[] = [
   { path: "/", priority: 1.0, changeFrequency: "weekly", indexable: true, contentGroup: "home" },
+  // The Wholesale Mortgage Lending marketing landing. It lives at /wml inside
+  // this app but is served at the WML apex (wsmlending.com) with a canonical
+  // pointing there, so it is deliberately NOT in this product's sitemap —
+  // indexable:false keeps it out. The page itself is crawlable on the WML
+  // domain; a duplicate at tractrealestate.com/wml canonicalises to the apex.
+  {
+    path: "/wml",
+    priority: 0.5,
+    changeFrequency: "monthly",
+    indexable: false,
+    contentGroup: "marketing"
+  },
   {
     path: "/plan",
     priority: 0.95,

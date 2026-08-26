@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import Script from "next/script";
+import { headers } from "next/headers";
 import "./globals.css";
 
 /**
@@ -13,9 +14,11 @@ const inter = Inter({
   variable: "--font-inter"
 });
 import { PreLaunchNotice, SiteFooter, SiteHeader } from "@/components/site-chrome";
+import { WmlHeader, WmlFooter } from "@/components/wml-chrome";
 import { MobileCta } from "@/components/mobile-cta";
 import { AssistantWidget } from "@/components/assistant/assistant-widget";
 import { AttributionCapture } from "@/components/attribution-capture";
+import { SiteAnalytics } from "@/components/analytics/site-analytics";
 import { publicFeatures } from "@/lib/env";
 import { JsonLd } from "@/components/json-ld";
 import { businessIdentity, SITE_URL } from "@/lib/site";
@@ -45,7 +48,13 @@ export const viewport: Viewport = {
   viewportFit: "cover"
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Which brand's chrome to render. The middleware marks the Wholesale Mortgage
+  // Lending landing with this header; everything else is the TRACT product.
+  // Reading a header here is free — every route already renders dynamically
+  // because the shared header reads the session cookie.
+  const isWml = (await headers()).get("x-tract-brand") === "wml";
+
   return (
     <html lang="en-US" suppressHydrationWarning className={inter.variable}>
       <head>
@@ -66,25 +75,33 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to main content
         </a>
         <PreLaunchNotice />
-        <SiteHeader />
+        {isWml ? <WmlHeader /> : <SiteHeader />}
         <main id="main" tabIndex={-1} className="flex-1">
           {children}
         </main>
-        <SiteFooter />
+        {isWml ? <WmlFooter /> : <SiteFooter />}
         {process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY !== undefined && (
           <Script
             src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
             strategy="afterInteractive"
           />
         )}
-        <MobileCta />
-        <AssistantWidget enabled={publicFeatures().assistant} />
+        {/* The mobile CTA bar and the assistant point at TRACT product routes,
+            so they stay off the WML marketing landing. Attribution capture runs
+            on both — a lead from a WML ad must carry its source. */}
+        {!isWml && <MobileCta />}
+        {!isWml && <AssistantWidget enabled={publicFeatures().assistant} />}
         <AttributionCapture />
+        <SiteAnalytics />
         <JsonLd
-          value={graph(
-            [organizationNode(businessIdentity), webSiteNode(businessIdentity)],
-            businessIdentity
-          )}
+          value={
+            isWml
+              ? graph([organizationNode(businessIdentity)], businessIdentity)
+              : graph(
+                  [organizationNode(businessIdentity), webSiteNode(businessIdentity)],
+                  businessIdentity
+                )
+          }
         />
       </body>
     </html>

@@ -25,7 +25,7 @@ import {
   SMS_CONSENT_TEXT,
   businessIdentity
 } from "@/lib/site";
-import { absoluteUrl, breadcrumbNode, graph, webPageNode } from "@tract/seo";
+import { absoluteUrl, breadcrumbNode, faqNode, graph, webPageNode } from "@tract/seo";
 import { createRequestClient } from "@/lib/supabase";
 
 export const metadata: Metadata = pageMetadata({
@@ -127,6 +127,10 @@ export default async function HomePage() {
               description:
                 "A Florida mortgage brokerage. Tell us what you are working on and a licensed mortgage professional lays out your options — no application, no credit pull."
             }),
+            // The homepage renders these exact questions below, so the FAQPage
+            // markup is honest — and the home page is the highest-value indexable
+            // page on the site, so it should carry it like the program pages do.
+            faqNode(HOME_FAQS, true),
             breadcrumbNode([{ name: "Home", url }])
           ],
           businessIdentity

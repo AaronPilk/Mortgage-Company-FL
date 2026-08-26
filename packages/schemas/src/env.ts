@@ -17,6 +17,9 @@ export const DEVELOPMENT_PEPPER = "local-development-pepper-change-me";
 /** Safe to reference from browser code. Contains identifiers, never secrets. */
 export const PublicEnvSchema = z.object({
   NEXT_PUBLIC_SITE_URL: z.string().url().default("http://localhost:3000"),
+  // The company's marketing domain (Wholesale Mortgage Lending front door). One
+  // Worker serves both this and the product domain; the middleware routes by host.
+  NEXT_PUBLIC_COMPANY_URL: z.string().url().default("https://wsmlending.com"),
   NEXT_PUBLIC_BRAND_NAME: z.string().min(1).default("TRACT Mortgage"),
   NEXT_PUBLIC_GTM_CONTAINER_ID: optionalString,
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: optionalString,

@@ -1,7 +1,7 @@
 import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { env } from "./env";
 
 /**
@@ -24,7 +24,13 @@ export async function createRequestClient() {
   void configuration;
 
   const cookieStore = await cookies();
+  // Mark the session cookies Secure on HTTPS. Behind Cloudflare, x-forwarded-proto
+  // reflects the client's real scheme; on plain-HTTP local dev and e2e it is
+  // absent, so the cookie stays settable there. HSTS already forces HTTPS in
+  // production — this is the belt to those suspenders, and never a downgrade.
+  const secure = (await headers()).get("x-forwarded-proto") === "https";
   return createServerClient(url, anonKey, {
+    cookieOptions: { secure },
     cookies: {
       getAll() {
         return cookieStore.getAll();

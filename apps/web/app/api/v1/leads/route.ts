@@ -28,7 +28,7 @@ import {
 } from "@/lib/request-context";
 import { createServiceClient } from "@/lib/supabase";
 import { resolveReferralAgent } from "@/lib/referral";
-import { LEAD_DISCLOSURE_TEXT, LEAD_DISCLOSURE_VERSION, SITE_URL } from "@/lib/site";
+import { COMPANY_URL, LEAD_DISCLOSURE_TEXT, LEAD_DISCLOSURE_VERSION, SITE_URL } from "@/lib/site";
 
 /**
  * Marketing lead receipt.
@@ -190,9 +190,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return finish("rejected_body_size", fail("BAD_REQUEST", context.requestId));
   }
 
-  // 3. Same-origin. A browser always sends Origin on a cross-origin POST, and
-  // this endpoint has no legitimate cross-site caller.
-  if (!isSameOrigin(context.origin, SITE_URL)) {
+  // 3. First-party origin. A browser always sends Origin on a cross-origin POST.
+  // This lead is posted from BOTH brand domains — the TRACT product and the
+  // Wholesale Mortgage Lending marketing landing at its own apex — so either
+  // first-party origin is accepted. Every other cross-site caller is rejected.
+  const firstPartyOrigins = SITE_URL === COMPANY_URL ? [SITE_URL] : [SITE_URL, COMPANY_URL];
+  if (!firstPartyOrigins.some((allowed) => isSameOrigin(context.origin, allowed))) {
     return finish("rejected_origin", fail("FORBIDDEN", context.requestId));
   }
 

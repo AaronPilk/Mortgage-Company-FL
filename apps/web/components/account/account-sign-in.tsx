@@ -141,7 +141,9 @@ export function AccountSignIn({
     }
 
     setStatus("working");
-    const client = createBrowserClient(supabaseUrl, anonKey);
+    const client = createBrowserClient(supabaseUrl, anonKey, {
+      cookieOptions: { secure: window.location.protocol === "https:" }
+    });
     const callback = new URL("/auth/callback", window.location.origin);
 
     if (mode === "signIn") {
