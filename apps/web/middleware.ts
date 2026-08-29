@@ -40,8 +40,12 @@ function urlOrNull(value: string | undefined): URL | null {
 const CANONICAL = urlOrNull(process.env.NEXT_PUBLIC_SITE_URL) ?? new URL("http://localhost:3000");
 const WML = urlOrNull(process.env.NEXT_PUBLIC_COMPANY_URL);
 
-/** Local development and test harnesses are never redirected or rewritten. */
-const LOCAL_HOSTS = /^(localhost|127\.|0\.0\.0\.0|\[?::1)/i;
+/**
+ * Local development and test harnesses are never redirected or rewritten.
+ * Anchored end-to-end (port optional) so a crafted host like
+ * `localhost.attacker.com` is not misread as local and served un-redirected.
+ */
+const LOCAL_HOSTS = /^(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\]|::1)(:\d+)?$/i;
 
 /**
  * Serve a request with the brand marker the root layout reads to pick chrome.
@@ -72,7 +76,9 @@ export function middleware(request: NextRequest): NextResponse {
   if (LOCAL_HOSTS.test(host)) {
     // Local dev serves the landing at /wml directly; brand it so its chrome is
     // right, and leave every other path on the default TRACT chrome.
-    return pathname === "/wml" ? brandedResponse(request, "wml") : NextResponse.next();
+    return pathname === "/wml"
+      ? brandedResponse(request, "wml")
+      : brandedResponse(request, "tract");
   }
 
   // The Wholesale Mortgage Lending marketing host: serve the landing at the root
@@ -86,7 +92,9 @@ export function middleware(request: NextRequest): NextResponse {
       return brandedResponse(request, "wml");
     }
     if (pathname.startsWith("/api/")) {
-      return NextResponse.next();
+      // Pass through same-origin, but still stamp the brand ourselves so a
+      // client-supplied x-tract-brand never reaches an API route.
+      return brandedResponse(request, "tract");
     }
     return NextResponse.redirect(new URL(pathname + search, CANONICAL), 308);
   }
@@ -95,7 +103,9 @@ export function middleware(request: NextRequest): NextResponse {
   // reachable here at /wml (its canonical still points at the WML apex); render
   // it with WML chrome so the brand never mixes.
   if (host === CANONICAL.host) {
-    return pathname === "/wml" ? brandedResponse(request, "wml") : NextResponse.next();
+    return pathname === "/wml"
+      ? brandedResponse(request, "wml")
+      : brandedResponse(request, "tract");
   }
 
   // Any other host is a stray deployment: redirect to the canonical product

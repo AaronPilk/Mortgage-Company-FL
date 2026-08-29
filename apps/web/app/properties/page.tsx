@@ -176,7 +176,7 @@ export default async function PropertiesPage({
           <p
             role="status"
             className="mt-4 text-sm font-medium"
-            style={{ color: "var(--color-warning)" }}
+            style={{ color: "var(--color-warning-text)" }}
           >
             Part of that link could not be read, so the filters it could not parse were ignored.
           </p>
@@ -218,6 +218,7 @@ export default async function PropertiesPage({
           <AccountNudgeBanner supabaseUrl={supabaseUrl} anonKey={anonKey} />
         )}
 
+        <h2 className="sr-only">Search results</h2>
         {page.items.length > 0 ? (
           <ul className="mt-6 grid gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {page.items.map((listing) => (

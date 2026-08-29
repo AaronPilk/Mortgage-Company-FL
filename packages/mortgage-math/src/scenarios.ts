@@ -436,10 +436,18 @@ export function rentVsBuy(input: RentVsBuyInput): RentVsBuyResult {
     annualRateOfCents(input.purchasePriceCents, input.annualMaintenanceRateBasisPoints ?? 100) / 12
   );
 
+  // Principal & interest stops when the loan is paid off. For a horizon that runs
+  // past the term, only the perpetual carrying costs (tax, insurance, any MI/HOA,
+  // and maintenance) keep accruing — charging P&I past payoff overstates the cost
+  // of owning, and the sale side already floors the balance at the term.
+  const principalInterestMonths = Math.min(horizonMonths, input.termMonths);
+  const perpetualMonthlyCents =
+    housing.totalMonthlyCents - housing.principalAndInterestCents + monthlyMaintenance;
   const totalOwnershipOutflowCents =
     input.downPaymentCents +
     input.closingCostsCents +
-    (housing.totalMonthlyCents + monthlyMaintenance) * horizonMonths;
+    housing.principalAndInterestCents * principalInterestMonths +
+    perpetualMonthlyCents * horizonMonths;
 
   const annualAppreciation = input.annualAppreciationBasisPoints / 10_000;
   const estimatedHomeValueCents = roundCents(

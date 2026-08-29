@@ -36,7 +36,7 @@
     // Hostnames Turnstile tokens must have been solved on. Comma-separated;
     // required by the environment schema whenever the mode is live — its
     // absence is what turned every page into a 500 on 18 Aug 2026.
-    "TURNSTILE_HOSTNAMES": "mortgage-company-fl.aaron-9c3.workers.dev",
+    "TURNSTILE_HOSTNAMES": "tractrealestate.com,www.tractrealestate.com,wsmlending.com,www.wsmlending.com,mortgage-company-fl.aaron-9c3.workers.dev",
     "GHL_MODE": "production",
     "GHL_LOCATION_ID": "rg3WUxqvDHrkiyBmEiCV",
     // Maps each field the lead pipeline sends to its GoHighLevel custom-field

@@ -383,7 +383,7 @@ export function ActiveFilterChips({ criteria }: { criteria: PropertySearchCriter
           key={chip.id}
           href={chip.href}
           aria-label={`Remove filter: ${chip.label}`}
-          className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full border px-3 text-sm font-medium transition-colors hover:border-[var(--purple)] hover:text-[var(--purple)]"
+          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium transition-colors hover:border-[var(--purple)] hover:text-[var(--purple)]"
           style={{
             borderColor: "var(--border)",
             background: "var(--surface)",
