@@ -500,14 +500,19 @@ test.describe("indexation and crawl control", () => {
     const response = await request.get("/robots.txt");
     const text = await response.text();
     expect(text).toContain("Sitemap:");
-    // Allowed so pages can surface in ChatGPT search.
-    expect(text).toContain("OAI-SearchBot");
-    // GPTBot is blocked on purpose — that is a training decision, separate from
-    // search discovery — so the assertion targets the wildcard block only.
-    const wildcardBlock = text.split(/User-Agent:/i)[1] ?? "";
-    expect(wildcardBlock).toMatch(/Allow:\s*\//);
-    expect(wildcardBlock).not.toMatch(/Disallow:\s*\/\s*$/m);
-    expect(text).toMatch(/User-Agent:\s*GPTBot[\s\S]*?Disallow:\s*\//i);
+    // Search, answer and training crawlers are all named and all allowed
+    // (ADR-013); each named group repeats the private-surface disallows.
+    for (const agent of ["Googlebot", "OAI-SearchBot", "Claude-SearchBot", "GPTBot"]) {
+      expect(text).toContain(`User-Agent: ${agent}`);
+    }
+    // No group blocks the whole site, and every group keeps the API out.
+    expect(text).not.toMatch(/Disallow:\s*\/\s*$/m);
+    const groups = text.split(/\n\s*\n/).filter((group) => /User-Agent:/i.test(group));
+    expect(groups.length).toBeGreaterThanOrEqual(4);
+    for (const group of groups) {
+      expect(group).toMatch(/Allow:\s*\/\s*$/m);
+      expect(group).toMatch(/Disallow:\s*\/api\//);
+    }
   });
 });
 
