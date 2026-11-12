@@ -31,11 +31,19 @@
    */
   "vars": {
     "NEXT_PUBLIC_BRAND_NAME": "TRACT Mortgage",
+    // The canonical origin (ADR-011). The app reads it from .env.production at
+    // build time; these copies exist for worker-entry.js, whose cron builds
+    // email and Meta links from the runtime env and otherwise falls back to
+    // localhost. Must equal apps/web/.env.production (a unit test checks).
+    "NEXT_PUBLIC_SITE_URL": "https://wsmlending.com",
+    "NEXT_PUBLIC_COMPANY_URL": "https://wsmlending.com",
     "NEXT_PUBLIC_SUPABASE_URL": "https://pywikpvjovaayidxyoii.supabase.co",
     "TURNSTILE_MODE": "production",
     // Hostnames Turnstile tokens must have been solved on. Comma-separated;
     // required by the environment schema whenever the mode is live — its
-    // absence is what turned every page into a 500 on 18 Aug 2026.
+    // absence is what turned every page into a 500 on 18 Aug 2026. Both
+    // domains stay listed (owner decision, 12 Nov 2026) so rolling the Worker
+    // back to the two-domain build needs no config change.
     "TURNSTILE_HOSTNAMES": "tractrealestate.com,www.tractrealestate.com,wsmlending.com,www.wsmlending.com,mortgage-company-fl.aaron-9c3.workers.dev",
     "GHL_MODE": "production",
     "GHL_LOCATION_ID": "rg3WUxqvDHrkiyBmEiCV",

@@ -1,14 +1,19 @@
 import Image from "next/image";
 import { ThemeToggle } from "./theme-toggle";
 import { LicensingFacts, NmlsVerifyLinks } from "./licensing-facts";
-import { businessIdentity, licensingStatus, SITE_URL } from "@/lib/site";
+import { businessIdentity, licensingStatus } from "@/lib/site";
+import { PRODUCT_HOME_PATH } from "@/lib/host-routing";
 
 /**
  * Wholesale Mortgage Lending chrome.
  *
- * The marketing host (wsmlending.com) is a different brand from the TRACT
- * product, so it gets its own header and footer. The middleware marks the
- * request and the root layout swaps these in for the TRACT chrome.
+ * The landing at "/" on wsmlending.com is the company brand, distinct from the
+ * TRACT product chrome every other route uses, so it gets its own header and
+ * footer. The middleware marks the request and the root layout swaps these in.
+ *
+ * Every link out of this chrome is a plain <a>, never <Link>: the destination
+ * renders the TRACT chrome, and a client-side transition would keep this
+ * layout's header and footer around the wrong brand.
  *
  * Theme correctness is deliberate: the WML brand is the purple monogram
  * (wml-mark.png, transparent, legible on light and dark) paired with a text
@@ -16,15 +21,13 @@ import { businessIdentity, licensingStatus, SITE_URL } from "@/lib/site";
  * Lending" wordmark is baked black and would vanish in dark mode.
  */
 
-/** The TRACT product origin, without a trailing slash, for cross-brand links. */
-const TRACT = SITE_URL.replace(/\/$/, "");
-
 const LEGAL_LINKS = [
-  { href: `${TRACT}/privacy`, label: "Privacy" },
-  { href: `${TRACT}/terms`, label: "Terms" },
-  { href: `${TRACT}/accessibility`, label: "Accessibility" },
-  { href: `${TRACT}/sms-terms`, label: "SMS terms" },
-  { href: `${TRACT}/do-not-sell-or-share`, label: "Do not sell or share" }
+  { href: "/privacy", label: "Privacy" },
+  { href: "/terms", label: "Terms" },
+  { href: "/accessibility", label: "Accessibility" },
+  { href: "/licenses", label: "Licensing" },
+  { href: "/sms-terms", label: "SMS terms" },
+  { href: "/do-not-sell-or-share", label: "Do not sell or share" }
 ];
 
 function WmlLockup({ compact = false }: { compact?: boolean }) {
@@ -65,7 +68,7 @@ export function WmlHeader() {
           {/* The product is one click away, but the landing's real job is the
               form below it, so this is a quiet secondary link, not a button. */}
           <a
-            href={TRACT}
+            href={PRODUCT_HOME_PATH}
             className="hidden rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:text-[var(--purple)] sm:block"
             style={{ color: "var(--text-muted)" }}
           >
@@ -103,7 +106,7 @@ export function WmlFooter() {
               lenders with clear tools and direct guidance — powered by TRACT.
             </p>
             <a
-              href={TRACT}
+              href={PRODUCT_HOME_PATH}
               className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold transition-opacity hover:opacity-80"
               style={{ color: "var(--purple)" }}
             >

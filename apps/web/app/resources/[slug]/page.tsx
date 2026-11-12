@@ -85,9 +85,10 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
       <Section width="narrow" pad="head" orbs>
         <nav aria-label="Breadcrumb" className="mb-6 text-sm text-[var(--text-muted)]">
-          <Link href="/" className="hover:text-[var(--purple)]">
+          {/* A full-page anchor: "/" is the landing, with its own chrome. */}
+          <a href="/" className="hover:text-[var(--purple)]">
             Home
-          </Link>
+          </a>
           <span aria-hidden="true"> / </span>
           <Link href="/resources" className="hover:text-[var(--purple)]">
             Resources

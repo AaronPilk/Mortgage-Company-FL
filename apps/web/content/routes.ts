@@ -25,18 +25,28 @@ export type RouteEntry = {
 };
 
 export const ROUTE_REGISTRY: RouteEntry[] = [
+  // The homepage of the one canonical domain (ADR-011): on wsmlending.com "/"
+  // renders the Wholesale Mortgage Lending landing (app/wml/page.tsx) through a
+  // middleware rewrite.
   { path: "/", priority: 1.0, changeFrequency: "weekly", indexable: true, contentGroup: "home" },
-  // The Wholesale Mortgage Lending marketing landing. It lives at /wml inside
-  // this app but is served at the WML apex (wsmlending.com) with a canonical
-  // pointing there, so it is deliberately NOT in this product's sitemap —
-  // indexable:false keeps it out. The page itself is crawlable on the WML
-  // domain; a duplicate at tractrealestate.com/wml canonicalises to the apex.
+  // The landing's implementation path. On the public domain it 308s to "/", so
+  // it is never a second URL for the homepage and never in the sitemap.
   {
     path: "/wml",
     priority: 0.5,
     changeFrequency: "monthly",
     indexable: false,
     contentGroup: "marketing"
+  },
+  // The TRACT product home (app/page.tsx), served at /tract through a middleware
+  // rewrite because "/" belongs to the landing. It shares the landing's funnel
+  // and purpose, so it is noindex and off the sitemap: one homepage ranks.
+  {
+    path: "/tract",
+    priority: 0.5,
+    changeFrequency: "monthly",
+    indexable: false,
+    contentGroup: "home"
   },
   {
     path: "/plan",

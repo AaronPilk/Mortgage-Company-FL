@@ -191,9 +191,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   // 3. First-party origin. A browser always sends Origin on a cross-origin POST.
-  // This lead is posted from BOTH brand domains — the TRACT product and the
-  // Wholesale Mortgage Lending marketing landing at its own apex — so either
-  // first-party origin is accepted. Every other cross-site caller is rejected.
+  // Since the one-domain decision (ADR-011) the landing and the product share
+  // one origin and the build guard keeps COMPANY_URL equal to SITE_URL, so this
+  // list has one entry; the second branch only matters if a future build ever
+  // separates them again. Every other cross-site caller is rejected.
   const firstPartyOrigins = SITE_URL === COMPANY_URL ? [SITE_URL] : [SITE_URL, COMPANY_URL];
   if (!firstPartyOrigins.some((allowed) => isSameOrigin(context.origin, allowed))) {
     return finish("rejected_origin", fail("FORBIDDEN", context.requestId));

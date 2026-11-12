@@ -50,7 +50,8 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // Which brand's chrome to render. The middleware marks the Wholesale Mortgage
-  // Lending landing with this header; everything else is the TRACT product.
+  // Lending landing ("/" on wsmlending.com) with this header; every other route
+  // is the TRACT product.
   // Reading a header here is free — every route already renders dynamically
   // because the shared header reads the session cookie.
   const isWml = (await headers()).get("x-tract-brand") === "wml";
@@ -93,15 +94,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {!isWml && <AssistantWidget enabled={publicFeatures().assistant} />}
         <AttributionCapture />
         <SiteAnalytics />
+        {/* One site, one graph (ADR-011). The WebSite node matters most on the
+            homepage, which is the landing, so it is emitted for both chromes. */}
         <JsonLd
-          value={
-            isWml
-              ? graph([organizationNode(businessIdentity)], businessIdentity)
-              : graph(
-                  [organizationNode(businessIdentity), webSiteNode(businessIdentity)],
-                  businessIdentity
-                )
-          }
+          value={graph(
+            [organizationNode(businessIdentity), webSiteNode(businessIdentity)],
+            businessIdentity
+          )}
         />
       </body>
     </html>

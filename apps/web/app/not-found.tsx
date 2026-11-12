@@ -24,7 +24,9 @@ export default function NotFound() {
         ))}
       </ul>
       <div className="mt-10">
-        <ButtonLink href="/">Back to the home page</ButtonLink>
+        <ButtonLink href="/" reloadDocument>
+          Back to the home page
+        </ButtonLink>
       </div>
     </Section>
   );

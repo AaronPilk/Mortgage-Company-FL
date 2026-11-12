@@ -4,7 +4,8 @@ import { ThemeToggle } from "./theme-toggle";
 import { MobileNav } from "./mobile-nav";
 import { ButtonLink } from "./ui";
 import { LicensingFacts, NmlsVerifyLinks } from "./licensing-facts";
-import { businessIdentity, COMPANY_URL, isPreLaunch } from "@/lib/site";
+import { businessIdentity, isPreLaunch } from "@/lib/site";
+import { PRODUCT_HOME_PATH } from "@/lib/host-routing";
 import { createRequestClient } from "@/lib/supabase";
 
 const PRIMARY_NAV = [
@@ -119,7 +120,9 @@ export async function SiteHeader() {
     // the fixed bottom action bar, which sits at z-50.
     <header className="glass sticky top-0 z-[60]">
       <div className="container-wide flex items-center justify-between gap-4 py-3.5">
-        <Link href="/" aria-label={`${businessIdentity.brandName} home`}>
+        {/* The TRACT wordmark leads to the TRACT home. "/" is the Wholesale
+            Mortgage Lending landing, which has its own chrome (ADR-011). */}
+        <Link href={PRODUCT_HOME_PATH} aria-label={`${businessIdentity.brandName} home`}>
           <Wordmark />
         </Link>
 
@@ -218,8 +221,10 @@ export function SiteFooter() {
               A Florida mortgage brokerage. We help buyers and homeowners compare financing paths
               with clear tools and direct guidance.
             </p>
+            {/* A plain anchor, not <Link>: the landing renders different chrome,
+                and a client-side transition would keep this layout's header. */}
             <a
-              href={COMPANY_URL}
+              href="/"
               className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold transition-colors hover:opacity-80"
               style={{ color: "var(--purple)" }}
             >

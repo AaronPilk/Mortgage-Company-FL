@@ -7,7 +7,6 @@ import { HomeFunnel } from "@/components/home-funnel";
 import { JsonLd } from "@/components/json-ld";
 import { pageMetadata } from "@/lib/metadata";
 import {
-  COMPANY_URL,
   EMAIL_CONSENT_TEXT,
   LEAD_DISCLOSURE_TEXT,
   LEAD_DISCLOSURE_VERSION,
@@ -16,53 +15,50 @@ import {
   businessIdentity,
   isPreLaunch
 } from "@/lib/site";
-import { breadcrumbNode, faqNode, graph, webPageNode } from "@tract/seo";
+import { PRODUCT_HOME_PATH } from "@/lib/host-routing";
+import { absoluteUrl, breadcrumbNode, faqNode, graph, webPageNode } from "@tract/seo";
 
 /**
- * Wholesale Mortgage Lending — the marketing landing served at the WML apex
- * (wsmlending.com). This is the front door paid mortgage traffic lands on, so
- * its one job is to turn a visitor into a lead: the same real, CRM-wired funnel
- * the TRACT homepage uses shares the hero, and everything below it is mortgage
- * education that earns the organic and Maps ranking the ads sit on top of.
+ * Wholesale Mortgage Lending — the company homepage, served at "/" on
+ * wsmlending.com (ADR-011). This is the front door paid mortgage traffic lands
+ * on, so its one job is to turn a visitor into a lead: the same real, CRM-wired
+ * funnel the TRACT home uses shares the hero, and everything below it is
+ * mortgage education that earns the organic and Maps ranking the ads sit on.
  *
- * The middleware serves this with WML chrome and keeps /api same-origin so the
- * form posts here rather than being redirected cross-origin. Its canonical
- * points at the WML apex, not this /wml implementation path.
+ * It is implemented at /wml; the middleware rewrites "/" here with WML chrome
+ * and 308s a direct /wml request back to "/", so the homepage has one URL. Its
+ * metadata path is therefore "/", which makes the canonical the bare origin.
+ *
+ * Links into the rest of the app are same-origin paths in plain <a> tags: the
+ * destinations render TRACT chrome, which a client-side transition would not.
  */
-
-/** The TRACT product origin and the WML apex, both without a trailing slash. */
-const TRACT = SITE_URL.replace(/\/$/, "");
-const WML = COMPANY_URL.replace(/\/$/, "");
 
 export const metadata: Metadata = pageMetadata({
   title: "Florida mortgage broker — compare lenders",
   description:
     "Wholesale Mortgage Lending is a Florida mortgage brokerage. Compare financing across lenders for a purchase, refinance, or first mortgage — no credit pull.",
-  path: "/wml",
-  imagePath: "/images/og/default.png",
-  // Served at the WML apex; the canonical must be the WML domain, never the
-  // /wml path on the product origin.
-  canonicalUrl: `${WML}/`
+  path: "/",
+  imagePath: "/images/og/default.png"
 });
 
 const HERO_PROOF = ["No credit pull", "Not an application", "No obligation"];
 
-/** Educational, keyword-bearing, and each one links into the TRACT product. */
+/** Educational, keyword-bearing, and each one links into the program pages. */
 const WHAT_WE_HELP = [
   {
-    href: `${TRACT}/mortgage/purchase`,
+    href: "/mortgage/purchase",
     label: "Buying a home",
     detail:
       "What a Florida purchase actually costs to carry — taxes, insurance, and dues included — compared across lenders instead of fit to one product."
   },
   {
-    href: `${TRACT}/mortgage/refinance`,
+    href: "/mortgage/refinance",
     label: "Refinancing",
     detail:
       "Lowering the rate, changing the term, or taking cash out only makes sense when the math works. We show you the break-even, not just the new payment."
   },
   {
-    href: `${TRACT}/mortgage/first-time-home-buyers`,
+    href: "/mortgage/first-time-home-buyers",
     label: "First-time buyers",
     detail:
       "Your first mortgage carries the most unknowns. We explain the sequence, what to have ready, and where first-time buyers most often get surprised."
@@ -71,12 +67,12 @@ const WHAT_WE_HELP = [
 
 /** The programs strip — mortgage keywords that also carry local/ads intent. */
 const PROGRAMS = [
-  { href: `${TRACT}/mortgage/conventional`, label: "Conventional" },
-  { href: `${TRACT}/mortgage/fha`, label: "FHA" },
-  { href: `${TRACT}/mortgage/va`, label: "VA" },
-  { href: `${TRACT}/mortgage/usda`, label: "USDA" },
-  { href: `${TRACT}/mortgage/jumbo`, label: "Jumbo" },
-  { href: `${TRACT}/mortgage/home-equity`, label: "Home equity" }
+  { href: "/mortgage/conventional", label: "Conventional" },
+  { href: "/mortgage/fha", label: "FHA" },
+  { href: "/mortgage/va", label: "VA" },
+  { href: "/mortgage/usda", label: "USDA" },
+  { href: "/mortgage/jumbo", label: "Jumbo" },
+  { href: "/mortgage/home-equity", label: "Home equity" }
 ];
 
 const WML_FAQS = [
@@ -115,7 +111,7 @@ const btnSecondary =
   "text-[0.95rem] font-semibold transition duration-200 hover:-translate-y-0.5 hover:border-[var(--purple)] hover:text-[var(--purple)]";
 
 export default function WmlLandingPage() {
-  const url = `${WML}/`;
+  const url = absoluteUrl(SITE_URL, "/");
 
   return (
     <>
@@ -368,11 +364,15 @@ export default function WmlLandingPage() {
               portal. Powered by Wholesale Mortgage Lending.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <a href={TRACT} className={btnPrimary} style={{ background: "var(--purple)" }}>
+              <a
+                href={PRODUCT_HOME_PATH}
+                className={btnPrimary}
+                style={{ background: "var(--purple)" }}
+              >
                 Enter TRACT &rarr;
               </a>
               <a
-                href={`${TRACT}/calculators`}
+                href="/calculators"
                 className="inline-flex min-h-[48px] items-center justify-center rounded-xl border border-white/40 px-6 py-3 text-[0.95rem] font-semibold text-white transition-colors hover:bg-white/10"
               >
                 Try the calculators
@@ -415,7 +415,7 @@ export default function WmlLandingPage() {
               Get my options
             </a>
             <a
-              href={`${TRACT}/calculators`}
+              href="/calculators"
               className={btnSecondary}
               style={{ color: "var(--text)", borderColor: "var(--border)" }}
             >

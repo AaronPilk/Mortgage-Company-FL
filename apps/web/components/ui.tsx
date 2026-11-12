@@ -52,13 +52,30 @@ export function ButtonLink({
   className?: string;
   prefetch?: boolean;
   "data-cta"?: string;
+  /**
+   * Render a plain anchor so the browser loads a full document. Needed for "/":
+   * the landing renders different chrome from the root layout's TRACT chrome,
+   * and a client-side transition would keep the old header and footer.
+   */
+  reloadDocument?: boolean;
 }) {
+  const { reloadDocument = false, prefetch, ...anchorProps } = rest;
+  const style = variantStyle[variant];
+  const classes = `${buttonBase} ${buttonVariants[variant]} ${className}`;
+  if (reloadDocument) {
+    return (
+      <a href={href} style={style} className={classes} {...anchorProps}>
+        {children}
+      </a>
+    );
+  }
   return (
     <Link
       href={href}
-      style={variantStyle[variant]}
-      className={`${buttonBase} ${buttonVariants[variant]} ${className}`}
-      {...rest}
+      style={style}
+      className={classes}
+      {...(prefetch === undefined ? {} : { prefetch })}
+      {...anchorProps}
     >
       {children}
     </Link>

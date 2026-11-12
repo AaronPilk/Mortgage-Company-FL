@@ -15,24 +15,13 @@ export function pageMetadata(input: {
   noIndex?: boolean;
   publishedAt?: string;
   modifiedAt?: string;
-  /**
-   * Absolute canonical override. The Wholesale Mortgage Lending landing is
-   * served at the WML apex root but implemented at /wml inside this product app;
-   * its canonical must point at the WML domain, never at this product origin.
-   * Pass a full absolute URL. Left unset, the canonical is this origin + path.
-   */
-  canonicalUrl?: string;
 }): Metadata {
+  // Every canonical is SITE_URL + path, with no override. The absolute-URL
+  // override that let the landing canonicalise to a second domain went away
+  // with that domain (ADR-011); a canonical can no longer leave the origin.
   const forced = shouldNoIndex(input.path);
-  const meta = createMetadata(SITE_URL, {
+  return createMetadata(SITE_URL, {
     ...input,
     noIndex: forced || (input.noIndex ?? false)
   }) as Metadata;
-  if (input.canonicalUrl !== undefined) {
-    meta.alternates = { ...(meta.alternates ?? {}), canonical: input.canonicalUrl };
-    if (meta.openGraph !== undefined) {
-      (meta.openGraph as { url?: string }).url = input.canonicalUrl;
-    }
-  }
-  return meta;
 }

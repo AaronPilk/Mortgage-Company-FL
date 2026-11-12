@@ -28,13 +28,22 @@ import {
 } from "@/lib/site";
 import { absoluteUrl, breadcrumbNode, faqNode, graph, webPageNode } from "@tract/seo";
 import { createRequestClient } from "@/lib/supabase";
+import { PRODUCT_HOME_PATH } from "@/lib/host-routing";
 
+/**
+ * The TRACT product home. On the public domain it is served at /tract (the
+ * middleware rewrites /tract to this file) because "/" belongs to the Wholesale
+ * Mortgage Lending landing (ADR-011). It shares that page's funnel and purpose,
+ * so it is noindex: two homepages competing for the same queries would split
+ * the one that should rank.
+ */
 export const metadata: Metadata = pageMetadata({
   title: "Honest Florida mortgage guidance, no pressure",
   description:
     "Tell us whether you are buying, refinancing, or buying your first home, and a licensed mortgage professional will lay out your real options. No credit pull.",
-  path: "/",
-  imagePath: "/images/og/default.png"
+  path: PRODUCT_HOME_PATH,
+  imagePath: "/images/og/default.png",
+  noIndex: true
 });
 
 /** Only claims that are demonstrably true on this site today. */
@@ -109,8 +118,8 @@ const HOME_FAQS = [
 ];
 
 export default async function HomePage() {
-  const url = absoluteUrl(SITE_URL, "/");
-  // The homepage is where the logo leads, so a returning borrower lands here.
+  const url = absoluteUrl(SITE_URL, PRODUCT_HOME_PATH);
+  // The TRACT home is where the TRACT logo leads, so a returning borrower lands here.
   // Greet them and point at their own stuff instead of treating them as a
   // cold lead. (Every route is already dynamic — the header reads the session.)
   const supabase = await createRequestClient();
@@ -124,15 +133,17 @@ export default async function HomePage() {
             webPageNode({
               identity: businessIdentity,
               url,
-              name: "Wholesale Mortgage Lending — Florida mortgage brokerage, powered by TRACT",
+              name: "TRACT — mortgage tools from Wholesale Mortgage Lending",
               description:
                 "A Florida mortgage brokerage. Tell us what you are working on and a licensed mortgage professional lays out your options — no application, no credit pull."
             }),
-            // The homepage renders these exact questions below, so the FAQPage
-            // markup is honest — and the home page is the highest-value indexable
-            // page on the site, so it should carry it like the program pages do.
+            // This page renders these exact questions below, so the FAQPage
+            // markup is honest.
             faqNode(HOME_FAQS, true),
-            breadcrumbNode([{ name: "Home", url }])
+            breadcrumbNode([
+              { name: "Home", url: absoluteUrl(SITE_URL, "/") },
+              { name: "TRACT", url }
+            ])
           ],
           businessIdentity
         )}

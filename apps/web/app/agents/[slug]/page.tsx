@@ -145,9 +145,10 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
 
       <Section pad="head">
         <nav aria-label="Breadcrumb" className="mb-6 text-sm text-[var(--text-muted)]">
-          <Link href="/" className="hover:text-[var(--purple)]">
+          {/* A full-page anchor: "/" is the landing, with its own chrome. */}
+          <a href="/" className="hover:text-[var(--purple)]">
             Home
-          </Link>
+          </a>
           <span aria-hidden="true"> / </span>
           <Link href="/agents" className="hover:text-[var(--purple)]">
             Agents
