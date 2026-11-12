@@ -122,9 +122,14 @@ test.describe("home page", () => {
     expect(body).not.toContain("lowest rate");
   });
 
-  test("shows the pre-launch notice while licensing is pending", async ({ page }) => {
+  test("no longer shows the pre-launch notice now that the company is licensed", async ({
+    page
+  }) => {
     await page.goto("/");
-    await expect(page.getByRole("status").first()).toContainText("pre-launch");
+    const body = (await page.locator("body").innerText()).toLowerCase();
+    expect(body).not.toContain("pre-launch");
+    // The active company NMLS ID is now disclosed publicly instead of a pending state.
+    expect(body).toContain("2898263");
   });
 });
 

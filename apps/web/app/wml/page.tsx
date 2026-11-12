@@ -20,7 +20,8 @@ import {
   LEAD_DISCLOSURE_VERSION,
   SITE_URL,
   SMS_CONSENT_TEXT,
-  businessIdentity
+  businessIdentity,
+  isPreLaunch
 } from "@/lib/site";
 import { breadcrumbNode, faqNode, graph, webPageNode } from "@tract/seo";
 
@@ -436,7 +437,7 @@ export default function WmlLandingPage() {
             label="Florida mortgage broker license"
             value={businessIdentity.companyLicenseId}
           />
-          <Badge tone="neutral">Pre-launch</Badge>
+          {isPreLaunch() && <Badge tone="neutral">Pre-launch</Badge>}
         </div>
         <Disclosure
           headline="Nothing on this page is an offer of credit."

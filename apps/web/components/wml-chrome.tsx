@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { ThemeToggle } from "./theme-toggle";
 import { LicenseFact } from "./ui";
-import { businessIdentity, SITE_URL } from "@/lib/site";
+import { businessIdentity, SITE_URL, isPreLaunch } from "@/lib/site";
 
 /**
  * Wholesale Mortgage Lending chrome.
@@ -163,9 +163,10 @@ export function WmlFooter() {
             mortgage loans. All figures shown on this site are estimates based on information you
             provide and are not an offer of credit, a rate quote, a preapproval, or a commitment to
             lend. Loan approval, terms, and availability depend on the lender, the loan program, the
-            property, and a complete review of your application. The company is pre-launch and not
-            yet licensed to arrange Florida residential mortgage credit; licensing details will
-            appear here once established.
+            property, and a complete review of your application.
+            {isPreLaunch()
+              ? " The company is pre-launch and not yet licensed to arrange Florida residential mortgage credit; licensing details will appear here once established."
+              : ""}
           </p>
         </div>
       </div>

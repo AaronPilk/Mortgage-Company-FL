@@ -39,7 +39,7 @@ export const businessIdentity: BusinessIdentity = {
   brandName: BRAND_NAME,
   siteUrl: SITE_URL,
   logoPath: "/brand/wml-logo.png",
-  nmlsId: null,
+  nmlsId: "2898263",
   companyLicenseId: null,
   telephone: null,
   address: null,
@@ -61,9 +61,9 @@ export type LicensingStatus = {
  * must stay off. This flag drives the pre-launch banner and the readiness board.
  */
 export const licensingStatus: LicensingStatus = {
-  companyLicensed: false,
-  principalLoanOriginatorNamed: false,
-  nmlsRecordPublic: false
+  companyLicensed: true,
+  principalLoanOriginatorNamed: true,
+  nmlsRecordPublic: true
 };
 
 export function isPreLaunch(): boolean {

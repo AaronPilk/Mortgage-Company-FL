@@ -9,7 +9,8 @@ import {
   LEAD_DISCLOSURE_TEXT,
   LEAD_DISCLOSURE_VERSION,
   SMS_CONSENT_TEXT,
-  businessIdentity
+  businessIdentity,
+  isPreLaunch
 } from "@/lib/site";
 import { CAMPAIGNS, campaignBySlug } from "@/content/campaigns";
 
@@ -132,7 +133,7 @@ export default async function CampaignLandingPage({
             label="Florida mortgage broker license"
             value={businessIdentity.companyLicenseId}
           />
-          <Badge tone="neutral">Pre-launch</Badge>
+          {isPreLaunch() && <Badge tone="neutral">Pre-launch</Badge>}
         </div>
         <Disclosure
           headline="Nothing on this page is an offer of credit."
