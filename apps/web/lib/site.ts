@@ -31,6 +31,8 @@ export const PRODUCT_NAME = process.env.NEXT_PUBLIC_PRODUCT_NAME ?? "TRACT";
  * same entity (sameAs), which is how two domains read as one SEO umbrella.
  */
 export const COMPANY_URL = process.env.NEXT_PUBLIC_COMPANY_URL ?? "https://wsmlending.com";
+/** Public contact inbox, shown on the site and in the Organization schema. */
+export const COMPANY_EMAIL = process.env.NEXT_PUBLIC_COMPANY_EMAIL ?? "dan@wsmlending.com";
 /** Kept for existing callers; the product brand shown in the UI. */
 export const BRAND_NAME = process.env.NEXT_PUBLIC_BRAND_NAME ?? PRODUCT_NAME;
 
@@ -42,6 +44,7 @@ export const businessIdentity: BusinessIdentity = {
   nmlsId: "2898263",
   companyLicenseId: "MBR8794",
   telephone: null,
+  email: COMPANY_EMAIL,
   address: null,
   areaServed: ["Florida"],
   // The company's other domain, so search engines read wsmlending.com and this

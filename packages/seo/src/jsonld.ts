@@ -15,6 +15,8 @@ export type BusinessIdentity = {
   nmlsId: string | null;
   companyLicenseId: string | null;
   telephone: string | null;
+  /** Public contact inbox; null if none is published. */
+  email: string | null;
   address: {
     streetAddress: string;
     addressLocality: string;
@@ -54,6 +56,7 @@ export function organizationNode(identity: BusinessIdentity): Node {
       url: `${identity.siteUrl}${identity.logoPath}`
     }),
     telephone: identity.telephone,
+    email: identity.email,
     identifier: identity.nmlsId === null ? null : `NMLS #${identity.nmlsId}`,
     address:
       identity.address === null

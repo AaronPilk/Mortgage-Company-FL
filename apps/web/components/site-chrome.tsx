@@ -217,6 +217,15 @@ export function SiteFooter() {
               A Florida mortgage brokerage. We help buyers and homeowners compare financing paths
               with clear tools and direct guidance.
             </p>
+            {businessIdentity.email !== null && (
+              <a
+                href={"mailto:" + businessIdentity.email}
+                className="mt-4 block text-sm font-medium transition-colors hover:text-[var(--purple)]"
+                style={{ color: "var(--text-muted)" }}
+              >
+                {businessIdentity.email}
+              </a>
+            )}
             <a
               href={COMPANY_URL}
               className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold transition-colors hover:opacity-80"

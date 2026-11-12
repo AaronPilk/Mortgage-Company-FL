@@ -23,6 +23,7 @@ const unlicensedIdentity: BusinessIdentity = {
   nmlsId: null,
   companyLicenseId: null,
   telephone: null,
+  email: null,
   address: null,
   areaServed: ["Florida"],
   sameAs: []
@@ -127,6 +128,7 @@ describe("JSON-LD", () => {
       ...unlicensedIdentity,
       nmlsId: "1234567",
       telephone: "+18135550147",
+      email: "hello@tract.example",
       address: {
         streetAddress: "100 Example Way",
         addressLocality: "Tampa",
@@ -136,6 +138,7 @@ describe("JSON-LD", () => {
     });
     expect(node["@type"]).toEqual(["Organization", "FinancialService"]);
     expect(JSON.stringify(node)).toContain("NMLS #1234567");
+    expect(JSON.stringify(node)).toContain("hello@tract.example");
   });
 
   it("suppresses FAQ markup when the questions are not rendered on the page", () => {
