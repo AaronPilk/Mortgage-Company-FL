@@ -8,10 +8,10 @@ import {
   CtaPanel,
   Disclosure,
   Faq,
-  LicenseFact,
   Section,
   SectionHeading
 } from "@/components/ui";
+import { LicensingFacts } from "@/components/licensing-facts";
 import { AssetImage } from "@/components/asset-image";
 import { HeroEstimator } from "@/components/hero-estimator";
 import { HomeFunnel } from "@/components/home-funnel";
@@ -23,7 +23,8 @@ import {
   LEAD_DISCLOSURE_VERSION,
   SITE_URL,
   SMS_CONSENT_TEXT,
-  businessIdentity
+  businessIdentity,
+  isPreLaunch
 } from "@/lib/site";
 import { absoluteUrl, breadcrumbNode, faqNode, graph, webPageNode } from "@tract/seo";
 import { createRequestClient } from "@/lib/supabase";
@@ -398,12 +399,8 @@ export default async function HomePage() {
 
       <Section width="narrow" className="!pt-0">
         <div className="flex flex-wrap items-center gap-x-8 gap-y-2">
-          <LicenseFact label="Company NMLS ID" value={businessIdentity.nmlsId} />
-          <LicenseFact
-            label="Florida mortgage broker license"
-            value={businessIdentity.companyLicenseId}
-          />
-          <Badge tone="neutral">Pre-launch</Badge>
+          <LicensingFacts />
+          {isPreLaunch() && <Badge tone="neutral">Pre-launch</Badge>}
         </div>
         <Disclosure
           headline="Nothing on this page is an offer of credit."

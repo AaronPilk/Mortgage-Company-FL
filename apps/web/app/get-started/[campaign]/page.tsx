@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Badge, Card, Disclosure, LicenseFact, Section } from "@/components/ui";
+import { Badge, Card, Disclosure, Section } from "@/components/ui";
+import { LicensingFacts } from "@/components/licensing-facts";
 import { CampaignFunnel } from "@/components/campaign-funnel/campaign-funnel";
 import { pageMetadata } from "@/lib/metadata";
 import {
@@ -9,7 +10,7 @@ import {
   LEAD_DISCLOSURE_TEXT,
   LEAD_DISCLOSURE_VERSION,
   SMS_CONSENT_TEXT,
-  businessIdentity
+  isPreLaunch
 } from "@/lib/site";
 import { CAMPAIGNS, campaignBySlug } from "@/content/campaigns";
 
@@ -127,12 +128,8 @@ export default async function CampaignLandingPage({
       {/* The standard licence and disclosure block, exactly as the homepage. */}
       <Section width="narrow" className="!pt-0">
         <div className="flex flex-wrap items-center gap-x-8 gap-y-2">
-          <LicenseFact label="Company NMLS ID" value={businessIdentity.nmlsId} />
-          <LicenseFact
-            label="Florida mortgage broker license"
-            value={businessIdentity.companyLicenseId}
-          />
-          <Badge tone="neutral">Pre-launch</Badge>
+          <LicensingFacts />
+          {isPreLaunch() && <Badge tone="neutral">Pre-launch</Badge>}
         </div>
         <Disclosure
           headline="Nothing on this page is an offer of credit."

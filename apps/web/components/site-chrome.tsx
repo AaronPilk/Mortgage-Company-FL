@@ -2,7 +2,8 @@ import Link from "next/link";
 import { Wordmark } from "./wordmark";
 import { ThemeToggle } from "./theme-toggle";
 import { MobileNav } from "./mobile-nav";
-import { ButtonLink, LicenseFact } from "./ui";
+import { ButtonLink } from "./ui";
+import { LicensingFacts, NmlsVerifyLinks } from "./licensing-facts";
 import { businessIdentity, COMPANY_URL, isPreLaunch } from "@/lib/site";
 import { createRequestClient } from "@/lib/supabase";
 
@@ -254,23 +255,9 @@ export function SiteFooter() {
 
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-x-8 gap-y-2">
-            <LicenseFact label="Company NMLS ID" value={businessIdentity.nmlsId} />
-            <LicenseFact
-              label="Florida mortgage broker license"
-              value={businessIdentity.companyLicenseId}
-            />
+            <LicensingFacts originator />
           </div>
-          <p className="text-sm">
-            <a
-              className="font-medium underline underline-offset-4"
-              style={{ color: "var(--purple)" }}
-              href="https://www.nmlsconsumeraccess.org/"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              Verify our licensing on NMLS Consumer Access
-            </a>
-          </p>
+          <NmlsVerifyLinks originator />
           {/*
             A broker arranges credit; it does not lend. The Equal Housing wording
             here is the Opportunity form, never "Equal Housing Lender", because

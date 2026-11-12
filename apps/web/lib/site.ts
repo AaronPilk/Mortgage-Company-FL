@@ -4,50 +4,52 @@ import type { BusinessIdentity } from "@tract/seo";
  * Business identity.
  *
  * Every licensing, address, and telephone field is null until the real value is
- * issued and confirmed on the public record. The UI renders a visible pending
- * state for a null; it never renders a placeholder that reads like a fact.
+ * known from a source we can name. The UI renders a visible pending state for a
+ * null; it never renders a placeholder that reads like a fact.
  *
  * Owner: the principal loan originator. Changing any value here is a compliance
- * action, not a copy edit.
+ * action, not a copy edit. Sources are recorded in docs/seo/README.md and
+ * docs/architecture/decisions.md (ADR-012).
  */
 
+/**
+ * The one canonical origin (ADR-011): https://wsmlending.com in production.
+ * Read at build time; every canonical, sitemap URL, og:url and JSON-LD @id is
+ * built from it.
+ */
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 /**
- * Two names, one identity. The COMPANY is Wholesale Mortgage Lending — the legal,
- * licensed (pending) brokerage entity that the compliance statements, the NMSL
- * record, and the ad front door all attach to. The PRODUCT is TRACT — the
- * platform people actually use (calculators, properties, home value, the loan
- * portal). The site runs under one domain and one SEO identity: "TRACT, powered
- * by Wholesale Mortgage Lending." In schema, the company is the Organization name
- * and TRACT is its brand/alternateName (see @tract/seo organizationNode).
+ * Two names, one site. The COMPANY is Wholesale Mortgage Lending, the brokerage
+ * entity the compliance statements, the NMLS record and the domain attach to.
+ * The PRODUCT is TRACT, the platform people use (calculators, properties, home
+ * value, the loan portal). Both live on the company domain: the landing at "/"
+ * and the TRACT product home at /tract. In schema the company is the
+ * Organization and TRACT its alternateName (see @tract/seo organizationNode).
  */
 export const COMPANY_NAME = process.env.NEXT_PUBLIC_COMPANY_NAME ?? "Wholesale Mortgage Lending";
+/** As shown in Dan's NMLS portal account list, relayed by the owner 12 Nov 2026. */
+export const COMPANY_LEGAL_NAME = "Wholesale Mortgage Lending LLC";
 export const PRODUCT_NAME = process.env.NEXT_PUBLIC_PRODUCT_NAME ?? "TRACT";
 /**
- * The company's own marketing domain — the Wholesale Mortgage Lending front door
- * (wsmlending.com), a separate domain from this product app (tractrealestate.com).
- * They are one brand: the footer links here and the org schema lists it as the
- * same entity (sameAs), which is how two domains read as one SEO umbrella.
+ * The company's domain. Since the one-domain decision it is the same origin as
+ * SITE_URL; scripts/check-site-url.mjs refuses a build where the two differ.
+ * Kept as a name so links that mean "the company front door" still say so.
  */
-export const COMPANY_URL = process.env.NEXT_PUBLIC_COMPANY_URL ?? "https://wsmlending.com";
+export const COMPANY_URL = process.env.NEXT_PUBLIC_COMPANY_URL ?? SITE_URL;
 /** Kept for existing callers; the product brand shown in the UI. */
 export const BRAND_NAME = process.env.NEXT_PUBLIC_BRAND_NAME ?? PRODUCT_NAME;
 
-export const businessIdentity: BusinessIdentity = {
-  legalName: COMPANY_NAME,
-  brandName: BRAND_NAME,
-  siteUrl: SITE_URL,
-  logoPath: "/brand/wml-logo.png",
-  nmlsId: null,
-  companyLicenseId: null,
-  telephone: null,
-  address: null,
-  areaServed: ["Florida"],
-  // The company's other domain, so search engines read wsmlending.com and this
-  // product domain as one entity rather than two unrelated sites.
-  sameAs: [COMPANY_URL]
-};
+/** NMLS Consumer Access, the public record a visitor is told to check us against. */
+const NMLS_CONSUMER_ACCESS = "https://www.nmlsconsumeraccess.org/EntityDetails.aspx";
+
+export function nmlsCompanyUrl(nmlsId: string): string {
+  return `${NMLS_CONSUMER_ACCESS}/COMPANY/${encodeURIComponent(nmlsId)}`;
+}
+
+export function nmlsIndividualUrl(nmlsId: string): string {
+  return `${NMLS_CONSUMER_ACCESS}/INDIVIDUAL/${encodeURIComponent(nmlsId)}`;
+}
 
 export type LicensingStatus = {
   companyLicensed: boolean;
@@ -56,13 +58,24 @@ export type LicensingStatus = {
 };
 
 /**
- * Until every value here is true, the site must not claim the company can
- * arrange Florida residential mortgage credit, and paid mortgage advertising
- * must stay off. This flag drives the pre-launch banner and the readiness board.
+ * Until every value here is true, the site must not claim the company can take
+ * applications, and paid mortgage advertising must stay off. This flag drives
+ * the pre-launch banner, the readiness board and the Meta conversions gate.
+ *
+ * 12 Nov 2026: the owner stated the company is licensed and relayed Dan's NMLS
+ * portal account list (company NMLS ID 2898263, loan originator NMLS ID
+ * 132852). companyLicensed reflects that statement. principalLoanOriginatorNamed
+ * does too: Dan is the only originator named, and Florida does not issue a
+ * broker business licence without a designated principal loan originator.
+ *
+ * nmlsRecordPublic stays false. NMLS Consumer Access blocks automated lookup, so
+ * nobody has read the public record back from here. Flip it only after a person
+ * opens the Consumer Access page for 2898263 and sees the company listed with an
+ * approved Florida licence. Until then isPreLaunch() stays true.
  */
 export const licensingStatus: LicensingStatus = {
-  companyLicensed: false,
-  principalLoanOriginatorNamed: false,
+  companyLicensed: true,
+  principalLoanOriginatorNamed: true,
   nmlsRecordPublic: false
 };
 
@@ -73,6 +86,48 @@ export function isPreLaunch(): boolean {
     licensingStatus.nmlsRecordPublic
   );
 }
+
+const COMPANY_NMLS_ID = "2898263";
+
+export const businessIdentity: BusinessIdentity = {
+  name: COMPANY_NAME,
+  legalName: COMPANY_LEGAL_NAME,
+  brandName: BRAND_NAME,
+  siteUrl: SITE_URL,
+  logoPath: "/brand/wml-logo.png",
+  // Source: Dan's NMLS portal account list, relayed by the owner 12 Nov 2026.
+  nmlsId: COMPANY_NMLS_ID,
+  // The Florida mortgage broker business licence number was not provided. It
+  // stays null, which renders a visible pending state; never fill it with a
+  // guess.
+  companyLicenseId: null,
+  // Neither is confirmed for this company yet. A FinancialService node needs a
+  // real public office, so the schema stays a plain Organization (ADR-009).
+  telephone: null,
+  address: null,
+  areaServed: ["Florida"],
+  // Real profiles only. The old product domain now redirects here, so it is no
+  // longer a separate profile. The Consumer Access page joins once a person has
+  // confirmed it is public.
+  sameAs: licensingStatus.nmlsRecordPublic ? [nmlsCompanyUrl(COMPANY_NMLS_ID)] : []
+};
+
+export type LoanOriginator = { name: string; nmlsId: string };
+
+/** Source: Dan's NMLS portal account list, relayed by the owner 12 Nov 2026. */
+export const loanOriginator: LoanOriginator = {
+  name: "Daniel Michael Cuesta",
+  nmlsId: "132852"
+};
+
+/**
+ * How a null licence number reads. "Pending issuance" would contradict the
+ * owner's statement that the company is licensed, so once companyLicensed is
+ * true the missing number reads as awaiting confirmation instead.
+ */
+export const LICENSE_PENDING_LABEL = licensingStatus.companyLicensed
+  ? "number pending confirmation"
+  : "pending issuance";
 
 export const LEAD_DISCLOSURE_VERSION = "lead-disclosure@2026-08-17";
 

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { Card, CtaPanel, LicenseFact, Prose, Section, SectionHeading } from "@/components/ui";
+import { Card, CtaPanel, Prose, Section, SectionHeading } from "@/components/ui";
+import { LicensingFacts, NmlsVerifyLinks } from "@/components/licensing-facts";
 import { pageMetadata } from "@/lib/metadata";
-import { businessIdentity } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata({
   title: "About Wholesale Mortgage Lending",
@@ -77,18 +77,15 @@ export default function AboutPage() {
         <Card className="mt-10">
           <h2 className="text-lg font-semibold text-[var(--text)]">Licensing</h2>
           <div className="mt-4 space-y-2">
-            <LicenseFact label="Company NMLS ID" value={businessIdentity.nmlsId} />
-            <LicenseFact
-              label="Florida mortgage broker license"
-              value={businessIdentity.companyLicenseId}
-            />
-            <LicenseFact label="Principal loan originator" value={null} />
+            <LicensingFacts originator />
           </div>
           <p className="mt-4 text-sm text-[var(--text-muted)]">
-            Where a value shows as pending, it has not yet been issued and confirmed on the public
-            record. We do not display a licence number before it exists. Verify anything you see
-            here on NMLS Consumer Access.
+            Where a value shows as pending, we have not yet confirmed it ourselves, so we do not
+            display it. Verify anything you see here on NMLS Consumer Access.
           </p>
+          <div className="mt-3">
+            <NmlsVerifyLinks originator />
+          </div>
         </Card>
       </Section>
 

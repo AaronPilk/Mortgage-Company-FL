@@ -401,13 +401,22 @@ export function Disclosure({
  * Renders a licensing fact, or a visible pending state when the value has not
  * been issued. It cannot render a plausible-looking placeholder.
  */
-export function LicenseFact({ label, value }: { label: string; value: string | null }) {
+export function LicenseFact({
+  label,
+  value,
+  pendingLabel = "pending issuance"
+}: {
+  label: string;
+  value: string | null;
+  /** What a null reads as. The default suits a licence that does not exist yet. */
+  pendingLabel?: string;
+}) {
   return (
     <p className="text-sm" style={{ color: "var(--text-muted)" }}>
       <span className="font-semibold" style={{ color: "var(--text)" }}>
         {label}:
       </span>{" "}
-      {value === null ? <span className="italic">pending issuance</span> : value}
+      {value === null ? <span className="italic">{pendingLabel}</span> : value}
     </p>
   );
 }

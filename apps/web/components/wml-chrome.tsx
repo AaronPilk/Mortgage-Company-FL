@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { ThemeToggle } from "./theme-toggle";
-import { LicenseFact } from "./ui";
-import { businessIdentity, SITE_URL } from "@/lib/site";
+import { LicensingFacts, NmlsVerifyLinks } from "./licensing-facts";
+import { businessIdentity, licensingStatus, SITE_URL } from "@/lib/site";
 
 /**
  * Wholesale Mortgage Lending chrome.
@@ -135,23 +135,9 @@ export function WmlFooter() {
 
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-x-8 gap-y-2">
-            <LicenseFact label="Company NMLS ID" value={businessIdentity.nmlsId} />
-            <LicenseFact
-              label="Florida mortgage broker license"
-              value={businessIdentity.companyLicenseId}
-            />
+            <LicensingFacts originator />
           </div>
-          <p className="text-sm">
-            <a
-              className="font-medium underline underline-offset-4"
-              style={{ color: "var(--purple)" }}
-              href="https://www.nmlsconsumeraccess.org/"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              Verify licensing on NMLS Consumer Access
-            </a>
-          </p>
+          <NmlsVerifyLinks originator />
           {/* Equal Housing Opportunity, never "Equal Housing Lender": a broker
               arranges credit, it does not lend, and the content linter enforces
               exactly this wording. */}
@@ -163,9 +149,9 @@ export function WmlFooter() {
             mortgage loans. All figures shown on this site are estimates based on information you
             provide and are not an offer of credit, a rate quote, a preapproval, or a commitment to
             lend. Loan approval, terms, and availability depend on the lender, the loan program, the
-            property, and a complete review of your application. The company is pre-launch and not
-            yet licensed to arrange Florida residential mortgage credit; licensing details will
-            appear here once established.
+            property, and a complete review of your application.
+            {!licensingStatus.companyLicensed &&
+              " The company is pre-launch and not yet licensed to arrange Florida residential mortgage credit; licensing details will appear here once established."}
           </p>
         </div>
       </div>

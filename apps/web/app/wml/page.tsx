@@ -1,14 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import {
-  ArrowIcon,
-  Badge,
-  Disclosure,
-  Faq,
-  LicenseFact,
-  Section,
-  SectionHeading
-} from "@/components/ui";
+import { ArrowIcon, Badge, Disclosure, Faq, Section, SectionHeading } from "@/components/ui";
+import { LicensingFacts } from "@/components/licensing-facts";
 import { AssetImage } from "@/components/asset-image";
 import { HomeFunnel } from "@/components/home-funnel";
 import { JsonLd } from "@/components/json-ld";
@@ -20,7 +13,8 @@ import {
   LEAD_DISCLOSURE_VERSION,
   SITE_URL,
   SMS_CONSENT_TEXT,
-  businessIdentity
+  businessIdentity,
+  isPreLaunch
 } from "@/lib/site";
 import { breadcrumbNode, faqNode, graph, webPageNode } from "@tract/seo";
 
@@ -431,12 +425,8 @@ export default function WmlLandingPage() {
         </div>
 
         <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-2">
-          <LicenseFact label="Company NMLS ID" value={businessIdentity.nmlsId} />
-          <LicenseFact
-            label="Florida mortgage broker license"
-            value={businessIdentity.companyLicenseId}
-          />
-          <Badge tone="neutral">Pre-launch</Badge>
+          <LicensingFacts />
+          {isPreLaunch() && <Badge tone="neutral">Pre-launch</Badge>}
         </div>
         <Disclosure
           headline="Nothing on this page is an offer of credit."

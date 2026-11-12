@@ -133,20 +133,30 @@ function technicalGates(): Gate[] {
   ];
 }
 
+/**
+ * A licensing fact the owner has stated is ready for review, not approved: the
+ * board shows "approved" only once a person has read the public NMLS record
+ * back, which is what nmlsRecordPublic records (ADR-012).
+ */
+function ownerStated(stated: boolean): State {
+  if (!stated) return "blocked";
+  return licensingStatus.nmlsRecordPublic ? "approved" : "ready";
+}
+
 const HUMAN_GATES: Gate[] = [
   {
     area: "Licensing",
     item: "Florida mortgage broker company license issued",
-    state: licensingStatus.companyLicensed ? "approved" : "blocked",
+    state: ownerStated(licensingStatus.companyLicensed),
     owner: "principal_loan_originator",
-    note: "Separate from any individual MLO license. Evidence: the issued license and the public NMLS record."
+    note: "Separate from any individual MLO license. Marked from the owner's statement of 12 Nov 2026; the Florida license number itself is still not on file and renders as pending. Evidence to attach: the issued license and the public NMLS record."
   },
   {
     area: "Licensing",
     item: "Principal loan originator designated and accepted by OFR",
-    state: licensingStatus.principalLoanOriginatorNamed ? "approved" : "blocked",
+    state: ownerStated(licensingStatus.principalLoanOriginatorNamed),
     owner: "principal_loan_originator",
-    note: "A designation the regulator must accept. Not the same as an individual holding an active MLO license."
+    note: "A designation the regulator must accept. Not the same as an individual holding an active MLO license. Marked from the owner's 12 Nov 2026 statement: Daniel Michael Cuesta (NMLS ID 132852) is the originator named, and a Florida broker license is not issued without a principal loan originator."
   },
   {
     area: "Licensing",
@@ -160,7 +170,7 @@ const HUMAN_GATES: Gate[] = [
     item: "Company NMLS record public on Consumer Access",
     state: licensingStatus.nmlsRecordPublic ? "approved" : "blocked",
     owner: "principal_loan_originator",
-    note: `Until this is true, the site shows license fields as pending rather than displaying a number. Current value: ${businessIdentity.nmlsId ?? "none"}.`
+    note: `Not yet read back by a person: Consumer Access blocks automated lookup. The site shows NMLS ID ${businessIdentity.nmlsId ?? "none"} from Dan's NMLS portal account list (relayed by the owner 12 Nov 2026) and keeps the pre-launch state until someone confirms the public record.`
   },
   {
     area: "Legal",

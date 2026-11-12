@@ -16,6 +16,7 @@ import {
 const SITE = "https://tract.example";
 
 const unlicensedIdentity: BusinessIdentity = {
+  name: "TRACT Mortgage",
   legalName: "TRACT Mortgage LLC",
   brandName: "TRACT Mortgage",
   siteUrl: SITE,
@@ -135,7 +136,44 @@ describe("JSON-LD", () => {
       }
     });
     expect(node["@type"]).toEqual(["Organization", "FinancialService"]);
-    expect(JSON.stringify(node)).toContain("NMLS #1234567");
+    expect(node["identifier"]).toEqual({
+      "@type": "PropertyValue",
+      propertyID: "NMLS ID",
+      value: "1234567"
+    });
+  });
+
+  it("emits a known NMLS ID as a structured identifier without upgrading the type", () => {
+    const node = organizationNode({ ...unlicensedIdentity, nmlsId: "2898263" });
+    expect(node["identifier"]).toEqual({
+      "@type": "PropertyValue",
+      propertyID: "NMLS ID",
+      value: "2898263"
+    });
+    // An NMLS ID is not an office: still no address, still a plain Organization.
+    expect(node["@type"]).toBe("Organization");
+    // Never a hand-formatted licence string a reader could mistake for a claim.
+    expect(JSON.stringify(node)).not.toContain("NMLS #");
+  });
+
+  it("separates the trading name, the legal name and the product brand", () => {
+    const node = organizationNode({
+      ...unlicensedIdentity,
+      name: "Wholesale Mortgage Lending",
+      legalName: "Wholesale Mortgage Lending LLC",
+      brandName: "TRACT Mortgage"
+    });
+    expect(node["name"]).toBe("Wholesale Mortgage Lending");
+    expect(node["legalName"]).toBe("Wholesale Mortgage Lending LLC");
+    expect(node["alternateName"]).toBe("TRACT Mortgage");
+    const same = organizationNode({ ...unlicensedIdentity, legalName: "TRACT Mortgage" });
+    expect(same).not.toHaveProperty("legalName");
+    expect(same).not.toHaveProperty("alternateName");
+  });
+
+  it("names the website after the company that owns the domain", () => {
+    const node = webSiteNode({ ...unlicensedIdentity, name: "Wholesale Mortgage Lending" });
+    expect(node["name"]).toBe("Wholesale Mortgage Lending");
   });
 
   it("suppresses FAQ markup when the questions are not rendered on the page", () => {

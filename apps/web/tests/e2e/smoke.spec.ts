@@ -518,10 +518,27 @@ test.describe("structured data", () => {
     expect(blocks.length).toBeGreaterThan(0);
     for (const block of blocks) {
       expect(() => JSON.parse(block)).not.toThrow();
+      // No hand-formatted licence string, ever: identifiers are structured.
       expect(block).not.toContain("NMLS #");
       expect(block).not.toContain("interestRate");
       expect(block).not.toContain("aggregateRating");
     }
+    // The only licence fact in the graph is the company NMLS ID from
+    // lib/site.ts (ADR-012); the Florida licence number is not on file, and no
+    // address or phone is asserted.
+    const nodes = blocks.flatMap((block) => {
+      const parsed = JSON.parse(block) as { "@graph"?: Record<string, unknown>[] };
+      return parsed["@graph"] ?? [];
+    });
+    const organization = nodes.find((node) => node["@type"] === "Organization");
+    expect(organization).toBeDefined();
+    expect(organization?.["identifier"]).toEqual({
+      "@type": "PropertyValue",
+      propertyID: "NMLS ID",
+      value: "2898263"
+    });
+    expect(organization).not.toHaveProperty("address");
+    expect(organization).not.toHaveProperty("telephone");
   });
 });
 
