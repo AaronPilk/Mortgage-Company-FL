@@ -83,6 +83,25 @@ While it is false, `isPreLaunch()` is true: the pre-launch banner stays, no
 application is taken, and Meta conversion sending stays off. Flipping it is a
 one-line change plus a deploy.
 
+## Live state found on 2026-11-12 (not in Git)
+
+Read-only requests to the live site on 2026-11-12 showed licensing that no Git
+commit contains (every commit through `316b60e` has `nmlsId: null`):
+
+- "Company NMLS ID: 2898263" and JSON-LD `"identifier": "NMLS #2898263"`;
+- "Florida mortgage broker license: MBR8794";
+- no pre-launch banner, so that build had every `licensingStatus` flag true;
+- Organization `@id`, `url` and logo still on tractrealestate.com.
+
+So the live Worker was built from a working tree with uncommitted changes, most
+likely the owner's Mac. This branch keeps the Florida licence number null and
+the banner on, because neither MBR8794 nor a public-record readback was
+confirmed to the engineering side. Deploying it as is would change both on the
+live site; the deploy kit stops before building when it sees that and asks the
+owner to choose. If MBR8794 is the real licence, it goes into
+`businessIdentity.companyLicenseId`, and if the Consumer Access record has been
+checked, `nmlsRecordPublic` flips to true.
+
 ## Owner-side steps still open
 
 1. **Supabase Auth**: set Site URL to `https://wsmlending.com` and add
@@ -100,7 +119,7 @@ one-line change plus a deploy.
 5. **Google Business Profile**: later, once a business address and phone are
    confirmed (they are also what would let the schema become a
    `FinancialService`).
-6. **Florida mortgage broker license number**: send it and it goes into
-   `businessIdentity.companyLicenseId`.
+6. **Florida mortgage broker license number**: confirm it (the live build shows
+   MBR8794, see above) and it goes into `businessIdentity.companyLicenseId`.
 7. **NMLS public record**: when Consumer Access shows the company, flip
    `nmlsRecordPublic` (see above).

@@ -18,9 +18,12 @@ owner relayed are applied through `lib/site.ts`. robots.txt, sitemap.xml,
 llms.txt and the Organization/WebSite graph are all on wsmlending.com. IndexNow
 has a key file and a submit script. Not deployed: the owner runs the deploy.
 
-The live Worker was last deployed 2026-08-26T19:35Z, matching `789aaa2`.
+The live Worker was last deployed 2026-08-26T19:35Z, around `789aaa2`.
 Commits `c1019dd` and `316b60e` were never deployed, so this release ships them
-too.
+too. The live build is not exactly `789aaa2`, though: it shows company NMLS ID
+2898263, Florida licence MBR8794 and no pre-launch banner, none of which is in
+Git. It was built from uncommitted changes; see `docs/seo/README.md`, "Live
+state found on 2026-11-12".
 
 ## Files changed
 
@@ -78,10 +81,12 @@ spoofed Host headers.
 
 ## Required human decisions
 
-Supabase Auth Site URL and redirect allowlist for wsmlending.com; Turnstile
-hostnames; Cloudflare `www` record and Always Use HTTPS; Search Console and Bing
-under the new WML Gmail; Florida broker licence number. Details in
-`docs/seo/README.md`.
+1. Whether MBR8794 (shown live, not in Git) is the real Florida licence, and
+   whether the Consumer Access record has been checked. Until then this branch
+   shows the licence as pending and keeps the pre-launch banner.
+2. Supabase Auth Site URL and redirect allowlist for wsmlending.com; Turnstile
+   hostnames; Cloudflare `www` record and Always Use HTTPS; Search Console and
+   Bing under the new WML Gmail. Details in `docs/seo/README.md`.
 
 ## Recommended next task
 
