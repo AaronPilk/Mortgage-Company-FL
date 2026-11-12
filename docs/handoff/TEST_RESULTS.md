@@ -126,3 +126,18 @@ deployment and is not waived by the green code gates.
 - No Cloudflare deploy or post-deploy log window for combined commit `c1fa306`.
 - No measured Lighthouse score or full accessibility audit.
 - No paid AI/media provider call.
+
+---
+
+## 2026-11-12 — WML SEO rollout (`claude/seo-sop-20261112`)
+
+- `pnpm check`: pass. Vitest 70 files, 2181 tests; content lint clean;
+  production build.
+- `pnpm db:verify`: pass on local PostgreSQL 16.15 (31 migrations, every RLS
+  assertion). No migration changed.
+- `pnpm test:e2e`: 108 passed, 2 failed. The failures are one test on both
+  projects, `recovery.spec.ts` "fails honestly when durable lead storage is
+  unavailable", and it fails identically on an untouched `316b60e` build.
+- `pnpm cf:build`: pass, canonical origin `https://wsmlending.com`.
+- Not run: any deploy, any live request to wsmlending.com, any IndexNow
+  submission.

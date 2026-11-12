@@ -28,20 +28,26 @@ Operational incident procedures are in `RUNBOOK.md`. Deployment history is in
 > someone confirms a Git-triggered build actually ran, treat the manual command
 > as the only deploy path.
 
+> **Updated 2026-11-12.** The site runs on one canonical domain,
+> `https://wsmlending.com` (ADR-011). Every other host the Worker answers on,
+> including tractrealestate.com and the workers.dev origin, is a 308 to the same
+> path on wsmlending.com. `docs/seo/README.md` covers robots, sitemap, schema and
+> IndexNow; the deploy kit for that release is outside the repo.
+
 ## Target
 
-| Field          | Value                                               |
-| -------------- | --------------------------------------------------- |
-| Platform       | Cloudflare Workers                                  |
-| Adapter        | `@opennextjs/cloudflare`                            |
-| Worker name    | `mortgage-company-fl`                               |
-| Config         | `apps/web/wrangler.jsonc`                           |
-| Entry point    | `.open-next/worker.js`                              |
-| Assets binding | `ASSETS` → `.open-next/assets`                      |
-| Compat flags   | `nodejs_compat`                                     |
-| Public URL     | `https://mortgage-company-fl.aaron-9c3.workers.dev` |
-| Custom domain  | None configured                                     |
-| Observability  | Enabled in `wrangler.jsonc`                         |
+| Field          | Value                                              |
+| -------------- | -------------------------------------------------- |
+| Platform       | Cloudflare Workers                                 |
+| Adapter        | `@opennextjs/cloudflare`                           |
+| Worker name    | `mortgage-company-fl`                              |
+| Config         | `apps/web/wrangler.jsonc`                          |
+| Entry point    | `.open-next/worker.js`                             |
+| Assets binding | `ASSETS` → `.open-next/assets`                     |
+| Compat flags   | `nodejs_compat`                                    |
+| Public URL     | `https://wsmlending.com` (canonical, ADR-011)      |
+| Other hosts    | tractrealestate.com, workers.dev: 308 to canonical |
+| Observability  | Enabled in `wrangler.jsonc`                        |
 
 **Cloudflare Pages is not used and must not be used.** Pages cannot serve this
 application's API routes or its server rendering; the Pages deployment returned
@@ -282,10 +288,11 @@ Run this against the live URL before considering any deploy done.
 | `GET /calculators/amortization` | HTTP 200 — CPU-heavy route                                            |
 | `GET /vision/start`             | HTTP 200 — CPU-heavy route                                            |
 | `GET /rendprop/demo`            | HTTP 200                                                              |
-| `GET /robots.txt`               | Canonical origin matches `NEXT_PUBLIC_SITE_URL`                       |
-| `GET /sitemap.xml`              | Only `indexable: true` routes from `apps/web/content/routes.ts`       |
+| `GET /robots.txt`               | 200, no redirect, `Sitemap: https://wsmlending.com/sitemap.xml`       |
+| `GET /sitemap.xml`              | Only `indexable: true` routes, every `<loc>` on wsmlending.com        |
+| `GET tractrealestate.com/x?q=1` | 308 to `https://wsmlending.com/x?q=1`, `X-Robots-Tag: noindex`        |
 | `GET /properties`               | 404 while `SHOW_SAMPLE_LISTINGS=false` — correct, not a regression    |
-| Page source                     | No `NMLS #` in any JSON-LD block                                      |
+| Page source                     | No `NMLS #` in JSON-LD; Organization identifier is NMLS ID 2898263    |
 | Response headers                | CSP, HSTS, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff` |
 
 Then read the Worker observability logs for the deploy window. Status codes alone
