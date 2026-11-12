@@ -40,7 +40,7 @@ export const businessIdentity: BusinessIdentity = {
   siteUrl: SITE_URL,
   logoPath: "/brand/wml-logo.png",
   nmlsId: "2898263",
-  companyLicenseId: null,
+  companyLicenseId: "MBR8794",
   telephone: null,
   address: null,
   areaServed: ["Florida"],
