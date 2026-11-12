@@ -147,4 +147,3 @@ tests); `pnpm test:e2e` 108 passed, the same 2 pre-existing failures; the
 updated "licence identifiers and no pre-launch notice" and structured-data tests
 pass on desktop and mobile. `pnpm db:verify` not re-run: no SQL or migration
 changed.
-
