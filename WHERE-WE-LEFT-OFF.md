@@ -4,6 +4,7 @@ Everything below is **built, verified, and already on this Mac** (uncommitted).
 Nothing is lost. One deploy makes it all live. Come back whenever you're ready.
 
 ## What's built this session
+
 - **WML lead page (wsmlending.com)** — rebuilt from the bland version into a real
   lead-capture page: hero photo + the same 4-step form as the TRACT homepage,
   wired to your CRM. Its own WML header/footer, FAQ schema, canonical to the WML domain.
@@ -20,9 +21,10 @@ Nothing is lost. One deploy makes it all live. Come back whenever you're ready.
   (share with Dan from the page's share menu).
 
 ## To go live — do these in order
+
 1. From this folder:
    `git add -A && git commit -m "WML lead landing + analytics + assistant + security + UI polish"`
-   then  **`pnpm cf:build && pnpm cf:deploy`**   <- this makes everything live.
+   then **`pnpm cf:build && pnpm cf:deploy`** <- this makes everything live.
 2. Turn analytics on: add `NEXT_PUBLIC_GTM_CONTAINER_ID=GTM-XXXXXX` to
    `apps/web/.env.production`, then deploy again. (Until then: no banner, no tracking — intentional.)
 3. Cloudflare -> Turnstile: add `wsmlending.com` to the widget's allowed hostnames
@@ -34,6 +36,7 @@ Nothing is lost. One deploy makes it all live. Come back whenever you're ready.
 7. Google Search Console + Bing Webmaster: verify BOTH domains, submit the sitemaps.
 
 ## Optional / later
+
 - Want a hard guarantee of **$0 AI spend** before launch? Set `AI_MODE=disabled` —
   the assistant still works great on its deterministic brain.
 - Nonce-based CSP (drops `unsafe-inline` from scripts) — a nice hardening, not urgent.
@@ -42,6 +45,7 @@ Nothing is lost. One deploy makes it all live. Come back whenever you're ready.
   once WML is licensed.
 
 ## How the site is wired (quick reminder)
+
 - Two domains, one Cloudflare Worker, routed by host in `apps/web/middleware.ts`.
   wsmlending.com = mortgage (WML); tractrealestate.com = TRACT (the product).
 - Deploy is MANUAL: `pnpm cf:build && pnpm cf:deploy` from this folder.
