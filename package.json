@@ -17,6 +17,7 @@
     "format:write": "prettier --write .",
     "content:lint": "tsx scripts/content-lint.ts",
     "seo:lastmod": "tsx --tsconfig apps/web/tsconfig.json scripts/seo-lastmod.ts",
+    "seo:indexnow": "node scripts/indexnow-submit.mjs",
     "check": "pnpm format && pnpm lint && pnpm typecheck && pnpm test && pnpm content:lint && pnpm build",
     "db:start": "supabase start",
     "db:stop": "supabase stop",
