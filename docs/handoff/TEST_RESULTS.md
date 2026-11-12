@@ -141,3 +141,10 @@ deployment and is not waived by the green code gates.
 - `pnpm cf:build`: pass, canonical origin `https://wsmlending.com`.
 - Not run: any deploy, any live request to wsmlending.com, any IndexNow
   submission.
+
+After the owner's licensing confirmation (same day): `pnpm check` pass (2181
+tests); `pnpm test:e2e` 108 passed, the same 2 pre-existing failures; the
+updated "licence identifiers and no pre-launch notice" and structured-data tests
+pass on desktop and mobile. `pnpm db:verify` not re-run: no SQL or migration
+changed.
+

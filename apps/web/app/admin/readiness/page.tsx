@@ -135,8 +135,8 @@ function technicalGates(): Gate[] {
 
 /**
  * A licensing fact the owner has stated is ready for review, not approved: the
- * board shows "approved" only once a person has read the public NMLS record
- * back, which is what nmlsRecordPublic records (ADR-012).
+ * board shows "approved" only once the public NMLS record is confirmed, which is
+ * what nmlsRecordPublic records (owner-confirmed 12 Nov 2026, ADR-012).
  */
 function ownerStated(stated: boolean): State {
   if (!stated) return "blocked";
@@ -149,7 +149,7 @@ const HUMAN_GATES: Gate[] = [
     item: "Florida mortgage broker company license issued",
     state: ownerStated(licensingStatus.companyLicensed),
     owner: "principal_loan_originator",
-    note: "Separate from any individual MLO license. Marked from the owner's statement of 12 Nov 2026; the Florida license number itself is still not on file and renders as pending. Evidence to attach: the issued license and the public NMLS record."
+    note: "Separate from any individual MLO license. License MBR8794 and the public NMLS record confirmed by the owner on 12 Nov 2026 (Consumer Access blocks automated lookup, so not read back by engineering). Evidence to attach: the issued license."
   },
   {
     area: "Licensing",
@@ -170,7 +170,7 @@ const HUMAN_GATES: Gate[] = [
     item: "Company NMLS record public on Consumer Access",
     state: licensingStatus.nmlsRecordPublic ? "approved" : "blocked",
     owner: "principal_loan_originator",
-    note: `Not yet read back by a person: Consumer Access blocks automated lookup. The site shows NMLS ID ${businessIdentity.nmlsId ?? "none"} from Dan's NMLS portal account list (relayed by the owner 12 Nov 2026) and keeps the pre-launch state until someone confirms the public record.`
+    note: `Confirmed public by the owner on 12 Nov 2026 for NMLS ID ${businessIdentity.nmlsId ?? "none"}; Consumer Access blocks automated lookup, so engineering could not read it back. Re-verify at each renewal.`
   },
   {
     area: "Legal",

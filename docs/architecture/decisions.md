@@ -280,6 +280,19 @@ Lending LLC"`, and a separate `name` ("Wholesale Mortgage Lending") for the
 
 No street address or telephone is asserted anywhere; neither is confirmed.
 
+**Amended 2026-11-12, later the same day: owner confirmation.** Aaron
+Pilkington (owner) confirmed that MBR8794 is Wholesale Mortgage Lending's
+Florida mortgage broker licence and that the company's NMLS Consumer Access
+record is public. Consumer Access blocks automated lookup, so this rests on the
+owner's confirmation, not an engineering readback. Applied:
+`companyLicenseId = "MBR8794"` and `nmlsRecordPublic = true`, so all three
+licensing flags are true and `isPreLaunch()` is false. The pre-launch banner and
+badges disappear, the readiness board shows the three licensing gates as
+approved, and the Consumer Access company page joins the Organization `sameAs`.
+Meta conversion sending still also needs `META_CAPI_LIVE_CLEARED`. The schema
+stays a plain `Organization`: the type rule in ADR-009 keys on a public office
+address, not on licensing, and no address is confirmed.
+
 ---
 
 ## ADR-013 — Crawl policy, real lastmod, and IndexNow

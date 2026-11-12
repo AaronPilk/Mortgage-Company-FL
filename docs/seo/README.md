@@ -50,8 +50,8 @@ The routing table is `apps/web/lib/host-routing.ts` (pure, unit-tested in
   identifier, the WML logo, and a `WebSite` node named after the company on
   every page. No address and no telephone: neither is confirmed, so the node
   stays an `Organization` and does not become a `FinancialService` (ADR-009).
-  `sameAs` is empty until a real profile exists; the NMLS Consumer Access page
-  joins it automatically once `nmlsRecordPublic` is true.
+  `sameAs` lists only the NMLS Consumer Access company page, which is in because
+  `nmlsRecordPublic` is true (owner-confirmed 2026-11-12).
 - **IndexNow**: key file `apps/web/public/3ebfb1c079568642ad474586bff48aca.txt`,
   served at `https://wsmlending.com/3ebfb1c079568642ad474586bff48aca.txt`.
   `node scripts/indexnow-submit.mjs --all` submits every URL in the live
@@ -62,26 +62,25 @@ The routing table is `apps/web/lib/host-routing.ts` (pure, unit-tested in
 
 ## Licensing values
 
-| Fact                            | Value                                               | Source                                                                     |
-| ------------------------------- | --------------------------------------------------- | -------------------------------------------------------------------------- |
-| Legal name                      | Wholesale Mortgage Lending LLC                      | Dan's NMLS portal account list, screenshot relayed by the owner 2026-11-12 |
-| Company NMLS ID                 | 2898263                                             | Same                                                                       |
-| Loan originator                 | Daniel Michael Cuesta, NMLS ID 132852               | Same                                                                       |
-| Company licensed                | Yes, per the owner                                  | Owner statement 2026-11-12                                                 |
-| Florida mortgage broker license | Not provided; renders "number pending confirmation" | Never invent it                                                            |
-| Business address, phone         | Not confirmed; not shown anywhere                   |                                                                            |
+| Fact                            | Value                                 | Source                                                                     |
+| ------------------------------- | ------------------------------------- | -------------------------------------------------------------------------- |
+| Legal name                      | Wholesale Mortgage Lending LLC        | Dan's NMLS portal account list, screenshot relayed by the owner 2026-11-12 |
+| Company NMLS ID                 | 2898263                               | Same                                                                       |
+| Loan originator                 | Daniel Michael Cuesta, NMLS ID 132852 | Same                                                                       |
+| Company licensed                | Yes                                   | Owner statement 2026-11-12                                                 |
+| NMLS record public              | Yes                                   | Owner confirmation 2026-11-12 (not read back; Consumer Access blocks bots) |
+| Florida mortgage broker license | MBR8794                               | Owner confirmation 2026-11-12                                              |
+| Business address, phone         | Not confirmed; not shown anywhere     |                                                                            |
 
 The "Verify" links go to
 `https://www.nmlsconsumeraccess.org/EntityDetails.aspx/COMPANY/2898263` and
 `.../INDIVIDUAL/132852`.
 
-**Still pending, and why.** NMLS Consumer Access blocks automated lookup, so
-nobody has read the public record back. `licensingStatus.nmlsRecordPublic` in
-`apps/web/lib/site.ts` stays `false` until a person opens the company page above
-and sees Wholesale Mortgage Lending LLC listed with an approved Florida licence.
-While it is false, `isPreLaunch()` is true: the pre-launch banner stays, no
-application is taken, and Meta conversion sending stays off. Flipping it is a
-one-line change plus a deploy.
+**Licensing status.** The owner confirmed MBR8794 and the public NMLS record on
+2026-11-12 (ADR-012). All three `licensingStatus` flags in
+`apps/web/lib/site.ts` are true, so `isPreLaunch()` is false: no pre-launch
+banner, and the readiness board shows the licensing gates approved. Meta
+conversion sending still also needs `META_CAPI_LIVE_CLEARED`.
 
 ## Live state found on 2026-11-12 (not in Git)
 
@@ -93,14 +92,17 @@ commit contains (every commit through `316b60e` has `nmlsId: null`):
 - no pre-launch banner, so that build had every `licensingStatus` flag true;
 - Organization `@id`, `url` and logo still on tractrealestate.com.
 
-So the live Worker was built from a working tree with uncommitted changes, most
-likely the owner's Mac. This branch keeps the Florida licence number null and
+So the live Worker was built from a working tree with uncommitted changes on the
+owner's Mac, which belong to another chat that is still working. This branch keeps the Florida licence number null and
 the banner on, because neither MBR8794 nor a public-record readback was
 confirmed to the engineering side. Deploying it as is would change both on the
 live site; the deploy kit stops before building when it sees that and asks the
-owner to choose. If MBR8794 is the real licence, it goes into
-`businessIdentity.companyLicenseId`, and if the Consumer Access record has been
-checked, `nmlsRecordPublic` flips to true.
+owner to choose.
+
+**Resolved the same day.** The owner confirmed MBR8794 and the public NMLS
+record, so this branch now matches the live licensing display. The deploy kit
+also refuses to run while the Mac's tract-platform folder has uncommitted
+changes, until that other chat's work is pushed and merged into this branch.
 
 ## Owner-side steps still open
 
@@ -119,7 +121,5 @@ checked, `nmlsRecordPublic` flips to true.
 5. **Google Business Profile**: later, once a business address and phone are
    confirmed (they are also what would let the schema become a
    `FinancialService`).
-6. **Florida mortgage broker license number**: confirm it (the live build shows
-   MBR8794, see above) and it goes into `businessIdentity.companyLicenseId`.
-7. **NMLS public record**: when Consumer Access shows the company, flip
-   `nmlsRecordPublic` (see above).
+6. **Licence and NMLS record**: done 2026-11-12 (MBR8794, record public).
+   Re-verify at each renewal.

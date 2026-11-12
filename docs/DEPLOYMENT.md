@@ -283,7 +283,7 @@ Run this against the live URL before considering any deploy done.
 | Check                           | Expect                                                                |
 | ------------------------------- | --------------------------------------------------------------------- |
 | `GET /api/v1/health`            | HTTP 200                                                              |
-| `GET /`                         | HTTP 200, pre-launch banner present                                   |
+| `GET /`                         | HTTP 200; footer shows NMLS ID 2898263 and licence MBR8794            |
 | `GET /plan`                     | HTTP 200                                                              |
 | `GET /calculators/amortization` | HTTP 200 — CPU-heavy route                                            |
 | `GET /vision/start`             | HTTP 200 — CPU-heavy route                                            |

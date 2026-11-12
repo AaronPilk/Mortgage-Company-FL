@@ -68,15 +68,16 @@ export type LicensingStatus = {
  * does too: Dan is the only originator named, and Florida does not issue a
  * broker business licence without a designated principal loan originator.
  *
- * nmlsRecordPublic stays false. NMLS Consumer Access blocks automated lookup, so
- * nobody has read the public record back from here. Flip it only after a person
- * opens the Consumer Access page for 2898263 and sees the company listed with an
- * approved Florida licence. Until then isPreLaunch() stays true.
+ * nmlsRecordPublic: the owner confirmed on 12 Nov 2026 that the NMLS Consumer
+ * Access record is public and that MBR8794 is the Florida licence. Consumer
+ * Access blocks automated lookup, so this rests on the owner's confirmation,
+ * not an engineering readback (ADR-012). With all three true, isPreLaunch() is
+ * false: no banner. Meta conversions still also need META_CAPI_LIVE_CLEARED.
  */
 export const licensingStatus: LicensingStatus = {
   companyLicensed: true,
   principalLoanOriginatorNamed: true,
-  nmlsRecordPublic: false
+  nmlsRecordPublic: true
 };
 
 export function isPreLaunch(): boolean {
@@ -97,18 +98,17 @@ export const businessIdentity: BusinessIdentity = {
   logoPath: "/brand/wml-logo.png",
   // Source: Dan's NMLS portal account list, relayed by the owner 12 Nov 2026.
   nmlsId: COMPANY_NMLS_ID,
-  // The Florida mortgage broker business licence number was not provided. It
-  // stays null, which renders a visible pending state; never fill it with a
-  // guess.
-  companyLicenseId: null,
+  // Florida mortgage broker business licence, confirmed by the owner 12 Nov
+  // 2026 (ADR-012). A null would render the visible pending state instead.
+  companyLicenseId: "MBR8794",
   // Neither is confirmed for this company yet. A FinancialService node needs a
   // real public office, so the schema stays a plain Organization (ADR-009).
   telephone: null,
   address: null,
   areaServed: ["Florida"],
   // Real profiles only. The old product domain now redirects here, so it is no
-  // longer a separate profile. The Consumer Access page joins once a person has
-  // confirmed it is public.
+  // longer a separate profile. The Consumer Access page counts once the record
+  // is confirmed public, which the owner did on 12 Nov 2026.
   sameAs: licensingStatus.nmlsRecordPublic ? [nmlsCompanyUrl(COMPANY_NMLS_ID)] : []
 };
 

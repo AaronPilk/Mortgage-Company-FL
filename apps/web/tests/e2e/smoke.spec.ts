@@ -122,9 +122,14 @@ test.describe("home page", () => {
     expect(body).not.toContain("lowest rate");
   });
 
-  test("shows the pre-launch notice while licensing is pending", async ({ page }) => {
+  // Licensing is confirmed (ADR-012), so the pre-launch notice is off and the
+  // footer carries the real identifiers instead.
+  test("shows the licence identifiers and no pre-launch notice", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("status").first()).toContainText("pre-launch");
+    await expect(page.getByText("not yet accepting mortgage applications")).toHaveCount(0);
+    const footer = page.locator("footer");
+    await expect(footer).toContainText("2898263");
+    await expect(footer).toContainText("MBR8794");
   });
 });
 

@@ -163,8 +163,10 @@ describe("llms.txt", () => {
     expect(body).toContain("Company NMLS ID: 2898263");
     expect(body).toContain("Daniel Michael Cuesta, NMLS ID 132852");
     expect(body).toContain("https://www.nmlsconsumeraccess.org/EntityDetails.aspx/COMPANY/2898263");
-    // The Florida licence number was never provided, so it reads as pending.
-    expect(body).toContain("Florida mortgage broker license: number pending confirmation");
+    // Owner-confirmed 12 Nov 2026 (ADR-012).
+    expect(body).toContain("Florida mortgage broker license: MBR8794");
+    // Not pre-launch any more, so no status line claims otherwise.
+    expect(body).not.toMatch(/pre-launch/i);
   });
 
   it("links only to wsmlending.com and the public NMLS record", async () => {
@@ -197,15 +199,17 @@ describe("organization structured data", () => {
     expect(node["areaServed"]).toEqual([{ "@type": "AdministrativeArea", name: "Florida" }]);
   });
 
-  it("asserts no unconfirmed address, phone or profile", () => {
+  it("asserts no unconfirmed address or phone, and only real profiles", () => {
     const node = m.seo.organizationNode(m.site.businessIdentity);
     expect(node).not.toHaveProperty("address");
     expect(node).not.toHaveProperty("telephone");
+    // A licensed broker with no public office is still not a LocalBusiness.
     expect(node["@type"]).toBe("Organization");
     expect(JSON.stringify(node)).not.toContain("tractrealestate");
-    // The Consumer Access page joins sameAs only once a person confirms it is
-    // public; until then there is no other real profile to list.
-    expect(node).not.toHaveProperty("sameAs");
+    // The only profile is the public NMLS record, confirmed by the owner.
+    expect(node["sameAs"]).toEqual([
+      "https://www.nmlsconsumeraccess.org/EntityDetails.aspx/COMPANY/2898263"
+    ]);
   });
 
   it("names the website after the company", () => {
@@ -216,22 +220,25 @@ describe("organization structured data", () => {
 });
 
 describe("licensing state", () => {
-  it("records what the owner relayed and nothing more", () => {
+  it("records what the owner confirmed and nothing more", () => {
     expect(m.site.businessIdentity.nmlsId).toBe("2898263");
     expect(m.site.loanOriginator).toEqual({ name: "Daniel Michael Cuesta", nmlsId: "132852" });
-    // Never invented: the Florida licence number was not provided.
-    expect(m.site.businessIdentity.companyLicenseId).toBeNull();
+    expect(m.site.businessIdentity.companyLicenseId).toBe("MBR8794");
+    // Neither is confirmed, so neither is asserted anywhere.
     expect(m.site.businessIdentity.address).toBeNull();
     expect(m.site.businessIdentity.telephone).toBeNull();
   });
 
-  it("stays pre-launch until a person confirms the public NMLS record", () => {
-    expect(m.site.licensingStatus.nmlsRecordPublic).toBe(false);
-    expect(m.site.isPreLaunch()).toBe(true);
+  it("is out of pre-launch once all three licensing facts are confirmed", () => {
+    expect(m.site.licensingStatus).toEqual({
+      companyLicensed: true,
+      principalLoanOriginatorNamed: true,
+      nmlsRecordPublic: true
+    });
+    expect(m.site.isPreLaunch()).toBe(false);
   });
 
-  it("does not call a licence 'pending issuance' once the company is stated licensed", () => {
-    expect(m.site.licensingStatus.companyLicensed).toBe(true);
+  it("does not call a licence 'pending issuance' once the company is licensed", () => {
     expect(m.site.LICENSE_PENDING_LABEL).not.toMatch(/issuance/);
   });
 

@@ -41,8 +41,9 @@ See `git log 316b60e..claude/seo-sop-20261112 --stat`. Load-bearing:
 - Company NMLS ID 2898263, legal name Wholesale Mortgage Lending LLC, loan
   originator Daniel Michael Cuesta (NMLS ID 132852) shown in both footers,
   About, Licensing, llms.txt; deep links to Consumer Access. Florida licence
-  number null, rendered "number pending confirmation" (ADR-012).
-- `isPreLaunch()` stays true (`nmlsRecordPublic` false).
+  MBR8794 (ADR-012).
+- Owner confirmed 2026-11-12: Florida licence MBR8794 and the public NMLS
+  record, so `isPreLaunch()` is false (ADR-012 amendment).
 - robots.txt names search, answer and training crawlers, all allowed, private
   prefixes disallowed for each; sitemap lastmod from Git (ADR-013).
 - `pnpm cf:build` refuses a build whose company URL differs from the site URL.
@@ -67,7 +68,8 @@ spoofed Host headers.
 
 ## Known gaps
 
-- `nmlsRecordPublic` needs a person to read Consumer Access.
+- `nmlsRecordPublic` rests on the owner's confirmation; engineering could not
+  read Consumer Access.
 - The pre-existing e2e failure above.
 - `scripts/route-smoke.ts` still expects 61 requests; it predates this work and
   is not part of any gate.
@@ -81,9 +83,10 @@ spoofed Host headers.
 
 ## Required human decisions
 
-1. Whether MBR8794 (shown live, not in Git) is the real Florida licence, and
-   whether the Consumer Access record has been checked. Until then this branch
-   shows the licence as pending and keeps the pre-launch banner.
+1. Resolved 2026-11-12: the owner confirmed MBR8794 and the public Consumer
+   Access record; both are applied and `isPreLaunch()` is false. The Mac's
+   uncommitted tract-platform changes belong to another chat that is still
+   working; the deploy kit refuses to run until they are pushed and merged here.
 2. Supabase Auth Site URL and redirect allowlist for wsmlending.com; Turnstile
    hostnames; Cloudflare `www` record and Always Use HTTPS; Search Console and
    Bing under the new WML Gmail. Details in `docs/seo/README.md`.
