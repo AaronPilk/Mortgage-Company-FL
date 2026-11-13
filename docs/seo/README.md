@@ -48,8 +48,9 @@ The routing table is `apps/web/lib/host-routing.ts` (pure, unit-tested in
   Lending", legalName "Wholesale Mortgage Lending LLC", `url` and `@id` on
   wsmlending.com, areaServed Florida, the company NMLS ID as a `PropertyValue`
   identifier, the WML logo, and a `WebSite` node named after the company on
-  every page. No address and no telephone: neither is confirmed, so the node
-  stays an `Organization` and does not become a `FinancialService` (ADR-009).
+  every page. Telephone +1 727-486-6004 (owner-confirmed 2026-11-13). No
+  address: there is no office customers visit, so the node stays an
+  `Organization` and does not become a `FinancialService` (ADR-009).
   `sameAs` lists only the NMLS Consumer Access company page, which is in because
   `nmlsRecordPublic` is true (owner-confirmed 2026-11-12).
 - **IndexNow**: key file `apps/web/public/3ebfb1c079568642ad474586bff48aca.txt`,
@@ -70,7 +71,8 @@ The routing table is `apps/web/lib/host-routing.ts` (pure, unit-tested in
 | Company licensed                | Yes                                   | Owner statement 2026-11-12                                                 |
 | NMLS record public              | Yes                                   | Owner confirmation 2026-11-12 (not read back; Consumer Access blocks bots) |
 | Florida mortgage broker license | MBR8794                               | Owner confirmation 2026-11-12                                              |
-| Business address, phone         | Not confirmed; not shown anywhere     |                                                                            |
+| Business phone                  | +1 727-486-6004                       | Owner statement 2026-11-13                                                 |
+| Public business address         | None (no office customers visit)      | Owner, 2026-11-13; filed address used only for listing verification        |
 
 The "Verify" links go to
 `https://www.nmlsconsumeraccess.org/EntityDetails.aspx/COMPANY/2898263` and

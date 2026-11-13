@@ -199,10 +199,10 @@ describe("organization structured data", () => {
     expect(node["areaServed"]).toEqual([{ "@type": "AdministrativeArea", name: "Florida" }]);
   });
 
-  it("asserts no unconfirmed address or phone, and only real profiles", () => {
+  it("asserts the confirmed phone, no address, and only real profiles", () => {
     const node = m.seo.organizationNode(m.site.businessIdentity);
     expect(node).not.toHaveProperty("address");
-    expect(node).not.toHaveProperty("telephone");
+    expect(node["telephone"]).toBe("+17274866004");
     // A licensed broker with no public office is still not a LocalBusiness.
     expect(node["@type"]).toBe("Organization");
     expect(JSON.stringify(node)).not.toContain("tractrealestate");
@@ -224,9 +224,9 @@ describe("licensing state", () => {
     expect(m.site.businessIdentity.nmlsId).toBe("2898263");
     expect(m.site.loanOriginator).toEqual({ name: "Daniel Michael Cuesta", nmlsId: "132852" });
     expect(m.site.businessIdentity.companyLicenseId).toBe("MBR8794");
-    // Neither is confirmed, so neither is asserted anywhere.
+    // The business line is owner-confirmed (13 Nov 2026); no public office is.
     expect(m.site.businessIdentity.address).toBeNull();
-    expect(m.site.businessIdentity.telephone).toBeNull();
+    expect(m.site.businessIdentity.telephone).toBe("+17274866004");
   });
 
   it("is out of pre-launch once all three licensing facts are confirmed", () => {

@@ -550,7 +550,7 @@ test.describe("structured data", () => {
       value: "2898263"
     });
     expect(organization).not.toHaveProperty("address");
-    expect(organization).not.toHaveProperty("telephone");
+    expect(organization?.["telephone"]).toBe("+17274866004");
   });
 });
 

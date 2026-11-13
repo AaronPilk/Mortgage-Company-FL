@@ -280,6 +280,12 @@ Lending LLC"`, and a separate `name` ("Wholesale Mortgage Lending") for the
 
 No street address or telephone is asserted anywhere; neither is confirmed.
 
+**Amended 2026-11-13: business phone.** The owner gave the business line,
+727-486-6004, and 24/7 hours. Applied: `telephone = "+17274866004"` in the
+Organization node. The address stays null: the filed principal office is not a
+place customers visit, so the node remains a plain `Organization` (ADR-009).
+Hours are a listings fact (Google, Bing, Apple), not asserted in site schema.
+
 **Amended 2026-11-12, later the same day: owner confirmation.** Aaron
 Pilkington (owner) confirmed that MBR8794 is Wholesale Mortgage Lending's
 Florida mortgage broker licence and that the company's NMLS Consumer Access

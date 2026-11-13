@@ -103,9 +103,11 @@ export const businessIdentity: BusinessIdentity = {
   // Florida mortgage broker business licence, confirmed by the owner 12 Nov
   // 2026 (ADR-012). A null would render the visible pending state instead.
   companyLicenseId: "MBR8794",
-  // Neither is confirmed for this company yet. A FinancialService node needs a
-  // real public office, so the schema stays a plain Organization (ADR-009).
-  telephone: null,
+  // Business line confirmed by the owner 13 Nov 2026 (ADR-012 amendment). The
+  // address stays null: there is no office customers visit, and a
+  // FinancialService node needs a real public office, so the schema stays a
+  // plain Organization (ADR-009).
+  telephone: "+17274866004",
   email: COMPANY_EMAIL,
   address: null,
   areaServed: ["Florida"],
