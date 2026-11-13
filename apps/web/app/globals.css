@@ -275,8 +275,8 @@
  * ---------------------------------------------------------------- */
 
 /*
- * The TRACT wordmark ships as white-on-dark art, so it exists as two recolored,
- * transparent variants — dark letters for light surfaces, white for dark. The
+ * The WML glyph ships as two recolored, transparent variants: the brand purple
+ * for light surfaces and a lighter tint of the same hue for dark ones. The
  * theme picks one against the same `.dark` class the toggle sets. Light is the
  * default, so the dark variant is hidden until `.dark` is present.
  */

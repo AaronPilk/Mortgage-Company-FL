@@ -5,7 +5,6 @@ import { MobileNav } from "./mobile-nav";
 import { ButtonLink } from "./ui";
 import { LicensingFacts, NmlsVerifyLinks } from "./licensing-facts";
 import { businessIdentity, isPreLaunch } from "@/lib/site";
-import { PRODUCT_HOME_PATH } from "@/lib/host-routing";
 import { createRequestClient } from "@/lib/supabase";
 
 const PRIMARY_NAV = [
@@ -62,7 +61,7 @@ const FOOTER_GROUPS = [
       { href: "/florida-buyers-guide", label: "First-time buyer's guide" },
       { href: "/mortgage", label: "All loan programs" },
       { href: "/locations/florida", label: "Florida" },
-      { href: "/vision", label: "TRACT Vision" },
+      { href: "/vision", label: "Home Vision" },
       { href: "/rendprop", label: "RendProp tours" },
       { href: "/talk", label: "Talk to us" }
     ]
@@ -120,11 +119,12 @@ export async function SiteHeader() {
     // the fixed bottom action bar, which sits at z-50.
     <header className="glass sticky top-0 z-[60]">
       <div className="container-wide flex items-center justify-between gap-4 py-3.5">
-        {/* The TRACT wordmark leads to the TRACT home. "/" is the Wholesale
-            Mortgage Lending landing, which has its own chrome (ADR-011). */}
-        <Link href={PRODUCT_HOME_PATH} aria-label={`${businessIdentity.brandName} home`}>
-          <Wordmark />
-        </Link>
+        {/* The wordmark leads home. A plain <a>, not <Link>: on wsmlending.com
+            "/" is the landing, which renders its own chrome (ADR-011), and a
+            client-side transition would keep this header around it. */}
+        <a href="/" aria-label={`${businessIdentity.name} home`} className="shrink-0">
+          <Wordmark variant="site" />
+        </a>
 
         {/*
           Eight primary links plus the CTA cluster only clear the 88rem
@@ -237,7 +237,7 @@ export function SiteFooter() {
               className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold transition-colors hover:opacity-80"
               style={{ color: "var(--purple)" }}
             >
-              Visit Wholesale Mortgage Lending →
+              Go to the homepage →
             </a>
           </div>
           {FOOTER_GROUPS.map((group) => (

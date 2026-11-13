@@ -1,24 +1,20 @@
-import Image from "next/image";
 import { ThemeToggle } from "./theme-toggle";
 import { LicensingFacts, NmlsVerifyLinks } from "./licensing-facts";
+import { Wordmark } from "./wordmark";
 import { businessIdentity, isPreLaunch } from "@/lib/site";
-import { PRODUCT_HOME_PATH } from "@/lib/host-routing";
 
 /**
- * Wholesale Mortgage Lending chrome.
+ * Landing chrome.
  *
- * The landing at "/" on wsmlending.com is the company brand, distinct from the
- * TRACT product chrome every other route uses, so it gets its own header and
- * footer. The middleware marks the request and the root layout swaps these in.
+ * The landing at "/" on wsmlending.com is built to convert paid traffic, so it
+ * gets a quieter header and footer than the rest of the site: no primary nav,
+ * one call to action that scrolls to the form. The middleware marks the request
+ * and the root layout swaps these in. The brand is the same everywhere
+ * (ADR-014); only the amount of navigation differs.
  *
  * Every link out of this chrome is a plain <a>, never <Link>: the destination
- * renders the TRACT chrome, and a client-side transition would keep this
- * layout's header and footer around the wrong brand.
- *
- * Theme correctness is deliberate: the WML brand is the purple monogram
- * (wml-mark.png, transparent, legible on light and dark) paired with a text
- * lockup coloured by --text, never the full-logo PNG whose "Wholesale Mortgage
- * Lending" wordmark is baked black and would vanish in dark mode.
+ * renders the full site chrome, and a client-side transition would keep this
+ * layout's header and footer around it.
  */
 
 const LEGAL_LINKS = [
@@ -30,49 +26,24 @@ const LEGAL_LINKS = [
   { href: "/do-not-sell-or-share", label: "Do not sell or share" }
 ];
 
-function WmlLockup({ compact = false }: { compact?: boolean }) {
-  return (
-    <span className="flex items-center gap-2.5">
-      <Image
-        src="/brand/wml-mark.png"
-        alt=""
-        width={260}
-        height={108}
-        priority
-        className="h-9 w-auto"
-      />
-      <span className="flex flex-col leading-tight">
-        <span className="text-sm font-bold tracking-tight" style={{ color: "var(--text)" }}>
-          Wholesale Mortgage Lending
-        </span>
-        {!compact && (
-          <span className="text-[11px] font-medium" style={{ color: "var(--text-muted)" }}>
-            Florida mortgage brokerage
-          </span>
-        )}
-      </span>
-    </span>
-  );
-}
-
 export function WmlHeader() {
   return (
-    // z-[60] mirrors the TRACT header so nothing paints over an open control.
+    // z-[60] mirrors the site header so nothing paints over an open control.
     <header className="glass sticky top-0 z-[60]">
       <div className="container-wide flex items-center justify-between gap-4 py-3.5">
-        <a href="/" aria-label="Wholesale Mortgage Lending home">
-          <WmlLockup />
+        <a href="/" aria-label="Wholesale Mortgage Lending home" className="shrink-0">
+          <Wordmark variant="landing" />
         </a>
 
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* The product is one click away, but the landing's real job is the
+          {/* The tools are one click away, but the landing's real job is the
               form below it, so this is a quiet secondary link, not a button. */}
           <a
-            href={PRODUCT_HOME_PATH}
+            href="/calculators"
             className="hidden rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:text-[var(--purple)] sm:block"
             style={{ color: "var(--text-muted)" }}
           >
-            Enter TRACT &rarr;
+            Calculators &rarr;
           </a>
           <div className="hidden sm:block">
             <ThemeToggle />
@@ -80,7 +51,7 @@ export function WmlHeader() {
           <a
             href="#lead"
             data-cta="wml-header"
-            className="inline-flex min-h-[44px] items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition duration-200 hover:-translate-y-0.5 sm:px-5"
+            className="inline-flex min-h-[44px] items-center justify-center whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition duration-200 hover:-translate-y-0.5 sm:px-5"
             style={{ background: "var(--purple)", boxShadow: "0 4px 14px var(--purple-glow)" }}
           >
             Get my options
@@ -100,10 +71,10 @@ export function WmlFooter() {
       <div className="container-wide py-12 sm:py-16">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-sm">
-            <WmlLockup />
+            <Wordmark />
             <p className="mt-5 text-sm" style={{ color: "var(--text-muted)" }}>
               A Florida mortgage brokerage. We help buyers and homeowners compare financing across
-              lenders with clear tools and direct guidance — powered by TRACT.
+              lenders with clear tools and direct guidance.
             </p>
             {businessIdentity.email !== null && (
               <a
@@ -115,11 +86,11 @@ export function WmlFooter() {
               </a>
             )}
             <a
-              href={PRODUCT_HOME_PATH}
+              href="/calculators"
               className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold transition-opacity hover:opacity-80"
               style={{ color: "var(--purple)" }}
             >
-              Enter TRACT &rarr;
+              Try the free calculators &rarr;
             </a>
           </div>
 
