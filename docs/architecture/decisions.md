@@ -216,7 +216,9 @@ The owner chose wsmlending.com as the company's one domain. The implementation:
   gone.
 - `apps/web/lib/host-routing.ts` holds the routing table as a pure function.
   On wsmlending.com, `/` rewrites to the landing (`app/wml/page.tsx`) with WML
-  chrome; `/tract` rewrites to the TRACT product home (`app/page.tsx`); `/wml`
+  chrome; `/tract` rewrites to the TRACT product home (`app/page.tsx`)
+  (superseded 2026-11-13: `/tract` now 308s to `/`, see the amendment below and
+  ADR-014); `/wml`
   308s to `/`; everything else is served directly with TRACT chrome. Any other
   host (tractrealestate.com, workers.dev, a Vercel alias) gets a 308 to the same
   path and query on wsmlending.com with `X-Robots-Tag: noindex, nofollow`. That
@@ -245,6 +247,15 @@ to wsmlending.com through permanent redirects. Supabase Auth must allow
 `https://wsmlending.com/**` as a redirect URL, and the Turnstile widget must list
 wsmlending.com, or sign-in and forms fail on the one remaining domain. Both are
 dashboard steps listed in `docs/seo/README.md`.
+
+**Amended 2026-11-13 (ADR-014).** TRACT is retired as a visible brand, so the
+old product home no longer has a public URL. On wsmlending.com `/tract` is a
+308 to `/` with the query string kept, the same status as `/wml`, and it is no
+longer in the route registry. The header wordmark (now the Wholesale Mortgage
+Lending lockup) leads to `/` as a plain anchor. `app/page.tsx` is still what
+`/` renders on localhost, where the browser suite exercises its funnel, and it
+stays noindex. Local `/tract` still rewrites to `/`, because a redirect there
+would need the request's own origin rather than the canonical one.
 
 ---
 
@@ -326,3 +337,94 @@ indexable route has no entry.
 verifying the live key file, and refuses any URL not on wsmlending.com. It is an
 operator tool run after a deploy, not runtime code: it handles public URLs only,
 has no credential, and nothing in the Worker calls it.
+
+---
+
+## ADR-014 — Wholesale Mortgage Lending is the only visible brand; TRACT retired
+
+**Date:** 2026-11-13 · **Status:** accepted · **Owner:** Aaron Pilkington
+
+ADR-011 gave the company one domain, but the site still showed two names. The
+company, Wholesale Mortgage Lending LLC, is the licensed Florida brokerage (NMLS
+2898263, licence MBR8794). TRACT was presented as "our platform": its wordmark
+headed every page, the favicon was the TRACT house, the Organization schema
+carried `alternateName: "TRACT Mortgage"`, and the articles said "TRACT is a
+mortgage broker… TRACT arranges loans", which presents an unregistered name as
+the brokerage itself.
+
+The owner decided on 2026-11-13 that wsmlending.com is the one master domain and
+Wholesale Mortgage Lending the only name a visitor, a crawler or a
+structured-data reader sees. His reasons:
+
+- **The fictitious-name rule.** The owner cites Florida Rule 69V-40.021: a
+  licensed mortgage brokerage may not do business under a fictitious name that is
+  not registered and on file with the Office of Financial Regulation, and NMLS
+  expects every trade name on the company record. TRACT is neither. (The rule is
+  the owner's citation; engineering did not read it back.)
+- **Entity consistency for YMYL.** Mortgage content is "your money or your
+  life" material. Search and answer engines weigh who stands behind it, and the
+  answer should be the same everywhere: page copy, the Organization node, the
+  NMLS record, the Google Business Profile and the domain. A second brand made
+  the site describe two entities.
+- **One business, one name.** The company only does mortgages. A separate
+  consumer brand would be a second entity to build trust for with no product
+  that it alone stands for.
+
+What changed:
+
+- Copy. Every page, component, metadata title and description, JSON-LD block,
+  llms.txt line, the manifest and the 173 mentions in the articles. "TRACT" became
+  "Wholesale Mortgage Lending", or "we" where the long name would repeat.
+  Feature labels lost the prefix: Home Vision, Mortgage assistant, our agent
+  network, Loan portal.
+- Schema. `NEXT_PUBLIC_BRAND_NAME` equals the company name in
+  `apps/web/.env.production`, `wrangler.jsonc` and the env schema default, so
+  `organizationNode` drops `alternateName`. `PRODUCT_NAME` is gone.
+- Consent and disclosure versions. The Vision report disclosure now names the
+  company, so `VISION_REPORT_DISCLOSURE_VERSION` moved to
+  `vision-report-request@1.1.0`. The DSCR calculator disclosure no longer says
+  "TRACT underwriting", so `DISCLOSURE_VERSION` moved to
+  `calc-disclosure@2026-11-13`. Receipts store the version as plain text with no
+  database constraint, so no migration. `tests/unit/brand.test.ts` pins each
+  consent version to the SHA-256 of its text, so wording cannot change under an
+  old version again.
+- Logo and icons. The header and footer lockup is the WML glyph, cropped from
+  `public/brand/wml-logo.png`, beside the company name in live text. A lighter
+  tint of the same purple is used on the dark theme, where the brand purple is
+  about 2.3:1. The favicon, app icons and PWA icons are the glyph in white on
+  the brand purple; the maskable icon keeps the glyph inside the 80% safe
+  circle. The TRACT image files had no remaining references and were deleted.
+- `/tract` is a 308 to `/` (ADR-011 amendment).
+- The homepage's "Powered by TRACT" band became a free-tools band, and an
+  Explore section links every hub the sitemap lists (`content/home-hub.ts`,
+  tested against the registry).
+
+Kept on purpose: internal code names nobody outside the repo sees (the
+`@tract/*` packages, the `x-tract-brand` header, `FEATURE_TRACT`, `tract.*`
+browser-storage keys, the `tract_*` CRM custom-field keys, "TRACT chrome" in
+comments), and the provenance `source` strings in
+`public/images/asset-manifest.json`, which record how each image was made.
+
+Alternatives considered:
+
+- Register TRACT as a fictitious name with the state and list it as a trade
+  name in NMLS, then keep it as a product brand under the company. Legal once
+  filed, but it costs a filing and an NMLS amendment, and still leaves two
+  entities for every reader to reconcile. Rejected by the owner.
+- Move TRACT to its own domain. A second site to rank, and the same
+  registration question the moment it markets mortgage services.
+
+Consequences:
+
+- Old `/tract` links and any ranking they earned land on the homepage.
+- Vision receipts created after the deploy carry version 1.1.0 and the new hash;
+  older receipts keep 1.0.0 and the old hash. Both remain accurate records.
+- Search results pick up the new titles, snippets and favicon as pages are
+  recrawled. Submitting the changed URLs through IndexNow after the deploy
+  speeds that up on Bing.
+- The "Brand truth" section of `docs/TRACT_MASTER_RECOVERY_BUILD.md` (TRACT
+  Mortgage as the working name) is superseded for everything user-facing.
+- A `\bTRACT\b` in content data, or outside a comment in `apps/web/app`,
+  `components`, `content` or `lib`, fails `tests/unit/brand.test.ts`, and the
+  browser suite checks the visible text and JSON-LD of the landing, a program
+  page, two articles and the calculators hub.

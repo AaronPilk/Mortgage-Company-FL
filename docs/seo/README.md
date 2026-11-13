@@ -1,7 +1,19 @@
 # SEO: wsmlending.com
 
-**As of 2026-11-12.** Wholesale Mortgage Lending (WML) only. Nothing here
+**As of 2026-11-13.** Wholesale Mortgage Lending (WML) only. Nothing here
 applies to any other company or product.
+
+## One brand
+
+Wholesale Mortgage Lending is the only name a visitor, a crawler or a
+structured-data reader sees (ADR-014, owner decision 2026-11-13). TRACT, the old
+product name, is retired from everything public: copy, titles, descriptions,
+JSON-LD, llms.txt, the manifest, the logo and the icons. It survives only as
+internal code names (`@tract/*` packages, the `x-tract-brand` header, comments).
+`tests/unit/brand.test.ts` fails on a `\bTRACT\b` in content data or outside a
+comment in `apps/web/app`, `components`, `content` or `lib`; the browser suite
+checks visible text and JSON-LD on the landing, a program page, two articles and
+`/calculators`.
 
 ## The domain decision
 
@@ -12,7 +24,7 @@ wsmlending.com is the company's one domain (ADR-011 in
 | ------------------------------------------- | --------------------------------------------------------- |
 | `wsmlending.com/`                           | The WML landing (company homepage), indexable             |
 | `wsmlending.com/<any app route>`            | Served directly, with each route's existing noindex rules |
-| `wsmlending.com/tract`                      | The TRACT product home, kept reachable, noindex           |
+| `wsmlending.com/tract`                      | 308 to `/`, query kept (retired product home, ADR-014)    |
 | `wsmlending.com/wml`                        | 308 to `/` (one URL for the homepage)                     |
 | `tractrealestate.com/<path>?<query>`        | 308 to `wsmlending.com/<path>?<query>`, `noindex`         |
 | workers.dev, Vercel aliases, any other host | Same 308, same `noindex`                                  |
@@ -48,7 +60,8 @@ The routing table is `apps/web/lib/host-routing.ts` (pure, unit-tested in
   Lending", legalName "Wholesale Mortgage Lending LLC", `url` and `@id` on
   wsmlending.com, areaServed Florida, the company NMLS ID as a `PropertyValue`
   identifier, the WML logo, and a `WebSite` node named after the company on
-  every page. Telephone +1 727-486-6004 (owner-confirmed 2026-11-13). No
+  every page. No `alternateName`: `NEXT_PUBLIC_BRAND_NAME` equals the company
+  name, and the builder drops the field when the two match. Telephone +1 727-486-6004 (owner-confirmed 2026-11-13). No
   address: there is no office customers visit, so the node stays an
   `Organization` and does not become a `FinancialService` (ADR-009).
   `sameAs` lists only the NMLS Consumer Access company page, which is in because
@@ -60,6 +73,22 @@ The routing table is `apps/web/lib/host-routing.ts` (pure, unit-tested in
   changed; `--dry-run` prints the payload. It checks the live key file first and
   never sends a URL that is not on wsmlending.com. Bing and the other IndexNow
   engines use it; Google does not.
+
+- **Favicon and icons**: `apps/web/app/favicon.ico` (16/32/48), `app/icon.png`
+  (512), `app/apple-icon.png` (180) and the PWA icons in `public/brand/`
+  (`icon-192.png`, `icon-512.png`, `icon-maskable-512.png`,
+  `apple-touch-icon.png`) are the WML glyph in white on the brand purple
+  (#461ED2), cropped from `public/brand/wml-logo.png`. Google shows the favicon
+  beside the site name in results, so it is the company mark. The header
+  lockup uses `wml-glyph.png` (light theme) and `wml-glyph-dark.png` (a lighter
+  tint for the dark theme) beside the name in live text.
+- **Homepage links**: the landing at `/` links every hub the sitemap lists from
+  a free-tools band and an Explore section, in plain `<a>` tags below the form.
+  The lists live in `apps/web/content/home-hub.ts`;
+  `apps/web/tests/unit/home-hub.test.ts` fails if any of them points at a page
+  that is unregistered, noindex or missing from the sitemap. Left out on
+  purpose: `/mortgage-rates` (noindex) and `/what-is-my-home-worth` (noindex,
+  and it 404s while `FEATURE_SELLER_TOOLS` is off in production).
 
 ## Licensing values
 
@@ -125,3 +154,8 @@ changes, until that other chat's work is pushed and merged into this branch.
    `FinancialService`).
 6. **Licence and NMLS record**: done 2026-11-12 (MBR8794, record public).
    Re-verify at each renewal.
+7. **External names (ADR-014)**: check that no listing or profile (Google
+   Business Profile, Bing Places, Apple Business Connect, social profiles, ad
+   accounts) uses TRACT as a business name, and that every one says Wholesale
+   Mortgage Lending. After the deploy, submit the changed URLs with
+   `node scripts/indexnow-submit.mjs --since <previous deployed commit>`.
