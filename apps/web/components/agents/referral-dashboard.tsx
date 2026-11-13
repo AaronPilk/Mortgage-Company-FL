@@ -63,7 +63,7 @@ export function ReferralDashboard({
       key: "total",
       label: "Total referrals",
       value: summary.total,
-      hint: "Everyone your link has sent to TRACT",
+      hint: "Everyone your link has sent to us",
       accent: true
     },
     {
@@ -101,14 +101,14 @@ export function ReferralDashboard({
         as="h1"
         eyebrow="For agents"
         title={`${agentFirstName}, here's what your link drove`}
-        description="Counts and coarse stages for the people your referral link sent to TRACT. To protect their privacy you'll never see a name, email, phone, or message here — only the shape of the pipeline."
+        description="Counts and coarse stages for the people your referral link sent to us. To protect their privacy you'll never see a name, email, phone, or message here — only the shape of the pipeline."
       />
 
       <Card className="mb-6">
         <h2 className="text-xl font-bold text-[var(--text)]">Your referral link</h2>
         <p className="mt-2 text-sm text-[var(--text-muted)]">
-          Share it anywhere. Anyone who starts with TRACT through it is credited to you — and you
-          keep the real-estate relationship.
+          Share it anywhere. Anyone who starts with us through it is credited to you — and you keep
+          the real-estate relationship.
         </p>
         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
           <code
@@ -191,17 +191,17 @@ export function ReferralDashboard({
         <Card>
           <h2 className="text-xl font-bold text-[var(--text)]">No referrals yet</h2>
           <p className="mt-2 text-sm text-[var(--text-muted)]">
-            Share your link above. The moment someone starts with TRACT through it, you&rsquo;ll see
+            Share your link above. The moment someone starts with us through it, you&rsquo;ll see
             them here as a count and a coarse stage — new, working, or closed. You&rsquo;ll never
-            see their name or contact details; that stays private to TRACT.
+            see their name or contact details; that stays private to us.
           </p>
         </Card>
       )}
 
       <p className="mt-6 text-xs text-[var(--text-muted)]">
         These are coarse pipeline stages, not credit decisions or outcomes — &ldquo;closed&rdquo;
-        only means the referral wrapped up. TRACT never shares a referred consumer&rsquo;s identity,
-        and nothing here is an application.
+        only means the referral wrapped up. We never share a referred consumer&rsquo;s identity, and
+        nothing here is an application.
       </p>
     </Section>
   );

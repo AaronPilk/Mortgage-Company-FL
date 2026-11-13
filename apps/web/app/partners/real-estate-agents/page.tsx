@@ -93,7 +93,7 @@ export default function AgentPartnerPage() {
         <div className="flex flex-wrap items-center justify-between gap-6">
           <div className="max-w-xl">
             <h2 className="text-lg font-semibold text-[var(--text)]">
-              The TRACT agent directory is open
+              Our agent directory is open
             </h2>
             <p className="mt-2 text-sm text-[var(--text-muted)]">
               List your profile, and when a buyer asks to work with you we make the introduction

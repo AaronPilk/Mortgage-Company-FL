@@ -215,7 +215,7 @@ test.describe("agent directory", () => {
 
     await page.goto("/agents/join");
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
-      "Join the TRACT agent network"
+      "Join the Wholesale Mortgage Lending agent network"
     );
     const form = page.locator('form[data-form-id="agent-join"]');
     await form.locator('input[name="firstName"]').fill("Avery");

@@ -91,7 +91,7 @@ export function AssistantWidget({ enabled }: { enabled: boolean }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        aria-label="Open the TRACT assistant"
+        aria-label="Open the mortgage assistant"
         className="fixed bottom-4 right-4 z-40 flex min-h-[52px] items-center gap-2 rounded-full px-5 text-sm font-semibold text-white shadow-lg"
         style={{
           background: "var(--purple)",
@@ -113,13 +113,13 @@ export function AssistantWidget({ enabled }: { enabled: boolean }) {
         bottom: "calc(1rem + env(safe-area-inset-bottom))"
       }}
       role="dialog"
-      aria-label="TRACT assistant"
+      aria-label="Mortgage assistant"
     >
       <div
         className="flex items-center justify-between px-4 py-3"
         style={{ background: "var(--purple)" }}
       >
-        <p className="text-sm font-semibold text-white">TRACT assistant</p>
+        <p className="text-sm font-semibold text-white">Mortgage assistant</p>
         <button
           type="button"
           onClick={() => setOpen(false)}

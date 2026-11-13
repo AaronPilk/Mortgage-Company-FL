@@ -57,7 +57,7 @@ export const QUALIFICATION_ARTICLES: Article[] = [
         heading: "How the limits actually work",
         paragraphs: [
           "There is no single DTI cutoff for all mortgages. Each program publishes its own limits, automated underwriting systems evaluate the ratio alongside credit, reserves, and equity, and individual lenders can apply stricter overlays. A ratio that stops one file may pass in another with stronger compensating factors. Fannie Mae's Selling Guide publishes the ratio framework for conventional loans, and government programs publish their own — check the program source for the figure in force rather than relying on a number from an old article.",
-          "The practical takeaway: your DTI is partly under your control. Paying down a card before applying, choosing a different price point, or documenting an income source properly can all move the ratio. As a broker, TRACT arranges loans through multiple wholesale lenders — we do not approve loans or set the limits, but we can line your numbers up against several programs to see where the math works. Our debt-to-income calculator lets you run the arithmetic yourself first."
+          "The practical takeaway: your DTI is partly under your control. Paying down a card before applying, choosing a different price point, or documenting an income source properly can all move the ratio. As a broker, Wholesale Mortgage Lending arranges loans through multiple wholesale lenders — we do not approve loans or set the limits, but we can line your numbers up against several programs to see where the math works. Our debt-to-income calculator lets you run the arithmetic yourself first."
         ]
       }
     ],
@@ -150,7 +150,7 @@ export const QUALIFICATION_ARTICLES: Article[] = [
       {
         heading: "What this means for your file",
         paragraphs: [
-          "Because pricing is tiered, small improvements can have outsized value. The levers that move scores fastest are usually utilization — the share of each card limit you are using when the bureaus snapshot the balance — and avoiding new derogatory marks. Longer-term levers are time and clean payment history. TRACT is a mortgage broker, not a credit repair company: we do not fix credit reports, and no one can remove accurate information. What a broker can do is run your actual tri-merge results against multiple lenders' pricing and show you what a tier change would be worth before you commit."
+          "Because pricing is tiered, small improvements can have outsized value. The levers that move scores fastest are usually utilization — the share of each card limit you are using when the bureaus snapshot the balance — and avoiding new derogatory marks. Longer-term levers are time and clean payment history. Wholesale Mortgage Lending is a mortgage broker, not a credit repair company: we do not fix credit reports, and no one can remove accurate information. What a broker can do is run your actual tri-merge results against multiple lenders' pricing and show you what a tier change would be worth before you commit."
         ],
         bullets: [
           "Do not open or close accounts mid-process without talking to your loan team.",
@@ -177,9 +177,9 @@ export const QUALIFICATION_ARTICLES: Article[] = [
           "A mortgage credit pull is a hard inquiry with a small, temporary effect. The CFPB notes that multiple mortgage inquiries within a shopping window are treated as a single inquiry by scoring models, so comparing several lenders does not multiply the impact."
       },
       {
-        question: "Can TRACT fix my credit so I qualify?",
+        question: "Can Wholesale Mortgage Lending fix my credit so I qualify?",
         answer:
-          "No — TRACT is a mortgage broker, not a credit repair organization, and accurate negative information cannot be removed by anyone. What we can do is show you how lenders will read your report, which items actually affect eligibility and pricing, and whether disputing a genuine error or paying down a specific balance is worth doing before you apply."
+          "No — we are a mortgage broker, not a credit repair organization, and accurate negative information cannot be removed by anyone. What we can do is show you how lenders will read your report, which items actually affect eligibility and pricing, and whether disputing a genuine error or paying down a specific balance is worth doing before you apply."
       }
     ],
     sources: [
@@ -252,9 +252,9 @@ export const QUALIFICATION_ARTICLES: Article[] = [
         ]
       },
       {
-        heading: "How TRACT fits in",
+        heading: "How we fit in",
         paragraphs: [
-          "Self-employed files are where broker access earns its keep. Different wholesale lenders read the same tax returns with different appetites, and the gap between one underwriter's income calculation and another's can decide a file. TRACT arranges loans across multiple lenders — agency programs and bank statement alternatives — and we run the income math up front, before your credit is pulled and before you fall in love with a house. We do not approve loans or set guidelines; we find the lender whose guidelines fit the business you actually run."
+          "Self-employed files are where broker access earns its keep. Different wholesale lenders read the same tax returns with different appetites, and the gap between one underwriter's income calculation and another's can decide a file. Wholesale Mortgage Lending arranges loans across multiple lenders — agency programs and bank statement alternatives — and we run the income math up front, before your credit is pulled and before you fall in love with a house. We do not approve loans or set guidelines; we find the lender whose guidelines fit the business you actually run."
         ]
       }
     ],
@@ -344,7 +344,7 @@ export const QUALIFICATION_ARTICLES: Article[] = [
       {
         heading: "How to prepare, whatever your history looks like",
         paragraphs: [
-          "Gather your last two years of W-2s or tax returns, recent pay stubs, and dates for every employer — verification services will surface the history anyway, so the application should match it. Write down the one-line explanation for anything unusual before you are asked. And if your situation includes a change in progress — new job, new field, returning from a gap — have the conversation before applying, not after. TRACT arranges loans through many lenders, and the practical value in an employment-history question is knowing which lender's guidelines read your specific story most favorably. We can tell you that before anyone pulls credit."
+          "Gather your last two years of W-2s or tax returns, recent pay stubs, and dates for every employer — verification services will surface the history anyway, so the application should match it. Write down the one-line explanation for anything unusual before you are asked. And if your situation includes a change in progress — new job, new field, returning from a gap — have the conversation before applying, not after. Wholesale Mortgage Lending arranges loans through many lenders, and the practical value in an employment-history question is knowing which lender's guidelines read your specific story most favorably. We can tell you that before anyone pulls credit."
         ]
       }
     ],
@@ -436,7 +436,7 @@ export const QUALIFICATION_ARTICLES: Article[] = [
       {
         heading: "Running your own numbers",
         paragraphs: [
-          "Before you tour a single house, run your DTI both ways: with your documented student loan payment, and with a percentage-of-balance imputed payment. The spread between those two numbers is your paperwork's value in dollars of monthly obligation. Our debt-to-income calculator handles the arithmetic, and a TRACT advisor can map your actual servicer documentation against the programs of multiple wholesale lenders. TRACT arranges loans and does not set these guidelines — but knowing which guideline fits your loans is most of the game for student-debt-heavy files."
+          "Before you tour a single house, run your DTI both ways: with your documented student loan payment, and with a percentage-of-balance imputed payment. The spread between those two numbers is your paperwork's value in dollars of monthly obligation. Our debt-to-income calculator handles the arithmetic, and one of our loan advisors can map your actual servicer documentation against the programs of multiple wholesale lenders. Wholesale Mortgage Lending arranges loans and does not set these guidelines — but knowing which guideline fits your loans is most of the game for student-debt-heavy files."
         ]
       }
     ],
@@ -529,7 +529,7 @@ export const QUALIFICATION_ARTICLES: Article[] = [
       {
         heading: "A realistic path forward",
         paragraphs: [
-          "If collections are part of your file, the honest playbook looks like this: get all three reports, identify what is accurate and what is not, dispute only genuine errors, and bring the rest to a loan conversation before deciding what to pay. TRACT is a broker — we arrange loans through multiple lenders and can tell you how specific programs will read your specific accounts. We are not a credit repair company, and anyone promising to remove accurate collections for a fee is selling something the law does not support. Accurate negative information ages off on its own schedule; what you control is everything you do from today forward."
+          "If collections are part of your file, the honest playbook looks like this: get all three reports, identify what is accurate and what is not, dispute only genuine errors, and bring the rest to a loan conversation before deciding what to pay. Wholesale Mortgage Lending is a broker — we arrange loans through multiple lenders and can tell you how specific programs will read your specific accounts. We are not a credit repair company, and anyone promising to remove accurate collections for a fee is selling something the law does not support. Accurate negative information ages off on its own schedule; what you control is everything you do from today forward."
         ],
         bullets: [
           "Get your reports from all three bureaus before applying — they often differ.",
@@ -638,7 +638,7 @@ export const QUALIFICATION_ARTICLES: Article[] = [
       {
         heading: "Where a broker fits",
         paragraphs: [
-          "Thin-file lending is unevenly distributed: some lenders work these files well and some avoid them, and overlays vary widely. TRACT arranges loans through multiple wholesale lenders, which means we can match a nontraditional credit file to a lender that actually underwrites them rather than one that declines by default. We do not approve loans — but we can tell you before application which documentation you need, which programs fit, and whether a few months of preparation would change your options. For someone who has paid every bill on time for years, the goal is making that visible."
+          "Thin-file lending is unevenly distributed: some lenders work these files well and some avoid them, and overlays vary widely. Wholesale Mortgage Lending arranges loans through multiple wholesale lenders, which means we can match a nontraditional credit file to a lender that actually underwrites them rather than one that declines by default. We do not approve loans — but we can tell you before application which documentation you need, which programs fit, and whether a few months of preparation would change your options. For someone who has paid every bill on time for years, the goal is making that visible."
         ]
       }
     ],
@@ -732,7 +732,7 @@ export const QUALIFICATION_ARTICLES: Article[] = [
       {
         heading: "Choosing the right structure",
         paragraphs: [
-          "The decision reduces to a few questions: Does the helper need to be on title? Does their income need to count, and does the target program allow it from a non-occupant? What does their credit profile do to the file's representative score? And what is the exit plan? Different programs answer these differently, which makes structure and program selection a joint decision. TRACT arranges loans across multiple lenders and can model the file both ways — with and without the additional borrower, across programs — before anyone commits their credit. We do not approve loans; we make sure the structure you pick is the one the math supports."
+          "The decision reduces to a few questions: Does the helper need to be on title? Does their income need to count, and does the target program allow it from a non-occupant? What does their credit profile do to the file's representative score? And what is the exit plan? Different programs answer these differently, which makes structure and program selection a joint decision. Wholesale Mortgage Lending arranges loans across multiple lenders and can model the file both ways — with and without the additional borrower, across programs — before anyone commits their credit. We do not approve loans; we make sure the structure you pick is the one the math supports."
         ]
       }
     ],
@@ -827,7 +827,7 @@ export const QUALIFICATION_ARTICLES: Article[] = [
       {
         heading: "Finding your actual date",
         paragraphs: [
-          "The practical steps: pin down your event type and its completion or discharge date from the court and property records; identify which programs' clocks you have already satisfied — checking each program's published source for the period in force; and get a professional read on whether extenuating circumstances plausibly apply to your history. TRACT arranges loans across many lenders and programs, and this is a situation where that breadth matters: we can map your dates against conventional, FHA, VA, USDA, and non-QM timelines in one conversation. We do not approve loans or waive guidelines — but we can usually tell you, concretely, how close you are and what to do with the time between now and eligible."
+          "The practical steps: pin down your event type and its completion or discharge date from the court and property records; identify which programs' clocks you have already satisfied — checking each program's published source for the period in force; and get a professional read on whether extenuating circumstances plausibly apply to your history. Wholesale Mortgage Lending arranges loans across many lenders and programs, and this is a situation where that breadth matters: we can map your dates against conventional, FHA, VA, USDA, and non-QM timelines in one conversation. We do not approve loans or waive guidelines — but we can usually tell you, concretely, how close you are and what to do with the time between now and eligible."
         ]
       }
     ],
@@ -906,7 +906,7 @@ export const QUALIFICATION_ARTICLES: Article[] = [
         heading: "How to shop without hurting yourself",
         paragraphs: [
           "The strategy follows directly from the mechanics: decide when you are genuinely ready to transact, then do your comparison inside a compact stretch rather than spreading pulls across many months. A pull in January, another in April, and a third in July are three separate inquiries and — worse — three stale-dated conversations, since a months-old quote reflects a market that no longer exists.",
-          "Concentrate the process. Get your documents together first, then engage your comparisons within the same few weeks, and compare Loan Estimates line by line — the standardized form exists precisely so offers can be read side by side. Note that working with a mortgage broker changes the arithmetic here: TRACT shops your scenario across many wholesale lenders from a single application and credit pull on our side, which is comparison shopping with less inquiry surface than serially applying to lender after lender. We arrange the loan; the lenders price and decide it — but you see the spread without repeating the process five times."
+          "Concentrate the process. Get your documents together first, then engage your comparisons within the same few weeks, and compare Loan Estimates line by line — the standardized form exists precisely so offers can be read side by side. Note that working with a mortgage broker changes the arithmetic here: Wholesale Mortgage Lending shops your scenario across many wholesale lenders from a single application and credit pull on our side, which is comparison shopping with less inquiry surface than serially applying to lender after lender. We arrange the loan; the lenders price and decide it — but you see the spread without repeating the process five times."
         ]
       },
       {
@@ -919,7 +919,7 @@ export const QUALIFICATION_ARTICLES: Article[] = [
       {
         heading: "Timing your credit pulls in the broader process",
         paragraphs: [
-          "Sequence matters more than people expect. Check your own reports early — that is a soft pull, free of consequence — and resolve errors before any lender looks. Start hard pulls when you are within range of actually transacting: preapproval when you are ready to make offers, not eighteen months out. Remember, too, that a credit report used for a mortgage has a shelf life in underwriting, so a pull far in advance of your purchase gets repeated anyway. Our rate impact calculator shows what pricing differences translate to in payment terms, which is the number that should drive how seriously you shop. If you want the comparison done across many lenders at once, that is the job TRACT exists to do."
+          "Sequence matters more than people expect. Check your own reports early — that is a soft pull, free of consequence — and resolve errors before any lender looks. Start hard pulls when you are within range of actually transacting: preapproval when you are ready to make offers, not eighteen months out. Remember, too, that a credit report used for a mortgage has a shelf life in underwriting, so a pull far in advance of your purchase gets repeated anyway. Our rate impact calculator shows what pricing differences translate to in payment terms, which is the number that should drive how seriously you shop. If you want the comparison done across many lenders at once, that is the job we exist to do."
         ]
       }
     ],

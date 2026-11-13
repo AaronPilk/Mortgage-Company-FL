@@ -38,7 +38,7 @@ export default async function LoanApplyPage() {
     <Section width="narrow">
       <SectionHeading
         as="h1"
-        eyebrow="TRACT"
+        eyebrow="Loan portal"
         title="Your pre-application"
         description="Plain-language questions — no SSN, no account numbers, nothing to look up. As you answer, we build the exact checklist your loan needs."
       />

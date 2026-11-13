@@ -58,9 +58,9 @@ export const FLORIDA_COSTS_ARTICLES: Article[] = [
         ]
       },
       {
-        heading: "Where TRACT fits in",
+        heading: "Where we fit in",
         paragraphs: [
-          "TRACT is a mortgage broker: we arrange financing through wholesale lenders, and we do not make loans, approve them, or set their prices. We are also not an insurance agency, so we do not advise on coverage — that is a licensed insurance agent's job. What we do is make sure the real premium for the real house is in your qualification numbers early, so an insurance surprise does not resurface days before closing as a debt-to-income problem. If you are budgeting for a Florida purchase, start with the full payment picture rather than the sticker price."
+          "Wholesale Mortgage Lending is a mortgage broker: we arrange financing through wholesale lenders, and we do not make loans, approve them, or set their prices. We are also not an insurance agency, so we do not advise on coverage — that is a licensed insurance agent's job. What we do is make sure the real premium for the real house is in your qualification numbers early, so an insurance surprise does not resurface days before closing as a debt-to-income problem. If you are budgeting for a Florida purchase, start with the full payment picture rather than the sticker price."
         ]
       }
     ],
@@ -159,7 +159,7 @@ export const FLORIDA_COSTS_ARTICLES: Article[] = [
       {
         heading: "When it is worth doing",
         paragraphs: [
-          "For most single-family homes in wind-rated territories, the inspection is inexpensive relative to the credits it can unlock, and it is worth pricing on almost any purchase. It matters most for homes built to modern code, re-roofed recently, or retrofitted with opening protection — the features are likely present and simply need documentation. TRACT arranges financing rather than insurance, so we will not tell you what to insure; we will tell you that the documented premium belongs in your qualification file before you commit to a payment."
+          "For most single-family homes in wind-rated territories, the inspection is inexpensive relative to the credits it can unlock, and it is worth pricing on almost any purchase. It matters most for homes built to modern code, re-roofed recently, or retrofitted with opening protection — the features are likely present and simply need documentation. Wholesale Mortgage Lending arranges financing rather than insurance, so we will not tell you what to insure; we will tell you that the documented premium belongs in your qualification file before you commit to a payment."
         ]
       }
     ],
@@ -243,7 +243,7 @@ export const FLORIDA_COSTS_ARTICLES: Article[] = [
         heading: "NFIP versus private flood coverage",
         paragraphs: [
           "The National Flood Insurance Program is the federal program, run by FEMA, that makes flood insurance broadly available through participating carriers; floodsmart.gov is its consumer front door. NFIP pricing reflects each property's own flood risk characteristics, and NFIP policies carry program-defined coverage limits.",
-          "A private flood market also operates in Florida and may offer different limits, terms, or pricing for a given home. Lenders can accept qualifying private policies as satisfying the mandatory purchase requirement. Which option fits a particular house and buyer is a coverage decision for a licensed insurance agent — TRACT arranges financing and does not advise on insurance — but the financing-relevant point is simple: the chosen policy's premium goes into your housing expense either way."
+          "A private flood market also operates in Florida and may offer different limits, terms, or pricing for a given home. Lenders can accept qualifying private policies as satisfying the mandatory purchase requirement. Which option fits a particular house and buyer is a coverage decision for a licensed insurance agent — Wholesale Mortgage Lending arranges financing and does not advise on insurance — but the financing-relevant point is simple: the chosen policy's premium goes into your housing expense either way."
         ]
       },
       {
@@ -356,7 +356,7 @@ export const FLORIDA_COSTS_ARTICLES: Article[] = [
         heading: "What it means for your mortgage timeline",
         paragraphs: [
           "Every financed purchase needs proof of acceptable insurance before closing, and on an older home the four-point report is frequently the gate to getting a policy issued at all. A finding — an aging roof, a flagged panel — can mean the carrier declines, surcharges, or conditions coverage on repairs. Any of those outcomes, discovered late, threatens the closing date and can change the payment your lender underwrites.",
-          "Discovered early, the same finding is negotiating material: a seller credit, a repair before closing, or a renovation loan structure can resolve it. TRACT arranges financing and is not an insurance agency, so the coverage decisions belong to you and your licensed insurance agent — but sequencing the four-point early is a financing decision, and it is one we push every Florida buyer of an older home to make."
+          "Discovered early, the same finding is negotiating material: a seller credit, a repair before closing, or a renovation loan structure can resolve it. Wholesale Mortgage Lending arranges financing and is not an insurance agency, so the coverage decisions belong to you and your licensed insurance agent — but sequencing the four-point early is a financing decision, and it is one we push every Florida buyer of an older home to make."
         ]
       },
       {
@@ -462,7 +462,7 @@ export const FLORIDA_COSTS_ARTICLES: Article[] = [
           "Order the four-point and wind mitigation inspections with your home inspection.",
           "Get an insurance quote on the actual roof during the inspection period.",
           "If the roof is older but sound, ask your inspector about a roof inspection documenting remaining useful life, which supports the protection in section 627.7011, Florida Statutes.",
-          "If replacement is unavoidable, negotiate — a seller credit, escrowed replacement, or a renovation loan can fund it. TRACT can walk you through financing structures; the coverage questions belong with a licensed insurance agent."
+          "If replacement is unavoidable, negotiate — a seller credit, escrowed replacement, or a renovation loan can fund it. Wholesale Mortgage Lending can walk you through financing structures; the coverage questions belong with a licensed insurance agent."
         ]
       }
     ],
@@ -510,7 +510,7 @@ export const FLORIDA_COSTS_ARTICLES: Article[] = [
       { href: "/resources/four-point-inspection", label: "The four-point inspection" },
       { href: "/resources/wind-mitigation-inspection", label: "Wind mitigation inspections" },
       { href: "/mortgage/renovation", label: "Renovation loans" },
-      { href: "/contact", label: "Talk to TRACT" }
+      { href: "/contact", label: "Talk to us" }
     ],
     publishedAt: "2026-08-18",
     lastReviewed: "2026-08-18"
@@ -556,7 +556,7 @@ export const FLORIDA_COSTS_ARTICLES: Article[] = [
       {
         heading: "What this means for your mortgage",
         paragraphs: [
-          "Lenders routinely accept Citizens coverage, so a Citizens-insured home is financeable in the ordinary way: the premium is escrowed, counted in your debt-to-income ratio, and verified before closing. TRACT arranges loans — we do not make or price them, and we are not an insurance agency — so our role is making sure the Citizens premium, and any pending depopulation offer on a home you are buying, is reflected in the payment you qualify on. If the seller's coverage is on Citizens, ask early whether your own application will be Citizens-eligible or routed to a private carrier at a different premium; that answer belongs in your numbers, not in your closing week."
+          "Lenders routinely accept Citizens coverage, so a Citizens-insured home is financeable in the ordinary way: the premium is escrowed, counted in your debt-to-income ratio, and verified before closing. Wholesale Mortgage Lending arranges loans — we do not make or price them, and we are not an insurance agency — so our role is making sure the Citizens premium, and any pending depopulation offer on a home you are buying, is reflected in the payment you qualify on. If the seller's coverage is on Citizens, ask early whether your own application will be Citizens-eligible or routed to a private carrier at a different premium; that answer belongs in your numbers, not in your closing week."
         ]
       }
     ],
@@ -658,7 +658,7 @@ export const FLORIDA_COSTS_ARTICLES: Article[] = [
           "Estimate taxes from your purchase price and the local millage, not from the seller's bill. Most county property appraiser sites offer a buyer tax estimator for exactly this reason.",
           "Subtract only the exemptions you will hold — and remember your homestead exemption and any portability apply beginning with the first assessment year you qualify.",
           "Check the bill for non-ad valorem assessments, which do not reset but also do not go away.",
-          "Ask TRACT to run qualification and escrow numbers on the reassessed estimate, so the loan is sized against the taxes you will actually pay."
+          "Ask us to run qualification and escrow numbers on the reassessed estimate, so the loan is sized against the taxes you will actually pay."
         ]
       }
     ],
@@ -681,7 +681,7 @@ export const FLORIDA_COSTS_ARTICLES: Article[] = [
       {
         question: "How should taxes be estimated for my loan?",
         answer:
-          "From the purchase price and local millage — not the seller's bill. Ask for the estimate your qualification is based on. TRACT runs Florida files this way so the debt-to-income math and the initial escrow deposit reflect the post-sale reality."
+          "From the purchase price and local millage — not the seller's bill. Ask for the estimate your qualification is based on. We run Florida files this way so the debt-to-income math and the initial escrow deposit reflect the post-sale reality."
       }
     ],
     sources: [
@@ -757,7 +757,7 @@ export const FLORIDA_COSTS_ARTICLES: Article[] = [
       {
         heading: "What it means for your mortgage payment",
         paragraphs: [
-          "Property taxes are usually escrowed, so the exemption reaches your monthly payment through the tax bill: a lower taxable value means a smaller escrow requirement once a bill reflecting your exemption is issued. Note the sequencing for new buyers — your first bills may precede your exemption taking effect, and your escrow analysis catches up afterward. TRACT arranges the loan and cannot file your exemption for you, but we flag the filing on every Florida homestead purchase we work on, because it is among the few carrying costs a borrower can lower with an hour of paperwork."
+          "Property taxes are usually escrowed, so the exemption reaches your monthly payment through the tax bill: a lower taxable value means a smaller escrow requirement once a bill reflecting your exemption is issued. Note the sequencing for new buyers — your first bills may precede your exemption taking effect, and your escrow analysis catches up afterward. Wholesale Mortgage Lending arranges the loan and cannot file your exemption for you, but we flag the filing on every Florida homestead purchase we work on, because it is among the few carrying costs a borrower can lower with an hour of paperwork."
         ]
       }
     ],
@@ -854,7 +854,7 @@ export const FLORIDA_COSTS_ARTICLES: Article[] = [
       {
         heading: "Budgeting so year two does not surprise you",
         paragraphs: [
-          "The defense is to qualify and budget on realistic year-two numbers from the start: taxes estimated from your purchase price rather than the seller's bill, and a property-specific insurance quote rather than a placeholder. That is how TRACT structures Florida files — we arrange the loan, we do not make it, and the most useful thing a broker does on a Florida purchase is refuse to let an optimistic escrow estimate into the qualification math. If you want the full payment picture before you shop, start with a plan session."
+          "The defense is to qualify and budget on realistic year-two numbers from the start: taxes estimated from your purchase price rather than the seller's bill, and a property-specific insurance quote rather than a placeholder. That is how we structure Florida files — we arrange the loan, we do not make it, and the most useful thing a broker does on a Florida purchase is refuse to let an optimistic escrow estimate into the qualification math. If you want the full payment picture before you shop, start with a plan session."
         ]
       }
     ],
@@ -954,10 +954,10 @@ export const FLORIDA_COSTS_ARTICLES: Article[] = [
         ]
       },
       {
-        heading: "CDD versus HOA — and where TRACT fits",
+        heading: "CDD versus HOA — and where we fit",
         paragraphs: [
           "A CDD is a unit of special-purpose government with statutory powers, including assessment collection through the tax bill; an HOA is a private association billing dues directly. They fund different things, are enforced differently, and can coexist on the same house. When both exist, both belong in your monthly math.",
-          "TRACT arranges Florida mortgages — we do not make or price loans — and CDD diligence is one of the places a Florida-focused broker earns its keep: we make sure district assessments are captured in the tax figure your qualification and escrow are built on, so the community's amenities do not arrive with a payment surprise. Run candidate homes through an affordability calculation with the full tax bill, CDD included, before you fall in love with the clubhouse."
+          "Wholesale Mortgage Lending arranges Florida mortgages — we do not make or price loans — and CDD diligence is one of the places a Florida-focused broker earns its keep: we make sure district assessments are captured in the tax figure your qualification and escrow are built on, so the community's amenities do not arrive with a payment surprise. Run candidate homes through an affordability calculation with the full tax bill, CDD included, before you fall in love with the clubhouse."
         ]
       }
     ],
@@ -975,7 +975,7 @@ export const FLORIDA_COSTS_ARTICLES: Article[] = [
       {
         question: "Do CDD assessments count in my debt-to-income ratio?",
         answer:
-          "They should, because they are part of the property's recurring carrying cost collected with the tax bill. Ask whether the tax figure in your qualification reflects the full bill, including non-ad valorem assessments — that is how TRACT prepares Florida files."
+          "They should, because they are part of the property's recurring carrying cost collected with the tax bill. Ask whether the tax figure in your qualification reflects the full bill, including non-ad valorem assessments — that is how we prepare Florida files."
       },
       {
         question: "Can I pay off a CDD assessment early?",

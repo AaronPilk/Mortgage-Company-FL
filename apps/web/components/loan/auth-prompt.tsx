@@ -3,7 +3,7 @@ import { Card, Section, SectionHeading } from "@/components/ui";
 import { publicFeatures } from "@/lib/env";
 
 /**
- * The signed-out gate for the TRACT portal. The loan surface is authenticated
+ * The signed-out gate for the loan portal. The loan surface is authenticated
  * end to end, so an unauthenticated visitor is met with sign-in rather than any
  * loan data. Reuses the account auth component (same Supabase session, same
  * Turnstile), so a borrower's WML account and their loan file are one login.
@@ -27,7 +27,7 @@ export function LoanAuthPrompt({
 
   return (
     <Section width="narrow">
-      <SectionHeading as="h1" eyebrow="TRACT" title={title} />
+      <SectionHeading as="h1" eyebrow="Loan portal" title={title} />
       <Card>
         <p className="mb-6 text-[var(--text-muted)]">{intro}</p>
         <AccountSignIn

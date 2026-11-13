@@ -49,7 +49,7 @@ export default async function LoanHomePage() {
         </div>
         <SectionHeading
           as="h1"
-          eyebrow="TRACT"
+          eyebrow="Loan portal"
           title="Let's get your loan started"
           description="Answer a few plain-language questions and we'll build your exact document checklist — no guessing what underwriting wants."
         />
@@ -105,7 +105,7 @@ export default async function LoanHomePage() {
         </ButtonLink>
       </div>
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <SectionHeading as="h1" eyebrow="TRACT" title="Your loans" />
+        <SectionHeading as="h1" eyebrow="Loan portal" title="Your loans" />
         <ButtonLink href="/loan/apply" variant="secondary">
           Start another application
         </ButtonLink>

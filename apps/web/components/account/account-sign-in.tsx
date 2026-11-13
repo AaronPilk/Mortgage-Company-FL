@@ -195,7 +195,7 @@ export function AccountSignIn({
         lastName,
         email,
         phone,
-        message: "Created a TRACT account.",
+        message: "Created a website account.",
         consent,
         firstTouch: submission.firstTouch,
         lastTouch: submission.lastTouch,
@@ -310,7 +310,7 @@ export function AccountSignIn({
     <form onSubmit={submit} className="space-y-4">
       <p className="text-sm text-[var(--text-muted)]">
         {mode === "create"
-          ? "Create a free account so a licensed professional can follow up on what you save. TRACT never sees the password — Supabase Auth stores it."
+          ? "Create a free account so a licensed professional can follow up on what you save. We never see the password — Supabase Auth stores it."
           : mode === "signIn"
             ? "Sign in with your email and password."
             : "Forgot your password? We’ll email you a link to set a new password."}

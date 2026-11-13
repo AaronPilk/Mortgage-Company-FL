@@ -41,8 +41,8 @@ type CreditBandValue =
 
 /**
  * Step 1 maps straight onto LeadIntent values the schema already accepts.
- * "Sell my home" is connection framing only: TRACT is a mortgage brokerage
- * and does not list homes — the owner's real-estate network picks that
+ * "Sell my home" is connection framing only: we are a mortgage brokerage
+ * and do not list homes — the owner's real-estate network picks that
  * conversation up, which is exactly what the sell_home intent exists for.
  */
 const INTENT_OPTIONS: ChoiceOption<

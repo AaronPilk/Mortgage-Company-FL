@@ -59,9 +59,9 @@ export default async function ReferralLandingPage({
         <SectionHeading
           as="h1"
           eyebrow="Welcome"
-          title="You've been referred to TRACT"
-          gradientWord="TRACT"
-          description="Wholesale Mortgage Lending is a licensed Florida mortgage brokerage. Whoever pointed you here thought we could help with the financing — here's where to start."
+          title="You've been referred to Wholesale Mortgage Lending"
+          gradientWord="Wholesale Mortgage Lending"
+          description="We're a licensed Florida mortgage brokerage. Whoever pointed you here thought we could help with the financing — here's where to start."
         />
         <NextSteps />
         <ReferralDisclosure />
@@ -84,17 +84,17 @@ export default async function ReferralLandingPage({
       <SectionHeading
         as="h1"
         eyebrow="A personal introduction"
-        title={`${firstName} sent you to TRACT`}
-        gradientWord="TRACT"
-        description={`${fullName} works with Wholesale Mortgage Lending on the financing side. TRACT is a licensed Florida mortgage brokerage — separate from ${firstName}'s real-estate business — and there's no cost to you for the introduction.`}
+        title={`${firstName} sent you to Wholesale Mortgage Lending`}
+        gradientWord="Wholesale Mortgage Lending"
+        description={`${fullName} works with us on the financing side. We're a licensed Florida mortgage brokerage — separate from ${firstName}'s real-estate business — and there's no cost to you for the introduction.`}
       />
 
       <Prose>
         <p>
           {firstName} pointed you here so the mortgage part is handled by people who do only that.
           {cities.length > 0
-            ? ` ${firstName} works across ${cities.join(", ")}, and TRACT works with buyers throughout Florida.`
-            : " TRACT works with buyers throughout Florida."}{" "}
+            ? ` ${firstName} works across ${cities.join(", ")}, and we work with buyers throughout Florida.`
+            : " We work with buyers throughout Florida."}{" "}
           Nothing here is an application, and looking at your options costs nothing and pulls no
           credit.
         </p>
@@ -103,9 +103,7 @@ export default async function ReferralLandingPage({
       <NextSteps />
 
       <Card className="mt-6">
-        <h2 className="text-xl font-bold text-[var(--text)]">
-          How the {firstName} × TRACT introduction works
-        </h2>
+        <h2 className="text-xl font-bold text-[var(--text)]">How the introduction works</h2>
         <ol
           className="mt-4 list-decimal space-y-3 pl-5 text-sm"
           style={{ color: "var(--text-muted)" }}
@@ -114,10 +112,10 @@ export default async function ReferralLandingPage({
             You start a plan or ask to talk — {firstName} doesn&rsquo;t receive your financial
             details, and neither does anyone until you choose to move forward.
           </li>
-          <li>A licensed TRACT loan officer walks you through your real options, no obligation.</li>
+          <li>A licensed loan officer walks you through your real options, no obligation.</li>
           <li>
-            You keep working with {firstName} on finding the home. TRACT handles the loan. Neither
-            side pays the other for the referral.
+            You keep working with {firstName} on finding the home. We handle the loan. Neither side
+            pays the other for the referral.
           </li>
         </ol>
       </Card>
@@ -159,7 +157,7 @@ function ReferralDisclosure() {
   return (
     <Disclosure
       headline="What a referral here means — and what it doesn't."
-      body="Wholesale Mortgage Lending is a licensed Florida mortgage brokerage. A referral is an introduction only: it is not an application, it involves no credit inquiry, and no payment flows in either direction between TRACT and the person who referred you. You are never obligated to work with anyone, and your financial details are shared with no one until you choose to move forward with a licensed loan officer."
+      body="Wholesale Mortgage Lending is a licensed Florida mortgage brokerage. A referral is an introduction only: it is not an application, it involves no credit inquiry, and no payment flows in either direction between us and the person who referred you. You are never obligated to work with anyone, and your financial details are shared with no one until you choose to move forward with a licensed loan officer."
     />
   );
 }

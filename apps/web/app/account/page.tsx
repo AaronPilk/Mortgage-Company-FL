@@ -109,7 +109,7 @@ export default async function AccountPage({
   if (user === null || supabase === null) {
     return (
       <Section width="narrow">
-        <SectionHeading as="h1" eyebrow="Account" title="Your saved TRACT work" />
+        <SectionHeading as="h1" eyebrow="Account" title="Your saved work" />
         {AUTH_MESSAGES[authState] !== undefined && (
           <p
             className="mb-5 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4 text-sm"
@@ -278,7 +278,7 @@ export default async function AccountPage({
   return (
     <Section width="wide">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <SectionHeading as="h1" eyebrow="Account" title="Your saved TRACT work" />
+        <SectionHeading as="h1" eyebrow="Account" title="Your saved work" />
         <form action="/auth/sign-out" method="post">
           <Button type="submit" variant="secondary">
             Sign out

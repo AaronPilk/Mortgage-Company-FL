@@ -3,7 +3,6 @@ import { ARTICLE_CATEGORY_LABELS } from "@/content/articles/types";
 import { PROGRAMS } from "@/content/programs";
 import {
   LICENSE_PENDING_LABEL,
-  PRODUCT_NAME,
   SITE_URL,
   businessIdentity,
   isPreLaunch,
@@ -43,7 +42,7 @@ export function GET(): Response {
   const lines: string[] = [
     `# ${identity.name}`,
     "",
-    `> ${identity.legalName} is a Florida mortgage brokerage. We arrange, but do not make, mortgage loans. ${PRODUCT_NAME} is our platform: educational guides, payment calculators that show their assumptions, and a mortgage planner. No rates are published because pricing depends on the borrower, the property, and the lock.`,
+    `> ${identity.legalName} is a Florida mortgage brokerage. We arrange, but do not make, mortgage loans. The site has educational guides, payment calculators that show their assumptions, and a mortgage planner. No rates are published because pricing depends on the borrower, the property, and the lock.`,
     "",
     "## Company",
     `- [Home](${url("/")}): what the brokerage does and how to reach a licensed professional`,

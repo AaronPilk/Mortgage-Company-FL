@@ -4,7 +4,7 @@
  * Gross rent divided by the full housing obligation on the property — principal,
  * interest, taxes, insurance, and association dues. The reference bands below
  * describe how the ratio is commonly discussed in the market. They are general
- * reference only. They are not TRACT underwriting, not any lender's guideline,
+ * reference only. They are not underwriting rules, not any lender's guideline,
  * and not a statement that a scenario will be approved.
  */
 

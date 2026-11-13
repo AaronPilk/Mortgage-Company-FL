@@ -7,9 +7,9 @@ import { SITE_URL, businessIdentity } from "@/lib/site";
 import { AgentJoinForm } from "@/components/agents/join-form";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Join the TRACT agent network",
+  title: "Join our agent network",
   description:
-    "Get introduced to buyers already working through their financing with TRACT. You stay the agent of record, and every profile is reviewed before it goes live.",
+    "Get introduced to buyers already working through their financing with us. You stay the agent of record, and every profile is reviewed before it goes live.",
   path: "/agents/join"
 });
 
@@ -25,7 +25,7 @@ export const metadata: Metadata = pageMetadata({
 const PITCH = [
   {
     heading: "Introductions, made personally",
-    body: "When a buyer asks to work with you, a TRACT team member makes the introduction by phone — not a form dump, not a shared spreadsheet of names."
+    body: "When a buyer asks to work with you, someone from our team makes the introduction by phone — not a form dump, not a shared spreadsheet of names."
   },
   {
     heading: "You stay the agent of record",
@@ -47,9 +47,9 @@ export default function AgentJoinPage() {
             webPageNode({
               identity: businessIdentity,
               url,
-              name: "Join the TRACT agent network",
+              name: "Join the Wholesale Mortgage Lending agent network",
               description:
-                "Apply to be listed in the TRACT agent directory and receive personally made introductions."
+                "Apply to be listed in the Wholesale Mortgage Lending agent directory and receive personally made introductions."
             }),
             breadcrumbNode([
               { name: "Home", url: absoluteUrl(SITE_URL, "/") },
@@ -65,7 +65,7 @@ export default function AgentJoinPage() {
         <SectionHeading
           as="h1"
           eyebrow="For agents"
-          title="Join the TRACT agent network"
+          title="Join the Wholesale Mortgage Lending agent network"
           gradientWord="network"
           description="A profile in our directory, and introductions made personally when a buyer asks to work with you. Every profile is reviewed — including license verification — before it goes live."
         />
@@ -108,9 +108,8 @@ export default function AgentJoinPage() {
                 Your contact details stay private
               </h2>
               <p className="mt-3 text-sm text-[var(--text-muted)]">
-                The directory never shows your phone number or email address. Consumers ask TRACT
-                for an introduction, and we make it personally — you hear from us, not from a form
-                bot.
+                The directory never shows your phone number or email address. Consumers ask us for
+                an introduction, and we make it personally — you hear from us, not from a form bot.
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
                 <ButtonLink href="/agents" variant="secondary">
@@ -126,7 +125,7 @@ export default function AgentJoinPage() {
 
         <Disclosure
           headline="No payment flows in either direction for referrals."
-          body="We do not pay for referrals and we do not accept payment for introductions, because federal law prohibits exchanging things of value for settlement service referrals. Listing is at TRACT's discretion after review, and a profile only ever claims license verification once we have completed it against state records."
+          body="We do not pay for referrals and we do not accept payment for introductions, because federal law prohibits exchanging things of value for settlement service referrals. Listing is at our discretion after review, and a profile only ever claims license verification once we have completed it against state records."
         />
       </Section>
     </>

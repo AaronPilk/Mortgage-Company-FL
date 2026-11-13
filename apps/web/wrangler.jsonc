@@ -30,7 +30,7 @@
    * where a deploy can only ever assert it.
    */
   "vars": {
-    "NEXT_PUBLIC_BRAND_NAME": "TRACT Mortgage",
+    "NEXT_PUBLIC_BRAND_NAME": "Wholesale Mortgage Lending",
     // The canonical origin (ADR-011). The app reads it from .env.production at
     // build time; these copies exist for worker-entry.js, whose cron builds
     // email and Meta links from the runtime env and otherwise falls back to

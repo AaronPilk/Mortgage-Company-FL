@@ -4,7 +4,7 @@ import { Card, Section, SectionHeading } from "@/components/ui";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = pageMetadata({
-  title: "What brings you to TRACT?",
+  title: "What brings you here today?",
   description:
     "Tell us what you are working on — buying, selling, investing, or partnering — and we will point you to the right conversation.",
   path: "/talk",
@@ -59,7 +59,7 @@ const CHOICES: {
     href: "/partners/real-estate-agents",
     title: "I'm a real estate agent",
     detail: "See how we work with agents, from co-marketing to keeping your clients moving.",
-    secondary: { href: "/agents/join", label: "Or join the TRACT agent directory" }
+    secondary: { href: "/agents/join", label: "Or join our agent directory" }
   },
   {
     href: "/get-started/investment",
@@ -74,8 +74,8 @@ export default function TalkPage() {
       <SectionHeading
         as="h1"
         eyebrow="Talk to us"
-        title="What brings you to TRACT?"
-        gradientWord="TRACT"
+        title="What brings you here today?"
+        gradientWord="here today"
         description="Pick the closest fit and we'll start the right conversation. Nothing here is an application, and no credit is pulled."
       />
       <ul className="grid gap-5 sm:grid-cols-2">

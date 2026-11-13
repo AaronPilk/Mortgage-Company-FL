@@ -136,7 +136,7 @@ export const SAMPLE_CAPTURE_GUIDANCE: readonly { title: string; body: string }[]
 
 export const SAMPLE_TOUR = {
   slug: "sample-tour-1200-example-bay",
-  shareLabel: "tract.example/t/SAMPLE-not-a-real-link",
+  shareLabel: "example.com/t/SAMPLE-not-a-real-link",
   viewsLabel: "0",
   disclosureVersion: "rendprop-disclosure@0.1.0"
 } as const;

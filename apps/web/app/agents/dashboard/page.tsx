@@ -30,7 +30,7 @@ import { createRequestClient } from "@/lib/supabase";
 export const metadata: Metadata = pageMetadata({
   title: "Your referral dashboard",
   description:
-    "See the referrals your TRACT link has driven — counts, coarse stages, and recency. Never a consumer's identity.",
+    "See the referrals your partner link has driven — counts, coarse stages, and recency. Never a consumer's identity.",
   path: "/agents/dashboard",
   noIndex: true
 });
@@ -88,7 +88,7 @@ export default async function AgentDashboardPage() {
           as="h1"
           eyebrow="For agents"
           title="Your partner profile is pending"
-          description="This dashboard is for approved TRACT referral partners. We couldn't find an approved partner profile on your account yet."
+          description="This dashboard is for approved referral partners. We couldn't find an approved partner profile on your account yet."
         />
         <Card>
           <p className="text-sm text-[var(--text-muted)]">

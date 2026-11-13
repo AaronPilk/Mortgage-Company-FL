@@ -20,7 +20,7 @@ export const PublicEnvSchema = z.object({
   // The company's marketing domain (Wholesale Mortgage Lending front door). One
   // Worker serves both this and the product domain; the middleware routes by host.
   NEXT_PUBLIC_COMPANY_URL: z.string().url().default("https://wsmlending.com"),
-  NEXT_PUBLIC_BRAND_NAME: z.string().min(1).default("TRACT Mortgage"),
+  NEXT_PUBLIC_BRAND_NAME: z.string().min(1).default("Wholesale Mortgage Lending"),
   NEXT_PUBLIC_GTM_CONTAINER_ID: optionalString,
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: optionalString,
   NEXT_PUBLIC_SUPABASE_URL: optionalString,

@@ -18,7 +18,7 @@ import type { HomeLookupResult, PropertyLookupResponse } from "@/lib/home-lookup
  * the funnel shows NO figure and never fabricates one (invariant 6); the lead
  * capture is unaffected, because the value is a nicety and the introduction is
  * the point. The form collects contact + address + intent only — no financial
- * figure is ever asked of the homeowner (invariant 2). TRACT brokers mortgages,
+ * figure is ever asked of the homeowner (invariant 2). We broker mortgages,
  * not homes: every line here is connection framing.
  */
 
@@ -266,9 +266,9 @@ export function SellerWorthExperience({
             Thinking about selling?
           </h2>
           <p className="mt-2 text-sm" style={{ color: "var(--text-muted)" }}>
-            TRACT is a mortgage brokerage — we don&apos;t list homes. Tell us where to reach you and
-            we&apos;ll introduce you to a real estate professional in our network who handles sales.
-            No listing agreement, no obligation.
+            Wholesale Mortgage Lending is a mortgage brokerage — we don&apos;t list homes. Tell us
+            where to reach you and we&apos;ll introduce you to a real estate professional in our
+            network who handles sales. No listing agreement, no obligation.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
             <Button type="button" variant="primary" disabled={!addressReady} onClick={talkToAgent}>

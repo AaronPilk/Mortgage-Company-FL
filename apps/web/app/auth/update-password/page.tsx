@@ -7,7 +7,7 @@ import { createRequestClient } from "@/lib/supabase";
 
 export const metadata: Metadata = pageMetadata({
   title: "Set a new password",
-  description: "Complete a password reset for your TRACT account.",
+  description: "Complete a password reset for your Wholesale Mortgage Lending account.",
   path: "/auth/update-password",
   noIndex: true
 });

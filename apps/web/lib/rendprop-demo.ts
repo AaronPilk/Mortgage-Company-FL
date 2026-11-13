@@ -13,4 +13,4 @@ export const RENDPROP_DEMO_TOUR_ATTRIBUTED_PATH =
     utm_campaign: "agent_sample_tour"
   }).toString();
 
-export const RENDPROP_DEMO_AGENT_ATTRIBUTION = "TRACT sample workflow";
+export const RENDPROP_DEMO_AGENT_ATTRIBUTION = "Sample workflow, not a real agent";

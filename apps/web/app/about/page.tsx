@@ -58,8 +58,8 @@ export default function AboutPage() {
             Between us we also have family with long careers in mortgage lending in North and South
             Carolina, and in title, real estate, and loan processing. That experience informs how we
             think. It is not this company&rsquo;s operating history, and we will not present it as
-            though TRACT has been doing this for decades. TRACT is new. We would rather tell you
-            that than pad a number.
+            though Wholesale Mortgage Lending has been doing this for decades. We are new. We would
+            rather tell you that than pad a number.
           </p>
 
           <h2>What we will not do</h2>

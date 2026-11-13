@@ -44,9 +44,9 @@ export const CONSTRUCTION_ARTICLES: Article[] = [
         ]
       },
       {
-        heading: "How TRACT fits in",
+        heading: "How we fit in",
         paragraphs: [
-          "TRACT is a mortgage broker: we arrange financing through lenders, we do not make credit decisions or set prices, and we are not a land-use authority. What a broker adds on a land file is placement, knowing which lenders will even look at unimproved acreage versus a platted lot, and sequencing, structuring the purchase so it does not block the construction loan that follows. Questions about zoning, utilities, and buildability should go to the county before any contract is signed."
+          "Wholesale Mortgage Lending is a mortgage broker: we arrange financing through lenders, we do not make credit decisions or set prices, and we are not a land-use authority. What a broker adds on a land file is placement, knowing which lenders will even look at unimproved acreage versus a platted lot, and sequencing, structuring the purchase so it does not block the construction loan that follows. Questions about zoning, utilities, and buildability should go to the county before any contract is signed."
         ]
       }
     ],
@@ -148,7 +148,7 @@ export const CONSTRUCTION_ARTICLES: Article[] = [
       {
         heading: "Where a broker earns its place",
         paragraphs: [
-          "Construction lending is one of the least standardized corners of the mortgage market. Lenders differ on builder requirements, draw procedures, construction-phase length, and whether they offer single-close at all. TRACT arranges construction financing across multiple lenders and matches the structure to the project; we do not build, inspect, or permit anything, and questions about your specific build belong with your builder and your local building department."
+          "Construction lending is one of the least standardized corners of the mortgage market. Lenders differ on builder requirements, draw procedures, construction-phase length, and whether they offer single-close at all. Wholesale Mortgage Lending arranges construction financing across multiple lenders and matches the structure to the project; we do not build, inspect, or permit anything, and questions about your specific build belong with your builder and your local building department."
         ]
       }
     ],
@@ -252,7 +252,7 @@ export const CONSTRUCTION_ARTICLES: Article[] = [
       {
         heading: "Where borrowers and brokers fit in the process",
         paragraphs: [
-          "Fannie Mae's construction-to-permanent rules assume this draw-and-verify machinery exists; it is part of what makes a construction loan deliverable as a conventional mortgage after conversion. As a broker, TRACT's job is before the first draw: placing the loan with a lender whose draw procedures, inspection expectations, and construction timeline fit the project and the builder. During the build, the draw relationship runs between borrower, builder, and lender. Disputes about workmanship or code compliance belong with the builder and the local building department, not the loan file."
+          "Fannie Mae's construction-to-permanent rules assume this draw-and-verify machinery exists; it is part of what makes a construction loan deliverable as a conventional mortgage after conversion. As a broker, our job comes before the first draw: placing the loan with a lender whose draw procedures, inspection expectations, and construction timeline fit the project and the builder. During the build, the draw relationship runs between borrower, builder, and lender. Disputes about workmanship or code compliance belong with the builder and the local building department, not the loan file."
         ]
       }
     ],
@@ -355,7 +355,7 @@ export const CONSTRUCTION_ARTICLES: Article[] = [
       {
         heading: "When a builder does not pass, and what a broker does about it",
         paragraphs: [
-          "A declined builder is not always a condemned builder; it may simply be a mismatch with that lender's requirements. Some lenders decline builders with short operating histories or projects outside their usual scope. Because requirements differ, a project rejected at one institution can be fundable at another whose builder criteria fit. That placement question is where TRACT operates: we arrange construction financing with lenders whose builder requirements match the team you have hired. We do not license, endorse, or supervise contractors, and disputes about work quality belong with the builder, the local building department, and the state licensing board."
+          "A declined builder is not always a condemned builder; it may simply be a mismatch with that lender's requirements. Some lenders decline builders with short operating histories or projects outside their usual scope. Because requirements differ, a project rejected at one institution can be fundable at another whose builder criteria fit. That placement question is where we work: we arrange construction financing with lenders whose builder requirements match the team you have hired. We do not license, endorse, or supervise contractors, and disputes about work quality belong with the builder, the local building department, and the state licensing board."
         ]
       }
     ],
@@ -410,7 +410,7 @@ export const CONSTRUCTION_ARTICLES: Article[] = [
         href: "/resources/construction-draws-inspections",
         label: "Draws and inspections explained"
       },
-      { href: "/contact", label: "Talk to TRACT about a construction project" }
+      { href: "/contact", label: "Talk to us about a construction project" }
     ],
     publishedAt: "2026-08-18",
     lastReviewed: "2026-08-18"
@@ -458,9 +458,9 @@ export const CONSTRUCTION_ARTICLES: Article[] = [
         ]
       },
       {
-        heading: "How TRACT approaches an owner-builder file",
+        heading: "How we approach an owner-builder file",
         paragraphs: [
-          "TRACT is a broker, so our contribution is placement and honesty about odds. If you have professional construction experience, we can help present it to the lenders that will weigh it; a licensed tradesperson building their own home is a different file than a first-timer with a spreadsheet. If the numbers only work without a contractor, that is usually a sign the budget is too tight to survive construction at all. Permitting and code questions belong with your local building department, and the owner-builder disclosure in Section 489.103 deserves a careful read before you sign a permit application."
+          "Wholesale Mortgage Lending is a broker, so our contribution is placement and honesty about odds. If you have professional construction experience, we can help present it to the lenders that will weigh it; a licensed tradesperson building their own home is a different file than a first-timer with a spreadsheet. If the numbers only work without a contractor, that is usually a sign the budget is too tight to survive construction at all. Permitting and code questions belong with your local building department, and the owner-builder disclosure in Section 489.103 deserves a careful read before you sign a permit application."
         ]
       }
     ],
@@ -506,7 +506,7 @@ export const CONSTRUCTION_ARTICLES: Article[] = [
     related: [
       { href: "/resources/builder-approval-process", label: "Why lenders vet your builder" },
       { href: "/mortgage/construction", label: "Construction loans" },
-      { href: "/contact", label: "Discuss your project with TRACT" }
+      { href: "/contact", label: "Discuss your project with us" }
     ],
     publishedAt: "2026-08-18",
     lastReviewed: "2026-08-18"
@@ -552,7 +552,7 @@ export const CONSTRUCTION_ARTICLES: Article[] = [
       {
         heading: "Sequencing the project",
         paragraphs: [
-          "The files that close smoothly tend to follow the same order: zoning confirmation first, then a licensed contractor's bid, then financing structured around the real budget. TRACT arranges renovation and construction financing across these programs and can map which path fits your equity, timeline, and contractor. We are not a zoning authority or a builder; permitted use and construction cost questions belong with your local government and your licensed contractor, respectively."
+          "The files that close smoothly tend to follow the same order: zoning confirmation first, then a licensed contractor's bid, then financing structured around the real budget. Wholesale Mortgage Lending arranges renovation and construction financing across these programs and can map which path fits your equity, timeline, and contractor. We are not a zoning authority or a builder; permitted use and construction cost questions belong with your local government and your licensed contractor, respectively."
         ]
       }
     ],
@@ -663,7 +663,7 @@ export const CONSTRUCTION_ARTICLES: Article[] = [
       {
         heading: "Buying one in Florida",
         paragraphs: [
-          "Florida has one of the largest manufactured housing stocks in the country, so lenders here see these files constantly; the ones that stall share the same three culprits, title status, foundation condition, and homes moved from their first site. TRACT arranges manufactured home financing through lenders active in each program and can tell you early which market your specific home falls into. Questions about a home's HUD label, data plate, or construction standard belong with HUD's manufactured housing resources, and title conversion mechanics belong with your closing agent."
+          "Florida has one of the largest manufactured housing stocks in the country, so lenders here see these files constantly; the ones that stall share the same three culprits, title status, foundation condition, and homes moved from their first site. Wholesale Mortgage Lending arranges manufactured home financing through lenders active in each program and can tell you early which market your specific home falls into. Questions about a home's HUD label, data plate, or construction standard belong with HUD's manufactured housing resources, and title conversion mechanics belong with your closing agent."
         ]
       }
     ],
@@ -770,7 +770,7 @@ export const CONSTRUCTION_ARTICLES: Article[] = [
       {
         heading: "Programs built for rural property",
         paragraphs: [
-          "It is no accident that the agency with the most explicit site language, USDA, is also the one designed for rural lending: its guaranteed program finances homes in eligible rural areas, much of which in Florida is well-and-septic country. Conventional, FHA, and VA financing all reach rural properties too, each applying its own property standards. TRACT arranges loans across these programs and can match a rural property's realities to a program that accommodates them. We do not test water or inspect systems; licensed laboratories, septic contractors, and your county health department are the authorities there."
+          "It is no accident that the agency with the most explicit site language, USDA, is also the one designed for rural lending: its guaranteed program finances homes in eligible rural areas, much of which in Florida is well-and-septic country. Conventional, FHA, and VA financing all reach rural properties too, each applying its own property standards. Wholesale Mortgage Lending arranges loans across these programs and can match a rural property's realities to a program that accommodates them. We do not test water or inspect systems; licensed laboratories, septic contractors, and your county health department are the authorities there."
         ]
       }
     ],
@@ -817,7 +817,7 @@ export const CONSTRUCTION_ARTICLES: Article[] = [
       { href: "/mortgage/usda", label: "USDA loans" },
       { href: "/mortgage/fha", label: "FHA loans" },
       { href: "/resources/lot-loans-vs-land-loans", label: "Lot loans vs. land loans" },
-      { href: "/plan", label: "Plan your purchase with TRACT" }
+      { href: "/plan", label: "Plan your purchase" }
     ],
     publishedAt: "2026-08-18",
     lastReviewed: "2026-08-18"
@@ -865,9 +865,9 @@ export const CONSTRUCTION_ARTICLES: Article[] = [
         ]
       },
       {
-        heading: "Where TRACT stands on fee questions",
+        heading: "Where we stand on fee questions",
         paragraphs: [
-          "TRACT arranges construction and land financing; we are not a permitting authority and do not calculate or collect impact fees. What we do is make sure the budget a lender underwrites reflects the real cost of building in your county, fees included, because the alternative is discovering mid-project that the contingency reserve is spent on a permit counter. For the authoritative fee figures, the county building department is the only source that counts, and for the governing law, the Florida Legislature publishes Section 163.31801 in full."
+          "Wholesale Mortgage Lending arranges construction and land financing; we are not a permitting authority and do not calculate or collect impact fees. What we do is make sure the budget a lender underwrites reflects the real cost of building in your county, fees included, because the alternative is discovering mid-project that the contingency reserve is spent on a permit counter. For the authoritative fee figures, the county building department is the only source that counts, and for the governing law, the Florida Legislature publishes Section 163.31801 in full."
         ]
       }
     ],
@@ -964,7 +964,7 @@ export const CONSTRUCTION_ARTICLES: Article[] = [
         heading: "What happens to an unspent reserve",
         paragraphs: [
           "Good news is also governed by rules. Under Fannie Mae's HomeStyle provisions, unused contingency funds that were financed must be applied to reduce the loan balance after completion, while funds the borrower deposited directly can be returned; alternatively, remaining reserve money may fund additional improvements if the lender confirms the original work is complete and inspects the new work. Either way, the reserve is never lost money, it is either a smaller loan or more house.",
-          "TRACT arranges renovation financing under these programs and structures budgets with lenders so the reserve fits the project's real risk, older homes and structural scopes justify the higher end. Construction cost estimates and hidden-condition assessments belong with your licensed contractor and inspector; the loan can only be as honest as the budget underneath it."
+          "Wholesale Mortgage Lending arranges renovation financing under these programs and structures budgets with lenders so the reserve fits the project's real risk, older homes and structural scopes justify the higher end. Construction cost estimates and hidden-condition assessments belong with your licensed contractor and inspector; the loan can only be as honest as the budget underneath it."
         ]
       }
     ],
@@ -1014,7 +1014,7 @@ export const CONSTRUCTION_ARTICLES: Article[] = [
         href: "/resources/construction-draws-inspections",
         label: "Draws and inspections explained"
       },
-      { href: "/contact", label: "Talk through a renovation budget with TRACT" }
+      { href: "/contact", label: "Talk through a renovation budget with us" }
     ],
     publishedAt: "2026-08-18",
     lastReviewed: "2026-08-18"

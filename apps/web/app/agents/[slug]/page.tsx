@@ -83,7 +83,7 @@ export async function generateMetadata({
   const { agent } = resolved;
   return pageMetadata({
     title: `${agent.firstName} ${agent.lastName} — Florida real estate agent`,
-    description: `Request an introduction to ${agent.firstName} ${agent.lastName} (${agent.cities}). TRACT makes the connection personally.`,
+    description: `Request an introduction to ${agent.firstName} ${agent.lastName} (${agent.cities}). Wholesale Mortgage Lending makes the connection personally.`,
     path: `/agents/${agent.slug}`
   });
 }
@@ -192,7 +192,9 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
           */}
           {!isSample && agent.unclaimed && (
             <div className="mt-4 text-sm" style={{ color: "var(--text-muted)" }}>
-              <p>Source: Florida license records. This agent hasn&rsquo;t joined TRACT yet.</p>
+              <p>
+                Source: Florida license records. This agent hasn&rsquo;t joined our network yet.
+              </p>
               <p className="mt-1">
                 Are you {agent.firstName}?{" "}
                 <Link
@@ -226,7 +228,9 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
                 style={{ color: "var(--text-muted)" }}
               >
                 <li>You tell us how to reach you — nothing goes to the agent yet.</li>
-                <li>A TRACT team member calls you first to understand what you are looking for.</li>
+                <li>
+                  Someone from our team calls you first to understand what you are looking for.
+                </li>
                 <li>
                   We make the introduction personally. You are never obligated to work with anyone
                   we introduce.
@@ -234,7 +238,7 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
               </ol>
               <p className="mt-4 text-sm" style={{ color: "var(--text-muted)" }}>
                 We do not publish agent phone numbers or email addresses, and we do not hand yours
-                out. The introduction happens person to person, through TRACT.
+                out. The introduction happens person to person, through us.
               </p>
             </Card>
           </div>
@@ -256,7 +260,7 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ s
             isSample
               ? "This profile is an illustrative sample invented to demonstrate the directory. The name, brokerage, cities, bio, and license number are all made up, the license format is deliberately invalid, and no verification has occurred or could occur. Wholesale Mortgage Lending is a mortgage brokerage; requesting an introduction is not an application and involves no credit inquiry."
               : agent.unclaimed
-                ? "This profile restates public Florida real estate license records — name, license number, license type, location, and employing brokerage — and nothing more. The agent has not joined TRACT, provided any information here, or endorsed TRACT in any way, and no contact details of theirs are held or published. License status is stated exactly as established: 'verification pending' means TRACT has not independently re-verified the record. Wholesale Mortgage Lending is a mortgage brokerage; requesting an introduction is not an application, involves no credit inquiry, and no payment flows in either direction for referrals."
+                ? "This profile restates public Florida real estate license records — name, license number, license type, location, and employing brokerage — and nothing more. The agent has not joined our agent network, provided any information here, or endorsed us in any way, and no contact details of theirs are held or published. License status is stated exactly as established: 'verification pending' means we have not independently re-verified the record. Wholesale Mortgage Lending is a mortgage brokerage; requesting an introduction is not an application, involves no credit inquiry, and no payment flows in either direction for referrals."
                 : "Profile details were provided by the agent and reviewed before publication. License status is stated exactly as established: a profile says 'verified against state records' only after that check has completed, and 'verification pending' otherwise. Wholesale Mortgage Lending is a mortgage brokerage; requesting an introduction is not an application, involves no credit inquiry, and no payment flows in either direction for referrals."
           }
         />

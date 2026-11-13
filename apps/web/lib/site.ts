@@ -20,25 +20,29 @@ import type { BusinessIdentity } from "@tract/seo";
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 /**
- * Two names, one site. The COMPANY is Wholesale Mortgage Lending, the brokerage
- * entity the compliance statements, the NMLS record and the domain attach to.
- * The PRODUCT is TRACT, the platform people use (calculators, properties, home
- * value, the loan portal). Both live on the company domain: the landing at "/"
- * and the TRACT product home at /tract. In schema the company is the
- * Organization and TRACT its alternateName (see @tract/seo organizationNode).
+ * One visible name (ADR-014). Wholesale Mortgage Lending is the brokerage the
+ * compliance statements, the NMLS record and the domain attach to, and it is
+ * the only brand a visitor, a crawler or a structured-data reader sees. A
+ * licensed Florida brokerage may only present a trade name that is registered
+ * with OFR and listed in NMLS (Rule 69V-40.021), so nothing user-facing names a
+ * separate product brand. Internal identifiers (@tract/* packages, the
+ * x-tract-brand header) are code names, not brands, and stay.
  */
 export const COMPANY_NAME = process.env.NEXT_PUBLIC_COMPANY_NAME ?? "Wholesale Mortgage Lending";
 /** As shown in Dan's NMLS portal account list, relayed by the owner 12 Nov 2026. */
 export const COMPANY_LEGAL_NAME = "Wholesale Mortgage Lending LLC";
-export const PRODUCT_NAME = process.env.NEXT_PUBLIC_PRODUCT_NAME ?? "TRACT";
 /**
  * The company's domain. Since the one-domain decision it is the same origin as
  * SITE_URL; scripts/check-site-url.mjs refuses a build where the two differ.
  * Kept as a name so links that mean "the company front door" still say so.
  */
 export const COMPANY_URL = process.env.NEXT_PUBLIC_COMPANY_URL ?? SITE_URL;
-/** Kept for existing callers; the product brand shown in the UI. */
-export const BRAND_NAME = process.env.NEXT_PUBLIC_BRAND_NAME ?? PRODUCT_NAME;
+/**
+ * The name shown in the UI. It equals COMPANY_NAME (.env.production sets both),
+ * which is what keeps `alternateName` out of the Organization node: the schema
+ * builder drops it when the brand name and the company name match.
+ */
+export const BRAND_NAME = process.env.NEXT_PUBLIC_BRAND_NAME ?? COMPANY_NAME;
 /** Public contact inbox, shown on the site and in the Organization schema. */
 export const COMPANY_EMAIL = process.env.NEXT_PUBLIC_COMPANY_EMAIL ?? "dan@wsmlending.com";
 
@@ -149,9 +153,14 @@ export const EMAIL_CONSENT_TEXT =
   "Email me mortgage education and market updates. You can unsubscribe at any time. " +
   "Consent is not a condition of any service.";
 
-export const VISION_REPORT_DISCLOSURE_VERSION = "vision-report-request@1.0.0";
+/**
+ * Consent receipts store this version with a hash of the text, so any change to
+ * the wording needs a new version. 1.1.0 (13 Nov 2026): the requester now asks
+ * Wholesale Mortgage Lending, the licensed brokerage, instead of a product name.
+ */
+export const VISION_REPORT_DISCLOSURE_VERSION = "vision-report-request@1.1.0";
 
 export const VISION_REPORT_DISCLOSURE_TEXT =
-  "By submitting this request you are asking TRACT to retain this planning scenario and contact you about it. " +
+  "By submitting this request you are asking Wholesale Mortgage Lending to retain this planning scenario and contact you about it. " +
   "The preview is an illustration based on inputs you can change. It is not an appraisal, construction bid, " +
   "credit application, approval, rate quote, zoning opinion, or investment recommendation.";

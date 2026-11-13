@@ -50,7 +50,7 @@ export const BASICS_ARTICLES: Article[] = [
         heading: "How lenders use PITI to qualify you",
         paragraphs: [
           "Underwriting compares your full monthly housing expense — PITI plus association dues — against your gross income to produce a housing ratio, and adds your other debts to produce a total debt-to-income ratio. Because taxes, insurance, and dues all count, two identical loan amounts can produce very different qualifying pictures in Florida depending on the property. A buyer who qualifies comfortably for an inland single-family home may not qualify for a coastal condo at the same price once wind, flood, and dues enter the math.",
-          "This is why an experienced Florida broker builds the payment from the property outward: pull the county's millage, price the insurance stack for that address, confirm the association dues, and only then talk about what loan size fits. TRACT arranges loans through wholesale lenders and does not set taxes or insurance premiums, but structuring the full payment honestly at the start is the difference between a preapproval that survives underwriting and one that does not."
+          "This is why an experienced Florida broker builds the payment from the property outward: pull the county's millage, price the insurance stack for that address, confirm the association dues, and only then talk about what loan size fits. Wholesale Mortgage Lending arranges loans through wholesale lenders and does not set taxes or insurance premiums, but structuring the full payment honestly at the start is the difference between a preapproval that survives underwriting and one that does not."
         ]
       },
       {
@@ -155,7 +155,7 @@ export const BASICS_ARTICLES: Article[] = [
         paragraphs: [
           "Get Loan Estimates for the same loan type, term, and rate-lock period, generated in the same narrow time window — pricing moves day to day, so quotes from different days are not comparable. Then read them side by side. Focus on two lines: the interest rate, which sets your payment, and the origination charges in Section A of page 2, which are the cost of obtaining that rate from that lender. Third-party costs like appraisal and title will appear on every estimate and largely wash out of the comparison; the loan costs are where offers genuinely differ.",
           "Be equally careful about what is not a Loan Estimate. Rate advertisements, prequalification worksheets, and emailed quotes carry no accountability — an advertised rate may assume a pristine credit profile, a low loan-to-value ratio, and points that are only mentioned in a footnote. The Loan Estimate exists precisely because informal quotes were unauditable; insist on it before treating any number as an offer.",
-          "TRACT's role as a broker is exactly this comparison: we shop your one file across multiple wholesale lenders and put the resulting offers next to each other on equal assumptions. We arrange the loan; the lender prices and makes it — which is why insisting on comparable disclosures, rather than a single quoted rate, is the discipline that protects you."
+          "That comparison is our job as a broker: we shop your one file across multiple wholesale lenders and put the resulting offers next to each other on equal assumptions. We arrange the loan; the lender prices and makes it — which is why insisting on comparable disclosures, rather than a single quoted rate, is the discipline that protects you."
         ],
         bullets: [
           "Match the assumptions: same program, same term, same lock period, same day",
@@ -259,7 +259,7 @@ export const BASICS_ARTICLES: Article[] = [
         paragraphs: [
           "On a purchase, points compete with your down payment and reserves for the same closing-table dollars, and sellers or builders sometimes offer credits that can fund a buydown — worth evaluating with the same break-even math, since a credit spent on points is a credit not spent on other closing costs. On a refinance, points raise the very cost hurdle the refinance must clear to make sense, so they demand a longer expected hold to justify themselves.",
           "There is also a portfolio-level consideration people miss: points concentrate your bet on the current pricing environment. If market pricing improves substantially after you buy points, the natural move — refinancing — is exactly the move that forfeits the unrecovered portion of what you paid. Borrowers who would refinance eagerly at the first opportunity should be structurally skeptical of points; borrowers at a rate they would keep through most plausible futures are the ones for whom points genuinely pay.",
-          "As a broker, TRACT arranges loans across multiple wholesale lenders, which means we can show you the same rate-versus-points slider from several sources at once. We do not set the pricing — each lender does — but putting the structures side by side is precisely how a fee in costume gets recognized before you pay it."
+          "As a broker, Wholesale Mortgage Lending arranges loans across multiple wholesale lenders, which means we can show you the same rate-versus-points slider from several sources at once. We do not set the pricing — each lender does — but putting the structures side by side is precisely how a fee in costume gets recognized before you pay it."
         ]
       }
     ],
@@ -350,7 +350,7 @@ export const BASICS_ARTICLES: Article[] = [
         paragraphs: [
           "There is no reliable way to time the market, so the defensible framework is personal: lock when you have a rate at which the deal works for your budget and an accurate view of your closing timeline. Locking early buys certainty for the entire escrow period; floating chases improvement while carrying the risk of the opposite. Borrowers who cannot afford the payment at a worse rate have no business floating — the downside is a deal that dies, and that asymmetry is the whole analysis.",
           "Refinances deserve one extra note: with no purchase contract forcing a date, refinance timelines drift, and drifting is how refinance locks expire. Decide your acceptable pricing before you apply, lock when it appears, and then treat the closing like it has a contract deadline even though it does not. A refinance that saves money at the locked terms and then leaks it back through extension fees has defeated its own purpose.",
-          "TRACT's role is the mechanics: as a broker, we arrange your loan and lock your rate with the wholesale lender you choose — we do not set the pricing behind the lock. What we control is matching the lock period to the real calendar, monitoring the expiration date, and raising extensions before they become emergencies. Rate locks fail far more often on logistics than on markets."
+          "Our role is the mechanics: as a broker, we arrange your loan and lock your rate with the wholesale lender you choose — we do not set the pricing behind the lock. What we control is matching the lock period to the real calendar, monitoring the expiration date, and raising extensions before they become emergencies. Rate locks fail far more often on logistics than on markets."
         ]
       }
     ],
@@ -442,7 +442,7 @@ export const BASICS_ARTICLES: Article[] = [
         heading: "The exceptions: loans that do not amortize this way",
         paragraphs: [
           "Not every mortgage follows the clean curve. Interest-only periods pay no principal at all, so the balance stands still until the interest-only window ends. Negative amortization — rare in today's mainstream market — occurs when a payment does not even cover the month's interest, so the shortfall is added to the balance and the debt grows despite payments being made. Adjustable-rate loans re-amortize at each rate adjustment, recalculating the payment to retire the current balance over the remaining term at the new rate.",
-          "Knowing which machine your loan runs on is the point of reading the note. As a broker, TRACT arranges loans and walks through exactly this mechanics conversation before you commit — the payment number matters, but the schedule behind it determines what you actually pay over the years you hold the loan."
+          "Knowing which machine your loan runs on is the point of reading the note. As a broker, Wholesale Mortgage Lending arranges loans and walks through exactly this mechanics conversation before you commit — the payment number matters, but the schedule behind it determines what you actually pay over the years you hold the loan."
         ]
       }
     ],
@@ -511,7 +511,7 @@ export const BASICS_ARTICLES: Article[] = [
         heading: "Why LTV drives pricing",
         paragraphs: [
           "Lenders price risk, and LTV is a primary risk axis. At low LTV, a market downturn still leaves the property worth more than the debt; at high LTV, a modest decline puts the loan underwater. Conventional pricing reflects this through loan-level price adjustments that vary with LTV and credit score in combination — the same borrower can see meaningfully different pricing at different down payment levels, and the steps are not smooth: crossing certain LTV thresholds moves you between pricing tiers.",
-          "This is why a broker models your scenario at multiple down payment levels rather than assuming more down is always proportionally better. Sometimes a small additional amount down crosses a tier boundary and improves pricing noticeably; sometimes it buys almost nothing. TRACT arranges loans across multiple wholesale lenders and does not set these adjustments — each lender and the agency grids do — but knowing where the tier lines sit is exactly the kind of structuring a broker exists to do.",
+          "This is why a broker models your scenario at multiple down payment levels rather than assuming more down is always proportionally better. Sometimes a small additional amount down crosses a tier boundary and improves pricing noticeably; sometimes it buys almost nothing. Wholesale Mortgage Lending arranges loans across multiple wholesale lenders and does not set these adjustments — each lender and the agency grids do — but knowing where the tier lines sit is exactly the kind of structuring a broker exists to do.",
           "LTV also gates what kinds of transactions are available at all. Cash-out refinances carry lower maximum LTVs than rate-and-term refinances; investment properties and second homes carry lower maximums than primary residences; and some programs at the highest LTVs add requirements — reserves, homebuyer education, pricing overlays — that vanish a few points lower. The ratio is not just a price dial; it is a gate that opens and closes entire options."
         ]
       },
@@ -623,7 +623,7 @@ export const BASICS_ARTICLES: Article[] = [
         paragraphs: [
           "Buy the owner's policy. Against the scale of a home purchase, a one-time premium protecting your entire equity position for your whole period of ownership is among the better risk trades in the transaction — and unlike the lender's policy, no one will force you to make it. Ask about the simultaneous-issue rate: when owner's and lender's policies issue together at closing, the combined pricing is typically far better than buying either separately later.",
           "Ask whether a municipal lien search is being ordered alongside the title search. In Florida this separate search checks city and county records for unrecorded liabilities — open code enforcement cases, unpermitted work, utility balances — that a standard title search of recorded documents can miss, and standard policies may not cover. It is inexpensive relative to what it catches, and experienced Florida closers treat it as routine.",
-          "Finally, guard the money itself. Wire fraud aimed at real estate closings is a persistent, well-documented threat: criminals impersonate title agents by email and redirect closing funds. Confirm wire instructions by phone using a number you obtained independently — never one from the wiring email — and be suspicious of any last-minute change to instructions. TRACT arranges the financing side of Florida closings and works alongside title agents daily; we do not sell title insurance, but we will make sure the title line items on your Loan Estimate are ones you have actually examined rather than merely initialed."
+          "Finally, guard the money itself. Wire fraud aimed at real estate closings is a persistent, well-documented threat: criminals impersonate title agents by email and redirect closing funds. Confirm wire instructions by phone using a number you obtained independently — never one from the wiring email — and be suspicious of any last-minute change to instructions. Wholesale Mortgage Lending arranges the financing side of Florida closings and works alongside title agents daily; we do not sell title insurance, but we will make sure the title line items on your Loan Estimate are ones you have actually examined rather than merely initialed."
         ],
         bullets: [
           "Lender's policy: required, protects the loan balance only",
@@ -726,7 +726,7 @@ export const BASICS_ARTICLES: Article[] = [
           "Treat the transfer notice as a short checklist rather than junk mail. Verify the new servicer is genuine before redirecting money — transfer season is a favorite window for payment-redirection scams, so confirm using contact information from the official notice or your old servicer's website, not from an unexpected email. Re-establish autopay with the new servicer, confirm your escrow balance carried over intact, and keep records from the months surrounding the transfer: statements, confirmation numbers, and the notices themselves.",
           "Then watch the first two statements. If a payment goes missing or escrow looks wrong, invoke the formal process — a written error notice to the servicer triggers Regulation X deadlines that a phone call does not. And if a servicer fails its obligations, the CFPB accepts complaints and forwards them to the company with a required response.",
           "Florida borrowers have one extra transfer-season chore: insurance. If you switch homeowners, wind, or flood carriers — common in Florida's market — the new servicer needs the new policy details promptly, because a servicer that believes coverage lapsed can purchase force-placed insurance on your behalf, typically at a higher cost and with narrower protection than a policy you choose. Confirm after any transfer that your current carriers, policy numbers, and the servicer's mortgagee clause information all match.",
-          "TRACT is a broker: we arrange loans through wholesale lenders and do not service them, so we have no stake in where your servicing lands. What we tell every closing client is the same — expect at least one transfer over the life of the loan, expect it to be uneventful, and know the 60-day rule so that if the handoff wobbles, you know the cost is not yours to absorb."
+          "Wholesale Mortgage Lending is a broker: we arrange loans through wholesale lenders and do not service them, so we have no stake in where your servicing lands. What we tell every closing client is the same — expect at least one transfer over the life of the loan, expect it to be uneventful, and know the 60-day rule so that if the handoff wobbles, you know the cost is not yours to absorb."
         ]
       }
     ],
@@ -822,7 +822,7 @@ export const BASICS_ARTICLES: Article[] = [
         paragraphs: [
           "Put a fixed offer and an ARM offer side by side and price three things: the payment difference during the fixed period, the worst-case payment after full adjustment under the caps, and your realistic probability of still holding the loan when the fixed period ends. The introductory savings times the fixed-period months is your certain gain; the capped payment is your bounded downside; your hold estimate weights them.",
           "Know also how you will be qualified. Lenders generally do not underwrite an ARM at its introductory rate alone — depending on the program, qualification runs at a higher figure, such as the note rate plus a cushion or the fully indexed rate. That protects you from a version of the old teaser-rate trap, but it also means an ARM does not necessarily stretch your buying power the way its lower initial payment suggests.",
-          "TRACT arranges both fixed and adjustable loans across multiple wholesale lenders — we do not set the index, the margins, or the caps, but margins and cap structures differ between lenders on otherwise similar ARMs, and surfacing those differences is exactly what shopping a file means. Bring your timeline; the right structure usually falls out of it."
+          "Wholesale Mortgage Lending arranges both fixed and adjustable loans across multiple wholesale lenders — we do not set the index, the margins, or the caps, but margins and cap structures differ between lenders on otherwise similar ARMs, and surfacing those differences is exactly what shopping a file means. Bring your timeline; the right structure usually falls out of it."
         ]
       }
     ],
@@ -914,7 +914,7 @@ export const BASICS_ARTICLES: Article[] = [
         paragraphs: [
           "Match the channel to the file. A straightforward W-2 purchase may close well through any channel, and the deciding factors are pricing and the person handling it. A complex file benefits from breadth — that is the brokered channel's home turf. Whichever channel you use, get a Loan Estimate on the same assumptions from more than one source at least once; it is the only comparison that is standardized by design, and it costs you nothing but an hour.",
           "Verify the humans. Every mortgage loan originator — broker or retail — carries a unique NMLS identifier, and the NMLS Consumer Access database lets you confirm licensure, employment history, and any regulatory actions for both individuals and companies, free. In Florida, mortgage brokers and lenders are licensed under Chapter 494, Florida Statutes, administered by the Office of Financial Regulation.",
-          "For transparency: TRACT is a mortgage brokerage. We arrange loans through wholesale lenders; we do not make loans, approve them, or set their prices, and our compensation is disclosed on your Loan Estimate. We think the brokered channel's breadth earns its place for most Florida files — and when a specific file would be better served elsewhere, saying so is part of the job."
+          "For transparency: Wholesale Mortgage Lending is a mortgage brokerage. We arrange loans through wholesale lenders; we do not make loans, approve them, or set their prices, and our compensation is disclosed on your Loan Estimate. We think the brokered channel's breadth earns its place for most Florida files — and when a specific file would be better served elsewhere, saying so is part of the job."
         ]
       }
     ],
@@ -959,7 +959,7 @@ export const BASICS_ARTICLES: Article[] = [
     ],
     related: [
       { href: "/plan", label: "Build your mortgage plan" },
-      { href: "/contact", label: "Talk to TRACT" },
+      { href: "/contact", label: "Talk to us" },
       { href: "/resources/apr-vs-interest-rate", label: "APR vs. interest rate" },
       { href: "/mortgage/self-employed", label: "Self-employed borrowers" }
     ],

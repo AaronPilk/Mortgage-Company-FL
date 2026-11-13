@@ -43,7 +43,7 @@ export const INVESTOR_ARTICLES: Article[] = [
         heading: "How lenders read your cash flow",
         paragraphs: [
           "When you finance a rental with a conventional loan, the lender does not take your pro forma at face value. Fannie Mae's Selling Guide sets out how rental income is documented and adjusted — generally from lease agreements or the property's tax return history — and applies its own discounting before any of that income supports your qualification. Income you project and income a lender will count are different numbers, and the gap matters when you size a loan.",
-          "TRACT is a mortgage broker: we arrange financing and can tell you how a given program will treat a property's income. We are not investment advisers, and nothing here is a recommendation to buy any property — the modeling is yours to own, and a licensed accountant should review the tax treatment."
+          "Wholesale Mortgage Lending is a mortgage broker: we arrange financing and can tell you how a given program will treat a property's income. We are not investment advisers, and nothing here is a recommendation to buy any property — the modeling is yours to own, and a licensed accountant should review the tax treatment."
         ]
       },
       {
@@ -124,7 +124,7 @@ export const INVESTOR_ARTICLES: Article[] = [
         heading: "What it deliberately ignores: your mortgage",
         paragraphs: [
           "Cap rate contains no interest rate, no loan amount, and no monthly payment. Your actual cash-on-cash return — what your invested dollars earn after debt service — can land far from the cap rate in either direction depending on the financing. Leverage amplifies: when the property's yield exceeds the cost of the debt, borrowed money improves your return; when it does not, the same loan magnifies losses. Two investors can buy identical buildings at identical cap rates and have opposite outcomes because their loans differ.",
-          "That is precisely why financing deserves its own analysis rather than a footnote. As a mortgage broker, TRACT arranges investor financing across conventional and DSCR programs, and the structure you choose changes the equation the cap rate never sees. We are not investment advisers — whether a given cap rate justifies a purchase is a judgment we leave to you and your advisers."
+          "That is precisely why financing deserves its own analysis rather than a footnote. As a mortgage broker, Wholesale Mortgage Lending arranges investor financing across conventional and DSCR programs, and the structure you choose changes the equation the cap rate never sees. We are not investment advisers — whether a given cap rate justifies a purchase is a judgment we leave to you and your advisers."
         ]
       },
       {
@@ -242,7 +242,7 @@ export const INVESTOR_ARTICLES: Article[] = [
         heading: "How to actually choose",
         paragraphs: [
           "Start from your constraint. If your documented income is strong, your property count is low, and you value the cheapest money with no exit penalty, conventional usually deserves the first look. If your tax returns understate your economics, your DTI is committed, or you are past the point where agency limits bind, DSCR exists precisely for you. Many investors use both across a portfolio — conventional while it is available, DSCR where it is not.",
-          "TRACT is a mortgage broker and arranges both kinds of financing; we can price your specific scenario both ways so the comparison is real rather than theoretical. We are not attorneys or tax advisers — the entity, liability, and tax dimensions of this choice belong with your own professionals."
+          "Wholesale Mortgage Lending is a mortgage broker and arranges both kinds of financing; we can price your specific scenario both ways so the comparison is real rather than theoretical. We are not attorneys or tax advisers — the entity, liability, and tax dimensions of this choice belong with your own professionals."
         ]
       }
     ],
@@ -333,9 +333,9 @@ export const INVESTOR_ARTICLES: Article[] = [
         ]
       },
       {
-        heading: "How TRACT fits in",
+        heading: "How we fit in",
         paragraphs: [
-          "TRACT is a Florida mortgage broker. We arrange financing for second homes, investment properties, and short-term rental projects across conventional and DSCR programs, and we can tell you precisely how each lender on our panel treats STR income — which ones count it, how they document it, and what that does to your ratio. We are not attorneys, tax advisers, or licensing consultants: the local-ordinance research, state licensing, and tax registration belong with the appropriate professionals before closing, not after."
+          "Wholesale Mortgage Lending is a Florida mortgage broker. We arrange financing for second homes, investment properties, and short-term rental projects across conventional and DSCR programs, and we can tell you precisely how each lender on our panel treats STR income — which ones count it, how they document it, and what that does to your ratio. We are not attorneys, tax advisers, or licensing consultants: the local-ordinance research, state licensing, and tax registration belong with the appropriate professionals before closing, not after."
         ]
       }
     ],
@@ -423,7 +423,7 @@ export const INVESTOR_ARTICLES: Article[] = [
         heading: "The occupancy obligation is real, and lying about it is fraud",
         paragraphs: [
           "Owner-occupied financing requires you to occupy. Programs generally require you to move in within a defined period after closing and maintain the home as your principal residence for a minimum time — the specifics live in your loan documents and the program handbooks, and they are covenants, not suggestions.",
-          "Say it plainly: signing an owner-occupancy certification for a property you intend to run entirely as a rental is occupancy misrepresentation, and occupancy misrepresentation is mortgage fraud — a federal offense that can mean loan acceleration, civil liability, and criminal prosecution. It is also entirely unnecessary. Investment-property financing exists, it is priced for the actual risk, and TRACT arranges it every week. If your plans genuinely change after closing — a job transfer, a family change — document the change and talk to your servicer; life happening is not fraud, but intent at signing is what the certification speaks to."
+          "Say it plainly: signing an owner-occupancy certification for a property you intend to run entirely as a rental is occupancy misrepresentation, and occupancy misrepresentation is mortgage fraud — a federal offense that can mean loan acceleration, civil liability, and criminal prosecution. It is also entirely unnecessary. Investment-property financing exists, it is priced for the actual risk, and Wholesale Mortgage Lending arranges it every week. If your plans genuinely change after closing — a job transfer, a family change — document the change and talk to your servicer; life happening is not fraud, but intent at signing is what the certification speaks to."
         ]
       },
       {
@@ -436,7 +436,7 @@ export const INVESTOR_ARTICLES: Article[] = [
       {
         heading: "Running the numbers and getting financed",
         paragraphs: [
-          "Model the purchase twice: once as a household expense — can you carry the whole payment if every other unit sits empty? — and once as an investment, with honest vacancy, maintenance, and reserves against the rental units. Strong house hacks pass both tests. Then have the financing run both ways, FHA and conventional, because the down payment, mortgage insurance, and rental-income treatment differ between them in ways that shift the answer. TRACT is a mortgage broker: we arrange the loan and can price both paths for your scenario. For tax treatment of the rental units — including depreciation and the homestead split — bring in a Florida CPA; that part is theirs."
+          "Model the purchase twice: once as a household expense — can you carry the whole payment if every other unit sits empty? — and once as an investment, with honest vacancy, maintenance, and reserves against the rental units. Strong house hacks pass both tests. Then have the financing run both ways, FHA and conventional, because the down payment, mortgage insurance, and rental-income treatment differ between them in ways that shift the answer. Wholesale Mortgage Lending is a mortgage broker: we arrange the loan and can price both paths for your scenario. For tax treatment of the rental units — including depreciation and the homestead split — bring in a Florida CPA; that part is theirs."
         ]
       }
     ],
@@ -525,14 +525,14 @@ export const INVESTOR_ARTICLES: Article[] = [
       {
         heading: "Rate reality: you are borrowing at a future price",
         paragraphs: [
-          "The refinance happens months after the purchase, at whatever the market charges then. Nobody — not TRACT, not any lender — can tell you what that price will be. A rate shift between purchase and refinance changes the payment on the new loan, which changes the property's cash flow, which for a DSCR refinance changes the qualifying ratio itself: the same rent covers less payment at a higher rate, so the loan the ratio supports shrinks just when you need it. Rate risk and proceeds risk are the same risk wearing two coats.",
+          "The refinance happens months after the purchase, at whatever the market charges then. Nobody — not us, not any lender — can tell you what that price will be. A rate shift between purchase and refinance changes the payment on the new loan, which changes the property's cash flow, which for a DSCR refinance changes the qualifying ratio itself: the same rent covers less payment at a higher rate, so the loan the ratio supports shrinks just when you need it. Rate risk and proceeds risk are the same risk wearing two coats.",
           "Model the refinance at a range of rates above your assumption, and decide in advance what you will do if the cash-out proceeds come back smaller: hold with capital in the deal, take the smaller loan, or wait. All three are survivable if they were planned for."
         ]
       },
       {
-        heading: "Financing the front end, and how TRACT helps",
+        heading: "Financing the front end, and how we help",
         paragraphs: [
-          "The purchase-and-rehab phase has its own financing menu — cash, hard money, renovation loans — and the right choice depends on the exit: the refinance lender's seasoning policy and income methodology determine when and how you can get out of the expensive money. That is the useful order of operations: underwrite the exit first, then choose the entrance. TRACT is a mortgage broker; we arrange both ends — renovation and bridge-style financing into conventional or DSCR takeouts — and can map lender seasoning policies against your timeline before you commit capital. We are not investment advisers, and BRRRR's returns are never assured: this is a strategy with execution risk at every step, and the modeling above is the minimum diligence, not a guarantee of outcome."
+          "The purchase-and-rehab phase has its own financing menu — cash, hard money, renovation loans — and the right choice depends on the exit: the refinance lender's seasoning policy and income methodology determine when and how you can get out of the expensive money. That is the useful order of operations: underwrite the exit first, then choose the entrance. Wholesale Mortgage Lending is a mortgage broker; we arrange both ends — renovation and bridge-style financing into conventional or DSCR takeouts — and can map lender seasoning policies against your timeline before you commit capital. We are not investment advisers, and BRRRR's returns are never assured: this is a strategy with execution risk at every step, and the modeling above is the minimum diligence, not a guarantee of outcome."
         ]
       }
     ],
@@ -627,7 +627,7 @@ export const INVESTOR_ARTICLES: Article[] = [
       {
         heading: "Planning reserves into the acquisition",
         paragraphs: [
-          "Treat reserves as part of the purchase price of the deal. When you compute the cash needed to buy, add the reserve requirement to the down payment and closing costs — and then, separately, keep your own operating reserve for the property that is yours by policy rather than the lender's minimum, because the lender's minimum is an underwriting floor, not a business plan. TRACT arranges investor financing daily and can tell you the reserve requirement for your specific scenario — program, property count, and transaction type — before you write an offer, so the liquidity math is settled early. We arrange loans; we do not give investment advice, and how much cushion your business should hold beyond the requirement is a decision for you and your financial adviser."
+          "Treat reserves as part of the purchase price of the deal. When you compute the cash needed to buy, add the reserve requirement to the down payment and closing costs — and then, separately, keep your own operating reserve for the property that is yours by policy rather than the lender's minimum, because the lender's minimum is an underwriting floor, not a business plan. Wholesale Mortgage Lending arranges investor financing daily and can tell you the reserve requirement for your specific scenario — program, property count, and transaction type — before you write an offer, so the liquidity math is settled early. We arrange loans; we do not give investment advice, and how much cushion your business should hold beyond the requirement is a decision for you and your financial adviser."
         ]
       }
     ],
@@ -701,7 +701,7 @@ export const INVESTOR_ARTICLES: Article[] = [
         heading: "What the LLC does and does not do",
         paragraphs: [
           "Investors usually reach for an LLC for liability separation and estate or partnership structure. Those benefits are real but conditional — they depend on the entity being properly formed, funded, insured, and operated, and none of that is a mortgage question. An LLC also does not make debt disappear from your life: guaranteed business-purpose debt follows you in every future lender's global cash flow analysis, even when it stays off a consumer credit report.",
-          "Say the quiet part directly: TRACT is a mortgage broker. We are not attorneys, not accountants, and not investment advisers, and nothing here is legal or tax advice. Whether an LLC protects you, how it is taxed, and how Florida's specific entity and homestead rules bear on your situation are questions for a Florida-licensed attorney and a CPA. What we can tell you with authority is which lenders on our panel will close in an entity, at what pricing, and with what guaranty structure — and we will happily coordinate with your professionals so the vesting and the financing are decided together."
+          "Say the quiet part directly: Wholesale Mortgage Lending is a mortgage broker. We are not attorneys, not accountants, and not investment advisers, and nothing here is legal or tax advice. Whether an LLC protects you, how it is taxed, and how Florida's specific entity and homestead rules bear on your situation are questions for a Florida-licensed attorney and a CPA. What we can tell you with authority is which lenders on our panel will close in an entity, at what pricing, and with what guaranty structure — and we will happily coordinate with your professionals so the vesting and the financing are decided together."
         ]
       },
       {
@@ -737,7 +737,7 @@ export const INVESTOR_ARTICLES: Article[] = [
       {
         question: "Is an LLC better for taxes on rental property?",
         answer:
-          "Often it changes less than expected: the IRS generally disregards a single-member LLC, so rental results flow to the owner's Schedule E either way, while multi-member entities file partnership returns. Whether any structure improves your tax position is fact-specific and belongs with a CPA. TRACT arranges financing and does not give tax advice."
+          "Often it changes less than expected: the IRS generally disregards a single-member LLC, so rental results flow to the owner's Schedule E either way, while multi-member entities file partnership returns. Whether any structure improves your tax position is fact-specific and belongs with a CPA. Wholesale Mortgage Lending arranges financing and does not give tax advice."
       }
     ],
     sources: [
@@ -811,9 +811,9 @@ export const INVESTOR_ARTICLES: Article[] = [
         ]
       },
       {
-        heading: "Where TRACT fits",
+        heading: "Where we fit",
         paragraphs: [
-          "TRACT is a mortgage broker. On the front end we arrange short-term renovation and business-purpose financing for acquisition and rehab; on the back end we arrange the exits — the buyer's mortgage when you sell, or your own DSCR or conventional refinance when you keep it. Because we see both ends, we can pressure-test a project's financing plan before you commit: what the acquisition money costs, what the refinance takeout requires, and where the seasoning and appraisal rules will bite. We are not investment advisers or contractors, and we do not underwrite your rehab budget — but we can make sure the financing on both ends of the plan is real before your capital is."
+          "Wholesale Mortgage Lending is a mortgage broker. On the front end we arrange short-term renovation and business-purpose financing for acquisition and rehab; on the back end we arrange the exits — the buyer's mortgage when you sell, or your own DSCR or conventional refinance when you keep it. Because we see both ends, we can pressure-test a project's financing plan before you commit: what the acquisition money costs, what the refinance takeout requires, and where the seasoning and appraisal rules will bite. We are not investment advisers or contractors, and we do not underwrite your rehab budget — but we can make sure the financing on both ends of the plan is real before your capital is."
         ]
       }
     ],
@@ -906,7 +906,7 @@ export const INVESTOR_ARTICLES: Article[] = [
         heading: "Scaling without fooling yourself",
         paragraphs: [
           "Portfolio growth multiplies whatever your underwriting habits are. Honest cash flow modeling — vacancy, management, maintenance, capital reserves — matters more at ten properties than at one, because thin deals in quantity are a liquidity crisis on a schedule. Keep clean books per property; every future lender will read them, and business-purpose underwriting leans hard on the property-level record. And hold liquidity beyond any lender's minimum, because vacancies correlate — the storm, the insurance repricing, the soft season hit the whole portfolio at once, not one door at a time.",
-          "TRACT is a mortgage broker: we arrange conventional, DSCR, and portfolio financing, and we can map your specific position — property count, reserves, income documentation — against the walls described here so the next three acquisitions are financed by plan. We are not investment advisers; how big the portfolio should get was never a mortgage question."
+          "Wholesale Mortgage Lending is a mortgage broker: we arrange conventional, DSCR, and portfolio financing, and we can map your specific position — property count, reserves, income documentation — against the walls described here so the next three acquisitions are financed by plan. We are not investment advisers; how big the portfolio should get was never a mortgage question."
         ]
       }
     ],

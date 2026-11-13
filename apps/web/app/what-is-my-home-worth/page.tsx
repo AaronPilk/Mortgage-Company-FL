@@ -42,7 +42,7 @@ export default function HomeWorthPage() {
         as="h1"
         eyebrow="Thinking of selling?"
         title="What's my home worth?"
-        description="Enter your address for an estimated value, then we'll connect you with a real estate professional in our network. TRACT brokers mortgages, not homes — this is a connection, not a listing agreement."
+        description="Enter your address for an estimated value, then we'll connect you with a real estate professional in our network. We broker mortgages, not homes — this is a connection, not a listing agreement."
       />
       <SellerWorthExperience
         avmAvailable={sellerAvmAvailable()}
@@ -56,9 +56,9 @@ export default function HomeWorthPage() {
         style={{ borderColor: "var(--border)", color: "var(--text-muted)" }}
       >
         Any value shown is an automated estimate from public records — not an appraisal, a list
-        price, or an offer. TRACT is a mortgage brokerage and does not list or sell homes; we make
-        an introduction to a licensed real estate professional, and nothing here is a listing
-        agreement.
+        price, or an offer. Wholesale Mortgage Lending is a mortgage brokerage and does not list or
+        sell homes; we make an introduction to a licensed real estate professional, and nothing here
+        is a listing agreement.
       </p>
     </Section>
   );

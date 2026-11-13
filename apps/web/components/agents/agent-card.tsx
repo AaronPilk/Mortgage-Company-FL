@@ -58,7 +58,7 @@ export function AgentCard({ agent, isSample }: { agent: AgentPublic; isSample: b
         */}
         {agent.unclaimed && (
           <p className="mt-3 text-xs" style={{ color: "var(--text-muted)" }}>
-            Source: Florida license records. This agent hasn&rsquo;t joined TRACT yet.
+            Source: Florida license records. This agent hasn&rsquo;t joined our network yet.
           </p>
         )}
         <span

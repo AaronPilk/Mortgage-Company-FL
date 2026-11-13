@@ -35,7 +35,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return pageMetadata({
     title: "Find a Florida real estate agent",
     description:
-      "Browse Florida real estate agents and request an introduction. TRACT makes the connection personally — no cold calls, no handing your details around.",
+      "Browse Florida real estate agents and request an introduction. We make the connection personally — no cold calls, no handing your details around.",
     path: "/agents",
     noIndex: !hasRealAgents && sampleAgentsAllowed()
   });
@@ -110,7 +110,7 @@ export default async function AgentsPage({
               url,
               name: "Find a Florida real estate agent",
               description:
-                "Browse Florida real estate agents and request an introduction made personally by TRACT."
+                "Browse Florida real estate agents and request an introduction made personally by Wholesale Mortgage Lending."
             }),
             breadcrumbNode([
               { name: "Home", url: absoluteUrl(SITE_URL, "/") },
@@ -135,9 +135,9 @@ export default async function AgentsPage({
             className="mx-auto mt-5 max-w-xl text-lg leading-relaxed"
             style={{ color: "var(--text-muted)" }}
           >
-            Browse the directory, pick someone whose work fits yours, and ask for an introduction. A
-            TRACT team member makes the connection personally — your contact details never go to an
-            agent, and theirs never appear here.
+            Browse the directory, pick someone whose work fits yours, and ask for an introduction.
+            Someone from our team makes the connection personally — your contact details never go to
+            an agent, and theirs never appear here.
           </p>
         </div>
         {showingSamples && (
@@ -202,8 +202,8 @@ export default async function AgentsPage({
           <Card className="mt-6">
             <h2 className="text-xl font-semibold">Nothing matched that city</h2>
             <p className="mt-3 text-[var(--text-muted)]">
-              The directory covers agents who joined TRACT and Florida license records. Clearing the
-              filter shows everyone currently listed.
+              The directory covers agents who joined our network and Florida license records.
+              Clearing the filter shows everyone currently listed.
             </p>
             <div className="mt-5">
               <ButtonLink href="/agents" variant="secondary">
@@ -224,7 +224,7 @@ export default async function AgentsPage({
       <Section pad="tight" tone="surface">
         <CtaPanel
           title="Are you a Florida real estate agent?"
-          body="Join the TRACT agent network: we introduce you to buyers who are already working through their financing, and you stay the agent of record. Every profile is reviewed before it goes live."
+          body="Join the Wholesale Mortgage Lending agent network: we introduce you to buyers who are already working through their financing, and you stay the agent of record. Every profile is reviewed before it goes live."
           primary={{
             href: "/agents/join",
             label: "Join as an agent",

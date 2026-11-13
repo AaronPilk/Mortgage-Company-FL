@@ -43,7 +43,7 @@ export const PROGRAMS_ARTICLES: Article[] = [
       {
         heading: "What this means when comparing loans",
         paragraphs: [
-          "FHA insurance is a package: easier qualifying in exchange for an upfront premium plus an annual premium that, for most borrowers, never cancels on its own. Whether that trade is worth it depends on your credit profile and down payment — for many borrowers with strong credit, conventional financing with cancellable private mortgage insurance costs less over time, while for others FHA is clearly the better structure. A broker's job, and what TRACT does, is to arrange financing through lenders offering both so the comparison is made with real numbers rather than folklore."
+          "FHA insurance is a package: easier qualifying in exchange for an upfront premium plus an annual premium that, for most borrowers, never cancels on its own. Whether that trade is worth it depends on your credit profile and down payment — for many borrowers with strong credit, conventional financing with cancellable private mortgage insurance costs less over time, while for others FHA is clearly the better structure. A broker's job, and what Wholesale Mortgage Lending does, is to arrange financing through lenders offering both so the comparison is made with real numbers rather than folklore."
         ]
       }
     ],
@@ -87,7 +87,7 @@ export const PROGRAMS_ARTICLES: Article[] = [
       }
     ],
     related: [
-      { href: "/mortgage/fha", label: "FHA loans through TRACT" },
+      { href: "/mortgage/fha", label: "FHA loans through us" },
       { href: "/resources/pmi-vs-mip", label: "PMI vs. MIP: how the two differ" },
       {
         href: "/resources/conventional-vs-fha",
@@ -140,7 +140,7 @@ export const PROGRAMS_ARTICLES: Article[] = [
         heading: "The Florida particulars",
         paragraphs: [
           "VA loans work the same in Florida as anywhere, but two local realities deserve attention. First, VA appraisals apply Minimum Property Requirements — safety, soundness, and sanitation standards — which matter in a state with older concrete-block housing stock and, in some markets, deferred roof maintenance. A property that needs work may need repairs negotiated before closing.",
-          "Second, condominiums must be in a VA-approved project, and Florida's post-Surfside condo regulatory environment has made project-level review more consequential everywhere. TRACT arranges VA financing through lenders experienced with both issues; the loan itself is always made, approved, and priced by the lender, with the VA standing behind it."
+          "Second, condominiums must be in a VA-approved project, and Florida's post-Surfside condo regulatory environment has made project-level review more consequential everywhere. Wholesale Mortgage Lending arranges VA financing through lenders experienced with both issues; the loan itself is always made, approved, and priced by the lender, with the VA standing behind it."
         ]
       }
     ],
@@ -184,7 +184,7 @@ export const PROGRAMS_ARTICLES: Article[] = [
       }
     ],
     related: [
-      { href: "/mortgage/va", label: "VA loans through TRACT" },
+      { href: "/mortgage/va", label: "VA loans through us" },
       { href: "/locations/florida", label: "Buying in Florida" },
       { href: "/calculators/affordability", label: "Affordability calculator" },
       { href: "/resources/conventional-vs-fha", label: "Conventional vs. FHA compared" }
@@ -234,7 +234,7 @@ export const PROGRAMS_ARTICLES: Article[] = [
       {
         heading: "Where USDA fits in a Florida decision",
         paragraphs: [
-          "For a moderate-income household buying a primary home in an eligible area, USDA is often the strongest zero-down option that is not VA. The trade-offs are the geographic constraint, the household income cap, and a process that adds a USDA review step on top of lender underwriting, which can stretch timelines slightly. TRACT arranges USDA-guaranteed financing through participating lenders; the eligibility answer for any specific address and household takes minutes to establish and should come before falling in love with a house."
+          "For a moderate-income household buying a primary home in an eligible area, USDA is often the strongest zero-down option that is not VA. The trade-offs are the geographic constraint, the household income cap, and a process that adds a USDA review step on top of lender underwriting, which can stretch timelines slightly. Wholesale Mortgage Lending arranges USDA-guaranteed financing through participating lenders; the eligibility answer for any specific address and household takes minutes to establish and should come before falling in love with a house."
         ]
       }
     ],
@@ -279,7 +279,7 @@ export const PROGRAMS_ARTICLES: Article[] = [
       }
     ],
     related: [
-      { href: "/mortgage/usda", label: "USDA loans through TRACT" },
+      { href: "/mortgage/usda", label: "USDA loans through us" },
       { href: "/locations/florida", label: "Florida markets we serve" },
       { href: "/calculators/affordability", label: "Affordability calculator" },
       {
@@ -332,7 +332,7 @@ export const PROGRAMS_ARTICLES: Article[] = [
         heading: "Running the comparison properly",
         paragraphs: [
           "Get both structures priced on the same day for the same loan amount and down payment: total monthly payment including insurance, cash to close including FHA's upfront premium, and — the piece most quotes omit — what the insurance costs over the years you realistically expect to hold the loan. A five-year projection frequently reverses the verdict of a first-month comparison.",
-          "This is exactly the situation a broker is for. TRACT arranges both conventional and FHA financing through multiple lenders and can put the two structures side by side for your actual profile; the lenders make and price the loans, and the numbers do the arguing."
+          "This is exactly the situation a broker is for. Wholesale Mortgage Lending arranges both conventional and FHA financing through multiple lenders and can put the two structures side by side for your actual profile; the lenders make and price the loans, and the numbers do the arguing."
         ]
       }
     ],
@@ -376,8 +376,8 @@ export const PROGRAMS_ARTICLES: Article[] = [
       }
     ],
     related: [
-      { href: "/mortgage/conventional", label: "Conventional loans through TRACT" },
-      { href: "/mortgage/fha", label: "FHA loans through TRACT" },
+      { href: "/mortgage/conventional", label: "Conventional loans through us" },
+      { href: "/mortgage/fha", label: "FHA loans through us" },
       { href: "/resources/pmi-vs-mip", label: "PMI vs. MIP in detail" },
       { href: "/calculators/mortgage-payment", label: "Compare payments side by side" }
     ],
@@ -425,7 +425,7 @@ export const PROGRAMS_ARTICLES: Article[] = [
       {
         heading: "How to use this when choosing a loan",
         paragraphs: [
-          "The choice is rarely about which insurance is cheaper in month one. It is about trajectory: a conventional borrower in an appreciating market may shed PMI within a few years and then pay no insurance at all, while an FHA borrower keeps paying MIP until a refinance whose terms nobody can promise today. Against that, FHA's gentler credit pricing can make it decisively cheaper to get in the door. Price both structures over the horizon you actually expect to hold the loan — TRACT arranges both through its lenders and can produce that side-by-side; the lenders, not TRACT, make and price the loans."
+          "The choice is rarely about which insurance is cheaper in month one. It is about trajectory: a conventional borrower in an appreciating market may shed PMI within a few years and then pay no insurance at all, while an FHA borrower keeps paying MIP until a refinance whose terms nobody can promise today. Against that, FHA's gentler credit pricing can make it decisively cheaper to get in the door. Price both structures over the horizon you actually expect to hold the loan — Wholesale Mortgage Lending arranges both through its lenders and can produce that side-by-side; the lenders, not us, make and price the loans."
         ]
       }
     ],
@@ -471,7 +471,7 @@ export const PROGRAMS_ARTICLES: Article[] = [
     related: [
       { href: "/resources/fha-mip-explained", label: "FHA MIP in full detail" },
       { href: "/resources/conventional-vs-fha", label: "Conventional vs. FHA framework" },
-      { href: "/mortgage/conventional", label: "Conventional loans through TRACT" },
+      { href: "/mortgage/conventional", label: "Conventional loans through us" },
       { href: "/calculators/amortization", label: "Amortization calculator" }
     ],
     publishedAt: "2026-08-18",
@@ -512,7 +512,7 @@ export const PROGRAMS_ARTICLES: Article[] = [
         heading: "The Florida wrinkle: ordinary homes, jumbo prices",
         paragraphs: [
           "In much of Miami-Dade, Broward, Palm Beach, Naples, Sarasota, and the beach towns, unremarkable single-family homes price above the conforming limit. Buyers who think of jumbo as mansion financing are often surprised to need one. Two tactics are worth knowing. First, a larger down payment can pull the loan amount under the conforming limit even when the price is above it — sometimes the cheaper path once pricing differences are counted.",
-          "Second, jumbo pricing relative to conforming moves with market conditions; jumbos have at times priced surprisingly close to, or even through, conforming loans, because balance-sheet lenders want the asset. Which structure wins for a given purchase is an empirical question. TRACT arranges jumbo financing through multiple lenders precisely because guideline and pricing dispersion is widest in this segment; the lenders themselves make, approve, and price every loan."
+          "Second, jumbo pricing relative to conforming moves with market conditions; jumbos have at times priced surprisingly close to, or even through, conforming loans, because balance-sheet lenders want the asset. Which structure wins for a given purchase is an empirical question. Wholesale Mortgage Lending arranges jumbo financing through multiple lenders precisely because guideline and pricing dispersion is widest in this segment; the lenders themselves make, approve, and price every loan."
         ]
       }
     ],
@@ -556,7 +556,7 @@ export const PROGRAMS_ARTICLES: Article[] = [
       }
     ],
     related: [
-      { href: "/mortgage/jumbo", label: "Jumbo loans through TRACT" },
+      { href: "/mortgage/jumbo", label: "Jumbo loans through us" },
       { href: "/locations/florida", label: "Florida coastal markets" },
       { href: "/calculators/affordability", label: "Affordability calculator" },
       { href: "/calculators/rate-impact", label: "See how rate changes move the payment" }
@@ -605,7 +605,7 @@ export const PROGRAMS_ARTICLES: Article[] = [
       {
         heading: "Where the 203(k) fits in Florida",
         paragraphs: [
-          "Florida's housing stock includes a deep bench of mid-century block homes with good bones and bad everything else, plus storm-affected properties needing documented repair. The 203(k) is built for both, and because it is an FHA program, it comes with FHA's credit accessibility and FHA's mortgage insurance premiums — upfront and annual — like any FHA loan. Conventional alternatives (Fannie Mae HomeStyle and Freddie Mac CHOICERenovation) cover similar ground with different insurance math and stricter credit pricing. TRACT arranges renovation financing on both sides through lenders that actually staff 203(k) operations, which matters: this is a program where lender experience is visible in the outcome."
+          "Florida's housing stock includes a deep bench of mid-century block homes with good bones and bad everything else, plus storm-affected properties needing documented repair. The 203(k) is built for both, and because it is an FHA program, it comes with FHA's credit accessibility and FHA's mortgage insurance premiums — upfront and annual — like any FHA loan. Conventional alternatives (Fannie Mae HomeStyle and Freddie Mac CHOICERenovation) cover similar ground with different insurance math and stricter credit pricing. Wholesale Mortgage Lending arranges renovation financing on both sides through lenders that actually staff 203(k) operations, which matters: this is a program where lender experience is visible in the outcome."
         ]
       }
     ],
@@ -644,7 +644,7 @@ export const PROGRAMS_ARTICLES: Article[] = [
       }
     ],
     related: [
-      { href: "/mortgage/renovation", label: "Renovation loans through TRACT" },
+      { href: "/mortgage/renovation", label: "Renovation loans through us" },
       {
         href: "/resources/homestyle-choicerenovation",
         label: "Conventional renovation alternatives"
@@ -690,7 +690,7 @@ export const PROGRAMS_ARTICLES: Article[] = [
         heading: "Choosing between conventional renovation and the 203(k)",
         paragraphs: [
           "The decision usually tracks the same variables as any conventional-versus-FHA choice. Strong credit and a meaningful down payment favor HomeStyle or CHOICERenovation: cheaper, cancellable mortgage insurance and no FHA upfront premium. Thinner credit favors the 203(k), whose insurance cost ignores credit score. Non-primary occupancy decides it outright — investment and second-home projects are conventional-only.",
-          "Project type can also decide: FHA's minimum property standards and improvement restrictions rule out certain scopes that conventional programs accept. The practical constraint worth naming is lender capability. Renovation lending is operationally demanding, and not every lender offers these products or runs them well. TRACT arranges renovation financing through lenders that do — the lender makes, approves, and prices the loan, and on renovation products the lender's process quality is part of what you are choosing."
+          "Project type can also decide: FHA's minimum property standards and improvement restrictions rule out certain scopes that conventional programs accept. The practical constraint worth naming is lender capability. Renovation lending is operationally demanding, and not every lender offers these products or runs them well. Wholesale Mortgage Lending arranges renovation financing through lenders that do — the lender makes, approves, and prices the loan, and on renovation products the lender's process quality is part of what you are choosing."
         ]
       }
     ],
@@ -729,7 +729,7 @@ export const PROGRAMS_ARTICLES: Article[] = [
       }
     ],
     related: [
-      { href: "/mortgage/renovation", label: "Renovation loans through TRACT" },
+      { href: "/mortgage/renovation", label: "Renovation loans through us" },
       { href: "/resources/fha-203k-explained", label: "The FHA 203(k) alternative" },
       { href: "/mortgage/investment-property", label: "Investment property financing" },
       { href: "/calculators/mortgage-payment", label: "Mortgage payment calculator" }
@@ -772,7 +772,7 @@ export const PROGRAMS_ARTICLES: Article[] = [
         heading: "The rest of the trade",
         paragraphs: [
           "Pricing runs above comparable agency investment-property loans — the lender is giving up income verification and taking asset risk, and charges for it. Down payment expectations are materially higher than owner-occupied lending, and reserve requirements are real. Most DSCR lenders happily lend to LLCs, which agency loans do not allow, and many investors close in an entity for liability planning.",
-          "In Florida, the underwriting lives or dies on carrying costs: insurance premiums and property taxes are large and volatile inputs to the payment side of the ratio, and a property that clears a lender's minimum with a stale insurance quote can fail it with a real one. Short-term-rental income adds another layer — some lenders count it, with haircuts, others refuse. TRACT arranges DSCR financing through lenders active in Florida's investor market; each lender makes and prices its own loans, and program terms differ enough that comparison is genuinely valuable."
+          "In Florida, the underwriting lives or dies on carrying costs: insurance premiums and property taxes are large and volatile inputs to the payment side of the ratio, and a property that clears a lender's minimum with a stale insurance quote can fail it with a real one. Short-term-rental income adds another layer — some lenders count it, with haircuts, others refuse. Wholesale Mortgage Lending arranges DSCR financing through lenders active in Florida's investor market; each lender makes and prices its own loans, and program terms differ enough that comparison is genuinely valuable."
         ]
       }
     ],
@@ -816,7 +816,7 @@ export const PROGRAMS_ARTICLES: Article[] = [
       }
     ],
     related: [
-      { href: "/mortgage/dscr", label: "DSCR loans through TRACT" },
+      { href: "/mortgage/dscr", label: "DSCR loans through us" },
       { href: "/calculators/dscr", label: "DSCR calculator" },
       {
         href: "/calculators/investment-property-cash-flow",
@@ -865,7 +865,7 @@ export const PROGRAMS_ARTICLES: Article[] = [
         heading: "The price of the alternative documentation",
         paragraphs: [
           "Expect pricing above comparable conventional loans, larger down payment requirements, meaningful reserve requirements, and closer scrutiny of credit history — the lender is compensating for non-standard documentation and the absence of QM protections. Program terms vary widely between lenders: how many months of statements, personal versus business accounts, expense factor menus, and treatment of multiple businesses all differ.",
-          "That dispersion is the practical argument for shopping the loan. Florida's economy runs disproportionately on the self-employed — contractors, realtors, restaurateurs, charter captains, gig and seasonal earners — and lender appetite for each profile varies. TRACT arranges bank statement financing through multiple non-QM lenders; each lender makes, approves, and prices its own loans, and the same borrower can receive materially different terms from different shops. Worth knowing before committing: if your most recent tax year actually shows strong income, a conventional loan may beat the bank statement route — the alternative documentation is a tool for when returns undersell reality, not a default."
+          "That dispersion is the practical argument for shopping the loan. Florida's economy runs disproportionately on the self-employed — contractors, realtors, restaurateurs, charter captains, gig and seasonal earners — and lender appetite for each profile varies. Wholesale Mortgage Lending arranges bank statement financing through multiple non-QM lenders; each lender makes, approves, and prices its own loans, and the same borrower can receive materially different terms from different shops. Worth knowing before committing: if your most recent tax year actually shows strong income, a conventional loan may beat the bank statement route — the alternative documentation is a tool for when returns undersell reality, not a default."
         ]
       }
     ],
@@ -904,7 +904,7 @@ export const PROGRAMS_ARTICLES: Article[] = [
       }
     ],
     related: [
-      { href: "/mortgage/bank-statement", label: "Bank statement loans through TRACT" },
+      { href: "/mortgage/bank-statement", label: "Bank statement loans through us" },
       { href: "/mortgage/self-employed", label: "Mortgages for the self-employed" },
       { href: "/resources/dscr-loans-explained", label: "DSCR loans: the investor alternative" },
       { href: "/calculators/debt-to-income", label: "Debt-to-income calculator" }
