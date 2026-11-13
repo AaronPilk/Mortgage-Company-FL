@@ -15,7 +15,11 @@ test.describe("home page", () => {
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
       "Honest answers about your Florida mortgage"
     );
-    await expect(page.getByText("Florida mortgage brokerage").first()).toBeVisible();
+    // In the page itself, not the header: the header lockup's tagline repeats
+    // the phrase but is hidden on phones, and the hero must say it regardless.
+    await expect(
+      page.locator("main").getByText("Florida mortgage brokerage").first()
+    ).toBeVisible();
     // The page exists to convert paid intent traffic, so the form shares the
     // hero with the message rather than living behind a /contact link.
     const hero = page.getByTestId("hero-product-proof");
@@ -144,7 +148,7 @@ test.describe("talk chooser and campaign landings", () => {
 
     await page.goto("/talk");
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
-      "What brings you to TRACT?"
+      "What brings you here today?"
     );
     for (const [label, href] of [
       ["Buying a home", "/get-started/purchase"],
@@ -551,6 +555,91 @@ test.describe("structured data", () => {
     });
     expect(organization).not.toHaveProperty("address");
     expect(organization?.["telephone"]).toBe("+17274866004");
+  });
+});
+
+/*
+ * One visible brand (ADR-014). Locally "/" renders app/page.tsx and "/wml" the
+ * landing that wsmlending.com serves at "/", so both are checked. The retired
+ * product name may survive in code names, never in what a visitor, a crawler
+ * or a structured-data reader sees.
+ */
+test.describe("one visible brand", () => {
+  const RETIRED_BRAND = /\bTRACT\b/;
+
+  for (const path of [
+    "/",
+    "/wml",
+    "/mortgage/fha",
+    "/resources/conventional-vs-fha",
+    "/resources/condo-financing-florida",
+    "/calculators"
+  ]) {
+    test(`${path} never shows the retired product name`, async ({ page }) => {
+      await page.goto(path);
+      const body = await page.locator("body").innerText();
+      expect(body).not.toMatch(RETIRED_BRAND);
+      expect(await page.title()).not.toMatch(RETIRED_BRAND);
+      const description = await page.locator('meta[name="description"]').getAttribute("content");
+      expect(description ?? "").not.toMatch(RETIRED_BRAND);
+      for (const alt of await page
+        .locator("img[alt]")
+        .evaluateAll((images) => images.map((image) => image.getAttribute("alt") ?? ""))) {
+        expect(alt).not.toMatch(RETIRED_BRAND);
+      }
+
+      const blocks = await page.locator('script[type="application/ld+json"]').allTextContents();
+      expect(blocks.length).toBeGreaterThan(0);
+      for (const block of blocks) expect(block).not.toMatch(RETIRED_BRAND);
+      const organization = blocks
+        .flatMap(
+          (block) => (JSON.parse(block) as { "@graph"?: Record<string, unknown>[] })["@graph"] ?? []
+        )
+        .find((node) => node["@type"] === "Organization");
+      expect(organization?.["name"]).toBe("Wholesale Mortgage Lending");
+      expect(organization).not.toHaveProperty("alternateName");
+    });
+  }
+
+  test("the header leads home with the company lockup", async ({ page }) => {
+    await page.goto("/mortgage/fha");
+    const home = page.locator('header a[aria-label="Wholesale Mortgage Lending home"]');
+    await expect(home).toHaveAttribute("href", "/");
+    await expect(home).toContainText("Wholesale Mortgage Lending");
+    expect(await page.locator('a[href="/tract"]').count()).toBe(0);
+  });
+
+  test("the landing links its hubs after the form", async ({ page }) => {
+    await page.goto("/wml");
+    for (const href of [
+      "/calculators",
+      "/plan",
+      "/mortgage",
+      "/resources",
+      "/mortgage-glossary",
+      "/florida-buyers-guide",
+      "/florida-down-payment-assistance",
+      "/locations/florida",
+      "/florida-mortgage/pinellas-county"
+    ]) {
+      expect(await page.locator(`main a[href="${href}"]`).count(), href).toBeGreaterThan(0);
+    }
+    expect(await page.locator('a[href="/tract"]').count()).toBe(0);
+    expect(await page.locator('a[href="/what-is-my-home-worth"]').count()).toBe(0);
+  });
+
+  test("serves the company icons", async ({ request }) => {
+    const manifest = (await (await request.get("/manifest.webmanifest")).json()) as {
+      name: string;
+      short_name: string;
+    };
+    expect(manifest.name).toBe("Wholesale Mortgage Lending");
+    expect(manifest.short_name).toBe("WML Lending");
+    for (const path of ["/favicon.ico", "/icon.png", "/apple-icon.png", "/brand/icon-512.png"]) {
+      const response = await request.get(path);
+      expect(response.status(), path).toBe(200);
+      expect(response.headers()["content-type"], path).toMatch(/^image\//);
+    }
   });
 });
 
