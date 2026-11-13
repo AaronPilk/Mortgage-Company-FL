@@ -38,16 +38,9 @@ export const ROUTE_REGISTRY: RouteEntry[] = [
     indexable: false,
     contentGroup: "marketing"
   },
-  // The TRACT product home (app/page.tsx), served at /tract through a middleware
-  // rewrite because "/" belongs to the landing. It shares the landing's funnel
-  // and purpose, so it is noindex and off the sitemap: one homepage ranks.
-  {
-    path: "/tract",
-    priority: 0.5,
-    changeFrequency: "monthly",
-    indexable: false,
-    contentGroup: "home"
-  },
+  // /tract is not registered: it was the old product home and is now a 308 to
+  // "/" in lib/host-routing.ts (ADR-014). A registered path would read as a
+  // page, and the content linter flags any link to an unregistered path.
   {
     path: "/plan",
     priority: 0.95,
@@ -1470,7 +1463,7 @@ export const ROUTE_REGISTRY: RouteEntry[] = [
     indexable: false,
     contentGroup: "system"
   },
-  // TRACT — the authenticated loan portal. Never indexable, never in the
+  // The authenticated loan portal. Never indexable, never in the
   // sitemap: it is a signed-in application surface, not a marketing page.
   {
     path: "/loan",

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { ArrowIcon, Badge, Disclosure, Faq, Section, SectionHeading } from "@/components/ui";
 import { LicensingFacts } from "@/components/licensing-facts";
 import { AssetImage } from "@/components/asset-image";
@@ -15,22 +14,25 @@ import {
   businessIdentity,
   isPreLaunch
 } from "@/lib/site";
-import { PRODUCT_HOME_PATH } from "@/lib/host-routing";
+import { HOME_COUNTY_GUIDES, HOME_EXPLORE, HOME_TOOLS } from "@/content/home-hub";
 import { absoluteUrl, breadcrumbNode, faqNode, graph, webPageNode } from "@tract/seo";
 
 /**
  * Wholesale Mortgage Lending — the company homepage, served at "/" on
  * wsmlending.com (ADR-011). This is the front door paid mortgage traffic lands
- * on, so its one job is to turn a visitor into a lead: the same real, CRM-wired
- * funnel the TRACT home uses shares the hero, and everything below it is
- * mortgage education that earns the organic and Maps ranking the ads sit on.
+ * on, so its first job is to turn a visitor into a lead: the real, CRM-wired
+ * funnel shares the hero. Everything below it is mortgage education and a
+ * plain map of the site's hubs, which earns the organic and Maps ranking the
+ * ads sit on.
  *
- * It is implemented at /wml; the middleware rewrites "/" here with WML chrome
- * and 308s a direct /wml request back to "/", so the homepage has one URL. Its
- * metadata path is therefore "/", which makes the canonical the bare origin.
+ * It is implemented at /wml; the middleware rewrites "/" here with the landing
+ * chrome and 308s a direct /wml request back to "/", so the homepage has one
+ * URL. Its metadata path is therefore "/", which makes the canonical the bare
+ * origin.
  *
  * Links into the rest of the app are same-origin paths in plain <a> tags: the
- * destinations render TRACT chrome, which a client-side transition would not.
+ * destinations render the full site chrome, which a client-side transition
+ * would not swap in.
  */
 
 export const metadata: Metadata = pageMetadata({
@@ -123,7 +125,7 @@ export default function WmlLandingPage() {
               url,
               name: "Wholesale Mortgage Lending — Florida mortgage broker",
               description:
-                "A Florida mortgage brokerage. Compare financing across lenders for a purchase, refinance, or first mortgage — powered by TRACT. No application, no credit pull."
+                "A Florida mortgage brokerage. Compare financing across lenders for a purchase, refinance, or first mortgage. No application, no credit pull."
             }),
             faqNode(WML_FAQS, true),
             breadcrumbNode([{ name: "Home", url }])
@@ -133,9 +135,9 @@ export default function WmlLandingPage() {
       />
 
       {/*
-        Hero. Same shape as the TRACT homepage: the pitch and the form share the
-        first screen — pitch left, form right on desktop; on a phone the form
-        comes right after the headline, where the decision to stay is made.
+        Hero. The pitch and the form share the first screen — pitch left, form
+        right on desktop; on a phone the form comes right after the headline,
+        where the decision to stay is made.
       */}
       <section className="relative overflow-hidden">
         <div aria-hidden="true" className="absolute inset-0">
@@ -241,7 +243,7 @@ export default function WmlLandingPage() {
         </div>
       </section>
 
-      {/* What we help with — educational, and each card links into TRACT. */}
+      {/* What we help with — educational, and each card links to its program page. */}
       <Section>
         <SectionHeading
           eyebrow="What we help with"
@@ -338,7 +340,11 @@ export default function WmlLandingPage() {
         </div>
       </Section>
 
-      {/* Powered-by-TRACT band. The product is the reason the numbers are real. */}
+      {/*
+        Free tools. Every link is a working, indexable page (content/home-hub.ts
+        and its test). The planner's line says it asks for contact details, so
+        "no sign-up" is only claimed for the calculators.
+      */}
       <Section pad="tight">
         <div
           className="relative overflow-hidden rounded-[2rem] px-8 py-14 sm:px-14"
@@ -347,37 +353,61 @@ export default function WmlLandingPage() {
             boxShadow: "0 24px 70px var(--purple-glow)"
           }}
         >
-          <div className="relative max-w-2xl">
-            <Image
-              src="/brand/tract-word-dark.png"
-              alt="TRACT"
-              width={640}
-              height={118}
-              className="h-8 w-auto"
-            />
-            <h2 className="mt-5 text-3xl font-bold text-white sm:text-4xl">
-              The tools that do the work
-            </h2>
-            <p className="mt-4 text-lg" style={{ color: "rgb(255 255 255 / 0.8)" }}>
-              TRACT is our platform — calculators that run in your browser, real Florida home search
-              with the full carrying cost shown, a homeowner value dashboard, and your own loan
-              portal. Powered by Wholesale Mortgage Lending.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <a
-                href={PRODUCT_HOME_PATH}
-                className={btnPrimary}
-                style={{ background: "var(--purple)" }}
+          <div className="relative grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
+            <div>
+              <p
+                className="text-xs font-semibold uppercase tracking-[0.14em]"
+                style={{ color: "#c084fc" }}
               >
-                Enter TRACT &rarr;
-              </a>
-              <a
-                href="/calculators"
-                className="inline-flex min-h-[48px] items-center justify-center rounded-xl border border-white/40 px-6 py-3 text-[0.95rem] font-semibold text-white transition-colors hover:bg-white/10"
-              >
-                Try the calculators
-              </a>
+                Free tools
+              </p>
+              <h2 className="mt-4 text-3xl font-bold text-white sm:text-4xl">
+                Run the numbers yourself
+              </h2>
+              <p className="mt-4 text-lg" style={{ color: "rgb(255 255 255 / 0.8)" }}>
+                The calculators run in your browser with nothing to sign up for, and each one shows
+                the assumptions behind its number. Use them before you talk to anyone, or bring the
+                results to the conversation.
+              </p>
+              <div className="mt-8">
+                <a
+                  href="/calculators"
+                  className={btnPrimary}
+                  style={{ background: "var(--purple)" }}
+                >
+                  See all calculators &rarr;
+                </a>
+              </div>
             </div>
+            <ul className="grid gap-3 sm:grid-cols-2">
+              {HOME_TOOLS.map((tool) => (
+                <li key={tool.href}>
+                  <a
+                    href={tool.href}
+                    className="flex h-full flex-col rounded-2xl border p-5 transition-colors hover:bg-white/10"
+                    style={{
+                      borderColor: "rgb(255 255 255 / 0.18)",
+                      background: "rgb(255 255 255 / 0.05)"
+                    }}
+                  >
+                    <span className="text-base font-semibold text-white">{tool.label}</span>
+                    <span
+                      className="mt-1.5 flex-1 text-sm"
+                      style={{ color: "rgb(255 255 255 / 0.72)" }}
+                    >
+                      {tool.detail}
+                    </span>
+                    <span
+                      aria-hidden="true"
+                      className="mt-3 text-sm font-semibold"
+                      style={{ color: "#c084fc" }}
+                    >
+                      Open &rarr;
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </Section>
@@ -390,6 +420,66 @@ export default function WmlLandingPage() {
           gradientWord="Straight"
         />
         <Faq items={WML_FAQS} />
+      </Section>
+
+      {/*
+        Explore: a crawlable map of the hubs the sitemap lists, in plain <a>
+        tags. Below the FAQ on purpose — the form stays the first thing on the
+        page, and this is for the visitor (or crawler) who keeps reading.
+      */}
+      <Section>
+        <SectionHeading
+          eyebrow="Explore"
+          title="Everything else on the site"
+          gradientWord="Everything else"
+          description="Program pages, Florida buying guides, county-by-county notes, and the plain-language reference material behind them."
+        />
+        <div className="grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+          {HOME_EXPLORE.map((group) => (
+            <nav key={group.heading} aria-label={group.heading}>
+              <h3
+                className="text-xs font-bold uppercase tracking-[0.14em]"
+                style={{ color: "var(--purple)" }}
+              >
+                {group.heading}
+              </h3>
+              <ul className="mt-4 space-y-2.5">
+                {group.links.map((link) => (
+                  <li key={link.href}>
+                    <a
+                      href={link.href}
+                      className="text-sm transition-colors hover:text-[var(--purple)]"
+                      style={{ color: "var(--text-muted)" }}
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))}
+        </div>
+        <nav aria-label={HOME_COUNTY_GUIDES.heading} className="mt-12">
+          <h3
+            className="text-xs font-bold uppercase tracking-[0.14em]"
+            style={{ color: "var(--purple)" }}
+          >
+            {HOME_COUNTY_GUIDES.heading}
+          </h3>
+          <ul className="mt-4 grid grid-cols-2 gap-x-10 gap-y-2.5 sm:grid-cols-3 lg:grid-cols-4">
+            {HOME_COUNTY_GUIDES.links.map((link) => (
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  className="text-sm transition-colors hover:text-[var(--purple)]"
+                  style={{ color: "var(--text-muted)" }}
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </Section>
 
       {/* Closing CTA back to the form, plus the compliance line. */}

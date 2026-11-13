@@ -9,8 +9,10 @@ import { routeRequest, type Brand } from "./lib/host-routing";
  * this file only turns its decision into a NextResponse.
  *
  * Which chrome renders is decided by the `x-tract-brand` request header set here
- * and read by the root layout: `wml` on the landing, TRACT everywhere else. The
- * header rides on the (possibly rewritten) request, so a visitor never sees it.
+ * and read by the root layout: `wml` (the landing's lighter chrome) on the
+ * landing, `tract` (the internal name for the full site chrome) everywhere else.
+ * The header rides on the (possibly rewritten) request, so a visitor never sees
+ * it.
  *
  * Any other host (tractrealestate.com, workers.dev, a Vercel alias) is
  * permanently redirected to the canonical origin, noindex, path and query

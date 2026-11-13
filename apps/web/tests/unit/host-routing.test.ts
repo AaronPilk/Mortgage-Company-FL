@@ -59,12 +59,23 @@ describe("routeRequest on the canonical host", () => {
     expect(route("wsmlending.com", "/api/v1/leads")).toEqual({ kind: "next", brand: "tract" });
   });
 
-  it("keeps the TRACT product home reachable at /tract", () => {
+  it("308s the retired /tract product home to the root, query intact (ADR-014)", () => {
     expect(route("wsmlending.com", "/tract")).toEqual({
-      kind: "rewrite",
-      brand: "tract",
-      pathname: "/"
+      kind: "redirect",
+      location: "https://wsmlending.com/",
+      status: 308,
+      noindex: false
     });
+    expect(route("www.wsmlending.com", "/tract", "?utm_source=old-link")).toEqual({
+      kind: "redirect",
+      location: "https://wsmlending.com/?utm_source=old-link",
+      status: 308,
+      noindex: false
+    });
+  });
+
+  it("leaves paths that merely start with /tract alone", () => {
+    expect(route("wsmlending.com", "/tract/anything")).toEqual({ kind: "next", brand: "tract" });
   });
 
   it("sends the landing's implementation path back to the root, query intact", () => {
@@ -173,6 +184,13 @@ describe("middleware with the production build values", () => {
     expect(response.status).toBe(308);
     expect(getRedirectUrl(response)).toBe("https://wsmlending.com/calculators/affordability?q=1");
     expect(response.headers.get("x-robots-tag")).toBe("noindex, nofollow");
+  });
+
+  it("308s the retired /tract URL to the homepage on wsmlending.com", async () => {
+    const response = await run("https://wsmlending.com/tract?utm_source=old-link");
+    expect(response.status).toBe(308);
+    expect(getRedirectUrl(response)).toBe("https://wsmlending.com/?utm_source=old-link");
+    expect(response.headers.get("x-robots-tag")).toBeNull();
   });
 
   it("308s a stray Vercel alias the same way", async () => {

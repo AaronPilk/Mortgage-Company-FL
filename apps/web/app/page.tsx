@@ -28,20 +28,19 @@ import {
 } from "@/lib/site";
 import { absoluteUrl, breadcrumbNode, faqNode, graph, webPageNode } from "@tract/seo";
 import { createRequestClient } from "@/lib/supabase";
-import { PRODUCT_HOME_PATH } from "@/lib/host-routing";
 
 /**
- * The TRACT product home. On the public domain it is served at /tract (the
- * middleware rewrites /tract to this file) because "/" belongs to the Wholesale
- * Mortgage Lending landing (ADR-011). It shares that page's funnel and purpose,
- * so it is noindex: two homepages competing for the same queries would split
- * the one that should rank.
+ * The former product home. On wsmlending.com nothing serves this file any more:
+ * "/" rewrites to the landing (app/wml/page.tsx) and the old /tract URL
+ * redirects there (ADR-011, ADR-014). Locally it is still what "/" renders, so
+ * the browser suite exercises its funnel without a hosts file. It stays noindex
+ * so it can never compete with the landing for the same queries.
  */
 export const metadata: Metadata = pageMetadata({
   title: "Honest Florida mortgage guidance, no pressure",
   description:
     "Tell us whether you are buying, refinancing, or buying your first home, and a licensed mortgage professional will lay out your real options. No credit pull.",
-  path: PRODUCT_HOME_PATH,
+  path: "/",
   imagePath: "/images/og/default.png",
   noIndex: true
 });
@@ -118,10 +117,10 @@ const HOME_FAQS = [
 ];
 
 export default async function HomePage() {
-  const url = absoluteUrl(SITE_URL, PRODUCT_HOME_PATH);
-  // The TRACT home is where the TRACT logo leads, so a returning borrower lands here.
-  // Greet them and point at their own stuff instead of treating them as a
-  // cold lead. (Every route is already dynamic — the header reads the session.)
+  const url = absoluteUrl(SITE_URL, "/");
+  // A returning borrower may land here, so greet them and point at their own
+  // stuff instead of treating them as a cold lead. (Every route is already
+  // dynamic — the header reads the session.)
   const supabase = await createRequestClient();
   const signedIn = supabase !== null && (await supabase.auth.getUser()).data.user !== null;
 
@@ -133,17 +132,14 @@ export default async function HomePage() {
             webPageNode({
               identity: businessIdentity,
               url,
-              name: "TRACT — mortgage tools from Wholesale Mortgage Lending",
+              name: "Mortgage guidance and tools from Wholesale Mortgage Lending",
               description:
                 "A Florida mortgage brokerage. Tell us what you are working on and a licensed mortgage professional lays out your options — no application, no credit pull."
             }),
             // This page renders these exact questions below, so the FAQPage
             // markup is honest.
             faqNode(HOME_FAQS, true),
-            breadcrumbNode([
-              { name: "Home", url: absoluteUrl(SITE_URL, "/") },
-              { name: "TRACT", url }
-            ])
+            breadcrumbNode([{ name: "Home", url }])
           ],
           businessIdentity
         )}

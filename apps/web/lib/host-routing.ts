@@ -8,13 +8,13 @@
  * permanent redirect to the same path and query on the canonical origin, marked
  * noindex so a crawler drops the old URL instead of indexing the redirect.
  *
- * Two app files trade places on the canonical host, which is why this is a
- * rewrite table rather than a plain pass-through:
- *   - "/"      renders app/wml/page.tsx, the WML landing (the company homepage);
- *   - "/tract" renders app/page.tsx, the TRACT product home, kept reachable at a
- *              non-root path and noindex so it never competes with the landing;
+ * The canonical host is a small rewrite table rather than a plain pass-through:
+ *   - "/"      renders app/wml/page.tsx, the landing (the company homepage);
  *   - "/wml"   is the landing's implementation path, so it redirects to "/"
- *              rather than serving a second copy of the homepage.
+ *              rather than serving a second copy of the homepage;
+ *   - "/tract" was the old product home. The product name is retired as a
+ *              visible brand (ADR-014), so the path is a permanent redirect to
+ *              "/", query intact, and any link or ranking it earned passes on.
  */
 
 export type Brand = "wml" | "tract";
@@ -32,9 +32,10 @@ export type RoutingRequest = {
   search: string;
 };
 
-/** Where the landing and the product home are implemented inside the app. */
+/** Where the landing is implemented inside the app. */
 export const LANDING_IMPLEMENTATION_PATH = "/wml";
-export const PRODUCT_HOME_PATH = "/tract";
+/** The retired product-home URL; redirected, never linked (ADR-014). */
+export const RETIRED_PRODUCT_HOME_PATH = "/tract";
 
 /**
  * Local development and test harnesses are never redirected. Anchored end to end
@@ -65,9 +66,13 @@ export function routeRequest(request: RoutingRequest, canonical: URL): RoutingDe
 
   if (isLocalHost(host)) {
     // Local keeps the app's own file layout so the browser suite can exercise
-    // the TRACT home at "/" and the landing at "/wml" without a hosts file.
+    // app/page.tsx at "/" and the landing at "/wml" without a hosts file. The
+    // retired /tract path lands on "/" here too, as a rewrite: a redirect would
+    // need the request's own origin, and locally that is not the canonical one.
     if (pathname === LANDING_IMPLEMENTATION_PATH) return { kind: "next", brand: "wml" };
-    if (pathname === PRODUCT_HOME_PATH) return { kind: "rewrite", brand: "tract", pathname: "/" };
+    if (pathname === RETIRED_PRODUCT_HOME_PATH) {
+      return { kind: "rewrite", brand: "tract", pathname: "/" };
+    }
     return { kind: "next", brand: "tract" };
   }
 
@@ -75,7 +80,7 @@ export function routeRequest(request: RoutingRequest, canonical: URL): RoutingDe
     if (pathname === "/") {
       return { kind: "rewrite", brand: "wml", pathname: LANDING_IMPLEMENTATION_PATH };
     }
-    if (pathname === LANDING_IMPLEMENTATION_PATH) {
+    if (pathname === LANDING_IMPLEMENTATION_PATH || pathname === RETIRED_PRODUCT_HOME_PATH) {
       return {
         kind: "redirect",
         location: new URL(`/${search}`, canonical).toString(),
@@ -83,12 +88,10 @@ export function routeRequest(request: RoutingRequest, canonical: URL): RoutingDe
         noindex: false
       };
     }
-    if (pathname === PRODUCT_HOME_PATH) {
-      return { kind: "rewrite", brand: "tract", pathname: "/" };
-    }
-    // Everything else, /api included, is served as-is with TRACT chrome. The
-    // brand is always stamped here so a client-supplied x-tract-brand header
-    // can never reach a page or an API route.
+    // Everything else, /api included, is served as-is with the full site
+    // chrome ("tract" is the internal name for it). The brand is always stamped
+    // here so a client-supplied x-tract-brand header can never reach a page or
+    // an API route.
     return { kind: "next", brand: "tract" };
   }
 

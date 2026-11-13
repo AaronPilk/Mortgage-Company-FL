@@ -26,8 +26,7 @@ const APP_DIR = "apps/web/app";
  * middleware rewrites them (apps/web/lib/host-routing.ts, ADR-011).
  */
 export const REWRITTEN_ROUTES = {
-  "/": `${APP_DIR}/wml/page.tsx`,
-  "/tract": `${APP_DIR}/page.tsx`
+  "/": `${APP_DIR}/wml/page.tsx`
 };
 
 const PAGE_FILES = ["page.tsx", "page.ts", "route.ts"];

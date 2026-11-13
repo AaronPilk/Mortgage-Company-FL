@@ -57,9 +57,9 @@ export const viewport: Viewport = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  // Which brand's chrome to render. The middleware marks the Wholesale Mortgage
-  // Lending landing ("/" on wsmlending.com) with this header; every other route
-  // is the TRACT product.
+  // Which chrome to render. The middleware marks the landing ("/" on
+  // wsmlending.com) with this header; every other route gets the full site
+  // chrome. One brand either way (ADR-014).
   // Reading a header here is free — every route already renders dynamically
   // because the shared header reads the session cookie.
   const isWml = (await headers()).get("x-tract-brand") === "wml";
@@ -95,9 +95,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             strategy="afterInteractive"
           />
         )}
-        {/* The mobile CTA bar and the assistant point at TRACT product routes,
-            so they stay off the WML marketing landing. Attribution capture runs
-            on both — a lead from a WML ad must carry its source. */}
+        {/* The mobile CTA bar and the assistant point at the site's tools, so
+            they stay off the landing, whose one job is its form. Attribution
+            capture runs on both — a lead from a WML ad must carry its source. */}
         {!isWml && <MobileCta />}
         {!isWml && <AssistantWidget enabled={publicFeatures().assistant} />}
         <AttributionCapture />

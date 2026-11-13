@@ -183,8 +183,13 @@ describe("changed files to URLs", () => {
   ];
 
   it("maps the landing file to the homepage, not to /wml", () => {
-    expect(sourceFilesForRoute(ROOT, "/")).toEqual(["apps/web/app/wml/page.tsx"]);
+    // The landing's hub links are page copy too, so their module dates "/".
+    expect(sourceFilesForRoute(ROOT, "/")).toEqual([
+      "apps/web/app/wml/page.tsx",
+      "apps/web/content/home-hub.ts"
+    ]);
     expect(routesForChangedFiles(ROOT, paths, ["apps/web/app/wml/page.tsx"])).toEqual(["/"]);
+    expect(routesForChangedFiles(ROOT, paths, ["apps/web/content/home-hub.ts"])).toEqual(["/"]);
   });
 
   it("maps a content module to every page that renders it", () => {
