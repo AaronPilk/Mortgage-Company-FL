@@ -37,13 +37,13 @@ export const COMPANY_EMAIL = process.env.NEXT_PUBLIC_COMPANY_EMAIL ?? "dan@wsmle
 export const BRAND_NAME = process.env.NEXT_PUBLIC_BRAND_NAME ?? PRODUCT_NAME;
 
 export const businessIdentity: BusinessIdentity = {
-  legalName: COMPANY_NAME,
+  legalName: `${COMPANY_NAME} LLC`,
   brandName: BRAND_NAME,
   siteUrl: SITE_URL,
   logoPath: "/brand/wml-logo.png",
   nmlsId: "2898263",
   companyLicenseId: "MBR8794",
-  telephone: null,
+  telephone: "(727) 486-6004",
   email: COMPANY_EMAIL,
   address: null,
   areaServed: ["Florida"],
