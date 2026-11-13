@@ -66,6 +66,23 @@ export default function ContactPage() {
               appear in the footer and can be verified on NMLS Consumer Access.
             </p>
           </Card>
+          {businessIdentity.email !== null && (
+            <Card>
+              <h2 className="text-lg font-semibold text-[var(--text)]">Prefer email?</h2>
+              <p className="mt-3 text-sm text-[var(--text-muted)]">
+                For general questions, email{" "}
+                <a
+                  className="font-medium underline underline-offset-4"
+                  style={{ color: "var(--purple)" }}
+                  href={"mailto:" + businessIdentity.email}
+                >
+                  {businessIdentity.email}
+                </a>
+                . Please don&apos;t send documents or sensitive information by email — if you move
+                forward, we send a secure link for that.
+              </p>
+            </Card>
+          )}
         </div>
       </div>
       <Disclosure

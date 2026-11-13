@@ -39,6 +39,8 @@ export const PRODUCT_NAME = process.env.NEXT_PUBLIC_PRODUCT_NAME ?? "TRACT";
 export const COMPANY_URL = process.env.NEXT_PUBLIC_COMPANY_URL ?? SITE_URL;
 /** Kept for existing callers; the product brand shown in the UI. */
 export const BRAND_NAME = process.env.NEXT_PUBLIC_BRAND_NAME ?? PRODUCT_NAME;
+/** Public contact inbox, shown on the site and in the Organization schema. */
+export const COMPANY_EMAIL = process.env.NEXT_PUBLIC_COMPANY_EMAIL ?? "dan@wsmlending.com";
 
 /** NMLS Consumer Access, the public record a visitor is told to check us against. */
 const NMLS_CONSUMER_ACCESS = "https://www.nmlsconsumeraccess.org/EntityDetails.aspx";
@@ -104,6 +106,7 @@ export const businessIdentity: BusinessIdentity = {
   // Neither is confirmed for this company yet. A FinancialService node needs a
   // real public office, so the schema stays a plain Organization (ADR-009).
   telephone: null,
+  email: COMPANY_EMAIL,
   address: null,
   areaServed: ["Florida"],
   // Real profiles only. The old product domain now redirects here, so it is no

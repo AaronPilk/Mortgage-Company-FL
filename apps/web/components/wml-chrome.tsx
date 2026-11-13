@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { ThemeToggle } from "./theme-toggle";
 import { LicensingFacts, NmlsVerifyLinks } from "./licensing-facts";
-import { businessIdentity, licensingStatus } from "@/lib/site";
+import { businessIdentity, isPreLaunch } from "@/lib/site";
 import { PRODUCT_HOME_PATH } from "@/lib/host-routing";
 
 /**
@@ -105,6 +105,15 @@ export function WmlFooter() {
               A Florida mortgage brokerage. We help buyers and homeowners compare financing across
               lenders with clear tools and direct guidance — powered by TRACT.
             </p>
+            {businessIdentity.email !== null && (
+              <a
+                href={"mailto:" + businessIdentity.email}
+                className="mt-4 block text-sm font-medium transition-colors hover:text-[var(--purple)]"
+                style={{ color: "var(--text-muted)" }}
+              >
+                {businessIdentity.email}
+              </a>
+            )}
             <a
               href={PRODUCT_HOME_PATH}
               className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold transition-opacity hover:opacity-80"
@@ -153,8 +162,9 @@ export function WmlFooter() {
             provide and are not an offer of credit, a rate quote, a preapproval, or a commitment to
             lend. Loan approval, terms, and availability depend on the lender, the loan program, the
             property, and a complete review of your application.
-            {!licensingStatus.companyLicensed &&
-              " The company is pre-launch and not yet licensed to arrange Florida residential mortgage credit; licensing details will appear here once established."}
+            {isPreLaunch()
+              ? " The company is pre-launch and not yet licensed to arrange Florida residential mortgage credit; licensing details will appear here once established."
+              : ""}
           </p>
         </div>
       </div>

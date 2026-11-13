@@ -18,6 +18,8 @@ export type BusinessIdentity = {
   nmlsId: string | null;
   companyLicenseId: string | null;
   telephone: string | null;
+  /** Public contact inbox; null if none is published. */
+  email: string | null;
   address: {
     streetAddress: string;
     addressLocality: string;
@@ -58,6 +60,7 @@ export function organizationNode(identity: BusinessIdentity): Node {
       url: `${identity.siteUrl}${identity.logoPath}`
     }),
     telephone: identity.telephone,
+    email: identity.email,
     // A structured PropertyValue rather than a formatted "NMLS #..." string, so
     // a reader can tell the registry from the number without parsing text.
     identifier:

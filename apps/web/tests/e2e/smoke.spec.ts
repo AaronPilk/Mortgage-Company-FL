@@ -130,6 +130,8 @@ test.describe("home page", () => {
     const footer = page.locator("footer");
     await expect(footer).toContainText("2898263");
     await expect(footer).toContainText("MBR8794");
+    // The other branch's check, kept: no pre-launch wording anywhere on the page.
+    expect((await page.locator("body").innerText()).toLowerCase()).not.toContain("pre-launch");
   });
 });
 

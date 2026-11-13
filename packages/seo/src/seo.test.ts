@@ -24,6 +24,7 @@ const unlicensedIdentity: BusinessIdentity = {
   nmlsId: null,
   companyLicenseId: null,
   telephone: null,
+  email: null,
   address: null,
   areaServed: ["Florida"],
   sameAs: []
@@ -128,6 +129,7 @@ describe("JSON-LD", () => {
       ...unlicensedIdentity,
       nmlsId: "1234567",
       telephone: "+18135550147",
+      email: "hello@tract.example",
       address: {
         streetAddress: "100 Example Way",
         addressLocality: "Tampa",
@@ -141,6 +143,7 @@ describe("JSON-LD", () => {
       propertyID: "NMLS ID",
       value: "1234567"
     });
+    expect(JSON.stringify(node)).toContain("hello@tract.example");
   });
 
   it("emits a known NMLS ID as a structured identifier without upgrading the type", () => {

@@ -85,10 +85,17 @@ test.describe("agent directory", () => {
     await expect(form.locator('input[name="smsMarketing"]')).not.toHaveAttribute("required", "");
     await expect(form.locator('input[name="emailMarketing"]')).not.toHaveAttribute("required", "");
 
-    // The agent's contact details are never in the DOM, by design: no mailto
-    // or tel link anywhere, and no email-shaped text on the page.
-    expect(await page.locator('a[href^="mailto:"], a[href^="tel:"]').count()).toBe(0);
-    expect(await page.locator("body").innerText()).not.toMatch(/\b[\w.+-]+@[\w-]+\.[a-z]{2,}\b/i);
+    // The agent's contact details are never in the DOM, by design: no tel link,
+    // and no email address on the page except the company's own published inbox
+    // in the site footer (owner-approved 12 Nov 2026). Any other address fails.
+    const companyInbox = "dan@wsmlending.com";
+    expect(await page.locator('a[href^="tel:"]').count()).toBe(0);
+    const mailtos = await page
+      .locator('a[href^="mailto:"]')
+      .evaluateAll((links) => links.map((link) => link.getAttribute("href")));
+    expect(mailtos.filter((href) => href !== `mailto:${companyInbox}`)).toEqual([]);
+    const bodyText = (await page.locator("body").innerText()).split(companyInbox).join("");
+    expect(bodyText).not.toMatch(/\b[\w.+-]+@[\w-]+\.[a-z]{2,}\b/i);
 
     // A sample profile page emits no RealEstateAgent node.
     const structuredData = await page

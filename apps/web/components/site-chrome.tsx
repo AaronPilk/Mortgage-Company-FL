@@ -221,6 +221,15 @@ export function SiteFooter() {
               A Florida mortgage brokerage. We help buyers and homeowners compare financing paths
               with clear tools and direct guidance.
             </p>
+            {businessIdentity.email !== null && (
+              <a
+                href={"mailto:" + businessIdentity.email}
+                className="mt-4 block text-sm font-medium transition-colors hover:text-[var(--purple)]"
+                style={{ color: "var(--text-muted)" }}
+              >
+                {businessIdentity.email}
+              </a>
+            )}
             {/* A plain anchor, not <Link>: the landing renders different chrome,
                 and a client-side transition would keep this layout's header. */}
             <a
