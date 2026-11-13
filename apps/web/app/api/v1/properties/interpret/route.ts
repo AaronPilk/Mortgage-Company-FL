@@ -107,6 +107,12 @@ async function interpretWithAi(
   requestId: string,
   subjectKey: string
 ): Promise<PropertySearchCriteria | null> {
+  // The paid AI interpretation path is the aiSearch product feature. With the
+  // flag off, fall straight through to the deterministic parser below — exactly
+  // as when AI_MODE=disabled. publicFeatures().aiSearch already folds in "AI mode
+  // must be live", so this is the product switch layered on the provider switch.
+  if (!publicFeatures().aiSearch) return null;
+
   const provider = ai();
   if (provider.key === "disabled") return null;
 

@@ -67,6 +67,7 @@ export function AccountSignIn({
   anonKey,
   initialEmail = "",
   defaultMode = "create",
+  nextPath = "/account",
   onSuccess
 }: {
   configured: boolean;
@@ -76,6 +77,8 @@ export function AccountSignIn({
   initialEmail?: string;
   /** Which form to show first; the person can toggle freely. */
   defaultMode?: Extract<AccountSignInMode, "create" | "signIn">;
+  /** Where to land after auth (default /account). Threaded from the host page. */
+  nextPath?: string;
   /**
    * Fires once per successful submission so a host (the account prompt
    * dialog) can show its own success surface. The auth logic stays here —
@@ -138,7 +141,9 @@ export function AccountSignIn({
     }
 
     setStatus("working");
-    const client = createBrowserClient(supabaseUrl, anonKey);
+    const client = createBrowserClient(supabaseUrl, anonKey, {
+      cookieOptions: { secure: window.location.protocol === "https:" }
+    });
     const callback = new URL("/auth/callback", window.location.origin);
 
     if (mode === "signIn") {
@@ -190,7 +195,7 @@ export function AccountSignIn({
         lastName,
         email,
         phone,
-        message: "Created a TRACT account.",
+        message: "Created a website account.",
         consent,
         firstTouch: submission.firstTouch,
         lastTouch: submission.lastTouch,
@@ -227,7 +232,7 @@ export function AccountSignIn({
        * Step 2 — the account. Name and phone ride in user metadata so the
        * account itself carries what the lead captured.
        */
-      callback.searchParams.set("next", "/account");
+      callback.searchParams.set("next", nextPath);
       const { data, error: signUpError } = await client.auth.signUp({
         email,
         password,
@@ -305,7 +310,7 @@ export function AccountSignIn({
     <form onSubmit={submit} className="space-y-4">
       <p className="text-sm text-[var(--text-muted)]">
         {mode === "create"
-          ? "Create a free account so a licensed professional can follow up on what you save. TRACT never sees the password — Supabase Auth stores it."
+          ? "Create a free account so a licensed professional can follow up on what you save. We never see the password — Supabase Auth stores it."
           : mode === "signIn"
             ? "Sign in with your email and password."
             : "Forgot your password? We’ll email you a link to set a new password."}

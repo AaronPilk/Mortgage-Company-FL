@@ -89,3 +89,19 @@ while production preflight is red.
    version and Git commit mapping.
 
 Do not call a release complete from a Git push or a build alone.
+
+---
+
+## 2026-11-12 — WML SEO release prepared, not deployed
+
+The live Worker `mortgage-company-fl` was last deployed 2026-08-26T19:35Z,
+matching commit `789aaa2`. Branch `claude/seo-sop-20261112` (one canonical
+domain, licensing facts, robots/sitemap/llms, IndexNow) is pushed for the owner
+to deploy with the out-of-repo deploy kit. That deploy also ships `c1019dd` and
+`316b60e`, which were committed after `789aaa2` but never deployed. Record the
+resulting Worker version id here after the deploy.
+
+The live build itself does not match `789aaa2`: on 2026-11-12 it showed company
+NMLS ID 2898263, Florida licence MBR8794 and no pre-launch banner, none of which
+any commit contains. It was deployed from a working tree with uncommitted
+changes.

@@ -302,7 +302,7 @@ test.describe("integrated recovery workflows", () => {
       lastName: "Reyes",
       email: "dana@example.com",
       phone: "813-555-0147",
-      message: "Created a TRACT account.",
+      message: "Created a website account.",
       consent: {
         privacyAccepted: true,
         contactRequested: true,
@@ -384,7 +384,7 @@ test.describe("integrated recovery workflows", () => {
     await page.goto(
       "/tour/rendprop-coastal-demo?utm_source=rendprop_demo&utm_medium=onsite_qr&utm_campaign=agent_sample_tour"
     );
-    await expect(page.getByText("TRACT sample workflow")).toBeVisible();
+    await expect(page.getByText("Sample workflow, not a real agent")).toBeVisible();
     await expect(page.getByText("Virtually staged", { exact: true })).toBeVisible();
     await expect(page.getByText("Floor-plan candidate · generated · not to scale")).toBeVisible();
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
@@ -487,7 +487,7 @@ test.describe("recovery system boundaries", () => {
       than the boundary it exists to protect.
     */
     await page.goto("/account");
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("saved TRACT work");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Your saved work");
     await expect(
       page
         .getByText(/account sign-in is not configured/i)

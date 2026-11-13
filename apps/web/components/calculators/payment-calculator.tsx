@@ -257,34 +257,36 @@ export function PaymentCalculator() {
               on a {usd(loanAmount)} loan · {usd(downPayment)} down
             </p>
 
-            <table className="mt-6 w-full text-sm">
-              <caption className="sr-only">Monthly payment breakdown by component</caption>
-              <tbody className="divide-y divide-purple-800">
-                {rows.map((row) => (
-                  <tr key={row.label}>
-                    <th scope="row" className="py-2.5 text-left font-normal text-purple-100">
-                      {row.label}
-                      {row.note !== undefined && (
-                        <span className="block text-xs text-purple-300">{row.note}</span>
-                      )}
+            <div className="mt-6 overflow-x-auto">
+              <table className="w-full text-sm">
+                <caption className="sr-only">Monthly payment breakdown by component</caption>
+                <tbody className="divide-y divide-purple-800">
+                  {rows.map((row) => (
+                    <tr key={row.label}>
+                      <th scope="row" className="py-2.5 text-left font-normal text-purple-100">
+                        {row.label}
+                        {row.note !== undefined && (
+                          <span className="block text-xs text-purple-300">{row.note}</span>
+                        )}
+                      </th>
+                      <td className="py-2.5 text-right font-semibold tabular-nums text-white">
+                        {formatUsd(row.cents)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr className="border-t-2 border-purple-700">
+                    <th scope="row" className="pt-3 text-left font-semibold text-white">
+                      Total
                     </th>
-                    <td className="py-2.5 text-right font-semibold tabular-nums text-white">
-                      {formatUsd(row.cents)}
+                    <td className="pt-3 text-right text-lg font-bold tabular-nums text-white">
+                      {formatUsd(breakdown.totalMonthlyCents)}
                     </td>
                   </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr className="border-t-2 border-purple-700">
-                  <th scope="row" className="pt-3 text-left font-semibold text-white">
-                    Total
-                  </th>
-                  <td className="pt-3 text-right text-lg font-bold tabular-nums text-white">
-                    {formatUsd(breakdown.totalMonthlyCents)}
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
+                </tfoot>
+              </table>
+            </div>
 
             <p className="mt-4 text-xs text-purple-300">
               Calculation version {breakdown.calculationVersion}

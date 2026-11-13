@@ -44,7 +44,14 @@ Keep a redirect map. Never change `lastmod` because a build ran.
 
 ## Prohibited
 
-Templated city pages with a name substituted · doorway pages · automatically
+Templated city pages with only a name substituted · doorway pages · automatically
 generated articles published without review · fabricated citations, reviews,
 awards, or statistics · marked-up content the visitor cannot see · content
 written only to be quoted by a model.
+
+A city page that carries its own real, sourced local material and clears the
+county bar — the settlement's geography and flood reality, the questions a buyer
+there must research, coupled to a real parent county, asserting no market figure
+or tax rate — is not a substituted template and is permitted (see DECISIONS.md,
+2026-08-26). It ships noindex until a named reviewer verifies its sources
+(`docs/compliance/city-pages.md`).

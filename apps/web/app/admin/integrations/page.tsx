@@ -29,7 +29,26 @@ const CONFIGURATION_NAMES = [
   "AI_DAILY_PLATFORM_BUDGET_CENTS",
   "AI_DEFAULT_USER_DAILY_BUDGET_CENTS",
   "EMAIL_MODE",
-  "RESEND_API_KEY"
+  "RESEND_API_KEY",
+  "ATTOM_MODE",
+  "ATTOM_API_KEY",
+  "FLOOD_MODE",
+  "FEATURE_HOME_LOOKUP",
+  "FEATURE_HOME_VALUE",
+  "SHOW_SAMPLE_PROPERTY_DATA",
+  "RATE_FEED_MODE",
+  "FRED_API_KEY",
+  "FEATURE_RATE_WATCH",
+  "FEATURE_ASSISTANT",
+  "EMAIL_FROM",
+  "ALERTS_RUN_TOKEN",
+  "FEATURE_EMAIL_ALERTS",
+  "META_CAPI_MODE",
+  "META_PIXEL_ID",
+  "META_CAPI_ACCESS_TOKEN",
+  "META_CAPI_TEST_EVENT_CODE",
+  "META_CAPI_LIVE_CLEARED",
+  "FEATURE_AGENT_DASHBOARD"
 ] as const;
 
 type OutboxStatus = {
@@ -91,7 +110,10 @@ export default async function Page() {
           ["Turnstile", modes.turnstile],
           ["Email", modes.email],
           ["Listings", modes.mls],
-          ["AI", modes.ai]
+          ["Property data", modes.attom],
+          ["Rate feed", modes.rateFeed],
+          ["AI", modes.ai],
+          ["Conversions (Meta)", modes.metaCapi]
         ].map(([label, mode]) => (
           <Card key={label}>
             <p className="text-sm text-[var(--text-muted)]">{label}</p>

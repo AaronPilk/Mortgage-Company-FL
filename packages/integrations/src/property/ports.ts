@@ -137,6 +137,42 @@ export interface ConstructionCostPort {
 }
 
 /**
+ * A property record keyed by address: physical characteristics, the public tax
+ * assessment, the last recorded sale, and an automated valuation.
+ *
+ * This is what a buyer needs to run the numbers on a home they found on a
+ * listing site. It is emphatically NOT a list price (there is no on-market feed
+ * behind it), NOT an appraisal, and NOT a statement of what any lender will
+ * lend. ATTOM is the intended provider. Every monetary field is integer cents.
+ */
+export type PropertyFacts = {
+  /** The address the provider matched and standardized. */
+  normalizedAddress: Address;
+  coordinates?: { latitude: number; longitude: number };
+  propertyType?: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  livingAreaSqft?: number;
+  lotAreaSqft?: number;
+  yearBuilt?: number;
+  /** Assessor's total value — a tax figure, not a market price. */
+  assessedValueCents?: number;
+  /** Automated valuation estimate and its range. Never an appraisal. */
+  marketValueCents?: number;
+  marketValueLowCents?: number;
+  marketValueHighCents?: number;
+  lastSalePriceCents?: number;
+  lastSaleDate?: string;
+  /** Most recent annual property-tax billed amount. */
+  annualTaxAmountCents?: number;
+};
+
+export interface PropertyFactsPort {
+  readonly key: string;
+  lookup(address: Address): Promise<SourcedValue<PropertyFacts> | null>;
+}
+
+/**
  * Every port has an unconfigured implementation that returns null. A missing
  * provider produces an explicit gap in the report, never a plausible guess.
  */

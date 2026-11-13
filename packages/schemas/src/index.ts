@@ -3,6 +3,8 @@ export * from "./agents";
 export * from "./api";
 export * from "./contact";
 export * from "./account";
+export * from "./assistant";
 export * from "./env";
 export * from "./interpret";
 export * from "./vision";
+export * from "./area-report";

@@ -50,9 +50,9 @@ export const LOCAL_ARTICLES: Article[] = [
         ]
       },
       {
-        heading: "How TRACT fits in",
+        heading: "How we fit in",
         paragraphs: [
-          "TRACT is a mortgage broker: we arrange financing through wholesale lenders and do not make, approve, or price loans ourselves. For a St. Petersburg purchase that matters because different lenders treat flood zones, insurance costs, and condo projects differently — a file that stalls at one lender can be structured for another. The process runs: preapproval, offer, flood and insurance verification during inspection, project review if a condo, then appraisal and closing."
+          "Wholesale Mortgage Lending is a mortgage broker: we arrange financing through wholesale lenders and do not make, approve, or price loans ourselves. For a St. Petersburg purchase that matters because different lenders treat flood zones, insurance costs, and condo projects differently — a file that stalls at one lender can be structured for another. The process runs: preapproval, offer, flood and insurance verification during inspection, project review if a condo, then appraisal and closing."
         ],
         bullets: [
           "Look up the flood zone at the FEMA Flood Map Service Center before making an offer.",
@@ -79,9 +79,9 @@ export const LOCAL_ARTICLES: Article[] = [
           "Project-level issues: inadequate association reserves or insurance, significant deferred maintenance flagged in structural inspections, pending litigation, or too few owner-occupied units. Lenders review the building alongside the borrower. Requesting association documents during the inspection period surfaces these issues while you can still negotiate or exit."
       },
       {
-        question: "Does TRACT decide whether my loan is approved?",
+        question: "Does Wholesale Mortgage Lending decide whether my loan is approved?",
         answer:
-          "No. TRACT is a broker — we arrange loans through wholesale lenders, and the lender makes the credit decision. Our role is matching the file to a lender whose guidelines fit it, which is especially useful where flood zones, insurance costs, or condo project findings complicate a file."
+          "No. We are a broker — we arrange loans through wholesale lenders, and the lender makes the credit decision. Our role is matching the file to a lender whose guidelines fit it, which is especially useful where flood zones, insurance costs, or condo project findings complicate a file."
       }
     ],
     sources: [
@@ -110,7 +110,7 @@ export const LOCAL_ARTICLES: Article[] = [
       { href: "/mortgage/condo", label: "Condo financing" },
       { href: "/calculators/mortgage-payment", label: "Mortgage payment calculator" },
       { href: "/resources/florida-coastal-vs-inland", label: "Coastal vs. inland Florida costs" },
-      { href: "/locations/florida", label: "TRACT in Florida" }
+      { href: "/locations/florida", label: "Wholesale Mortgage Lending in Florida" }
     ],
     publishedAt: "2026-08-18",
     lastReviewed: "2026-08-18"
@@ -156,7 +156,7 @@ export const LOCAL_ARTICLES: Article[] = [
       {
         heading: "Putting the pieces together",
         paragraphs: [
-          "TRACT arranges Tampa purchase financing through wholesale lenders; we do not make or approve loans. What we add is structure: flood zone and CDD facts gathered before the offer, insurance quotes during inspection, and a lender match that fits the property's actual profile — bay-front with mandatory flood coverage, or an inland CDD community where the assessment drives the qualifying math."
+          "Wholesale Mortgage Lending arranges Tampa purchase financing through wholesale lenders; we do not make or approve loans. What we add is structure: flood zone and CDD facts gathered before the offer, insurance quotes during inspection, and a lender match that fits the property's actual profile — bay-front with mandatory flood coverage, or an inland CDD community where the assessment drives the qualifying math."
         ],
         bullets: [
           "Verify the flood zone on the FEMA Flood Map Service Center for every candidate property.",
@@ -260,7 +260,7 @@ export const LOCAL_ARTICLES: Article[] = [
       {
         heading: "The process, in order",
         paragraphs: [
-          "TRACT arranges Sarasota financing through wholesale lenders — we broker, we do not lend or approve. A clean sequence: preapproval with occupancy stated accurately; offer; flood zone verification and insurance quotes during inspection; condo project documents if applicable; appraisal; closing with taxes estimated at post-sale assessment. Each step exists to surface the island-versus-mainland cost differences while you can still act on them."
+          "Wholesale Mortgage Lending arranges Sarasota financing through wholesale lenders — we broker, we do not lend or approve. A clean sequence: preapproval with occupancy stated accurately; offer; flood zone verification and insurance quotes during inspection; condo project documents if applicable; appraisal; closing with taxes estimated at post-sale assessment. Each step exists to surface the island-versus-mainland cost differences while you can still act on them."
         ],
         bullets: [
           "Check the FEMA flood zone by address before offering; islands often mean A or V zones.",
@@ -364,7 +364,7 @@ export const LOCAL_ARTICLES: Article[] = [
       {
         heading: "Sequence for an Orlando purchase",
         paragraphs: [
-          "TRACT arranges Orlando-area loans as a broker — wholesale lenders make and price the credit decision. The productive order: preapproval with occupancy declared; offer with CDD and HOA figures in hand; flood zone check and insurance quotes during inspection; association review if attached housing; appraisal; closing with the escrow built on post-sale taxes plus assessments. Nothing on that list is exotic, but each item is a number that changes what you can borrow."
+          "Wholesale Mortgage Lending arranges Orlando-area loans as a broker — wholesale lenders make and price the credit decision. The productive order: preapproval with occupancy declared; offer with CDD and HOA figures in hand; flood zone check and insurance quotes during inspection; association review if attached housing; appraisal; closing with the escrow built on post-sale taxes plus assessments. Nothing on that list is exotic, but each item is a number that changes what you can borrow."
         ],
         bullets: [
           "Check the FEMA flood zone even inland — lakes and wetlands create A zones.",
@@ -417,7 +417,7 @@ export const LOCAL_ARTICLES: Article[] = [
       { href: "/calculators/debt-to-income", label: "Debt-to-income calculator" },
       { href: "/mortgage/first-time-home-buyers", label: "First-time buyer loans" },
       { href: "/resources/buying-home-tampa", label: "Buying in Tampa" },
-      { href: "/contact", label: "Talk to TRACT" }
+      { href: "/contact", label: "Talk to us" }
     ],
     publishedAt: "2026-08-18",
     lastReviewed: "2026-08-18"
@@ -443,7 +443,7 @@ export const LOCAL_ARTICLES: Article[] = [
         heading: "VA financing in a Navy town",
         paragraphs: [
           "Naval Station Mayport and Naval Air Station Jacksonville anchor a large military and veteran population in the area, and VA financing is correspondingly common. VA loans allow qualified veterans, service members, and eligible surviving spouses to buy with no down payment and no monthly mortgage insurance, subject to the VA funding fee and the program's occupancy and appraisal requirements.",
-          "VA loans work on riverfront and beach-area properties like any others — the flood insurance mandate in Special Flood Hazard Areas applies to VA loans too, and the VA appraisal includes its own minimum property requirements. TRACT arranges VA loans through participating lenders; eligibility is established with a Certificate of Eligibility, which we can help request."
+          "VA loans work on riverfront and beach-area properties like any others — the flood insurance mandate in Special Flood Hazard Areas applies to VA loans too, and the VA appraisal includes its own minimum property requirements. Wholesale Mortgage Lending arranges VA loans through participating lenders; eligibility is established with a Certificate of Eligibility, which we can help request."
         ]
       },
       {
@@ -463,7 +463,7 @@ export const LOCAL_ARTICLES: Article[] = [
       {
         heading: "Running the process across a huge map",
         paragraphs: [
-          "TRACT is a broker — we arrange Jacksonville loans through wholesale lenders and do not make credit decisions. The sequence: preapproval (with VA eligibility confirmed if applicable), offer, flood zone verification and insurance quotes in inspection, four-point and wind mitigation inspections on older homes, appraisal, closing with taxes estimated post-sale. The city's size means the same budget meets very different cost structures in different quadrants; the checklist is how you compare them honestly."
+          "Wholesale Mortgage Lending is a broker — we arrange Jacksonville loans through wholesale lenders and do not make credit decisions. The sequence: preapproval (with VA eligibility confirmed if applicable), offer, flood zone verification and insurance quotes in inspection, four-point and wind mitigation inspections on older homes, appraisal, closing with taxes estimated post-sale. The city's size means the same budget meets very different cost structures in different quadrants; the checklist is how you compare them honestly."
         ],
         bullets: [
           "Check every candidate address on the FEMA Flood Map Service Center — zones vary block to block near water.",
@@ -521,7 +521,7 @@ export const LOCAL_ARTICLES: Article[] = [
       { href: "/mortgage/va", label: "VA loans" },
       { href: "/calculators/mortgage-payment", label: "Mortgage payment calculator" },
       { href: "/resources/florida-coastal-vs-inland", label: "Coastal vs. inland Florida costs" },
-      { href: "/locations/florida", label: "TRACT in Florida" }
+      { href: "/locations/florida", label: "Wholesale Mortgage Lending in Florida" }
     ],
     publishedAt: "2026-08-18",
     lastReviewed: "2026-08-18"
@@ -554,7 +554,7 @@ export const LOCAL_ARTICLES: Article[] = [
         heading: "Miami-Dade taxes: reassessment, homestead, and non-resident buyers",
         paragraphs: [
           "Miami-Dade County reassesses property at just value when it sells, resetting the prior owner's Save Our Homes cap — so estimate taxes from your purchase price, not the listing's tax history. Primary residents should file for the homestead exemption with the county property appraiser after closing; the Florida Department of Revenue documents the exemption and its early-year deadline.",
-          "Miami also draws many second-home and international buyers, and the mechanics differ for them: no homestead exemption or cap, and different loan programs — second-home, investment, and foreign-national lending each carry their own requirements. TRACT arranges financing across these categories through wholesale lenders; the essential input is an accurate statement of how the property will actually be used."
+          "Miami also draws many second-home and international buyers, and the mechanics differ for them: no homestead exemption or cap, and different loan programs — second-home, investment, and foreign-national lending each carry their own requirements. Wholesale Mortgage Lending arranges financing across these categories through wholesale lenders; the essential input is an accurate statement of how the property will actually be used."
         ]
       },
       {
@@ -567,7 +567,7 @@ export const LOCAL_ARTICLES: Article[] = [
       {
         heading: "Sequencing a Miami purchase",
         paragraphs: [
-          "The order that works: preapproval with occupancy and buyer profile stated accurately; building-level screening before the offer where possible; offer; association documents, flood zone verification, and insurance quotes during the contingency period; project review and appraisal; closing. TRACT is a broker — wholesale lenders make and price the credit decision — and in Miami our leverage is knowing which lenders accept which building profiles, which shortens the distance between offer and clear-to-close."
+          "The order that works: preapproval with occupancy and buyer profile stated accurately; building-level screening before the offer where possible; offer; association documents, flood zone verification, and insurance quotes during the contingency period; project review and appraisal; closing. Wholesale Mortgage Lending is a broker — wholesale lenders make and price the credit decision — and in Miami our leverage is knowing which lenders accept which building profiles, which shortens the distance between offer and clear-to-close."
         ],
         bullets: [
           "Screen the building before the unit: budget, reserves, insurance, inspection reports.",
@@ -594,9 +594,9 @@ export const LOCAL_ARTICLES: Article[] = [
           "Three things: no Florida homestead exemption or Save Our Homes cap, so taxes run on the full assessment; second-home loan programs with their own requirements; and insurance underwriting unchanged. The purchase process is the same otherwise. State the occupancy accurately at preapproval — it determines the available programs."
       },
       {
-        question: "Does TRACT lend in Miami?",
+        question: "Does Wholesale Mortgage Lending lend in Miami?",
         answer:
-          "TRACT arranges loans; we are a broker, not a lender. Wholesale lending partners make, approve, and price the loans. In a project-review-heavy market like Miami, brokerage means matching the building and buyer profile to a lender whose guidelines fit — which is often the difference between a stalled file and a closed one."
+          "No — we are a broker, not a lender. Wholesale lending partners make, approve, and price the loans. In a project-review-heavy market like Miami, brokerage means matching the building and buyer profile to a lender whose guidelines fit — which is often the difference between a stalled file and a closed one."
       }
     ],
     sources: [
@@ -671,7 +671,7 @@ export const LOCAL_ARTICLES: Article[] = [
       {
         heading: "The Cape Coral sequence",
         paragraphs: [
-          "TRACT arranges Cape Coral financing as a broker through wholesale lenders; the lender makes the credit decision. The order that protects you: preapproval; offer with canal type and assessment facts confirmed; flood zone verification, seawall inspection, and full insurance quotes during the contingency period; appraisal; closing with taxes estimated at post-sale assessment plus line-item charges. Waterfront everywhere else is a special case — here it is the standard case, and the process above is simply how the city is bought."
+          "Wholesale Mortgage Lending arranges Cape Coral financing as a broker through wholesale lenders; the lender makes the credit decision. The order that protects you: preapproval; offer with canal type and assessment facts confirmed; flood zone verification, seawall inspection, and full insurance quotes during the contingency period; appraisal; closing with taxes estimated at post-sale assessment plus line-item charges. Waterfront everywhere else is a special case — here it is the standard case, and the process above is simply how the city is bought."
         ],
         bullets: [
           "Pull the FEMA flood zone first; assume nothing from the street address.",
@@ -762,7 +762,7 @@ export const LOCAL_ARTICLES: Article[] = [
         heading: "When the loan is jumbo",
         paragraphs: [
           "Fannie Mae and Freddie Mac can only purchase loans up to the conforming loan limit, a figure the Federal Housing Finance Agency recalculates annually by county. Purchases financed above that limit use jumbo loans, which are common in Naples and follow lender-specific rather than agency guidelines: typically fuller documentation, reserve requirements measured in months of payments, and independent appraisal scrutiny — check FHFA's published values for the applicable limit rather than assuming.",
-          "Jumbo lending is a lender-by-lender landscape, which is where brokerage earns its keep: TRACT arranges jumbo financing through multiple wholesale lenders whose guidelines differ on documentation, reserves, and property types. We do not make or approve loans; we match the file to a lender whose rules fit it."
+          "Jumbo lending is a lender-by-lender landscape, which is where brokerage earns its keep: Wholesale Mortgage Lending arranges jumbo financing through multiple wholesale lenders whose guidelines differ on documentation, reserves, and property types. We do not make or approve loans; we match the file to a lender whose rules fit it."
         ]
       },
       {
@@ -879,7 +879,7 @@ export const LOCAL_ARTICLES: Article[] = [
       {
         heading: "A structural comparison checklist",
         paragraphs: [
-          "TRACT arranges financing for both profiles through wholesale lenders — we broker rather than lend — and the comparison we help buyers run is structural, not predictive. No premium or tax figure here is stable enough to print; every one of them is quotable within days for a specific address, which is the only version worth relying on."
+          "Wholesale Mortgage Lending arranges financing for both profiles through wholesale lenders — we broker rather than lend — and the comparison we help buyers run is structural, not predictive. No premium or tax figure here is stable enough to print; every one of them is quotable within days for a specific address, which is the only version worth relying on."
         ],
         bullets: [
           "Pull the FEMA zone for every candidate address: A or V means mandatory flood insurance on federally backed loans.",
@@ -943,7 +943,7 @@ export const LOCAL_ARTICLES: Article[] = [
       { href: "/calculators/mortgage-payment", label: "Mortgage payment calculator" },
       { href: "/resources/buying-home-cape-coral", label: "Buying in Cape Coral" },
       { href: "/resources/buying-home-orlando", label: "Buying in Orlando" },
-      { href: "/locations/florida", label: "TRACT in Florida" }
+      { href: "/locations/florida", label: "Wholesale Mortgage Lending in Florida" }
     ],
     publishedAt: "2026-08-18",
     lastReviewed: "2026-08-18"
@@ -989,7 +989,7 @@ export const LOCAL_ARTICLES: Article[] = [
       {
         heading: "Working the purchase from a distance",
         paragraphs: [
-          "TRACT arranges Florida financing as a broker — wholesale lenders make, approve, and price the loans — and remote buyers are a routine part of our work rather than an exception. The sequence that keeps a long-distance file smooth: preapproval with occupancy and timeline stated plainly; address-level flood zone checks before each offer; a thorough local inspection slate; insurance shopping opened at contract; a closing method chosen early (mail-away or remote online notarization); and homestead filing calendared for after the move."
+          "Wholesale Mortgage Lending arranges Florida financing as a broker — wholesale lenders make, approve, and price the loans — and remote buyers are a routine part of our work rather than an exception. The sequence that keeps a long-distance file smooth: preapproval with occupancy and timeline stated plainly; address-level flood zone checks before each offer; a thorough local inspection slate; insurance shopping opened at contract; a closing method chosen early (mail-away or remote online notarization); and homestead filing calendared for after the move."
         ],
         bullets: [
           "Verify each address's flood zone on the FEMA Flood Map Service Center before offering.",

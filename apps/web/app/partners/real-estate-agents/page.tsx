@@ -93,7 +93,7 @@ export default function AgentPartnerPage() {
         <div className="flex flex-wrap items-center justify-between gap-6">
           <div className="max-w-xl">
             <h2 className="text-lg font-semibold text-[var(--text)]">
-              The TRACT agent directory is open
+              Our agent directory is open
             </h2>
             <p className="mt-2 text-sm text-[var(--text-muted)]">
               List your profile, and when a buyer asks to work with you we make the introduction
@@ -111,6 +111,31 @@ export default function AgentPartnerPage() {
           </div>
         </div>
       </Card>
+
+      {/*
+        Coverage registration is the marketplace foundation: an approved partner
+        claims the ZIPs they cover so introductions can route by area. Gated on
+        the marketplace flag so it stays dark until the surface is turned on, and
+        framed as coverage — never a paid or exclusive territory (RESPA, and the
+        no-payment posture stated below).
+      */}
+      {features.agentMarketplace && (
+        <Card className="mb-10 border-[var(--purple)] bg-[var(--purple-subtle)]">
+          <div className="flex flex-wrap items-center justify-between gap-6">
+            <div className="max-w-xl">
+              <h2 className="text-lg font-semibold text-[var(--text)]">Claim your ZIP codes</h2>
+              <p className="mt-2 text-sm text-[var(--text-muted)]">
+                Tell us the areas you cover and, as routing turns on, seller and buyer introductions
+                in those ZIPs can come to you. Coverage only — no per-lead fees, no bidding, and no
+                exclusive territories.
+              </p>
+            </div>
+            <ButtonLink href="/agents/coverage" data-cta="agent-partner-claim-zips">
+              Manage my coverage
+            </ButtonLink>
+          </div>
+        </Card>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-3">
         {VALUE.map((item) => (

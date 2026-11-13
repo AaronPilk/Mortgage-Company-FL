@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Prose, Section } from "@/components/ui";
+import { LicensingFacts, NmlsVerifyLinks } from "@/components/licensing-facts";
 import { pageMetadata } from "@/lib/metadata";
+import { businessIdentity } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata({
   title: "Licensing",
@@ -22,7 +24,7 @@ export default function Page() {
         Draft. This page requires review by qualified counsel before launch.
       </p>
       <h1 className="text-4xl font-bold">Licensing</h1>
-      <p className="mt-3 text-sm text-[var(--text-muted)]">Last updated 17 August 2026.</p>
+      <p className="mt-3 text-sm text-[var(--text-muted)]">Last updated 12 November 2026.</p>
       <div className="mt-8">
         <Prose>
           <h2>Verify us independently</h2>
@@ -32,10 +34,16 @@ export default function Page() {
           </p>
           <h2>Current status</h2>
           <p>
-            Our company license identifiers appear in the footer of every page. Where a value shows
-            as pending, that means it has not yet been issued and confirmed on the public record. We
-            do not display a license number before it exists.
+            {businessIdentity.legalName} is listed in NMLS under the company NMLS ID below. These
+            identifiers also appear in the footer of every page. Where a value shows as pending, we
+            have not yet confirmed it ourselves, so we do not display it.
           </p>
+        </Prose>
+        <div className="my-6 space-y-2">
+          <LicensingFacts originator />
+          <NmlsVerifyLinks originator />
+        </div>
+        <Prose>
           <h2>Individual loan originators</h2>
           <p>
             Mortgage loan origination requires an individual license, separate from the company

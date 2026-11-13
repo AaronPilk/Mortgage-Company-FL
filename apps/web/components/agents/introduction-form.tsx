@@ -111,6 +111,11 @@ export function AgentIntroductionForm({
       email: core.email,
       phone: core.phone,
       message: `Requested an introduction to agent ${agentSlug} (${cities})`,
+      // The profile being viewed is the referring agent for this lead. The
+      // server only honors it as a CRM tag when the slug resolves to a
+      // consenting partner, so an unclaimed public-record profile still routes
+      // the introduction but adds no partner attribution.
+      referringAgentSlug: agentSlug,
       consent,
       firstTouch: submission.firstTouch,
       lastTouch: submission.lastTouch,
@@ -159,8 +164,8 @@ export function AgentIntroductionForm({
       >
         <h3 className="text-2xl font-bold text-[var(--text)]">We have your request</h3>
         <p className="mt-3 text-[var(--text-muted)]">
-          A TRACT team member will reach out and personally make the introduction. Your contact
-          details go to TRACT, not to the agent, until you say so.
+          Someone from our team will reach out and personally make the introduction. Your contact
+          details go to us, not to the agent, until you say so.
         </p>
       </div>
     );
@@ -184,8 +189,8 @@ export function AgentIntroductionForm({
         Want to work with {agentFirstName}? We&rsquo;ll introduce you.
       </h3>
       <p className="mt-2 text-sm text-[var(--text-muted)]">
-        Tell us how to reach you and a TRACT team member makes the introduction personally. This is
-        not an application, and we do not pull your credit from this form.
+        Tell us how to reach you and someone from our team makes the introduction personally. This
+        is not an application, and we do not pull your credit from this form.
       </p>
 
       {state.kind === "error" && (

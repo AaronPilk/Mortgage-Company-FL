@@ -418,8 +418,9 @@ export function AgentJoinForm() {
             className="mt-1 size-4 shrink-0 accent-[var(--purple)]"
           />
           <span>
-            Show my profile in the TRACT agent directory. Your name, brokerage, cities, bio, and
-            license status appear publicly after review — never your phone number or email address.
+            Show my profile in the Wholesale Mortgage Lending agent directory. Your name, brokerage,
+            cities, bio, and license status appear publicly after review — never your phone number
+            or email address.
           </span>
         </label>
       </fieldset>

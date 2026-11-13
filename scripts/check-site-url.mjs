@@ -80,5 +80,29 @@ if (/^(localhost|127\.|0\.0\.0\.0|\[?::1)/i.test(url.hostname)) {
   fail(`NEXT_PUBLIC_SITE_URL points at a local host (from ${source}): ${raw}`);
 }
 
+// One domain (ADR-011). The company URL predates the consolidation and some
+// callers still read it; if it ever drifted from the site URL, the landing and
+// the rest of the app would canonicalise to two different origins again.
+const companyRaw = (
+  process.env.NEXT_PUBLIC_COMPANY_URL ??
+  fileValues.NEXT_PUBLIC_COMPANY_URL ??
+  ""
+).trim();
+if (companyRaw !== "") {
+  let companyOrigin;
+  try {
+    companyOrigin = new URL(companyRaw).origin;
+  } catch {
+    fail(`NEXT_PUBLIC_COMPANY_URL is not a valid URL: ${companyRaw}`);
+  }
+  if (companyOrigin !== url.origin) {
+    fail(
+      `NEXT_PUBLIC_COMPANY_URL (${companyOrigin}) differs from NEXT_PUBLIC_SITE_URL (${url.origin})`,
+      "The site runs on one canonical domain (docs/architecture/decisions.md ADR-011).\n" +
+        "Set both to the same origin."
+    );
+  }
+}
+
 process.env.NEXT_PUBLIC_SITE_URL = url.origin;
 console.log(`cf:build: canonical origin is ${url.origin} (from ${source})`);

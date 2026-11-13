@@ -80,28 +80,83 @@ function technicalGates(): Gate[] {
     },
     {
       area: "Platform",
+      item: "Property data (ATTOM) agreement in place",
+      state: state.attom === "fixture" || state.attom === "disabled" ? "blocked" : "approved",
+      owner: "founders",
+      note: "Home lookup runs on labelled sample data until a licensed ATTOM key is set; fixtures are never presented as a real property record."
+    },
+    {
+      area: "Platform",
+      item: "Rate feed live and market-rate display reviewed",
+      state:
+        state.rateFeed === "fixture" || state.rateFeed === "disabled" ? "blocked" : "in_progress",
+      owner: "compliance",
+      note: "The rate-watch surface shows a published national weekly average (Freddie Mac PMMS via FRED), never a quote. It stays dark until a live feed is set and advertising review clears the public display of market rates."
+    },
+    {
+      area: "Platform",
       item: "AI provider budgets and quotas provisioned",
       state: state.ai === "disabled" ? "not_applicable" : "in_progress",
       owner: "engineering",
       note: "Spend is reserved before any provider call and a kill switch exists per feature and per provider."
+    },
+    {
+      area: "Platform",
+      item: "Engagement email alerts live and reviewed",
+      state: !state.emailAlerts
+        ? "not_applicable"
+        : state.email === "disabled"
+          ? "blocked"
+          : "in_progress",
+      owner: "compliance",
+      note: "Cron-driven value-move and rate-cross emails. Dark until FEATURE_EMAIL_ALERTS and a live EMAIL_MODE are both set; every send is consent-gated, suppression-checked, reserved before spend, and carries one-click unsubscribe."
+    },
+    {
+      area: "Platform",
+      item: "Server-side conversions (Meta CAPI) connected",
+      state:
+        state.metaCapi === "production"
+          ? "approved"
+          : state.metaCapi === "disabled"
+            ? "not_applicable"
+            : "in_progress",
+      owner: "compliance",
+      note: "Sends hashed identifiers to Meta on consented leads only — never raw PII or any financial field. Paid-advertising infrastructure: it stays dark until the advertising-review gate operates and licensing clears."
+    },
+    {
+      area: "Platform",
+      item: "Agent partner referral dashboard",
+      state: !state.agentDashboard ? "not_applicable" : "in_progress",
+      owner: "engineering",
+      note: "A signed-in partner sees coarse counts and recency of the leads their link drove — no consumer identity. Dark behind FEATURE_AGENT_DASHBOARD (+accounts); scoped by RLS and an application check."
     }
   ];
+}
+
+/**
+ * A licensing fact the owner has stated is ready for review, not approved: the
+ * board shows "approved" only once the public NMLS record is confirmed, which is
+ * what nmlsRecordPublic records (owner-confirmed 12 Nov 2026, ADR-012).
+ */
+function ownerStated(stated: boolean): State {
+  if (!stated) return "blocked";
+  return licensingStatus.nmlsRecordPublic ? "approved" : "ready";
 }
 
 const HUMAN_GATES: Gate[] = [
   {
     area: "Licensing",
     item: "Florida mortgage broker company license issued",
-    state: licensingStatus.companyLicensed ? "approved" : "blocked",
+    state: ownerStated(licensingStatus.companyLicensed),
     owner: "principal_loan_originator",
-    note: "Separate from any individual MLO license. Evidence: the issued license and the public NMLS record."
+    note: "Separate from any individual MLO license. License MBR8794 and the public NMLS record confirmed by the owner on 12 Nov 2026 (Consumer Access blocks automated lookup, so not read back by engineering). Evidence to attach: the issued license."
   },
   {
     area: "Licensing",
     item: "Principal loan originator designated and accepted by OFR",
-    state: licensingStatus.principalLoanOriginatorNamed ? "approved" : "blocked",
+    state: ownerStated(licensingStatus.principalLoanOriginatorNamed),
     owner: "principal_loan_originator",
-    note: "A designation the regulator must accept. Not the same as an individual holding an active MLO license."
+    note: "A designation the regulator must accept. Not the same as an individual holding an active MLO license. Marked from the owner's 12 Nov 2026 statement: Daniel Michael Cuesta (NMLS ID 132852) is the originator named, and a Florida broker license is not issued without a principal loan originator."
   },
   {
     area: "Licensing",
@@ -115,7 +170,7 @@ const HUMAN_GATES: Gate[] = [
     item: "Company NMLS record public on Consumer Access",
     state: licensingStatus.nmlsRecordPublic ? "approved" : "blocked",
     owner: "principal_loan_originator",
-    note: `Until this is true, the site shows license fields as pending rather than displaying a number. Current value: ${businessIdentity.nmlsId ?? "none"}.`
+    note: `Confirmed public by the owner on 12 Nov 2026 for NMLS ID ${businessIdentity.nmlsId ?? "none"}; Consumer Access blocks automated lookup, so engineering could not read it back. Re-verify at each renewal.`
   },
   {
     area: "Legal",

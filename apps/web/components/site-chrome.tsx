@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { Wordmark } from "./wordmark";
 import { ThemeToggle } from "./theme-toggle";
-import { ButtonLink, LicenseFact } from "./ui";
+import { MobileNav } from "./mobile-nav";
+import { ButtonLink } from "./ui";
+import { LicensingFacts, NmlsVerifyLinks } from "./licensing-facts";
 import { businessIdentity, isPreLaunch } from "@/lib/site";
 import { createRequestClient } from "@/lib/supabase";
 
@@ -14,7 +16,7 @@ const PRIMARY_NAV = [
   { href: "/mortgage/home-equity", label: "Home equity" },
   { href: "/calculators", label: "Calculators" },
   { href: "/resources", label: "Resources" },
-  { href: "/partners/real-estate-agents", label: "For agents" },
+  { href: "/partners/real-estate-agents", label: "Agent partners" },
   { href: "/about", label: "About" }
 ];
 
@@ -43,12 +45,25 @@ const FOOTER_GROUPS = [
   {
     heading: "Tools",
     links: [
+      { href: "/properties", label: "Search homes" },
       { href: "/plan", label: "Mortgage planner" },
+      { href: "/calculators", label: "All calculators" },
       { href: "/calculators/mortgage-payment", label: "Payment" },
       { href: "/calculators/affordability", label: "Affordability" },
-      { href: "/calculators/refinance-break-even", label: "Refinance break-even" },
-      { href: "/calculators/rent-vs-buy", label: "Rent vs buy" },
-      { href: "/calculators/closing-cost", label: "Cash to close" }
+      { href: "/calculators/refinance-break-even", label: "Refinance break-even" }
+    ]
+  },
+  {
+    heading: "Explore",
+    links: [
+      { href: "/resources", label: "Guides & resources" },
+      { href: "/mortgage-glossary", label: "Mortgage glossary" },
+      { href: "/florida-buyers-guide", label: "First-time buyer's guide" },
+      { href: "/mortgage", label: "All loan programs" },
+      { href: "/locations/florida", label: "Florida" },
+      { href: "/vision", label: "Home Vision" },
+      { href: "/rendprop", label: "RendProp tours" },
+      { href: "/talk", label: "Talk to us" }
     ]
   },
   {
@@ -56,8 +71,10 @@ const FOOTER_GROUPS = [
     links: [
       { href: "/about", label: "About" },
       { href: "/contact", label: "Contact" },
+      { href: "/account", label: "Client login" },
       { href: "/agents", label: "Find an agent" },
       { href: "/agents/join", label: "Join as an agent" },
+      { href: "/partners/real-estate-agents", label: "For agents" },
       { href: "/licenses", label: "Licensing" },
       { href: "/disclosures", label: "Disclosures" },
       { href: "/security", label: "Security" }
@@ -98,72 +115,69 @@ export async function SiteHeader() {
   const signedIn = await hasSignedInUser();
   const accountLabel = signedIn ? "My account" : "Sign in";
   return (
-    <header className="glass sticky top-0 z-40">
-      <div className="container-wide flex items-center justify-between gap-6 py-3.5">
-        <Link href="/" aria-label={`${businessIdentity.brandName} home`}>
-          <Wordmark />
-        </Link>
+    // z-[60]: the open mobile menu (a child of this header) must paint over
+    // the fixed bottom action bar, which sits at z-50.
+    <header className="glass sticky top-0 z-[60]">
+      <div className="container-wide flex items-center justify-between gap-4 py-3.5">
+        {/* The wordmark leads home. A plain <a>, not <Link>: on wsmlending.com
+            "/" is the landing, which renders its own chrome (ADR-011), and a
+            client-side transition would keep this header around it. */}
+        <a href="/" aria-label={`${businessIdentity.name} home`} className="shrink-0">
+          <Wordmark variant="site" />
+        </a>
 
-        <nav aria-label="Primary" className="hidden items-center gap-1 lg:flex">
+        {/*
+          Eight primary links plus the CTA cluster only clear the 88rem
+          container above ~1320px; below that they wrapped mid-label. So the
+          inline nav appears at min-[1360px] (with headroom for a scrollbar and
+          font variance) and the menu button covers every narrower window.
+          whitespace-nowrap is the belt to that braces: a label never breaks
+          across two lines even at the tightest inline width.
+        */}
+        <nav aria-label="Primary" className="hidden items-center gap-1 min-[1360px]:flex">
           {PRIMARY_NAV.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="rounded-lg px-3.5 py-2 text-sm font-medium transition-colors hover:bg-[var(--purple-subtle)] hover:text-[var(--purple)]"
+              className="whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-[var(--purple-subtle)] hover:text-[var(--purple)]"
             >
               {item.label}
             </Link>
           ))}
         </nav>
 
-        <div className="flex items-center gap-2.5">
-          {/* Quiet on purpose: the account is an amenity here, not the product. */}
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          {/* Quiet on purpose: the account is an amenity here, not the product.
+              A signed-in borrower's loan lives one level in, on /account —
+              there is no separate loan entry in the header. */}
           <Link
             href="/account"
             data-nav="account"
-            className="hidden rounded-lg px-3.5 py-2 text-sm font-medium transition-colors hover:bg-[var(--purple-subtle)] hover:text-[var(--purple)] lg:block"
+            className="hidden whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-[var(--purple-subtle)] hover:text-[var(--purple)] min-[1360px]:block"
           >
             {accountLabel}
           </Link>
-          <ThemeToggle />
+          {/* Below the inline-nav breakpoint the theme control lives inside the
+              menu; the header row keeps only the brand, the primary CTA, and
+              the menu button. */}
+          <div className="hidden min-[1360px]:block">
+            <ThemeToggle />
+          </div>
           {/*
             One button, four audiences. /talk asks what the visitor is here for
             and routes each answer to the funnel built for it, which converts
             better than dropping everyone on a generic contact form.
           */}
-          <ButtonLink href="/talk" data-cta="header-consultation" className="!min-h-[42px] !px-5">
+          <ButtonLink
+            href="/talk"
+            data-cta="header-consultation"
+            className="whitespace-nowrap !min-h-[44px] !px-4 sm:!px-5"
+          >
             Talk to us
           </ButtonLink>
+          <MobileNav items={PRIMARY_NAV} accountLabel={accountLabel} />
         </div>
       </div>
-
-      <nav
-        aria-label="Primary mobile"
-        className="lg:hidden"
-        style={{ borderTop: "1px solid var(--border)" }}
-      >
-        <ul className="container-wide flex gap-1 overflow-x-auto py-2 text-sm">
-          {PRIMARY_NAV.map((item) => (
-            <li key={item.href} className="shrink-0">
-              <Link
-                href={item.href}
-                className="block rounded-lg px-3 py-1.5 font-medium hover:text-[var(--purple)]"
-              >
-                {item.label}
-              </Link>
-            </li>
-          ))}
-          <li className="shrink-0">
-            <Link
-              href="/account"
-              data-nav="account"
-              className="block rounded-lg px-3 py-1.5 font-medium hover:text-[var(--purple)]"
-            >
-              {accountLabel}
-            </Link>
-          </li>
-        </ul>
-      </nav>
     </header>
   );
 }
@@ -180,10 +194,10 @@ export function PreLaunchNotice() {
   return (
     <div
       role="status"
-      className="relative px-4 py-2.5 text-center text-sm font-medium text-white"
+      className="relative px-4 py-2 text-center text-xs font-medium text-white sm:py-2.5 sm:text-sm"
       style={{ background: "linear-gradient(90deg, var(--purple-dark), var(--purple))" }}
     >
-      {businessIdentity.brandName} is pre-launch — not yet accepting mortgage applications, and
+      {businessIdentity.legalName} is pre-launch — not yet accepting mortgage applications, and
       nothing here is an offer of credit or a rate quote.
     </div>
   );
@@ -195,14 +209,36 @@ export function SiteFooter() {
       className="relative mt-24"
       style={{ borderTop: "1px solid var(--border)", background: "var(--surface)" }}
     >
-      <div className="container-wide py-16">
-        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-5">
-          <div>
+      <div className="container-wide py-12 sm:py-16">
+        {/*
+          Two columns on a phone, not one. Four single-column link groups made
+          the footer several screens tall; the labels are short enough to pair.
+        */}
+        <div className="grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-5 lg:gap-12">
+          <div className="col-span-2 lg:col-span-1">
             <Wordmark />
             <p className="mt-5 max-w-xs text-sm" style={{ color: "var(--text-muted)" }}>
               A Florida mortgage brokerage. We help buyers and homeowners compare financing paths
               with clear tools and direct guidance.
             </p>
+            {businessIdentity.email !== null && (
+              <a
+                href={"mailto:" + businessIdentity.email}
+                className="mt-4 block text-sm font-medium transition-colors hover:text-[var(--purple)]"
+                style={{ color: "var(--text-muted)" }}
+              >
+                {businessIdentity.email}
+              </a>
+            )}
+            {/* A plain anchor, not <Link>: the landing renders different chrome,
+                and a client-side transition would keep this layout's header. */}
+            <a
+              href="/"
+              className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold transition-colors hover:opacity-80"
+              style={{ color: "var(--purple)" }}
+            >
+              Go to the homepage →
+            </a>
           </div>
           {FOOTER_GROUPS.map((group) => (
             <nav key={group.heading} aria-label={group.heading}>
@@ -233,23 +269,9 @@ export function SiteFooter() {
 
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-x-8 gap-y-2">
-            <LicenseFact label="Company NMLS ID" value={businessIdentity.nmlsId} />
-            <LicenseFact
-              label="Florida mortgage broker license"
-              value={businessIdentity.companyLicenseId}
-            />
+            <LicensingFacts originator />
           </div>
-          <p className="text-sm">
-            <a
-              className="font-medium underline underline-offset-4"
-              style={{ color: "var(--purple)" }}
-              href="https://www.nmlsconsumeraccess.org/"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              Verify our licensing on NMLS Consumer Access
-            </a>
-          </p>
+          <NmlsVerifyLinks originator />
           {/*
             A broker arranges credit; it does not lend. The Equal Housing wording
             here is the Opportunity form, never "Equal Housing Lender", because
@@ -257,7 +279,7 @@ export function SiteFooter() {
           */}
           <p className="text-sm font-semibold">Equal Housing Opportunity.</p>
           <p className="max-w-3xl text-xs leading-relaxed" style={{ color: "var(--text-muted)" }}>
-            {businessIdentity.brandName} is a mortgage brokerage. We arrange, but do not make,
+            {businessIdentity.legalName} is a mortgage brokerage. We arrange, but do not make,
             mortgage loans. All figures shown on this site are estimates based on information you
             provide and are not an offer of credit, a rate quote, a preapproval, or a commitment to
             lend. Loan approval, terms, and availability depend on the lender, the loan program, the

@@ -18,7 +18,7 @@ export default function Page() {
         eyebrow="Calculator"
         title="Does the rent cover the payment?"
         gradientWord="cover the payment"
-        description="Debt service coverage is gross rent divided by principal, interest, taxes, insurance, and association dues. The reference bands shown are general market description, not TRACT underwriting. It runs entirely in your browser."
+        description="Debt service coverage is gross rent divided by principal, interest, taxes, insurance, and association dues. The reference bands shown are general market description, not underwriting rules. It runs entirely in your browser."
       />
       <DscrCalculator />
     </Section>

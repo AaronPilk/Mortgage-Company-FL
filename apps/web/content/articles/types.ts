@@ -20,8 +20,9 @@
  * - Every checkable claim traces to one of `sources`. A source is a primary
  *   authority (HUD, CFPB, VA, USDA, Fannie, Freddie, a Florida agency), not a
  *   competitor's blog.
- * - Educational voice, broker-accurate: TRACT arranges loans and does not make
- *   them, approve them, or set their prices.
+ * - Educational voice, broker-accurate: Wholesale Mortgage Lending arranges
+ *   loans and does not make them, approve them, or set their prices. The
+ *   company name is the only brand in copy (ADR-014); "we" is fine after it.
  */
 
 export type ArticleCategory =

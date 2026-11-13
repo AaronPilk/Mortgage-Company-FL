@@ -20,20 +20,37 @@ suite is not permission to originate.
 Florida distinguishes several things that are easy to conflate. Track them
 separately and never let one imply another.
 
-| Gate                                                                                        | State   | Evidence required     |
-| ------------------------------------------------------------------------------------------- | ------- | --------------------- |
-| Legal entity formed, DBA registered if used                                                 | BLOCKED | Filing records        |
-| Company NMLS record created                                                                 | BLOCKED | NMLS record           |
-| Florida mortgage broker **company** licence issued                                          | BLOCKED | Issued licence        |
-| Principal loan originator designated and accepted by OFR                                    | BLOCKED | OFR acceptance        |
-| Individual MLO licence active — Dan                                                         | BLOCKED | NMLS Consumer Access  |
-| Individual MLO licence active — technical founder                                           | BLOCKED | Education, test, NMLS |
-| Each MLO properly employed / sponsored / associated in NMLS                                 | BLOCKED | NMLS record           |
-| Licensed principal place of business established                                            | BLOCKED | Licence record        |
-| Branch licences, if any location requires one                                               | BLOCKED | Licence records       |
-| Remote-work policy and access controls approved                                             | BLOCKED | Written policy        |
-| Lender approvals and executed broker agreements for every product offered                   | BLOCKED | Executed agreements   |
-| Renewal, continuing education, Mortgage Call Report, and change-reporting calendar in place | BLOCKED | Calendar with owners  |
+| Gate                                                                                        | State    | Evidence required     |
+| ------------------------------------------------------------------------------------------- | -------- | --------------------- |
+| Legal entity formed, DBA registered if used                                                 | BLOCKED  | Filing records        |
+| Company NMLS record created                                                                 | APPROVED | NMLS record           |
+| Florida mortgage broker **company** licence issued                                          | APPROVED | Issued licence        |
+| Principal loan originator designated and accepted by OFR                                    | APPROVED | OFR acceptance        |
+| Individual MLO licence active — Dan                                                         | BLOCKED  | NMLS Consumer Access  |
+| Individual MLO licence active — technical founder                                           | BLOCKED  | Education, test, NMLS |
+| Each MLO properly employed / sponsored / associated in NMLS                                 | BLOCKED  | NMLS record           |
+| Licensed principal place of business established                                            | BLOCKED  | Licence record        |
+| Branch licences, if any location requires one                                               | BLOCKED  | Licence records       |
+| Remote-work policy and access controls approved                                             | BLOCKED  | Written policy        |
+| Lender approvals and executed broker agreements for every product offered                   | BLOCKED  | Executed agreements   |
+| Renewal, continuing education, Mortgage Call Report, and change-reporting calendar in place | BLOCKED  | Calendar with owners  |
+
+**2026-11-12 status note.** The owner stated the company is licensed and relayed
+a screenshot of Dan's NMLS portal account list: Wholesale Mortgage Lending LLC,
+company NMLS ID 2898263; Daniel Michael Cuesta, NMLS ID 132852. The company
+NMLS record, company licence and principal loan originator rows moved to READY
+FOR REVIEW on that basis, not APPROVED (the PLO row by inference: Florida does
+not issue a broker business licence without one, and Dan is the only originator
+named). The Florida licence number was not provided, and nobody has read the
+record back on NMLS Consumer Access (it blocks automated lookup). `nmlsRecordPublic` stays false in code, so
+the site remains in its pre-launch state. See ADR-012.
+
+**2026-11-12, later: approved.** Approver: Aaron Pilkington (owner). He
+confirmed MBR8794 is the Florida company licence and that the Consumer Access
+record for NMLS ID 2898263 is public. Evidence:
+https://www.nmlsconsumeraccess.org/EntityDetails.aspx/COMPANY/2898263 (not read
+back by engineering; Consumer Access blocks automated lookup). The three rows
+above are APPROVED on that basis; re-verify at each renewal.
 
 **The company licence is not an individual licence. An individual MLO licence is
 not authority for the company. A principal loan originator designation is a

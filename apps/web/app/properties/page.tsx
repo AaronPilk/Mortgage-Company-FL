@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { ButtonLink, Card, CtaPanel, Disclosure, Section, SectionHeading } from "@/components/ui";
 import { pageMetadata } from "@/lib/metadata";
 import { publicFeatures } from "@/lib/env";
@@ -19,7 +20,7 @@ import { GalleryPlaceholder } from "@/components/properties/gallery-placeholder"
 import { ListingCard } from "@/components/properties/listing-card";
 import { ListingPagination } from "@/components/properties/pagination";
 import { SampleDataBanner } from "@/components/properties/sample-data-notice";
-import { SearchFilters } from "@/components/properties/search-filters";
+import { ActiveFilterChips, SearchFilters } from "@/components/properties/search-filters";
 import { formatTimestamp } from "@/components/properties/listing-format";
 
 export const metadata: Metadata = pageMetadata({
@@ -141,6 +142,27 @@ export default async function PropertiesPage({
             anonKey={anonKey}
           />
         </div>
+        {features.homeLookup && (
+          <div className="mx-auto mt-8 max-w-3xl">
+            <Link
+              href="/home-lookup"
+              className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-5 text-left transition-colors hover:border-[var(--purple)]"
+              style={{ borderColor: "var(--purple)", background: "var(--purple-subtle)" }}
+            >
+              <span>
+                <span className="block font-semibold" style={{ color: "var(--text)" }}>
+                  Already found one on Zillow or Redfin?
+                </span>
+                <span className="block text-sm" style={{ color: "var(--text-muted)" }}>
+                  Paste the link and we&apos;ll pull the price, taxes, and monthly payment.
+                </span>
+              </span>
+              <span className="shrink-0 text-sm font-semibold" style={{ color: "var(--purple)" }}>
+                Look it up →
+              </span>
+            </Link>
+          </div>
+        )}
         <div className="mx-auto mt-12 max-w-3xl">
           <SampleDataBanner scope="search" />
         </div>
@@ -148,12 +170,13 @@ export default async function PropertiesPage({
 
       <Section pad="tight">
         <SearchFilters criteria={criteria} />
+        <ActiveFilterChips criteria={criteria} />
 
         {!valid && (
           <p
             role="status"
             className="mt-4 text-sm font-medium"
-            style={{ color: "var(--color-warning)" }}
+            style={{ color: "var(--color-warning-text)" }}
           >
             Part of that link could not be read, so the filters it could not parse were ignored.
           </p>
@@ -184,6 +207,7 @@ export default async function PropertiesPage({
               signedIn={signedIn}
               search={criteriaToQueryString(criteria)}
               accountsConfigured={accountsConfigured}
+              alertsAvailable={features.savedSearchAlerts}
               supabaseUrl={supabaseUrl}
               anonKey={anonKey}
             />
@@ -194,8 +218,9 @@ export default async function PropertiesPage({
           <AccountNudgeBanner supabaseUrl={supabaseUrl} anonKey={anonKey} />
         )}
 
+        <h2 className="sr-only">Search results</h2>
         {page.items.length > 0 ? (
-          <ul className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="mt-6 grid gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {page.items.map((listing) => (
               <ListingCard
                 key={`${listing.provider}:${listing.listingKey}`}

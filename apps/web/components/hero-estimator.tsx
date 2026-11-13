@@ -201,7 +201,7 @@ export function HeroEstimator() {
         <Link
           href={`/plan?price=${price}&down=${downPercent}`}
           data-cta="hero-estimator-continue"
-          className="mt-4 inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl font-semibold text-white transition-all duration-200 hover:-translate-y-0.5"
+          className="mt-4 inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl font-semibold text-white transition duration-200 hover:-translate-y-0.5"
           style={{ background: "var(--purple)", boxShadow: "0 4px 14px var(--purple-glow)" }}
         >
           Build this into a full plan

@@ -1,0 +1,21 @@
+# Continuous dependency monitoring.
+#
+# `pnpm audit` in CI is a point-in-time check; this opens PRs as new advisories
+# and versions land, so a transitive CVE cannot sit undiscovered between manual
+# audits. Patch/minor bumps are grouped so a security-relevant major stands out.
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

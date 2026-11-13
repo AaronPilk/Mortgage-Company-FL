@@ -54,7 +54,7 @@ export const CONDO_ARTICLES: Article[] = [
         paragraphs: [
           "Reviewers also look at who owns and occupies the building. A high share of investor-owned units, a single entity owning many units, extensive commercial space, or ongoing developer control can each move a project outside standard eligibility, because each concentrates risk: investors walk away from assessments more readily than residents, and one overextended bulk owner can destabilize the whole budget.",
           "None of these factors is about your qualifications. They are about how the project would behave in a downturn, and the agencies price and gate accordingly. The occupancy tests that apply depend on how you will use the unit — a primary-residence purchase is reviewed more leniently on this axis than an investment purchase.",
-          "The practical takeaway: in Florida, choose the building as carefully as the unit. TRACT is a mortgage broker, not a lender — we arrange condo financing through wholesale lenders and can often tell you early which review path a building is likely to need, but the lender, not TRACT, makes the credit decision on both you and the project."
+          "The practical takeaway: in Florida, choose the building as carefully as the unit. Wholesale Mortgage Lending is a mortgage broker, not a lender — we arrange condo financing through wholesale lenders and can often tell you early which review path a building is likely to need, but the lender, not us, makes the credit decision on both you and the project."
         ]
       }
     ],
@@ -76,9 +76,10 @@ export const CONDO_ARTICLES: Article[] = [
           "Three reasons compound: property insurance costs and deductibles strain association budgets, Fannie Mae applies Florida-specific project rules including its own approval requirement for new attached condo projects, and the state's milestone inspection and structural reserve study laws surface building-condition information that underwriters must act on. Buildings that manage all three well remain very financeable."
       },
       {
-        question: "Does TRACT decide whether my building passes project review?",
+        question:
+          "Does Wholesale Mortgage Lending decide whether my building passes project review?",
         answer:
-          "No. TRACT is a broker — we arrange financing through wholesale lenders, package the project documents, and match the building's profile to lenders whose guidelines fit it. The lender and, for some programs, the agency perform the actual project review and make the credit decision."
+          "No. We are a broker — we arrange financing through wholesale lenders, package the project documents, and match the building's profile to lenders whose guidelines fit it. The lender and, for some programs, the agency perform the actual project review and make the credit decision."
       }
     ],
     sources: [
@@ -99,7 +100,7 @@ export const CONDO_ARTICLES: Article[] = [
       }
     ],
     related: [
-      { href: "/mortgage/condo", label: "Condo financing with TRACT" },
+      { href: "/mortgage/condo", label: "Condo financing with us" },
       {
         href: "/resources/warrantable-vs-non-warrantable",
         label: "Warrantable vs. non-warrantable condos"
@@ -159,7 +160,7 @@ export const CONDO_ARTICLES: Article[] = [
         paragraphs: [
           "Florida's coastal markets produce non-warrantable findings at a high rate: short-term rental economies, investor-heavy buildings, aging structures working through inspection findings, and insurance markets that strain master policies. None of this is exotic here. A finding of non-warrantability is the beginning of a financing conversation, not the end of one.",
           "The order of operations matters. Discover the project's status before your deposit goes hard, not at day twenty-five of a thirty-day contract. The condo questionnaire, budget, and insurance certificates can be requested early, and Florida's resale disclosure framework entitles buyers to core association documents with a statutory review window.",
-          "As a broker, TRACT works both sides of this line: agency financing where the project qualifies, and non-agency lenders where it does not. We arrange the loan and assemble the project file; the lender makes the credit decision. If a building's status is uncertain, pricing both paths early keeps your contract dates honest."
+          "As a broker, Wholesale Mortgage Lending works both sides of this line: agency financing where the project qualifies, and non-agency lenders where it does not. We arrange the loan and assemble the project file; the lender makes the credit decision. If a building's status is uncertain, pricing both paths early keeps your contract dates honest."
         ]
       }
     ],
@@ -182,7 +183,7 @@ export const CONDO_ARTICLES: Article[] = [
       {
         question: "Who decides whether my building is warrantable?",
         answer:
-          "The lender performing the project review applies the agency's published standards, and in some cases the agency itself reviews the project. TRACT, as a broker, does not make that determination — we identify the likely outcome early, assemble the documentation, and place the loan with a lender whose process fits the building."
+          "The lender performing the project review applies the agency's published standards, and in some cases the agency itself reviews the project. As a broker, we do not make that determination — we identify the likely outcome early, assemble the documentation, and place the loan with a lender whose process fits the building."
       }
     ],
     sources: [
@@ -203,7 +204,7 @@ export const CONDO_ARTICLES: Article[] = [
       }
     ],
     related: [
-      { href: "/mortgage/condo", label: "Condo financing with TRACT" },
+      { href: "/mortgage/condo", label: "Condo financing with us" },
       { href: "/resources/condotel-financing", label: "Condotel financing explained" },
       {
         href: "/resources/condo-investor-ratios",
@@ -262,7 +263,7 @@ export const CONDO_ARTICLES: Article[] = [
         paragraphs: [
           "Request the most recent milestone inspection report, the current structural integrity reserve study, the budget, and the last year of board minutes as soon as you are serious about a unit. Read the minutes for repair discussions that have not yet become assessments. If anything in the engineering documents is unclear, the money for an hour of a structural engineer's time is well spent.",
           "Keep the legal questions with the right professional. How a statute applies to a particular building, what an association was required to disclose, or what remedies a buyer has are questions for a Florida real estate attorney — this is educational context, not legal advice.",
-          "On the financing side, TRACT arranges condo loans through wholesale lenders and sees these documents through an underwriter's eyes daily. We can tell you early whether a building's inspection posture is likely to fit agency guidelines or needs a non-agency path — the lender makes the final call, but you should not have to discover the answer at the closing table."
+          "On the financing side, Wholesale Mortgage Lending arranges condo loans through wholesale lenders and sees these documents through an underwriter's eyes daily. We can tell you early whether a building's inspection posture is likely to fit agency guidelines or needs a non-agency path — the lender makes the final call, but you should not have to discover the answer at the closing table."
         ]
       }
     ],
@@ -313,7 +314,7 @@ export const CONDO_ARTICLES: Article[] = [
         label: "Special assessments and your mortgage"
       },
       { href: "/resources/hoa-condo-docs-review", label: "What to read in the condo documents" },
-      { href: "/mortgage/condo", label: "Condo financing with TRACT" },
+      { href: "/mortgage/condo", label: "Condo financing with us" },
       { href: "/plan", label: "Build your financing plan" }
     ],
     publishedAt: "2026-08-18",
@@ -358,7 +359,7 @@ export const CONDO_ARTICLES: Article[] = [
         paragraphs: [
           "Because Florida law ties liability to ownership as amounts come due, an assessment levied before closing but payable over time will follow the unit to the buyer unless the contract says otherwise. Florida's standard contract forms address who pays assessments levied or pending at closing, and the allocation is negotiable — sellers frequently pay off known assessments at closing, or credit the buyer for the remaining balance.",
           "Precision matters more than sentiment here. Pin down whether an assessment has been levied, merely approved, or only discussed in board minutes; each stage has different contractual treatment. Board minutes are the early-warning system — read the last year of them for repair and budget discussions that have not yet become line items.",
-          "How your contract allocates an assessment, and what the association was required to disclose, are questions for a Florida real estate attorney; this is education, not legal advice. On the financing side, TRACT arranges the loan and helps you present the assessment cleanly to the lender — including modeling how a seller credit versus a payoff changes your qualifying numbers."
+          "How your contract allocates an assessment, and what the association was required to disclose, are questions for a Florida real estate attorney; this is education, not legal advice. On the financing side, Wholesale Mortgage Lending arranges the loan and helps you present the assessment cleanly to the lender — including modeling how a seller credit versus a payoff changes your qualifying numbers."
         ]
       }
     ],
@@ -405,7 +406,7 @@ export const CONDO_ARTICLES: Article[] = [
       { href: "/calculators/debt-to-income", label: "Debt-to-income calculator" },
       { href: "/calculators/affordability", label: "Affordability calculator" },
       { href: "/resources/milestone-inspection-sirs", label: "Milestone inspections and SIRS" },
-      { href: "/mortgage/condo", label: "Condo financing with TRACT" }
+      { href: "/mortgage/condo", label: "Condo financing with us" }
     ],
     publishedAt: "2026-08-18",
     lastReviewed: "2026-08-18"
@@ -457,7 +458,7 @@ export const CONDO_ARTICLES: Article[] = [
         paragraphs: [
           "The declaration, bylaws, and rules control leasing, pets, renovations, parking, and occupancy. If your plan involves renting the unit — seasonally, annually, or ever — read the leasing provisions first: minimum lease terms, approval requirements, caps on the number of rented units, and waiting periods for new owners all appear routinely in Florida documents.",
           "Restrictions cut both ways for financing and value. Heavy short-term rental activity can push a building toward condotel territory that agency lenders avoid, while strict leasing limits protect owner-occupancy ratios but constrain your exit options. Neither is wrong; they are different buildings, and your financing should match the one you are actually buying.",
-          "Finally, connect what you read to your loan early. TRACT arranges condo financing through wholesale lenders, and the documents you receive under the disclosure statute answer much of what a lender's project review will ask. Sharing them with your broker during the review window — not after — is how condo contracts keep their dates."
+          "Finally, connect what you read to your loan early. Wholesale Mortgage Lending arranges condo financing through wholesale lenders, and the documents you receive under the disclosure statute answer much of what a lender's project review will ask. Sharing them with your broker during the review window — not after — is how condo contracts keep their dates."
         ]
       }
     ],
@@ -507,7 +508,7 @@ export const CONDO_ARTICLES: Article[] = [
         label: "Special assessments and your mortgage"
       },
       { href: "/resources/condo-master-insurance-h06", label: "Master policy vs. HO-6 coverage" },
-      { href: "/mortgage/condo", label: "Condo financing with TRACT" },
+      { href: "/mortgage/condo", label: "Condo financing with us" },
       { href: "/plan", label: "Build your financing plan" }
     ],
     publishedAt: "2026-08-18",
@@ -552,7 +553,7 @@ export const CONDO_ARTICLES: Article[] = [
         paragraphs: [
           "Wind is the recurring stress. Hurricane deductibles on master policies are typically expressed as a share of the building's insured value, and a large building's deductible after a storm can be a very large number that the association must collect from owners — which is exactly the scenario loss assessment coverage and a properly sized HO-6 exist for.",
           "Premium volatility is the second. Associations shop coverage at every renewal, and a renewal that arrives with a much higher premium often becomes next year's dues increase or a special assessment. When you read an association budget, the insurance line deserves particular attention: an insurance line that has not moved in years may mean the coverage has quietly thinned.",
-          "The state publishes genuinely useful consumer material here. The Florida Department of Financial Services maintains plain-language guides to property insurance for consumers, and its resources are a sensible companion when you compare what the association carries against what you need. For the financing itself, TRACT arranges condo loans and coordinates the insurance documentation lenders require — the association's certificates and your HO-6 — so the pieces arrive verified before closing week."
+          "The state publishes genuinely useful consumer material here. The Florida Department of Financial Services maintains plain-language guides to property insurance for consumers, and its resources are a sensible companion when you compare what the association carries against what you need. For the financing itself, Wholesale Mortgage Lending arranges condo loans and coordinates the insurance documentation lenders require — the association's certificates and your HO-6 — so the pieces arrive verified before closing week."
         ]
       }
     ],
@@ -610,7 +611,7 @@ export const CONDO_ARTICLES: Article[] = [
     related: [
       { href: "/resources/hoa-condo-docs-review", label: "What to read in the condo documents" },
       { href: "/resources/condo-financing-florida", label: "How lenders review a condo building" },
-      { href: "/mortgage/condo", label: "Condo financing with TRACT" },
+      { href: "/mortgage/condo", label: "Condo financing with us" },
       { href: "/calculators/mortgage-payment", label: "Mortgage payment calculator" }
     ],
     publishedAt: "2026-08-18",
@@ -655,7 +656,7 @@ export const CONDO_ARTICLES: Article[] = [
         paragraphs: [
           "You have three honest options. First, pursue approval: for VA, a lender submits the project for review; for FHA, the association or other parties can seek project approval, and unit-level paths may exist depending on the building and HUD's current criteria. This works best when the association cooperates and your closing date has slack.",
           "Second, change programs. Conventional financing reviews projects loan by loan rather than from a central list, so a building without FHA or VA approval may still pass a conventional project review — with the down payment and qualifying differences that come with switching programs.",
-          "Third, change buildings. In condo-dense Florida markets there are usually approved alternatives, and the lookup tools let you generate that list before you tour. TRACT arranges FHA, VA, and conventional condo loans through wholesale lenders; we run the project checks at pre-approval so your offer targets buildings your program can actually close in. The agencies, not TRACT, decide project approval."
+          "Third, change buildings. In condo-dense Florida markets there are usually approved alternatives, and the lookup tools let you generate that list before you tour. Wholesale Mortgage Lending arranges FHA, VA, and conventional condo loans through wholesale lenders; we run the project checks at pre-approval so your offer targets buildings your program can actually close in. The agencies, not us, decide project approval."
         ]
       }
     ],
@@ -699,9 +700,9 @@ export const CONDO_ARTICLES: Article[] = [
       }
     ],
     related: [
-      { href: "/mortgage/fha", label: "FHA loans with TRACT" },
-      { href: "/mortgage/va", label: "VA loans with TRACT" },
-      { href: "/mortgage/condo", label: "Condo financing with TRACT" },
+      { href: "/mortgage/fha", label: "FHA loans with us" },
+      { href: "/mortgage/va", label: "VA loans with us" },
+      { href: "/mortgage/condo", label: "Condo financing with us" },
       {
         href: "/resources/warrantable-vs-non-warrantable",
         label: "Warrantable vs. non-warrantable condos"
@@ -749,7 +750,7 @@ export const CONDO_ARTICLES: Article[] = [
         paragraphs: [
           "Some signals are visible from the listing: a unit sold furnished with a rental history attached, a building with a resort brand in its name, minimum-stay rules measured in nights, or marketing aimed at investors' nightly revenue. Others live in the documents — the declaration and rules will show mandatory rental programs, and the budget will show hospitality operations.",
           "Ask direct questions early: is there a front desk and rental program, is participation mandatory, what share of units are in it, and has any agency lender recently declined the project as a condotel. Listing agents in resort markets generally know their building's status, and the association's manager certainly does.",
-          "The cost of guessing wrong is a financing surprise mid-contract. TRACT works Florida's coastal markets where the residential-to-resort spectrum is crowded, and we arrange both agency condo loans and the non-agency programs condotels need — identifying which market a building belongs to is the first thing we check, before your deposit is at risk. The lender makes the credit decision; our job is aiming the file at the right one."
+          "The cost of guessing wrong is a financing surprise mid-contract. Wholesale Mortgage Lending works Florida's coastal markets where the residential-to-resort spectrum is crowded, and we arrange both agency condo loans and the non-agency programs condotels need — identifying which market a building belongs to is the first thing we check, before your deposit is at risk. The lender makes the credit decision; our job is aiming the file at the right one."
         ]
       }
     ],
@@ -841,7 +842,7 @@ export const CONDO_ARTICLES: Article[] = [
         paragraphs: [
           "The information is obtainable. The condo questionnaire completed for your lender states the occupancy breakdown, single-entity holdings, and delinquency figures; association managers can often give informal answers earlier. County property records show mailing addresses and homestead exemptions unit by unit if you want independent evidence. Board minutes reveal whether leasing caps or rental disputes are live topics.",
           "For owner-occupant buyers, a rental-heavy building is not automatically disqualifying for your own loan — occupancy tests bind hardest on investment purchases — but it shapes the association's culture, budget priorities, and your resale market. For investor buyers, the ratios can gate the transaction directly, and the building's existing mix determines how much room remains.",
-          "TRACT arranges condo financing across this whole spectrum — primary residences, second homes, and investor purchases including DSCR programs for rental condos — through wholesale lenders whose appetites for occupancy mix differ. We pull the building's numbers early and match the file to a lender whose guidelines fit both you and the building; the lender makes the credit decision on each."
+          "Wholesale Mortgage Lending arranges condo financing across this whole spectrum — primary residences, second homes, and investor purchases including DSCR programs for rental condos — through wholesale lenders whose appetites for occupancy mix differ. We pull the building's numbers early and match the file to a lender whose guidelines fit both you and the building; the lender makes the credit decision on each."
         ]
       }
     ],
@@ -936,7 +937,7 @@ export const CONDO_ARTICLES: Article[] = [
         paragraphs: [
           "Developers pick the legal structure for their own reasons: condominium regimes suit stacked or intertwined construction where slicing the land into lots is impractical, centralize exterior maintenance and insurance, and are governed by Chapter 718's machinery; platted townhomes suit row construction on individual footprints and leave structure and insurance with each owner under a lighter HOA framework.",
           "For a buyer, neither form is better in the abstract — they allocate maintenance, insurance, and control differently, and they finance differently. The condo form brings project review and the state's structural inspection framework where the building qualifies; the fee-simple form brings full responsibility for your own roof and walls. Price the difference in dues against what the dues actually buy.",
-          "Practically: identify the legal form on day one and tell your loan officer, because it changes the document list, the third-party fees, and the realistic timeline. TRACT arranges financing for both — condo units through lenders comfortable with Florida project review, and townhomes in PUDs through the simpler track — and confirming the classification is one of the first things we do with a new contract. For what the legal form means for your rights and obligations, a Florida real estate attorney is the right reader of the declaration; this is education, not legal advice."
+          "Practically: identify the legal form on day one and tell your loan officer, because it changes the document list, the third-party fees, and the realistic timeline. Wholesale Mortgage Lending arranges financing for both — condo units through lenders comfortable with Florida project review, and townhomes in PUDs through the simpler track — and confirming the classification is one of the first things we do with a new contract. For what the legal form means for your rights and obligations, a Florida real estate attorney is the right reader of the declaration; this is education, not legal advice."
         ]
       }
     ],
@@ -980,8 +981,8 @@ export const CONDO_ARTICLES: Article[] = [
       }
     ],
     related: [
-      { href: "/mortgage/condo", label: "Condo financing with TRACT" },
-      { href: "/mortgage/purchase", label: "Purchase loans with TRACT" },
+      { href: "/mortgage/condo", label: "Condo financing with us" },
+      { href: "/mortgage/purchase", label: "Purchase loans with us" },
       { href: "/resources/condo-master-insurance-h06", label: "Master policy vs. HO-6 coverage" },
       { href: "/calculators/closing-cost", label: "Closing cost calculator" }
     ],

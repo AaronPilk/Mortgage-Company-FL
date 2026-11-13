@@ -7,14 +7,19 @@
  */
 
 export type BusinessIdentity = {
+  /** The name the business trades under, used as the schema `name`. */
+  name: string;
+  /** The registered entity name, e.g. with its "LLC" suffix. */
   legalName: string;
   brandName: string;
   siteUrl: string;
   logoPath: string;
-  /** null until the license is issued and confirmed on NMLS Consumer Access. */
+  /** null until the NMLS ID is known from a source that can be named. */
   nmlsId: string | null;
   companyLicenseId: string | null;
   telephone: string | null;
+  /** Public contact inbox; null if none is published. */
+  email: string | null;
   address: {
     streetAddress: string;
     addressLocality: string;
@@ -46,15 +51,22 @@ export function organizationNode(identity: BusinessIdentity): Node {
   return omitEmpty({
     "@type": hasPublicOffice ? ["Organization", "FinancialService"] : "Organization",
     "@id": `${identity.siteUrl}#organization`,
-    name: identity.legalName,
-    alternateName: identity.brandName === identity.legalName ? null : identity.brandName,
+    name: identity.name,
+    legalName: identity.legalName === identity.name ? null : identity.legalName,
+    alternateName: identity.brandName === identity.name ? null : identity.brandName,
     url: identity.siteUrl,
     logo: omitEmpty({
       "@type": "ImageObject",
       url: `${identity.siteUrl}${identity.logoPath}`
     }),
     telephone: identity.telephone,
-    identifier: identity.nmlsId === null ? null : `NMLS #${identity.nmlsId}`,
+    email: identity.email,
+    // A structured PropertyValue rather than a formatted "NMLS #..." string, so
+    // a reader can tell the registry from the number without parsing text.
+    identifier:
+      identity.nmlsId === null
+        ? null
+        : { "@type": "PropertyValue", propertyID: "NMLS ID", value: identity.nmlsId },
     address:
       identity.address === null
         ? null
@@ -69,7 +81,9 @@ export function webSiteNode(identity: BusinessIdentity): Node {
     "@type": "WebSite",
     "@id": `${identity.siteUrl}#website`,
     url: identity.siteUrl,
-    name: identity.brandName,
+    // The site is the company's own domain, so it carries the company name;
+    // search engines read this node on the homepage for the displayed site name.
+    name: identity.name,
     publisher: { "@id": `${identity.siteUrl}#organization` },
     inLanguage: "en-US"
   };

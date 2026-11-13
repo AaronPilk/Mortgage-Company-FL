@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Card, Disclosure, Prose, Section, SectionHeading } from "@/components/ui";
+import { COUNTIES } from "@/lib/county-data";
+import { CITIES } from "@/lib/city-data";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = pageMetadata({
@@ -13,10 +15,14 @@ export const metadata: Metadata = pageMetadata({
 /**
  * Florida overview.
  *
- * This is the only location page that exists. Per-city pages are deliberately
- * not generated from a template — a city-name substitution page has no local
- * value and is a scaled-content problem. County-level pages ship only when they
- * carry real county data and a named reviewer.
+ * The county and city pages branch off from here. A city page exists only where
+ * it carries its own real material — the settlement's geography and flood reality
+ * and the questions a buyer there must research — never a county paragraph with a
+ * city name swapped in; a name-substitution page still does not qualify, which is
+ * the earlier "no city pages" decision honoured rather than reversed. City pages
+ * ship noindex until a named reviewer verifies each city's sources (see
+ * docs/compliance/city-pages.md), so they are linked here but not yet in the
+ * sitemap.
  */
 export default function FloridaPage() {
   return (
@@ -63,6 +69,16 @@ export default function FloridaPage() {
           <Link href="/mortgage/condo">More on condo financing</Link>.
         </p>
 
+        <h2>Help with the down payment</h2>
+        <p>
+          The down payment is the wall most first-time buyers hit, and Florida runs real programs
+          that help — Hometown Heroes, Florida Assist, and FL HLP statewide, plus county and city
+          programs on top. See{" "}
+          <Link href="/florida-down-payment-assistance">Florida down payment assistance</Link> for
+          what each offers, who it&rsquo;s for, and a quick finder for which ones are worth asking
+          about.
+        </p>
+
         <h2>Where to get the real numbers</h2>
         <ul>
           <li>Your county property appraiser, for assessed value and millage</li>
@@ -73,15 +89,54 @@ export default function FloridaPage() {
       </Prose>
 
       <Card className="mt-10">
-        <h2 className="text-lg font-semibold text-[var(--text)]">
-          Why there are no city pages here
-        </h2>
+        <h2 className="text-lg font-semibold text-[var(--text)]">By county</h2>
         <p className="mt-3 text-sm text-[var(--text-muted)]">
-          A page that swaps a city name into the same paragraphs helps nobody. When we publish
-          county-level material it will carry that county&rsquo;s actual millage, insurance context,
-          flood exposure, and program availability, with sources and a named reviewer — or it will
-          not exist.
+          Where it carries real, county-specific material — the flood and insurance reality, how the
+          tax bill resets, and the county&rsquo;s own assistance — we publish it. A page that only
+          swaps a city name into the same paragraphs still does not qualify.
         </p>
+        <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+          {COUNTIES.map((entry) => (
+            <li key={entry.slug}>
+              <Link
+                href={`/florida-mortgage/${entry.slug}`}
+                className="text-sm font-semibold underline"
+                style={{ color: "var(--purple)" }}
+              >
+                {entry.county} ({entry.seat})
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </Card>
+
+      <Card className="mt-6">
+        <h2 className="text-lg font-semibold text-[var(--text)]">By city</h2>
+        <p className="mt-3 text-sm text-[var(--text-muted)]">
+          City pages sit under their county and carry the settlement&rsquo;s own geography and flood
+          reality, plus the questions a buyer there should research. They ship noindex until a named
+          reviewer verifies each city&rsquo;s sources, so they are linked here but not yet in the
+          sitemap.
+        </p>
+        <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+          {CITIES.map((entry) => {
+            const county = COUNTIES.find((item) => item.slug === entry.countySlug);
+            return (
+              <li key={`${entry.countySlug}/${entry.slug}`}>
+                <Link
+                  href={`/florida-mortgage/${entry.countySlug}/${entry.slug}`}
+                  className="text-sm font-semibold underline"
+                  style={{ color: "var(--purple)" }}
+                >
+                  {entry.city}
+                </Link>
+                {county !== undefined && (
+                  <span className="text-sm text-[var(--text-muted)]"> — {county.county}</span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
       </Card>
 
       <Disclosure

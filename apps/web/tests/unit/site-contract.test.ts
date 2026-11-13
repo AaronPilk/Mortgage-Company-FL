@@ -48,11 +48,16 @@ describe("route registry", () => {
     expect(contentGroupFor("/nothing/here")).toBe("other");
   });
 
-  it("keeps unlaunched feature surfaces out of the sitemap", () => {
-    for (const path of ["/vision", "/rendprop", "/properties"]) {
-      const entry = ROUTE_REGISTRY.find((route) => route.path === path);
-      expect(entry?.indexable, `${path} must not be indexable before it ships`).toBe(false);
-    }
+  it("keeps sample-data surfaces out of the sitemap", () => {
+    // /vision and /rendprop became deliberate, footer-linked destinations on
+    // 19 Aug 2026 (owner decision): their pages describe real product honestly
+    // and carry no sample data, so they may enter the index. /properties stays
+    // out while the listing surface can render labelled sample fixtures — its
+    // page-level noindex guard is the second line of the same defence.
+    const entry = ROUTE_REGISTRY.find((route) => route.path === "/properties");
+    expect(entry?.indexable, "/properties must not be indexable while fixtures can render").toBe(
+      false
+    );
   });
 });
 

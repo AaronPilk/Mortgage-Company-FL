@@ -137,6 +137,6 @@ describe("dscrReferenceBand", () => {
   it("carries an approved disclosure that names the bands as general reference", () => {
     const disclosure = disclosureFor("dscr");
     expect(disclosure.body).toContain("general reference");
-    expect(disclosure.body).toContain("not TRACT underwriting");
+    expect(disclosure.body).toContain("not underwriting rules");
   });
 });

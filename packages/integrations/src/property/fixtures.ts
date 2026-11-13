@@ -10,6 +10,8 @@ import {
   type ParcelPort,
   type PermitEvent,
   type PermitPort,
+  type PropertyFacts,
+  type PropertyFactsPort,
   type SaleComparable,
   type SaleComparablePort,
   type ZoningFacts,
@@ -183,6 +185,47 @@ export class FixtureConstructionCostPort implements ConstructionCostPort {
           ...FIXTURE_LIMITS,
           "Not a contractor bid. Actual cost depends on scope, schedule, and market conditions."
         ]
+      })
+    );
+  }
+}
+
+export class FixturePropertyFactsPort implements PropertyFactsPort {
+  readonly key = "fixture";
+  async lookup(address: Address): Promise<SourcedValue<PropertyFacts> | null> {
+    return sourced<PropertyFacts>(
+      {
+        normalizedAddress: {
+          line1: address.line1.trim() === "" ? "123 Example Bay Dr" : address.line1,
+          city: address.city.trim() === "" ? "Tampa" : address.city,
+          state: address.state.trim() === "" ? "FL" : address.state,
+          postalCode: address.postalCode.trim() === "" ? "33602" : address.postalCode
+        },
+        coordinates: { latitude: 27.9506, longitude: -82.4572 },
+        propertyType: "Single Family Residence",
+        bedrooms: 3,
+        bathrooms: 2,
+        livingAreaSqft: 1_860,
+        lotAreaSqft: 6_500,
+        yearBuilt: 2004,
+        assessedValueCents: 312_000_00,
+        marketValueCents: 438_000_00,
+        marketValueLowCents: 415_000_00,
+        marketValueHighCents: 461_000_00,
+        lastSalePriceCents: 356_000_00,
+        lastSaleDate: "2019-05-17",
+        annualTaxAmountCents: 5_240_00
+      },
+      makeProvenance({
+        provider: "fixture",
+        licenseClass: "internal",
+        limitations: [
+          ...FIXTURE_LIMITS,
+          "An automated value estimate is not an appraisal and does not establish what a lender will lend.",
+          "Not a list price — the price a home is offered at comes from the seller's listing."
+        ],
+        observedAt: "2026-08-01T00:00:00.000Z",
+        confidence: 0.4
       })
     );
   }

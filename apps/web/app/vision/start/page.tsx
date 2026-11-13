@@ -29,7 +29,7 @@ export default function VisionStartPage() {
     <Section width="wide" orbs>
       <SectionHeading
         as="h1"
-        eyebrow="TRACT Vision"
+        eyebrow="Home Vision"
         title="Model it before you commit"
         gradientWord="before you commit"
         description="Four steps, no contact details, and a result you can read on the same screen as the assumptions that produced it."

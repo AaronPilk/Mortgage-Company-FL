@@ -1,7 +1,15 @@
 import { createHash, randomUUID, timingSafeEqual } from "node:crypto";
 import { type NextRequest, NextResponse } from "next/server";
-import { processOutboxRow, type OutboxRow } from "@tract/integrations";
+import {
+  processOutboxRow,
+  dispatchLeadConversion,
+  leadAdSuppressed,
+  parseMetaLeadSource,
+  type OutboxRow,
+  type SuppressionDb
+} from "@tract/integrations";
 import { crm } from "@/lib/crm";
+import { metaCapi } from "@/lib/meta-capi";
 import { env } from "@/lib/env";
 import { log } from "@/lib/logger";
 import { createServiceClient } from "@/lib/supabase";
@@ -77,6 +85,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   let dead = 0;
   let completionFailures = 0;
 
+  // Memoized; one instance per drain. Disabled unless META_CAPI_MODE is live.
+  const capi = metaCapi();
+
   for (const row of claimed) {
     const outboxRow: OutboxRow = {
       id: row.id,
@@ -112,6 +123,43 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (outcome.status === "succeeded") succeeded += 1;
     if (outcome.status === "retry") retried += 1;
     if (outcome.status === "dead") dead += 1;
+
+    // Meta conversion signal — a best-effort paid-social side-channel, dispatched
+    // only AFTER the row is settled so a slow Meta call can never strand a row in
+    // 'processing'. It is fully isolated from the GHL lifecycle: consent- and
+    // config-gated inside the helper, one attempt (no in-drain backoff — a Meta
+    // event dedups on event_id, and re-drains give natural retries), never throws,
+    // and its result is never consulted, so it cannot re-drive or duplicate a
+    // CRM sync. The `capi.key` guard means a dark Meta config does zero work
+    // (no suppression query either); when live, a do-not-sell/share or global
+    // opt-out blocks the send before any identifier leaves.
+    if (outboxRow.eventType === "lead.received" && capi.key !== "disabled") {
+      try {
+        const source = parseMetaLeadSource(outboxRow.payload);
+        // The concrete client's builder type is too deep to match structurally
+        // (TS2589), so narrow it to the small slice the check uses — the same
+        // `as unknown as` the email core uses for its DB port.
+        const suppressed = await leadAdSuppressed(
+          supabase as unknown as SuppressionDb,
+          source.email,
+          source.phoneE164
+        );
+        if (!suppressed) {
+          const conversion = await dispatchLeadConversion(capi, outboxRow.payload, {
+            maxAttempts: 1
+          });
+          if (conversion.status === "failed") {
+            log.warn("meta capi dispatch failed", {
+              requestId,
+              route: ROUTE,
+              errorCode: conversion.code
+            });
+          }
+        }
+      } catch {
+        // Contract says unreachable; kept so a future change cannot break the drain.
+      }
+    }
   }
 
   log.info("outbox drain completed", {

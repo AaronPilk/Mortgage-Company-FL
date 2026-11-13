@@ -4,7 +4,9 @@
  * the version can be stored alongside any saved scenario.
  */
 
-export const DISCLOSURE_VERSION = "calc-disclosure@2026-08-17";
+// 2026-11-13: the DSCR body no longer names a product brand (ADR-014), so the
+// version moved with the wording.
+export const DISCLOSURE_VERSION = "calc-disclosure@2026-11-13";
 
 export type CalculatorDisclosure = {
   version: string;
@@ -71,7 +73,7 @@ export const CALCULATOR_DISCLOSURES: Record<string, CalculatorDisclosure> = {
   dscr: {
     version: DISCLOSURE_VERSION,
     headline: "A ratio, not an underwriting decision.",
-    body: "This is an estimate, not an offer of credit, a rate quote, a preapproval, or a commitment to lend. The reference bands shown are how the ratio is commonly described in the market. They are general reference only, they are not TRACT underwriting, and no lender is bound by them.",
+    body: "This is an estimate, not an offer of credit, a rate quote, a preapproval, or a commitment to lend. The reference bands shown are how the ratio is commonly described in the market. They are general reference only, they are not underwriting rules, and no lender is bound by them.",
     excludes: [...SHARED_EXCLUSIONS, "Vacancy, management, repairs, and capital reserves"]
   },
   rate_impact: {

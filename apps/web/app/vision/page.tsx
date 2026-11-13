@@ -18,7 +18,7 @@ import { pageMetadata } from "@/lib/metadata";
 import { publicFeatures } from "@/lib/env";
 
 export const metadata: Metadata = pageMetadata({
-  title: "TRACT Vision",
+  title: "Home Vision",
   description:
     "Model a renovation, rental, construction, or flip scenario in your browser. Every assumption visible, every gap named, no contact details to see the result.",
   path: "/vision",
@@ -27,7 +27,7 @@ export const metadata: Metadata = pageMetadata({
 });
 
 /**
- * TRACT Vision.
+ * Home Vision (internally, the vision model).
  *
  * The scenario engine is deterministic arithmetic in `@tract/vision-model` — the
  * same class of tested, versioned functions that power the calculators. It needs
@@ -46,7 +46,7 @@ export default function VisionPage() {
       <Section width="default" orbs pad="head">
         <SectionHeading
           as="h1"
-          eyebrow="TRACT Vision"
+          eyebrow="Home Vision"
           title="Model a property before you commit"
           gradientWord="before you commit"
           description="Renovation, addition, rental, construction, and flip scenarios — with every assumption on the same screen as the number it produced, and every gap named rather than papered over."

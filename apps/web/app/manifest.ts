@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "TRACT Mortgage",
-    short_name: "TRACT",
+    name: "Wholesale Mortgage Lending",
+    short_name: "WML Lending",
     description:
       "A Florida mortgage brokerage. Payment and affordability tools, plain-language guides, and direct help from a licensed professional.",
     start_url: "/",

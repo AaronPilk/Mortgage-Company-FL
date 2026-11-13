@@ -19,15 +19,20 @@ export function SavePropertyButton({
   sourceMode,
   accountsConfigured = false,
   supabaseUrl,
-  anonKey
+  anonKey,
+  initiallySaved = false
 }: {
   listingKey: string;
   sourceMode: "fixture" | "live";
   accountsConfigured?: boolean;
   supabaseUrl?: string | undefined;
   anonKey?: string | undefined;
+  /** Seed the button as already saved when the viewer's account has this home. */
+  initiallySaved?: boolean;
 }) {
-  const [state, setState] = useState<"idle" | "saving" | "saved" | "signin" | "error">("idle");
+  const [state, setState] = useState<"idle" | "saving" | "saved" | "signin" | "error">(
+    initiallySaved ? "saved" : "idle"
+  );
   const [promptOpen, setPromptOpen] = useState(false);
 
   const canPrompt = accountsConfigured && supabaseUrl !== undefined && anonKey !== undefined;
@@ -70,6 +75,10 @@ export function SavePropertyButton({
             </Link>{" "}
             to save this property across devices.
           </>
+        ) : state === "saved" ? (
+          <Link href="/account" className="font-semibold text-[var(--purple)] underline">
+            View your saved homes →
+          </Link>
         ) : state === "error" ? (
           "The property was not confirmed as saved. Try again later."
         ) : (

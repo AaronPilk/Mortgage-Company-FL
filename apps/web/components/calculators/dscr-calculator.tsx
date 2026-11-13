@@ -198,7 +198,7 @@ export function DscrCalculator() {
             How the ratio is commonly described
           </h3>
           <p className="mt-2 text-sm text-[var(--text-muted)]">
-            These bands are general market reference only. They are not TRACT underwriting, not any
+            These bands are general market reference only. They are not underwriting rules, not any
             lender&rsquo;s guidelines, and not thresholds anyone is bound by. Every lender sets its
             own requirements, and they change.
           </p>

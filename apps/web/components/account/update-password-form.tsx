@@ -36,7 +36,9 @@ export function UpdatePasswordForm({
       return;
     }
     setStatus("working");
-    const client = createBrowserClient(supabaseUrl, anonKey);
+    const client = createBrowserClient(supabaseUrl, anonKey, {
+      cookieOptions: { secure: window.location.protocol === "https:" }
+    });
     const { error: updateError } = await client.auth.updateUser({ password });
     if (updateError !== null) {
       setStatus("idle");

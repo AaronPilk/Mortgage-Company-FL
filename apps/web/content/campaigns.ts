@@ -40,8 +40,8 @@ import {
  * Copy rules, same as everywhere else on this site: no approval language of
  * any kind ("prequalified", "approved", "you qualify" are all forbidden), no
  * rate promises, bands not figures. HELOC copy is home-equity-line-of-credit
- * education only. Seller copy is connection/handoff framing only — TRACT is a
- * mortgage brokerage and does not list homes; the owner's real-estate network
+ * education only. Seller copy is connection/handoff framing only — we are a
+ * mortgage brokerage and do not list homes; the owner's real-estate network
  * handles sales.
  */
 
@@ -572,7 +572,7 @@ export const CAMPAIGNS: CampaignDefinition[] = [
     whatHappensNext: MORTGAGE_NEXT_STEPS
   },
   {
-    // Seller handoff. TRACT is a mortgage brokerage and does not list homes;
+    // Seller handoff. We are a mortgage brokerage and do not list homes;
     // every line here is connection framing, and the financing questions are
     // dropped because a seller does not need financing depth.
     slug: "sell",
@@ -582,7 +582,7 @@ export const CAMPAIGNS: CampaignDefinition[] = [
     eyebrow: "Selling a home",
     headline: "Selling your home? We'll connect you with the right people",
     subhead:
-      "TRACT is a mortgage brokerage — we don't list homes. Tell us about the home you're selling and we'll introduce you to a licensed real estate professional.",
+      "Wholesale Mortgage Lending is a mortgage brokerage — we don't list homes. Tell us about the home you're selling and we'll introduce you to a licensed real estate professional.",
     chips: ["Not a listing agreement", "No credit pull", "No obligation"],
     funnel: {
       intent: "sell_home",
@@ -590,12 +590,12 @@ export const CAMPAIGNS: CampaignDefinition[] = [
       contactHint:
         "Tell us where to reach you and we'll connect you with the right real estate professionals.",
       successBody:
-        "We have your request. TRACT is a mortgage brokerage — we don't list homes — so we'll introduce you to a licensed real estate professional who handles sales. You're not obligated to anything.",
+        "We have your request. We're a mortgage brokerage — we don't list homes — so we'll introduce you to a licensed real estate professional who handles sales. You're not obligated to anything.",
       message: "Arrived via the home-selling campaign page. Real-estate-side handoff."
     },
     whatHappensNext: [
       "We review what you sent about the home and your timing.",
-      "We connect you with a trusted real estate professional from our network — TRACT does not list homes.",
+      "We connect you with a trusted real estate professional from our network — we do not list homes.",
       "If your next move involves financing a purchase, a licensed mortgage professional can help with that side too."
     ]
   }

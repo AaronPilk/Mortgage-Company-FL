@@ -69,7 +69,12 @@ the security shell.
 - **No published guides.** The editorial system exists; the backlog is briefs.
   Publishing thin articles to fill a resource index is the failure mode the
   content quality gate is designed to prevent.
-- **No city pages.** A template with a city name substituted has no local value.
-  County-level material ships when it carries real county data and a reviewer.
+- **City pages ship on the county bar (updated 2026-08-26).** A template with a
+  city name substituted still has no local value and is not published. A city page
+  that carries its own real, city-specific material — geography and flood reality,
+  the questions a buyer there must research, coupled to a real parent county — does
+  qualify. Such pages ship noindex and off the sitemap until a named reviewer
+  verifies each city's sources (`docs/compliance/city-pages.md`). See DECISIONS.md,
+  2026-08-26.
 - **No blog route.** It would be an empty index. It ships with its first
   reviewed article.

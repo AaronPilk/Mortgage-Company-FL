@@ -8,10 +8,10 @@ import {
   CtaPanel,
   Disclosure,
   Faq,
-  LicenseFact,
   Section,
   SectionHeading
 } from "@/components/ui";
+import { LicensingFacts } from "@/components/licensing-facts";
 import { AssetImage } from "@/components/asset-image";
 import { HeroEstimator } from "@/components/hero-estimator";
 import { HomeFunnel } from "@/components/home-funnel";
@@ -23,16 +23,26 @@ import {
   LEAD_DISCLOSURE_VERSION,
   SITE_URL,
   SMS_CONSENT_TEXT,
-  businessIdentity
+  businessIdentity,
+  isPreLaunch
 } from "@/lib/site";
-import { absoluteUrl, breadcrumbNode, graph, webPageNode } from "@tract/seo";
+import { absoluteUrl, breadcrumbNode, faqNode, graph, webPageNode } from "@tract/seo";
+import { createRequestClient } from "@/lib/supabase";
 
+/**
+ * The former product home. On wsmlending.com nothing serves this file any more:
+ * "/" rewrites to the landing (app/wml/page.tsx) and the old /tract URL
+ * redirects there (ADR-011, ADR-014). Locally it is still what "/" renders, so
+ * the browser suite exercises its funnel without a hosts file. It stays noindex
+ * so it can never compete with the landing for the same queries.
+ */
 export const metadata: Metadata = pageMetadata({
-  title: "Florida mortgage brokerage — honest guidance, no pressure",
+  title: "Honest Florida mortgage guidance, no pressure",
   description:
     "Tell us whether you are buying, refinancing, or buying your first home, and a licensed mortgage professional will lay out your real options. No credit pull.",
   path: "/",
-  imagePath: "/images/og/default.png"
+  imagePath: "/images/og/default.png",
+  noIndex: true
 });
 
 /** Only claims that are demonstrably true on this site today. */
@@ -106,8 +116,13 @@ const HOME_FAQS = [
   }
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
   const url = absoluteUrl(SITE_URL, "/");
+  // A returning borrower may land here, so greet them and point at their own
+  // stuff instead of treating them as a cold lead. (Every route is already
+  // dynamic — the header reads the session.)
+  const supabase = await createRequestClient();
+  const signedIn = supabase !== null && (await supabase.auth.getUser()).data.user !== null;
 
   return (
     <>
@@ -117,15 +132,37 @@ export default function HomePage() {
             webPageNode({
               identity: businessIdentity,
               url,
-              name: "TRACT Mortgage — A Florida mortgage brokerage",
+              name: "Mortgage guidance and tools from Wholesale Mortgage Lending",
               description:
                 "A Florida mortgage brokerage. Tell us what you are working on and a licensed mortgage professional lays out your options — no application, no credit pull."
             }),
+            // This page renders these exact questions below, so the FAQPage
+            // markup is honest.
+            faqNode(HOME_FAQS, true),
             breadcrumbNode([{ name: "Home", url }])
           ],
           businessIdentity
         )}
       />
+
+      {signedIn && (
+        <div
+          style={{ background: "var(--purple-subtle)", borderBottom: "1px solid var(--border)" }}
+        >
+          <div className="container-wide flex flex-wrap items-center justify-between gap-3 py-3">
+            <p className="text-sm font-medium" style={{ color: "var(--text)" }}>
+              Welcome back — pick up where you left off.
+            </p>
+            <Link
+              href="/account"
+              className="rounded-lg px-3.5 py-2 text-sm font-semibold"
+              style={{ background: "var(--purple)", color: "#fff" }}
+            >
+              My account
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/*
         Hero.
@@ -369,16 +406,12 @@ export default function HomePage() {
 
       <Section width="narrow" className="!pt-0">
         <div className="flex flex-wrap items-center gap-x-8 gap-y-2">
-          <LicenseFact label="Company NMLS ID" value={businessIdentity.nmlsId} />
-          <LicenseFact
-            label="Florida mortgage broker license"
-            value={businessIdentity.companyLicenseId}
-          />
-          <Badge tone="neutral">Pre-launch</Badge>
+          <LicensingFacts />
+          {isPreLaunch() && <Badge tone="neutral">Pre-launch</Badge>}
         </div>
         <Disclosure
           headline="Nothing on this page is an offer of credit."
-          body="TRACT Mortgage is a mortgage brokerage. We arrange, but do not make, mortgage loans. Every figure shown here is an estimate based on values you entered, and is not a rate quote, a preapproval, or a commitment to lend."
+          body="Wholesale Mortgage Lending is a mortgage brokerage. We arrange, but do not make, mortgage loans. Every figure shown here is an estimate based on values you entered, and is not a rate quote, a preapproval, or a commitment to lend."
         />
       </Section>
     </>

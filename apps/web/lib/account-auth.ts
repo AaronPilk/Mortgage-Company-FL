@@ -6,6 +6,9 @@
  */
 export function safeAccountNextPath(value: string | null): string {
   if (value === "/account" || value?.startsWith("/account/") === true) return value;
+  // The TRACT loan portal is a private destination too: a borrower who signs in
+  // to start or continue an application should land there, not on /account.
+  if (value === "/loan" || value?.startsWith("/loan/") === true) return value;
   if (value === "/auth/update-password") return value;
   return "/account";
 }

@@ -28,8 +28,8 @@ export default function Page() {
           <h2>What you are agreeing to</h2>
           <p>
             If you check the text-message box on a form, you are agreeing to receive text messages
-            from TRACT Mortgage about your inquiry and about mortgage education. Consent to
-            marketing texts is never a condition of any service, and declining it does not affect
+            from Wholesale Mortgage Lending about your inquiry and about mortgage education. Consent
+            to marketing texts is never a condition of any service, and declining it does not affect
             our response to your inquiry.
           </p>
           <h2>Frequency and cost</h2>

@@ -85,9 +85,10 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
       <Section width="narrow" pad="head" orbs>
         <nav aria-label="Breadcrumb" className="mb-6 text-sm text-[var(--text-muted)]">
-          <Link href="/" className="hover:text-[var(--purple)]">
+          {/* A full-page anchor: "/" is the landing, with its own chrome. */}
+          <a href="/" className="hover:text-[var(--purple)]">
             Home
-          </Link>
+          </a>
           <span aria-hidden="true"> / </span>
           <Link href="/resources" className="hover:text-[var(--purple)]">
             Resources
@@ -201,7 +202,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         />
         <Disclosure
           headline="Education, not advice — and never an offer."
-          body="This guide explains how a part of mortgage finance generally works. It is not financial, legal, or tax advice, not an offer of credit, a rate quote, or a preapproval, and program rules change. TRACT Mortgage is a Florida mortgage brokerage: we arrange, but do not make, mortgage loans."
+          body="This guide explains how a part of mortgage finance generally works. It is not financial, legal, or tax advice, not an offer of credit, a rate quote, or a preapproval, and program rules change. Wholesale Mortgage Lending is a Florida mortgage brokerage: we arrange, but do not make, mortgage loans."
         />
       </Section>
     </>

@@ -16,7 +16,12 @@ export function pageMetadata(input: {
   publishedAt?: string;
   modifiedAt?: string;
 }): Metadata {
+  // Every canonical is SITE_URL + path, with no override. The absolute-URL
+  // override that let the landing canonicalise to a second domain went away
+  // with that domain (ADR-011); a canonical can no longer leave the origin.
   const forced = shouldNoIndex(input.path);
-  const meta = createMetadata(SITE_URL, { ...input, noIndex: forced || (input.noIndex ?? false) });
-  return meta as Metadata;
+  return createMetadata(SITE_URL, {
+    ...input,
+    noIndex: forced || (input.noIndex ?? false)
+  }) as Metadata;
 }

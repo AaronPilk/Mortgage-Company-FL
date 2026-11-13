@@ -189,6 +189,21 @@ describe("rentVsBuy", () => {
     expect(result.assumptions.annualRentGrowthBasisPoints).toBe(300);
     expect(result.assumptions.sellingCostRateBasisPoints).toBe(700);
   });
+
+  it("charges no principal & interest for horizon years beyond the loan term", () => {
+    // The 360-month loan is paid off at 30 years. A year that still amortizes the
+    // loan must cost more than a year past payoff, which adds only the perpetual
+    // carrying costs. A regression that keeps charging P&I after payoff makes the
+    // two equal.
+    const amortizingYear =
+      rentVsBuy({ ...base, horizonYears: 30 }).totalOwnershipOutflowCents -
+      rentVsBuy({ ...base, horizonYears: 29 }).totalOwnershipOutflowCents;
+    const postPayoffYear =
+      rentVsBuy({ ...base, horizonYears: 40 }).totalOwnershipOutflowCents -
+      rentVsBuy({ ...base, horizonYears: 39 }).totalOwnershipOutflowCents;
+    expect(postPayoffYear).toBeGreaterThan(0);
+    expect(postPayoffYear).toBeLessThan(amortizingYear);
+  });
 });
 
 describe("rentalCashFlow", () => {

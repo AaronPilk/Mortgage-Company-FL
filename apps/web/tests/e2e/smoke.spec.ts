@@ -15,7 +15,11 @@ test.describe("home page", () => {
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
       "Honest answers about your Florida mortgage"
     );
-    await expect(page.getByText("Florida mortgage brokerage").first()).toBeVisible();
+    // In the page itself, not the header: the header lockup's tagline repeats
+    // the phrase but is hidden on phones, and the hero must say it regardless.
+    await expect(
+      page.locator("main").getByText("Florida mortgage brokerage").first()
+    ).toBeVisible();
     // The page exists to convert paid intent traffic, so the form shares the
     // hero with the message rather than living behind a /contact link.
     const hero = page.getByTestId("hero-product-proof");
@@ -122,9 +126,16 @@ test.describe("home page", () => {
     expect(body).not.toContain("lowest rate");
   });
 
-  test("shows the pre-launch notice while licensing is pending", async ({ page }) => {
+  // Licensing is confirmed (ADR-012), so the pre-launch notice is off and the
+  // footer carries the real identifiers instead.
+  test("shows the licence identifiers and no pre-launch notice", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("status").first()).toContainText("pre-launch");
+    await expect(page.getByText("not yet accepting mortgage applications")).toHaveCount(0);
+    const footer = page.locator("footer");
+    await expect(footer).toContainText("2898263");
+    await expect(footer).toContainText("MBR8794");
+    // The other branch's check, kept: no pre-launch wording anywhere on the page.
+    expect((await page.locator("body").innerText()).toLowerCase()).not.toContain("pre-launch");
   });
 });
 
@@ -137,7 +148,7 @@ test.describe("talk chooser and campaign landings", () => {
 
     await page.goto("/talk");
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
-      "What brings you to TRACT?"
+      "What brings you here today?"
     );
     for (const [label, href] of [
       ["Buying a home", "/get-started/purchase"],
@@ -500,14 +511,19 @@ test.describe("indexation and crawl control", () => {
     const response = await request.get("/robots.txt");
     const text = await response.text();
     expect(text).toContain("Sitemap:");
-    // Allowed so pages can surface in ChatGPT search.
-    expect(text).toContain("OAI-SearchBot");
-    // GPTBot is blocked on purpose — that is a training decision, separate from
-    // search discovery — so the assertion targets the wildcard block only.
-    const wildcardBlock = text.split(/User-Agent:/i)[1] ?? "";
-    expect(wildcardBlock).toMatch(/Allow:\s*\//);
-    expect(wildcardBlock).not.toMatch(/Disallow:\s*\/\s*$/m);
-    expect(text).toMatch(/User-Agent:\s*GPTBot[\s\S]*?Disallow:\s*\//i);
+    // Search, answer and training crawlers are all named and all allowed
+    // (ADR-013); each named group repeats the private-surface disallows.
+    for (const agent of ["Googlebot", "OAI-SearchBot", "Claude-SearchBot", "GPTBot"]) {
+      expect(text).toContain(`User-Agent: ${agent}`);
+    }
+    // No group blocks the whole site, and every group keeps the API out.
+    expect(text).not.toMatch(/Disallow:\s*\/\s*$/m);
+    const groups = text.split(/\n\s*\n/).filter((group) => /User-Agent:/i.test(group));
+    expect(groups.length).toBeGreaterThanOrEqual(4);
+    for (const group of groups) {
+      expect(group).toMatch(/Allow:\s*\/\s*$/m);
+      expect(group).toMatch(/Disallow:\s*\/api\//);
+    }
   });
 });
 
@@ -518,9 +534,111 @@ test.describe("structured data", () => {
     expect(blocks.length).toBeGreaterThan(0);
     for (const block of blocks) {
       expect(() => JSON.parse(block)).not.toThrow();
+      // No hand-formatted licence string, ever: identifiers are structured.
       expect(block).not.toContain("NMLS #");
       expect(block).not.toContain("interestRate");
       expect(block).not.toContain("aggregateRating");
+    }
+    // The only licence fact in the graph is the company NMLS ID from
+    // lib/site.ts (ADR-012); the Florida licence number is not on file, and no
+    // address or phone is asserted.
+    const nodes = blocks.flatMap((block) => {
+      const parsed = JSON.parse(block) as { "@graph"?: Record<string, unknown>[] };
+      return parsed["@graph"] ?? [];
+    });
+    const organization = nodes.find((node) => node["@type"] === "Organization");
+    expect(organization).toBeDefined();
+    expect(organization?.["identifier"]).toEqual({
+      "@type": "PropertyValue",
+      propertyID: "NMLS ID",
+      value: "2898263"
+    });
+    expect(organization).not.toHaveProperty("address");
+    expect(organization?.["telephone"]).toBe("+17274866004");
+  });
+});
+
+/*
+ * One visible brand (ADR-014). Locally "/" renders app/page.tsx and "/wml" the
+ * landing that wsmlending.com serves at "/", so both are checked. The retired
+ * product name may survive in code names, never in what a visitor, a crawler
+ * or a structured-data reader sees.
+ */
+test.describe("one visible brand", () => {
+  const RETIRED_BRAND = /\bTRACT\b/;
+
+  for (const path of [
+    "/",
+    "/wml",
+    "/mortgage/fha",
+    "/resources/conventional-vs-fha",
+    "/resources/condo-financing-florida",
+    "/calculators"
+  ]) {
+    test(`${path} never shows the retired product name`, async ({ page }) => {
+      await page.goto(path);
+      const body = await page.locator("body").innerText();
+      expect(body).not.toMatch(RETIRED_BRAND);
+      expect(await page.title()).not.toMatch(RETIRED_BRAND);
+      const description = await page.locator('meta[name="description"]').getAttribute("content");
+      expect(description ?? "").not.toMatch(RETIRED_BRAND);
+      for (const alt of await page
+        .locator("img[alt]")
+        .evaluateAll((images) => images.map((image) => image.getAttribute("alt") ?? ""))) {
+        expect(alt).not.toMatch(RETIRED_BRAND);
+      }
+
+      const blocks = await page.locator('script[type="application/ld+json"]').allTextContents();
+      expect(blocks.length).toBeGreaterThan(0);
+      for (const block of blocks) expect(block).not.toMatch(RETIRED_BRAND);
+      const organization = blocks
+        .flatMap(
+          (block) => (JSON.parse(block) as { "@graph"?: Record<string, unknown>[] })["@graph"] ?? []
+        )
+        .find((node) => node["@type"] === "Organization");
+      expect(organization?.["name"]).toBe("Wholesale Mortgage Lending");
+      expect(organization).not.toHaveProperty("alternateName");
+    });
+  }
+
+  test("the header leads home with the company lockup", async ({ page }) => {
+    await page.goto("/mortgage/fha");
+    const home = page.locator('header a[aria-label="Wholesale Mortgage Lending home"]');
+    await expect(home).toHaveAttribute("href", "/");
+    await expect(home).toContainText("Wholesale Mortgage Lending");
+    expect(await page.locator('a[href="/tract"]').count()).toBe(0);
+  });
+
+  test("the landing links its hubs after the form", async ({ page }) => {
+    await page.goto("/wml");
+    for (const href of [
+      "/calculators",
+      "/plan",
+      "/mortgage",
+      "/resources",
+      "/mortgage-glossary",
+      "/florida-buyers-guide",
+      "/florida-down-payment-assistance",
+      "/locations/florida",
+      "/florida-mortgage/pinellas-county"
+    ]) {
+      expect(await page.locator(`main a[href="${href}"]`).count(), href).toBeGreaterThan(0);
+    }
+    expect(await page.locator('a[href="/tract"]').count()).toBe(0);
+    expect(await page.locator('a[href="/what-is-my-home-worth"]').count()).toBe(0);
+  });
+
+  test("serves the company icons", async ({ request }) => {
+    const manifest = (await (await request.get("/manifest.webmanifest")).json()) as {
+      name: string;
+      short_name: string;
+    };
+    expect(manifest.name).toBe("Wholesale Mortgage Lending");
+    expect(manifest.short_name).toBe("WML Lending");
+    for (const path of ["/favicon.ico", "/icon.png", "/apple-icon.png", "/brand/icon-512.png"]) {
+      const response = await request.get(path);
+      expect(response.status(), path).toBe(200);
+      expect(response.headers()["content-type"], path).toMatch(/^image\//);
     }
   });
 });
@@ -615,6 +733,16 @@ test.describe("navigation and errors", () => {
       const mortgageIndex = labels.indexOf("Mortgage");
       expect(mortgageIndex, `${navName} nav is missing Mortgage`).toBeGreaterThanOrEqual(0);
       expect(labels[mortgageIndex + 1], `${navName} nav order`).toBe("Home equity");
+    }
+
+    // On touch layouts the primary nav sits behind the menu disclosure, so the
+    // visibility half of the contract is asserted with the menu open there.
+    // Located by aria-controls, not accessible name — the name flips between
+    // "Open menu" and "Close menu" with state.
+    const menuButton = page.locator('header button[aria-controls="mobile-menu"]');
+    if (await menuButton.isVisible()) {
+      await menuButton.click();
+      await expect(menuButton).toHaveAttribute("aria-expanded", "true");
     }
     await expect(page.locator('header a[href="/mortgage/home-equity"]:visible').first()).toHaveText(
       "Home equity"

@@ -101,9 +101,10 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
 
       <Section width="narrow" pad="head" orbs>
         <nav aria-label="Breadcrumb" className="mb-6 text-sm text-[var(--text-muted)]">
-          <Link href="/" className="hover:text-[var(--purple)]">
+          {/* A full-page anchor: "/" is the landing, with its own chrome. */}
+          <a href="/" className="hover:text-[var(--purple)]">
             Home
-          </Link>
+          </a>
           <span aria-hidden="true"> / </span>
           <Link href="/mortgage" className="hover:text-[var(--purple)]">
             Mortgage
@@ -273,7 +274,7 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
         />
         <Disclosure
           headline="This page is educational, not an offer."
-          body="TRACT Mortgage is a mortgage brokerage and arranges, but does not make, mortgage loans. Nothing here is a rate quote, a preapproval, a commitment to lend, or a statement that you qualify for any program. Program terms are set by the agency, insurer, or investor and by each lender's own overlays, and they change."
+          body="Wholesale Mortgage Lending is a mortgage brokerage and arranges, but does not make, mortgage loans. Nothing here is a rate quote, a preapproval, a commitment to lend, or a statement that you qualify for any program. Program terms are set by the agency, insurer, or investor and by each lender's own overlays, and they change."
         />
       </Section>
     </>

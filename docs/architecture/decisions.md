@@ -147,6 +147,13 @@ The JSON-LD builders omit a null rather than emitting an empty string, and the
 exists. An end-to-end test asserts that no structured-data block contains
 `NMLS #`.
 
+**Amended 2026-11-12 (see ADR-012).** The company NMLS ID is now known, so the
+`Organization` node carries it, as a structured `PropertyValue` rather than a
+formatted `NMLS #...` string. The end-to-end test still forbids `NMLS #` and now
+also asserts that the only identifier in the graph equals the value in
+`lib/site.ts`. The pending-state rule is unchanged: the Florida licence number
+is still null and still renders as pending.
+
 ---
 
 ## ADR-010 — TypeScript 5.9, not 7.0
@@ -185,3 +192,239 @@ outside `lib/env.ts`.
 
 Actual resolved versions are in `pnpm-lock.yaml` and
 `docs/architecture/dependency-baseline.md`.
+
+---
+
+## ADR-011 — One canonical domain: wsmlending.com
+
+**Date:** 2026-11-12 · **Status:** accepted · **Owner:** Aaron Pilkington
+
+One Worker served two hosts. wsmlending.com showed only the Wholesale Mortgage
+Lending landing and 308'd every other path, robots.txt and sitemap.xml included,
+to tractrealestate.com, which served the whole app. Both hosts were indexable,
+the landing canonicalised to wsmlending.com while the Organization graph's `@id`
+named tractrealestate.com, and the only sitemap listed only tractrealestate.com
+URLs. Search engines were being told two different things about one company.
+
+The owner chose wsmlending.com as the company's one domain. The implementation:
+
+- `NEXT_PUBLIC_SITE_URL` and `NEXT_PUBLIC_COMPANY_URL` are both
+  `https://wsmlending.com`. Every canonical, sitemap URL, `og:url` and JSON-LD
+  `@id` is built from the site URL, so they all moved with one value.
+  `scripts/check-site-url.mjs` refuses a build where the two differ, and the
+  absolute canonical override that let one page point at another domain is
+  gone.
+- `apps/web/lib/host-routing.ts` holds the routing table as a pure function.
+  On wsmlending.com, `/` rewrites to the landing (`app/wml/page.tsx`) with WML
+  chrome; `/tract` rewrites to the TRACT product home (`app/page.tsx`)
+  (superseded 2026-11-13: `/tract` now 308s to `/`, see the amendment below and
+  ADR-014); `/wml`
+  308s to `/`; everything else is served directly with TRACT chrome. Any other
+  host (tractrealestate.com, workers.dev, a Vercel alias) gets a 308 to the same
+  path and query on wsmlending.com with `X-Robots-Tag: noindex, nofollow`. That
+  includes `/api/*`: no inbound webhook is configured (`GHL_WEBHOOK_PUBLIC_KEY`
+  is unset, so the route fails closed), and every API's same-origin check names
+  only the site URL anyway.
+- The landing stays the homepage because it is the company brand and the page
+  already indexed. The old TRACT home is kept, not deleted, at `/tract`,
+  noindex and off the sitemap: it shares the landing's funnel and purpose, and
+  two homepages would compete for the same queries.
+- Links that cross from TRACT chrome to the landing (breadcrumb "Home", the
+  footer, the 404 page) are plain anchors. The chrome is chosen in the root
+  layout from a request header, and a client-side transition keeps the layout,
+  so a `<Link href="/">` would render the landing inside the TRACT header. The
+  TRACT wordmark now leads to `/tract`.
+- `TURNSTILE_HOSTNAMES` keeps both domains so a Worker rollback to the
+  two-domain build needs no configuration change.
+
+Alternatives considered: moving the TRACT home to `app/tract/page.tsx` and the
+landing into `app/page.tsx` (cleaner file layout, but a large diff over files
+the owner has local edits to); keeping both domains with cross-domain
+canonicals (canonicals are hints, and the duplicate stays crawlable).
+
+Consequences: tractrealestate.com stops ranking as itself and passes its signals
+to wsmlending.com through permanent redirects. Supabase Auth must allow
+`https://wsmlending.com/**` as a redirect URL, and the Turnstile widget must list
+wsmlending.com, or sign-in and forms fail on the one remaining domain. Both are
+dashboard steps listed in `docs/seo/README.md`.
+
+**Amended 2026-11-13 (ADR-014).** TRACT is retired as a visible brand, so the
+old product home no longer has a public URL. On wsmlending.com `/tract` is a
+308 to `/` with the query string kept, the same status as `/wml`, and it is no
+longer in the route registry. The header wordmark (now the Wholesale Mortgage
+Lending lockup) leads to `/` as a plain anchor. `app/page.tsx` is still what
+`/` renders on localhost, where the browser suite exercises its funnel, and it
+stays noindex. Local `/tract` still rewrites to `/`, because a redirect there
+would need the request's own origin rather than the canonical one.
+
+---
+
+## ADR-012 — Licensing facts from the owner's NMLS portal relay
+
+**Date:** 2026-11-12 · **Status:** accepted · **Owner:** Aaron Pilkington
+
+On 2026-11-12 the owner stated the company is licensed and relayed a screenshot
+of Dan's own NMLS portal account list: Wholesale Mortgage Lending LLC, company
+NMLS ID 2898263; loan originator Daniel Michael Cuesta, NMLS ID 132852. NMLS
+Consumer Access blocks automated lookup, so no public-record readback was
+possible from the engineering side.
+
+Applied through the existing model in `apps/web/lib/site.ts`:
+
+- `businessIdentity.nmlsId = "2898263"`, `legalName = "Wholesale Mortgage
+Lending LLC"`, and a separate `name` ("Wholesale Mortgage Lending") for the
+  schema `name` and the WebSite node.
+- `loanOriginator` records Dan's name and NMLS ID; footers, About and Licensing
+  show it with a deep link to his Consumer Access page.
+- `companyLicenseId` stays null. The Florida broker licence number was not
+  provided and is never guessed. Because the company is now stated licensed, a
+  null renders as "number pending confirmation" instead of "pending issuance",
+  which would contradict the statement.
+- `companyLicensed` and `principalLoanOriginatorNamed` are true, from the
+  owner's statement (Florida does not issue a broker business licence without a
+  principal loan originator, and Dan is the only originator named).
+- `nmlsRecordPublic` stays false. It flips only after a person opens the
+  Consumer Access page for 2898263 and sees the company listed with an approved
+  Florida licence. Until then `isPreLaunch()` is true: the banner stays, no
+  application is taken, paid-ads conversion sending stays off, and the
+  Consumer Access URL stays out of the Organization `sameAs`.
+
+No street address or telephone is asserted anywhere; neither is confirmed.
+
+**Amended 2026-11-13: business phone.** The owner gave the business line,
+727-486-6004, and 24/7 hours. Applied: `telephone = "+17274866004"` in the
+Organization node. The address stays null: the filed principal office is not a
+place customers visit, so the node remains a plain `Organization` (ADR-009).
+Hours are a listings fact (Google, Bing, Apple), not asserted in site schema.
+
+**Amended 2026-11-12, later the same day: owner confirmation.** Aaron
+Pilkington (owner) confirmed that MBR8794 is Wholesale Mortgage Lending's
+Florida mortgage broker licence and that the company's NMLS Consumer Access
+record is public. Consumer Access blocks automated lookup, so this rests on the
+owner's confirmation, not an engineering readback. Applied:
+`companyLicenseId = "MBR8794"` and `nmlsRecordPublic = true`, so all three
+licensing flags are true and `isPreLaunch()` is false. The pre-launch banner and
+badges disappear, the readiness board shows the three licensing gates as
+approved, and the Consumer Access company page joins the Organization `sameAs`.
+Meta conversion sending still also needs `META_CAPI_LIVE_CLEARED`. The schema
+stays a plain `Organization`: the type rule in ADR-009 keys on a public office
+address, not on licensing, and no address is confirmed.
+
+---
+
+## ADR-013 — Crawl policy, real lastmod, and IndexNow
+
+**Date:** 2026-11-12 · **Status:** accepted · **Owner:** Aaron Pilkington
+
+**Crawlers.** robots.txt allows every public page to search crawlers
+(Googlebot, Bingbot, Applebot), answer crawlers (OAI-SearchBot, ChatGPT-User,
+Claude-SearchBot, Claude-User, PerplexityBot, Perplexity-User) and training
+crawlers (GPTBot, ClaudeBot, Google-Extended, Applebot-Extended, CCBot,
+Meta-ExternalAgent). Allowing training crawlers reverses the earlier GPTBot and
+CCBot block, by owner decision. Each named group repeats the private-surface
+disallows, because a crawler that finds its own group ignores `*`.
+
+**lastmod.** The sitemap used one hard-coded date for every URL. It now reads
+`apps/web/content/route-lastmod.generated.ts`, written by `pnpm seo:lastmod`:
+the UTC day of the newest commit touching the page module or the content
+modules it renders (`scripts/seo/route-sources.mjs`). Shared components are
+excluded so a restyle does not re-date the site. The map is committed because
+the deploy build may not have full Git history. A unit test fails when an
+indexable route has no entry.
+
+**IndexNow.** A key file is served from `apps/web/public`, and
+`scripts/indexnow-submit.mjs` submits URLs from the live sitemap only, after
+verifying the live key file, and refuses any URL not on wsmlending.com. It is an
+operator tool run after a deploy, not runtime code: it handles public URLs only,
+has no credential, and nothing in the Worker calls it.
+
+---
+
+## ADR-014 — Wholesale Mortgage Lending is the only visible brand; TRACT retired
+
+**Date:** 2026-11-13 · **Status:** accepted · **Owner:** Aaron Pilkington
+
+ADR-011 gave the company one domain, but the site still showed two names. The
+company, Wholesale Mortgage Lending LLC, is the licensed Florida brokerage (NMLS
+2898263, licence MBR8794). TRACT was presented as "our platform": its wordmark
+headed every page, the favicon was the TRACT house, the Organization schema
+carried `alternateName: "TRACT Mortgage"`, and the articles said "TRACT is a
+mortgage broker… TRACT arranges loans", which presents an unregistered name as
+the brokerage itself.
+
+The owner decided on 2026-11-13 that wsmlending.com is the one master domain and
+Wholesale Mortgage Lending the only name a visitor, a crawler or a
+structured-data reader sees. His reasons:
+
+- **The fictitious-name rule.** The owner cites Florida Rule 69V-40.021: a
+  licensed mortgage brokerage may not do business under a fictitious name that is
+  not registered and on file with the Office of Financial Regulation, and NMLS
+  expects every trade name on the company record. TRACT is neither. (The rule is
+  the owner's citation; engineering did not read it back.)
+- **Entity consistency for YMYL.** Mortgage content is "your money or your
+  life" material. Search and answer engines weigh who stands behind it, and the
+  answer should be the same everywhere: page copy, the Organization node, the
+  NMLS record, the Google Business Profile and the domain. A second brand made
+  the site describe two entities.
+- **One business, one name.** The company only does mortgages. A separate
+  consumer brand would be a second entity to build trust for with no product
+  that it alone stands for.
+
+What changed:
+
+- Copy. Every page, component, metadata title and description, JSON-LD block,
+  llms.txt line, the manifest and the 173 mentions in the articles. "TRACT" became
+  "Wholesale Mortgage Lending", or "we" where the long name would repeat.
+  Feature labels lost the prefix: Home Vision, Mortgage assistant, our agent
+  network, Loan portal.
+- Schema. `NEXT_PUBLIC_BRAND_NAME` equals the company name in
+  `apps/web/.env.production`, `wrangler.jsonc` and the env schema default, so
+  `organizationNode` drops `alternateName`. `PRODUCT_NAME` is gone.
+- Consent and disclosure versions. The Vision report disclosure now names the
+  company, so `VISION_REPORT_DISCLOSURE_VERSION` moved to
+  `vision-report-request@1.1.0`. The DSCR calculator disclosure no longer says
+  "TRACT underwriting", so `DISCLOSURE_VERSION` moved to
+  `calc-disclosure@2026-11-13`. Receipts store the version as plain text with no
+  database constraint, so no migration. `tests/unit/brand.test.ts` pins each
+  consent version to the SHA-256 of its text, so wording cannot change under an
+  old version again.
+- Logo and icons. The header and footer lockup is the WML glyph, cropped from
+  `public/brand/wml-logo.png`, beside the company name in live text. A lighter
+  tint of the same purple is used on the dark theme, where the brand purple is
+  about 2.3:1. The favicon, app icons and PWA icons are the glyph in white on
+  the brand purple; the maskable icon keeps the glyph inside the 80% safe
+  circle. The TRACT image files had no remaining references and were deleted.
+- `/tract` is a 308 to `/` (ADR-011 amendment).
+- The homepage's "Powered by TRACT" band became a free-tools band, and an
+  Explore section links every hub the sitemap lists (`content/home-hub.ts`,
+  tested against the registry).
+
+Kept on purpose: internal code names nobody outside the repo sees (the
+`@tract/*` packages, the `x-tract-brand` header, `FEATURE_TRACT`, `tract.*`
+browser-storage keys, the `tract_*` CRM custom-field keys, "TRACT chrome" in
+comments), and the provenance `source` strings in
+`public/images/asset-manifest.json`, which record how each image was made.
+
+Alternatives considered:
+
+- Register TRACT as a fictitious name with the state and list it as a trade
+  name in NMLS, then keep it as a product brand under the company. Legal once
+  filed, but it costs a filing and an NMLS amendment, and still leaves two
+  entities for every reader to reconcile. Rejected by the owner.
+- Move TRACT to its own domain. A second site to rank, and the same
+  registration question the moment it markets mortgage services.
+
+Consequences:
+
+- Old `/tract` links and any ranking they earned land on the homepage.
+- Vision receipts created after the deploy carry version 1.1.0 and the new hash;
+  older receipts keep 1.0.0 and the old hash. Both remain accurate records.
+- Search results pick up the new titles, snippets and favicon as pages are
+  recrawled. Submitting the changed URLs through IndexNow after the deploy
+  speeds that up on Bing.
+- The "Brand truth" section of `docs/TRACT_MASTER_RECOVERY_BUILD.md` (TRACT
+  Mortgage as the working name) is superseded for everything user-facing.
+- A `\bTRACT\b` in content data, or outside a comment in `apps/web/app`,
+  `components`, `content` or `lib`, fails `tests/unit/brand.test.ts`, and the
+  browser suite checks the visible text and JSON-LD of the landing, a program
+  page, two articles and the calculators hub.

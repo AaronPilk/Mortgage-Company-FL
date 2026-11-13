@@ -30,15 +30,31 @@
    * where a deploy can only ever assert it.
    */
   "vars": {
-    "NEXT_PUBLIC_BRAND_NAME": "TRACT Mortgage",
+    "NEXT_PUBLIC_BRAND_NAME": "Wholesale Mortgage Lending",
+    // The canonical origin (ADR-011). The app reads it from .env.production at
+    // build time; these copies exist for worker-entry.js, whose cron builds
+    // email and Meta links from the runtime env and otherwise falls back to
+    // localhost. Must equal apps/web/.env.production (a unit test checks).
+    "NEXT_PUBLIC_SITE_URL": "https://wsmlending.com",
+    "NEXT_PUBLIC_COMPANY_URL": "https://wsmlending.com",
     "NEXT_PUBLIC_SUPABASE_URL": "https://pywikpvjovaayidxyoii.supabase.co",
     "TURNSTILE_MODE": "production",
     // Hostnames Turnstile tokens must have been solved on. Comma-separated;
     // required by the environment schema whenever the mode is live — its
-    // absence is what turned every page into a 500 on 18 Aug 2026.
-    "TURNSTILE_HOSTNAMES": "mortgage-company-fl.aaron-9c3.workers.dev",
+    // absence is what turned every page into a 500 on 18 Aug 2026. Both
+    // domains stay listed (owner decision, 12 Nov 2026) so rolling the Worker
+    // back to the two-domain build needs no config change.
+    "TURNSTILE_HOSTNAMES": "tractrealestate.com,www.tractrealestate.com,wsmlending.com,www.wsmlending.com,mortgage-company-fl.aaron-9c3.workers.dev",
     "GHL_MODE": "production",
-    "GHL_LOCATION_ID": "rg3WUxqvDHrkiyBmEiCV",
+    "GHL_LOCATION_ID": "c89Fy6SdOYvwb85BbbDP",
+    // Maps each field the lead pipeline sends to its GoHighLevel custom-field
+    // ID (read from the live location on 19 Aug 2026). Field IDs are not
+    // secret, so this lives here where a deploy re-asserts it rather than in
+    // the secret store. A key absent from this map is simply not sent — the
+    // adapter filters it — so adding a field is: create it in GHL, add its id
+    // here. tract_credit_band and the other planner bands populate only on
+    // planner/funnel leads.
+    "GHL_CUSTOM_FIELD_MAP": "{}",
     // Labelled sample listings, deliberately published pre-MLS (see
     // docs/handoff/DECISIONS.md and lib/listings.ts). Three switches are all
     // required: the fixture provider, the explicit sample-data opt-in, and the
@@ -48,10 +64,43 @@
     "MLS_PROVIDER": "fixture",
     "SHOW_SAMPLE_LISTINGS": "true",
     "FEATURE_PROPERTY_SEARCH": "true",
+    // TRACT borrower portal (/loan). Login-gated and noindex. Set to "false" to
+    // keep the whole loan surface dark; "true" turns it on for internal testing.
+    "FEATURE_TRACT": "true",
     // Labelled sample agent profiles in the directory, same deliberate opt-in
     // as the sample listings. Real approved agents replace them, and the
     // /agents registry entry flips indexable when the samples turn off.
     "SHOW_SAMPLE_AGENTS": "true",
+    // Home lookup (/home-lookup): paste a listing link or address to pull
+    // property facts and seed the calculators. Runs on ATTOM. Until a licensed
+    // key is set, ATTOM_MODE=fixture + SHOW_SAMPLE_PROPERTY_DATA=true serve
+    // clearly-labelled sample data (the same posture as SHOW_SAMPLE_LISTINGS).
+    // To go live on real data: set ATTOM_MODE=production and add the
+    // ATTOM_API_KEY secret — SHOW_SAMPLE_PROPERTY_DATA then has no effect.
+    "FEATURE_HOME_LOOKUP": "true",
+    "ATTOM_MODE": "production",
+    // FEMA flood zone on the home lookup — free public NFHL, no key. "production"
+    // calls FEMA live using the property's coordinates.
+    "FLOOD_MODE": "production",
+    "SHOW_SAMPLE_PROPERTY_DATA": "true",
+    // Homeowner value dashboard (/account): a signed-in homeowner tracks their
+    // home's automated value (ATTOM AVM) over time and sees estimated equity.
+    // Reuses ATTOM_MODE above; its public flag also requires a live ATTOM mode.
+    "FEATURE_HOME_VALUE": "true",
+    // Rate watch (/mortgage-rates + /account): shows the Freddie Mac PMMS weekly
+    // national average via FRED — market info, never a quote — and lets a signed-in
+    // visitor watch it. DELIBERATELY DARK: displaying market rates is advertising-
+    // adjacent, so it stays off until (1) `wrangler secret put FRED_API_KEY`,
+    // (2) RATE_FEED_MODE="production", (3) FEATURE_RATE_WATCH="true", after legal
+    // clears the public display. The /mortgage-rates page is noindex until then.
+    "RATE_FEED_MODE": "production",
+    "FEATURE_RATE_WATCH": "true",
+    // Site assistant (floating chat): educates and routes, never quotes. Runs on
+    // the existing AI provider + budget. DELIBERATELY DARK: it talks to consumers
+    // about mortgages, so it stays off until AI is funded (AI_MODE + a key +
+    // non-zero AI budgets) and the flow is reviewed. Set FEATURE_ASSISTANT="true"
+    // then; the AI budget still caps every paid call.
+    "FEATURE_ASSISTANT": "false",
     // AI-assisted property search. Live mode requires the ANTHROPIC_API_KEY
     // secret (enforced by the environment schema), and spend happens only
     // inside these daily budgets — at 0 every paid call is refused and the

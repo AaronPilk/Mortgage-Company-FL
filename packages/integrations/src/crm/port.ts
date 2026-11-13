@@ -19,8 +19,32 @@ export type CrmLead = {
   timeline?: string;
   sourcePath: string;
   tags: string[];
+  /** Slug of the consenting partner agent who referred the lead, resolved server-side. Marketing attribution only. */
+  referringAgentSlug?: string;
   /** Approved concise context only; never raw income, debt, credit, or report narrative. */
   planningSummary?: string;
+  /**
+   * Planner qualifying answers, present only on planner and deep-funnel leads.
+   * Bands only — a self-reported credit band, income and debt ranges, a price
+   * band — never an exact figure and never a credit score. The payload screen
+   * (assertCrmPayloadSafe) still runs over this, so a prohibited key here throws
+   * rather than ships.
+   */
+  planner?: {
+    goal?: string;
+    propertyType?: string;
+    propertyStage?: string;
+    propertyLocation?: string | null;
+    priceBand?: string;
+    downPaymentBand?: string;
+    creditBand?: string;
+    employment?: string;
+    incomeBand?: string;
+    monthlyDebtBand?: string;
+    currentMortgageBalanceBand?: string | null;
+    currentMortgageRateBand?: string | null;
+    timing?: string;
+  };
   consent: {
     smsMarketing: boolean;
     emailMarketing: boolean;

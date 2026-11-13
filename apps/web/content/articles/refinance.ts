@@ -54,7 +54,7 @@ export const REFINANCE_ARTICLES: Article[] = [
         heading: "When the math says no",
         paragraphs: [
           "Common failure modes: you plan to sell within the break-even window; the monthly saving is small enough that break-even lands years out; or the costs are financed into the balance, which feels free but accrues interest for decades. A refinance that never breaks even during your ownership is a purchase of a lower payment at a premium price — sometimes still worth it for cash-flow reasons, but it should be chosen with the price tag visible.",
-          "TRACT is a Florida mortgage brokerage: we arrange loans through wholesale lenders and do not make, approve, or price them. What we can do is put real lender quotes into this exact framework — costs, savings, months — so the decision is yours and the math is honest. The break-even calculator linked from every refinance page runs the same arithmetic."
+          "Wholesale Mortgage Lending is a Florida mortgage brokerage: we arrange loans through wholesale lenders and do not make, approve, or price them. What we can do is put real lender quotes into this exact framework — costs, savings, months — so the decision is yours and the math is honest. The break-even calculator linked from every refinance page runs the same arithmetic."
         ]
       }
     ],
@@ -100,7 +100,7 @@ export const REFINANCE_ARTICLES: Article[] = [
     related: [
       { href: "/calculators/refinance-break-even", label: "Refinance break-even calculator" },
       { href: "/calculators/amortization", label: "Amortization schedule calculator" },
-      { href: "/mortgage/refinance", label: "Refinancing with TRACT" },
+      { href: "/mortgage/refinance", label: "Refinancing with us" },
       {
         href: "/resources/no-closing-cost-refinance",
         label: "The truth about no-closing-cost refinances"
@@ -153,9 +153,9 @@ export const REFINANCE_ARTICLES: Article[] = [
         ]
       },
       {
-        heading: "Where TRACT fits",
+        heading: "Where we fit",
         paragraphs: [
-          "TRACT is a mortgage brokerage. We do not make or approve loans, and we do not set the LTV caps or the prices — lenders and the agencies do. What a broker adds on a cash-out is shopping the same scenario across multiple wholesale lenders and putting the results side by side: cash received, total costs including Florida taxes, new payment, and the rate you are giving up. If a home equity line or a smaller loan serves the goal better, the comparison should show that too. Education first; the decision is yours."
+          "Wholesale Mortgage Lending is a mortgage brokerage. We do not make or approve loans, and we do not set the LTV caps or the prices — lenders and the agencies do. What a broker adds on a cash-out is shopping the same scenario across multiple wholesale lenders and putting the results side by side: cash received, total costs including Florida taxes, new payment, and the rate you are giving up. If a home equity line or a smaller loan serves the goal better, the comparison should show that too. Education first; the decision is yours."
         ]
       }
     ],
@@ -206,7 +206,7 @@ export const REFINANCE_ARTICLES: Article[] = [
         href: "/resources/rate-term-vs-cash-out",
         label: "Rate-and-term vs. cash-out classification"
       },
-      { href: "/mortgage/refinance", label: "Refinancing with TRACT" }
+      { href: "/mortgage/refinance", label: "Refinancing with us" }
     ],
     publishedAt: "2026-08-18",
     lastReviewed: "2026-08-18"
@@ -259,7 +259,7 @@ export const REFINANCE_ARTICLES: Article[] = [
         heading: "Planning around the line",
         paragraphs: [
           "If you need cash and a better first-mortgage structure, run the alternatives explicitly: one cash-out refinance versus a rate-and-term refinance paired with a separate home equity line, versus leaving the first mortgage alone entirely. The delayed-financing exception in Fannie Mae's guide — for owners who recently paid cash for a property — is another example of a structural rule worth knowing before you close, not after.",
-          "TRACT arranges loans through multiple wholesale lenders; we do not set these classifications or their prices. What a broker can do is price your actual scenario both ways where both are possible, so the cost of the cash-out label is a number on paper instead of a surprise in a quote. Start with the break-even calculator, then get the classifications priced."
+          "Wholesale Mortgage Lending arranges loans through multiple wholesale lenders; we do not set these classifications or their prices. What a broker can do is price your actual scenario both ways where both are possible, so the cost of the cash-out label is a number on paper instead of a surprise in a quote. Start with the break-even calculator, then get the classifications priced."
         ]
       }
     ],
@@ -308,7 +308,7 @@ export const REFINANCE_ARTICLES: Article[] = [
         label: "How cash-out refinancing works in Florida"
       },
       { href: "/calculators/refinance-break-even", label: "Refinance break-even calculator" },
-      { href: "/mortgage/refinance", label: "Refinancing with TRACT" },
+      { href: "/mortgage/refinance", label: "Refinancing with us" },
       { href: "/resources/heloc-vs-cash-out", label: "HELOC vs. cash-out refinance" }
     ],
     publishedAt: "2026-08-18",
@@ -361,7 +361,7 @@ export const REFINANCE_ARTICLES: Article[] = [
         heading: "Costs, and how they get paid",
         paragraphs: [
           "HUD's rules do not allow streamline closing costs to be financed into the new loan balance beyond the tightly defined loan-amount formula. In practice that leaves paying costs in cash at closing or absorbing them through the rate via a lender credit. Both are real costs and belong in a break-even calculation like any other refinance.",
-          "TRACT arranges FHA loans through wholesale lenders; we do not make, approve, or price them, and HUD's rules — not ours — define eligibility and benefit tests. What we can do is price your streamline against a conventional refinance and against doing nothing, with the mortgage insurance treated honestly in all three columns."
+          "Wholesale Mortgage Lending arranges FHA loans through wholesale lenders; we do not make, approve, or price them, and HUD's rules — not ours — define eligibility and benefit tests. What we can do is price your streamline against a conventional refinance and against doing nothing, with the mortgage insurance treated honestly in all three columns."
         ]
       }
     ],
@@ -400,7 +400,7 @@ export const REFINANCE_ARTICLES: Article[] = [
       }
     ],
     related: [
-      { href: "/mortgage/fha", label: "FHA loans with TRACT" },
+      { href: "/mortgage/fha", label: "FHA loans with us" },
       { href: "/calculators/refinance-break-even", label: "Refinance break-even calculator" },
       { href: "/resources/no-closing-cost-refinance", label: "How lender credits really price" },
       { href: "/resources/remove-pmi", label: "Removing mortgage insurance on conventional loans" }
@@ -452,9 +452,9 @@ export const REFINANCE_ARTICLES: Article[] = [
         ]
       },
       {
-        heading: "Where TRACT fits",
+        heading: "Where we fit",
         paragraphs: [
-          "TRACT is a Florida mortgage brokerage that arranges VA loans through wholesale lenders; we do not make, approve, or price loans, and VA's rules — not ours — define IRRRL eligibility and the benefit tests. Because IRRRLs are lender-priced within VA's framework, the same veteran can see meaningfully different offers, and comparing several is the whole game. We put the offers through the same break-even arithmetic the recoupment rule requires, so the winning quote is visible on paper before anyone commits."
+          "Wholesale Mortgage Lending is a Florida mortgage brokerage that arranges VA loans through wholesale lenders; we do not make, approve, or price loans, and VA's rules — not ours — define IRRRL eligibility and the benefit tests. Because IRRRLs are lender-priced within VA's framework, the same veteran can see meaningfully different offers, and comparing several is the whole game. We put the offers through the same break-even arithmetic the recoupment rule requires, so the winning quote is visible on paper before anyone commits."
         ]
       }
     ],
@@ -493,7 +493,7 @@ export const REFINANCE_ARTICLES: Article[] = [
       }
     ],
     related: [
-      { href: "/mortgage/va", label: "VA loans with TRACT" },
+      { href: "/mortgage/va", label: "VA loans with us" },
       { href: "/calculators/refinance-break-even", label: "Refinance break-even calculator" },
       { href: "/resources/refinance-break-even", label: "The only refinance math that matters" },
       { href: "/contact", label: "Talk through your VA refinance" }
@@ -548,7 +548,7 @@ export const REFINANCE_ARTICLES: Article[] = [
         heading: "When refinancing beats waiting",
         paragraphs: [
           "A refinance replaces the loan, and the new loan's PMI question is answered fresh at closing based on the new appraisal: enough equity and there is simply no PMI. When the servicer's current-value path is blocked or slow and substantial equity exists, refinancing can be the faster exit — but it buys that exit with full closing costs and a new rate, so it has to clear the same break-even test as any refinance, with the vanished premium counted as part of the monthly savings.",
-          "TRACT arranges loans and does not make, approve, or price them — and PMI cancellation itself involves no loan at all, just your servicer. Where we help is the comparison: what the premium removal is worth per month, what a refinance would cost, and which path the arithmetic favors. Run it before paying for either an appraisal or an application."
+          "Wholesale Mortgage Lending arranges loans and does not make, approve, or price them — and PMI cancellation itself involves no loan at all, just your servicer. Where we help is the comparison: what the premium removal is worth per month, what a refinance would cost, and which path the arithmetic favors. Run it before paying for either an appraisal or an application."
         ]
       }
     ],
@@ -594,7 +594,7 @@ export const REFINANCE_ARTICLES: Article[] = [
     related: [
       { href: "/calculators/amortization", label: "Amortization schedule calculator" },
       { href: "/calculators/refinance-break-even", label: "Refinance break-even calculator" },
-      { href: "/mortgage/conventional", label: "Conventional loans with TRACT" },
+      { href: "/mortgage/conventional", label: "Conventional loans with us" },
       { href: "/resources/refinance-break-even", label: "The only refinance math that matters" }
     ],
     publishedAt: "2026-08-18",
@@ -647,7 +647,7 @@ export const REFINANCE_ARTICLES: Article[] = [
         heading: "How to decide, in order",
         paragraphs: [
           "First, define the goal: lower required payment, earlier payoff, or lower lifetime interest — the three paths serve different masters. Second, get your servicer's recast terms and a current refinance quote for your scenario, then run the refinance through a break-even calculation with the recast as the baseline instead of doing nothing. Third, check the second-order effects: a lower required payment also helps debt-to-income math on future borrowing, while an early payoff builds equity faster.",
-          "TRACT arranges refinances through wholesale lenders and has no role in recasts — that conversation belongs to you and your servicer, which is exactly why we will tell you when the recast is the better answer. A brokerage that only ever recommends the transaction it gets paid on is not doing analysis. Education first; the math decides."
+          "Wholesale Mortgage Lending arranges refinances through wholesale lenders and has no role in recasts — that conversation belongs to you and your servicer, which is exactly why we will tell you when the recast is the better answer. A brokerage that only ever recommends the transaction it gets paid on is not doing analysis. Education first; the math decides."
         ]
       }
     ],
@@ -688,7 +688,7 @@ export const REFINANCE_ARTICLES: Article[] = [
     related: [
       { href: "/calculators/amortization", label: "Amortization schedule calculator" },
       { href: "/calculators/refinance-break-even", label: "Refinance break-even calculator" },
-      { href: "/mortgage/refinance", label: "Refinancing with TRACT" },
+      { href: "/mortgage/refinance", label: "Refinancing with us" },
       { href: "/resources/refinance-break-even", label: "The only refinance math that matters" }
     ],
     publishedAt: "2026-08-18",
@@ -741,7 +741,7 @@ export const REFINANCE_ARTICLES: Article[] = [
         heading: "How to choose",
         paragraphs: [
           "Start with three questions. How does your current first-mortgage rate compare with a fresh quote — is repricing it a cost or a benefit? How much do you need, and is it one sum or a stream? How long will the money be outstanding — short enough that a variable rate is a tolerable risk, or long enough that fixed certainty is worth paying for?",
-          "TRACT arranges first-mortgage loans, including cash-out refinances, through wholesale lenders; we do not make or price them, and home equity lines are often obtained through banks and credit unions directly. We will still run the comparison with you honestly — including when the answer is 'keep your first mortgage and get a line elsewhere' — because a recommendation that ignores the better path is not education, it is sales."
+          "Wholesale Mortgage Lending arranges first-mortgage loans, including cash-out refinances, through wholesale lenders; we do not make or price them, and home equity lines are often obtained through banks and credit unions directly. We will still run the comparison with you honestly — including when the answer is 'keep your first mortgage and get a line elsewhere' — because a recommendation that ignores the better path is not education, it is sales."
         ]
       }
     ],
@@ -790,7 +790,7 @@ export const REFINANCE_ARTICLES: Article[] = [
         label: "How cash-out refinancing works in Florida"
       },
       { href: "/calculators/refinance-break-even", label: "Refinance break-even calculator" },
-      { href: "/mortgage/refinance", label: "Refinancing with TRACT" },
+      { href: "/mortgage/refinance", label: "Refinancing with us" },
       {
         href: "/resources/rate-term-vs-cash-out",
         label: "Why the cash-out label changes the price"
@@ -845,7 +845,7 @@ export const REFINANCE_ARTICLES: Article[] = [
       {
         heading: "Why we tell you this",
         paragraphs: [
-          "TRACT is a mortgage brokerage: we arrange loans through wholesale lenders and do not make, approve, or price them. Broker compensation is disclosed under federal rules, and nothing about our role changes the physics above — every no-cost loan we could arrange prices its costs into the rate the same way anyone else's does.",
+          "Wholesale Mortgage Lending is a mortgage brokerage: we arrange loans through wholesale lenders and do not make, approve, or price them. Broker compensation is disclosed under federal rules, and nothing about our role changes the physics above — every no-cost loan we could arrange prices its costs into the rate the same way anyone else's does.",
           "The reason to explain the machine is simpler: borrowers who understand the rate-cost lever make better choices and are harder to mislead, and an educated borrower comparing honestly quoted structures is the client we want. Bring us any offer, including one we did not arrange, and we will decompose it into rate, credits, and costs so you can see what is actually being sold."
         ]
       }
@@ -892,7 +892,7 @@ export const REFINANCE_ARTICLES: Article[] = [
     related: [
       { href: "/calculators/refinance-break-even", label: "Refinance break-even calculator" },
       { href: "/resources/refinance-break-even", label: "The only refinance math that matters" },
-      { href: "/mortgage/refinance", label: "Refinancing with TRACT" },
+      { href: "/mortgage/refinance", label: "Refinancing with us" },
       { href: "/plan", label: "Build your mortgage plan" }
     ],
     publishedAt: "2026-08-18",
@@ -945,7 +945,7 @@ export const REFINANCE_ARTICLES: Article[] = [
         heading: "Run investor math, then shop wide",
         paragraphs: [
           "A homeowner refinances to a lower payment; an investor refinances to a return. The break-even calculation still governs, but the savings line feeds cash flow and cash-on-cash return, and a cash-out's proceeds have an opportunity cost and an expected yield. Run the property's numbers after the proposed refinance — payment, taxes, insurance, vacancy — before committing, using investor tools rather than homeowner intuition.",
-          "TRACT arranges investment-property loans, conventional and DSCR alike, through wholesale lenders; we do not make, approve, or price them. Because investor pricing disperses widely across lenders, this is the corner of the market where shopping through a broker earns its keep most visibly: the same rental, quoted across multiple investor-focused lenders, side by side."
+          "Wholesale Mortgage Lending arranges investment-property loans, conventional and DSCR alike, through wholesale lenders; we do not make, approve, or price them. Because investor pricing disperses widely across lenders, this is the corner of the market where shopping through a broker earns its keep most visibly: the same rental, quoted across multiple investor-focused lenders, side by side."
         ]
       }
     ],
@@ -989,7 +989,7 @@ export const REFINANCE_ARTICLES: Article[] = [
       }
     ],
     related: [
-      { href: "/mortgage/investment-property", label: "Investment property loans with TRACT" },
+      { href: "/mortgage/investment-property", label: "Investment property loans with us" },
       { href: "/mortgage/dscr", label: "DSCR loans" },
       {
         href: "/calculators/investment-property-cash-flow",

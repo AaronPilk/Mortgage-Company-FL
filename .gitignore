@@ -19,3 +19,7 @@ test-results/
 supabase/.branches/
 supabase/.temp/
 *.local
+
+_to_delete/
+graphify-out/
+graphify-out/

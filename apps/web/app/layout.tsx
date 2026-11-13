@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import Script from "next/script";
+import { headers } from "next/headers";
 import "./globals.css";
 
 /**
@@ -13,8 +14,12 @@ const inter = Inter({
   variable: "--font-inter"
 });
 import { PreLaunchNotice, SiteFooter, SiteHeader } from "@/components/site-chrome";
+import { WmlHeader, WmlFooter } from "@/components/wml-chrome";
 import { MobileCta } from "@/components/mobile-cta";
+import { AssistantWidget } from "@/components/assistant/assistant-widget";
 import { AttributionCapture } from "@/components/attribution-capture";
+import { SiteAnalytics } from "@/components/analytics/site-analytics";
+import { publicFeatures } from "@/lib/env";
 import { JsonLd } from "@/components/json-ld";
 import { businessIdentity, SITE_URL } from "@/lib/site";
 import { graph, organizationNode, webSiteNode } from "@tract/seo";
@@ -22,23 +27,43 @@ import { graph, organizationNode, webSiteNode } from "@tract/seo";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "TRACT Mortgage — A Florida mortgage brokerage",
-    template: "%s | TRACT Mortgage"
+    default: "Wholesale Mortgage Lending — A Florida mortgage brokerage",
+    template: "%s | Wholesale Mortgage Lending"
   },
   description:
     "A Florida mortgage brokerage. Compare financing paths with clear calculators, plain-language guides, and direct help from a licensed professional.",
-  applicationName: "TRACT Mortgage",
+  applicationName: "Wholesale Mortgage Lending",
   formatDetection: { telephone: false, address: false, email: false },
-  manifest: "/manifest.webmanifest"
+  manifest: "/manifest.webmanifest",
+  // Google Search Console verification. Both brand hosts share this <head>, so
+  // both property tokens live here; each GSC property matches its own token.
+  verification: {
+    google: [
+      "OPTyYs5gOlCas5KV37MABMy17OjmeAxLqKYJf1ReQAA",
+      "rYzjwtG1kGQQSym_BVm0L_emSZpmnn-cFMzcRtLeP9E"
+    ]
+  }
 };
 
 export const viewport: Viewport = {
   themeColor: "#45217a",
   width: "device-width",
-  initialScale: 1
+  initialScale: 1,
+  /*
+    Without viewport-fit=cover, env(safe-area-inset-bottom) resolves to 0 on
+    iOS and the sticky action bar sits behind the home indicator.
+  */
+  viewportFit: "cover"
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Which chrome to render. The middleware marks the landing ("/" on
+  // wsmlending.com) with this header; every other route gets the full site
+  // chrome. One brand either way (ADR-014).
+  // Reading a header here is free — every route already renders dynamically
+  // because the shared header reads the session cookie.
+  const isWml = (await headers()).get("x-tract-brand") === "wml";
+
   return (
     <html lang="en-US" suppressHydrationWarning className={inter.variable}>
       <head>
@@ -59,19 +84,26 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to main content
         </a>
         <PreLaunchNotice />
-        <SiteHeader />
-        <main id="main" className="flex-1">
+        {isWml ? <WmlHeader /> : <SiteHeader />}
+        <main id="main" tabIndex={-1} className="flex-1">
           {children}
         </main>
-        <SiteFooter />
+        {isWml ? <WmlFooter /> : <SiteFooter />}
         {process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY !== undefined && (
           <Script
             src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
             strategy="afterInteractive"
           />
         )}
-        <MobileCta />
+        {/* The mobile CTA bar and the assistant point at the site's tools, so
+            they stay off the landing, whose one job is its form. Attribution
+            capture runs on both — a lead from a WML ad must carry its source. */}
+        {!isWml && <MobileCta />}
+        {!isWml && <AssistantWidget enabled={publicFeatures().assistant} />}
         <AttributionCapture />
+        <SiteAnalytics />
+        {/* One site, one graph (ADR-011). The WebSite node matters most on the
+            homepage, which is the landing, so it is emitted for both chromes. */}
         <JsonLd
           value={graph(
             [organizationNode(businessIdentity), webSiteNode(businessIdentity)],

@@ -37,7 +37,7 @@ export function ScenarioActions({
         SAVED_SCENARIOS_KEY,
         JSON.stringify({ version: "calculator-scenarios@1.0.0", items })
       );
-      setSaveStatus("Saved on this device. Nothing was sent to TRACT.");
+      setSaveStatus("Saved on this device. Nothing was sent to us.");
     } catch {
       setSaveStatus("This browser blocked local storage, so the scenario was not saved.");
     }
@@ -82,7 +82,7 @@ export function ScenarioActions({
       <h3 className="text-xl font-bold">Keep working with this result</h3>
       <p className="mt-2 text-sm text-[var(--text-muted)]">
         The calculation is already yours. Saving on this device needs no contact details. Sending it
-        to TRACT is optional and requires an explicit contact request.
+        to us is optional and requires an explicit contact request.
       </p>
       <div className="mt-5 flex flex-wrap gap-3">
         <Button type="button" variant="secondary" onClick={saveOnDevice}>
@@ -113,7 +113,7 @@ export function ScenarioActions({
           href="/properties"
           className="inline-flex min-h-[48px] items-center rounded-xl px-3 font-semibold text-[var(--purple)] underline underline-offset-4"
         >
-          Use a property from TRACT
+          Use a property from our listings
         </Link>
       </div>
       {saveStatus !== "" && (
@@ -142,7 +142,7 @@ export function ScenarioActions({
             heading={
               action === "email"
                 ? "Request this breakdown by email"
-                : "Ask TRACT to review these numbers"
+                : "Ask us to review these numbers"
             }
             submitLabel={action === "email" ? "Request emailed breakdown" : "Send for review"}
             disclosureText={LEAD_DISCLOSURE_TEXT}

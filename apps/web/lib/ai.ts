@@ -9,6 +9,7 @@ import {
   type ModelRoute,
   type StructuredExtractionInput
 } from "@tract/integrations";
+import { AREA_REPORT_TOOL } from "@tract/schemas";
 import { interpretedToExtraction, parseNaturalQuery } from "@/components/properties/nl-parser";
 import { MODEL_TIERS, selectAiVendor, type AiVendor, type ModelTier } from "./ai-vendor";
 import { env } from "./env";
@@ -74,7 +75,55 @@ export const PROPERTY_QUERY_ROUTE: ModelRoute & { tier: ModelTier } = {
   allowedDataClasses: ["public", "internal", "consumer_property"]
 };
 
-export const MODEL_ROUTES: readonly ModelRoute[] = [PROPERTY_QUERY_ROUTE];
+export const ASSISTANT_ROUTE: ModelRoute & { tier: ModelTier } = {
+  key: "assistant-reply",
+  capability: "structured_extraction",
+  // Light is enough: replies are short and the output is a constrained tool
+  // call, not open prose. Cheap keeps the public, anonymous surface affordable.
+  tier: "light",
+  get provider() {
+    return activeVendor();
+  },
+  get providerModel() {
+    return MODEL_TIERS[this.tier][activeVendor()];
+  },
+  enabled: true,
+  // A short conversation plus the compliance system prompt.
+  maxInputBytes: 8_192,
+  timeoutMs: 10_000,
+  fallbackKeys: [],
+  // The visitor's messages are their own words to a brokerage — contact-class,
+  // not public. Never restricted: the assistant must not handle application data.
+  allowedDataClasses: ["public", "internal", "consumer_contact"]
+};
+
+export const AREA_REPORT_ROUTE: ModelRoute & { tier: ModelTier } = {
+  key: "area-report-narrative",
+  capability: "structured_extraction",
+  // Standard, not light: the value here is prose quality, and the 24h per-county
+  // cache keeps volume tiny (a handful of calls a day at most), so the cost delta
+  // over the light tier is negligible. Drop to "light" to trade polish for cost.
+  tier: "standard",
+  get provider() {
+    return activeVendor();
+  },
+  get providerModel() {
+    return MODEL_TIERS[this.tier][activeVendor()];
+  },
+  enabled: true,
+  maxInputBytes: 8_192,
+  timeoutMs: 12_000,
+  fallbackKeys: [],
+  // Only sourced, public county facts and a figure-free draft are ever sent — no
+  // consumer input reaches this route — so it is cleared for public/internal only.
+  allowedDataClasses: ["public", "internal"]
+};
+
+export const MODEL_ROUTES: readonly ModelRoute[] = [
+  PROPERTY_QUERY_ROUTE,
+  ASSISTANT_ROUTE,
+  AREA_REPORT_ROUTE
+];
 
 /**
  * The fixture provider answers with the deterministic parser's reading of the
@@ -85,6 +134,21 @@ export const MODEL_ROUTES: readonly ModelRoute[] = [PROPERTY_QUERY_ROUTE];
 function fixtureResponder(request: AiRequest<unknown>): unknown {
   const input = request.input as Partial<StructuredExtractionInput>;
   const text = typeof input.user === "string" ? input.user : "";
+  // The area-report feature answers with a deterministic, figure-free prose stub
+  // so AI_MODE=fixture exercises the whole area pipeline (validate → scrub →
+  // cache) with no network call and nothing to scrub out.
+  if (input.toolName === AREA_REPORT_TOOL.name) {
+    return {
+      overview:
+        "This county pairs an ordinary loan process with a carrying cost that rewards checking insurance and taxes early, before you are ever under contract on a specific home.",
+      lifestyle:
+        "Neighborhoods range from the busier core out to quieter residential edges, each with its own feel, commute, and sense of what living there is actually like day to day.",
+      buyingConsiderations:
+        "Get a flood determination and a real insurance quote on the exact home, and budget the property tax from the post-sale reset rather than from the seller's current bill.",
+      neighborhoodsProse:
+        "Where a home sits shapes its cost as much as the list price does, so weigh the specific street and its elevation, not just the town it happens to be in."
+    };
+  }
   return interpretedToExtraction(parseNaturalQuery(text));
 }
 

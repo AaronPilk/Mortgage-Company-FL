@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Card, CtaPanel, LicenseFact, Prose, Section, SectionHeading } from "@/components/ui";
+import { Card, CtaPanel, Prose, Section, SectionHeading } from "@/components/ui";
+import { LicensingFacts, NmlsVerifyLinks } from "@/components/licensing-facts";
 import { pageMetadata } from "@/lib/metadata";
-import { businessIdentity } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata({
-  title: "About TRACT Mortgage",
+  title: "About Wholesale Mortgage Lending",
   description: "Who we are, what we do, and the precise version of our story.",
   path: "/about"
 });
@@ -23,8 +23,8 @@ export default function AboutPage() {
         <Prose>
           <h2>What we are</h2>
           <p>
-            TRACT Mortgage is a mortgage brokerage serving Florida. We arrange financing with
-            lenders; we do not make loans ourselves. In practice that means we compare options
+            Wholesale Mortgage Lending is a mortgage brokerage serving Florida. We arrange financing
+            with lenders; we do not make loans ourselves. In practice that means we compare options
             across lenders rather than fitting you to a single institution&rsquo;s product set.
           </p>
 
@@ -58,8 +58,8 @@ export default function AboutPage() {
             Between us we also have family with long careers in mortgage lending in North and South
             Carolina, and in title, real estate, and loan processing. That experience informs how we
             think. It is not this company&rsquo;s operating history, and we will not present it as
-            though TRACT has been doing this for decades. TRACT is new. We would rather tell you
-            that than pad a number.
+            though Wholesale Mortgage Lending has been doing this for decades. We are new. We would
+            rather tell you that than pad a number.
           </p>
 
           <h2>What we will not do</h2>
@@ -77,18 +77,15 @@ export default function AboutPage() {
         <Card className="mt-10">
           <h2 className="text-lg font-semibold text-[var(--text)]">Licensing</h2>
           <div className="mt-4 space-y-2">
-            <LicenseFact label="Company NMLS ID" value={businessIdentity.nmlsId} />
-            <LicenseFact
-              label="Florida mortgage broker license"
-              value={businessIdentity.companyLicenseId}
-            />
-            <LicenseFact label="Principal loan originator" value={null} />
+            <LicensingFacts originator />
           </div>
           <p className="mt-4 text-sm text-[var(--text-muted)]">
-            Where a value shows as pending, it has not yet been issued and confirmed on the public
-            record. We do not display a licence number before it exists. Verify anything you see
-            here on NMLS Consumer Access.
+            Where a value shows as pending, we have not yet confirmed it ourselves, so we do not
+            display it. Verify anything you see here on NMLS Consumer Access.
           </p>
+          <div className="mt-3">
+            <NmlsVerifyLinks originator />
+          </div>
         </Card>
       </Section>
 

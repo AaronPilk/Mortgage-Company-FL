@@ -17,7 +17,7 @@ type ButtonVariant = "primary" | "secondary" | "ghost";
 const buttonBase =
   "inline-flex items-center justify-center gap-2 rounded-xl font-semibold " +
   "min-h-[48px] px-6 py-3 text-[0.95rem] tracking-[-0.01em] " +
-  "transition-all duration-200 will-change-transform " +
+  "transition duration-200 will-change-transform " +
   "disabled:opacity-45 disabled:cursor-not-allowed disabled:transform-none";
 
 const buttonVariants: Record<ButtonVariant, string> = {
@@ -52,13 +52,30 @@ export function ButtonLink({
   className?: string;
   prefetch?: boolean;
   "data-cta"?: string;
+  /**
+   * Render a plain anchor so the browser loads a full document. Needed for "/":
+   * the landing renders different chrome from the root layout's TRACT chrome,
+   * and a client-side transition would keep the old header and footer.
+   */
+  reloadDocument?: boolean;
 }) {
+  const { reloadDocument = false, prefetch, ...anchorProps } = rest;
+  const style = variantStyle[variant];
+  const classes = `${buttonBase} ${buttonVariants[variant]} ${className}`;
+  if (reloadDocument) {
+    return (
+      <a href={href} style={style} className={classes} {...anchorProps}>
+        {children}
+      </a>
+    );
+  }
   return (
     <Link
       href={href}
-      style={variantStyle[variant]}
-      className={`${buttonBase} ${buttonVariants[variant]} ${className}`}
-      {...rest}
+      style={style}
+      className={classes}
+      {...(prefetch === undefined ? {} : { prefetch })}
+      {...anchorProps}
     >
       {children}
     </Link>
@@ -401,13 +418,22 @@ export function Disclosure({
  * Renders a licensing fact, or a visible pending state when the value has not
  * been issued. It cannot render a plausible-looking placeholder.
  */
-export function LicenseFact({ label, value }: { label: string; value: string | null }) {
+export function LicenseFact({
+  label,
+  value,
+  pendingLabel = "pending issuance"
+}: {
+  label: string;
+  value: string | null;
+  /** What a null reads as. The default suits a licence that does not exist yet. */
+  pendingLabel?: string;
+}) {
   return (
     <p className="text-sm" style={{ color: "var(--text-muted)" }}>
       <span className="font-semibold" style={{ color: "var(--text)" }}>
         {label}:
       </span>{" "}
-      {value === null ? <span className="italic">pending issuance</span> : value}
+      {value === null ? <span className="italic">{pendingLabel}</span> : value}
     </p>
   );
 }

@@ -41,6 +41,16 @@ semantic keys to provider identifiers. A GoHighLevel rebuild is therefore a
 variable change, not a code change. An unmapped field is simply not transmitted —
 never guessed.
 
+The adapter emits `tract_`-prefixed semantic keys (receipt id, intent, timeline,
+source path, consent metadata, UTM/gclid, planner bands, plan summary). The
+agent referral engine adds one more: **`tract_referring_agent`**, the slug of
+the consenting partner who referred the lead, present only when a `/r/<slug>`
+visit resolved to a claimed, approved agent. Map it to a text custom field in
+GoHighLevel to receive it; leave it unmapped and referrals still ride the
+`agent:<slug>` tag, which needs no configuration. The value is a public agent
+slug and nothing more — never a payment, a fee, or anything owed in either
+direction.
+
 ## Reliability
 
 Writes go through the transactional outbox, never inline in a request.
