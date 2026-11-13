@@ -34,7 +34,15 @@ export const metadata: Metadata = {
     "A Florida mortgage brokerage. Compare financing paths with clear calculators, plain-language guides, and direct help from a licensed professional.",
   applicationName: "Wholesale Mortgage Lending",
   formatDetection: { telephone: false, address: false, email: false },
-  manifest: "/manifest.webmanifest"
+  manifest: "/manifest.webmanifest",
+  // Google Search Console verification. Both brand hosts share this <head>, so
+  // both property tokens live here; each GSC property matches its own token.
+  verification: {
+    google: [
+      "OPTyYs5gOlCas5KV37MABMy17OjmeAxLqKYJf1ReQAA",
+      "rYzjwtG1kGQQSym_BVm0L_emSZpmnn-cFMzcRtLeP9E"
+    ]
+  }
 };
 
 export const viewport: Viewport = {
