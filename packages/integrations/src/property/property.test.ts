@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FemaFloodPort } from "./adapters";
+import { AttomPropertyFactsPort, FemaFloodPort } from "./adapters";
 import { FixturePropertyFactsPort } from "./fixtures";
 import { looksLikeUrl, parseListingLink } from "./listing-link";
 
@@ -133,5 +133,40 @@ describe("FemaFloodPort", () => {
       }) as unknown as typeof fetch
     });
     expect(await port.lookup({ latitude: 27.9, longitude: -82.4 })).toBeNull();
+  });
+});
+
+describe("AttomPropertyFactsPort failure names", () => {
+  const address = { line1: "1 Main St", city: "Tampa", state: "FL", postalCode: "33602" };
+  const respond = (status: number) =>
+    (async () => new Response(status === 200 ? '{"property":[]}' : "", { status })) as typeof fetch;
+
+  it("names a refused key so a lapsed trial is visible in the logs", async () => {
+    const port = new AttomPropertyFactsPort({ apiKey: "k", fetchImpl: respond(401) });
+    await expect(port.lookup(address)).rejects.toMatchObject({
+      name: "AttomAuthError",
+      status: 401
+    });
+  });
+
+  it("names a spent quota", async () => {
+    const port = new AttomPropertyFactsPort({ apiKey: "k", fetchImpl: respond(429) });
+    await expect(port.lookup(address)).rejects.toMatchObject({
+      name: "AttomQuotaError",
+      status: 429
+    });
+  });
+
+  it("keeps other server faults generic", async () => {
+    const port = new AttomPropertyFactsPort({ apiKey: "k", fetchImpl: respond(503) });
+    await expect(port.lookup(address)).rejects.toMatchObject({
+      name: "AttomApiError",
+      status: 503
+    });
+  });
+
+  it("treats an unmatched address as no record, not a fault", async () => {
+    const port = new AttomPropertyFactsPort({ apiKey: "k", fetchImpl: respond(404) });
+    expect(await port.lookup(address)).toBeNull();
   });
 });

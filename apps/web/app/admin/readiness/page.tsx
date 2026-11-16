@@ -81,9 +81,17 @@ function technicalGates(): Gate[] {
     {
       area: "Platform",
       item: "Property data (ATTOM) agreement in place",
-      state: state.attom === "fixture" || state.attom === "disabled" ? "blocked" : "approved",
+      state:
+        state.attom === "fixture" || state.attom === "disabled"
+          ? "blocked"
+          : state.attomPlan === "paid"
+            ? "approved"
+            : "in_progress",
       owner: "founders",
-      note: "Home lookup runs on labelled sample data until a licensed ATTOM key is set; fixtures are never presented as a real property record."
+      note:
+        state.attom !== "fixture" && state.attom !== "disabled" && state.attomPlan !== "paid"
+          ? "Live on ATTOM's 30-day trial key (500 calls a day). When it lapses, lookups return unavailable, never a guess. Sign a plan and set ATTOM_PLAN=paid, or switch to labelled samples with ATTOM_MODE=fixture."
+          : "Home lookup runs on labelled sample data until a licensed ATTOM key is set; fixtures are never presented as a real property record."
     },
     {
       area: "Platform",
