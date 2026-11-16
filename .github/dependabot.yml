@@ -3,6 +3,9 @@
 # `pnpm audit` in CI is a point-in-time check; this opens PRs as new advisories
 # and versions land, so a transitive CVE cannot sit undiscovered between manual
 # audits. Patch/minor bumps are grouped so a security-relevant major stands out.
+#
+# Majors that are deliberately held back are listed under `ignore`, each with
+# the decision that holds it. Remove the entry when the decision is revisited.
 version: 2
 updates:
   - package-ecosystem: "npm"
@@ -15,7 +18,18 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    ignore:
+      # ADR-010: TypeScript stays on 5.9 until typescript-eslint supports the
+      # newer major without a peer warning AND the 6.0 default changes
+      # (strict defaults, deprecated options) have been reviewed. Minor and
+      # patch releases of 5.9 still flow through the group above.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      # One PR per week for runner actions instead of one per action.
+      actions:
+        patterns: ["*"]
