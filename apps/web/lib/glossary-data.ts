@@ -159,7 +159,7 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
       "A fixed-rate mortgage keeps the same interest rate — and the same principal-and-interest payment — for the entire term, so it never changes with the market.",
     body: [
       "In a fixed-rate mortgage, the interest rate is set at closing and does not change for the life of the loan. The principal-and-interest portion of your payment is the same in the last year as in the first.",
-      "The trade-off is predictability versus a potentially lower starting rate. A fixed rate protects you if market rates rise, but you don't automatically benefit if they fall — capturing a lower rate later means refinancing.",
+      "The trade-off is predictability versus a potentially lower starting rate. A fixed rate protects you if [market rates](/mortgage-rates) rise, but you don't automatically benefit if they fall — capturing a lower rate later means refinancing.",
       "Taxes and insurance can still move a fixed-rate borrower's total payment year to year, because those are collected through escrow and are outside the loan's fixed rate."
     ],
     related: [
@@ -251,7 +251,7 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
     short:
       "Discount points are an optional upfront fee that lowers your interest rate. Whether paying them pays off depends mostly on how long you keep the loan.",
     body: [
-      "Discount points let you pay money at closing in exchange for a lower interest rate — buying down the rate. One point equals one percent of the loan amount, and each point lowers the rate by an amount the lender sets.",
+      "Discount points let you pay money at closing in exchange for a lower interest rate — buying down the rate. One point equals one percent of the loan amount, and each point lowers the rate by an amount the lender sets. You can [see what a lower rate does to the payment](/calculators/rate-impact) before deciding.",
       "Points are a break-even calculation, not a discount in the everyday sense. You pay more now for a smaller payment later, so the question is how long you keep the loan: stay past the break-even point and the buydown pays off; sell or refinance before it and it usually doesn't.",
       "Points are optional and are disclosed on your Loan Estimate, where they roll into the APR. Whether they make sense is specific to your rate, your cost, and your timeline."
     ],
@@ -619,7 +619,7 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
     short:
       "A rate lock holds a quoted interest rate for a set period while your loan closes, protecting you from rate moves. Locks expire and their terms vary by lender.",
     body: [
-      "A rate lock is a lender's commitment to hold a specific interest rate (and points) for a defined number of days while your loan is processed, shielding you from market moves during that window.",
+      "A rate lock is a lender's commitment to hold a specific interest rate (and points) for a defined number of days while your loan is processed, shielding you from market moves during that window. [This week's average mortgage rates](/mortgage-rates) show the kind of movement a lock protects against.",
       "Locks expire. If closing slips past the lock's end date, extending it can carry a cost, so the lock period is usually set to match a realistic closing timeline. Some locks offer a one-time float-down if rates fall, depending on the lender.",
       "A quoted rate before you lock is just that — a quote, subject to change until it's locked and until the loan closes on the terms underwriting confirms."
     ],

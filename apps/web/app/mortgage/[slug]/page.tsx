@@ -15,6 +15,7 @@ import {
   SectionHeading
 } from "@/components/ui";
 import { JsonLd } from "@/components/json-ld";
+import { LinkedText } from "@/components/linked-text";
 import { pageMetadata } from "@/lib/metadata";
 import { businessIdentity, SITE_URL } from "@/lib/site";
 import { PROGRAMS, programBySlug } from "@/content/programs";
@@ -176,7 +177,9 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
               </span>
               <div>
                 <h3 className="text-xl font-semibold">{step.heading}</h3>
-                <p className="mt-1.5 leading-relaxed text-[var(--text-muted)]">{step.body}</p>
+                <p className="mt-1.5 leading-relaxed text-[var(--text-muted)]">
+                  <LinkedText text={step.body} />
+                </p>
               </div>
             </li>
           ))}
@@ -193,7 +196,7 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
             >
               <dt className="font-semibold text-[var(--text)]">{variable.label}</dt>
               <dd className="mt-1.5 text-sm leading-relaxed text-[var(--text-muted)]">
-                {variable.body}
+                <LinkedText text={variable.body} />
               </dd>
             </div>
           ))}

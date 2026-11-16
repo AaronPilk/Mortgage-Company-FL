@@ -40,7 +40,7 @@ export const CONSTRUCTION_ARTICLES: Article[] = [
         heading: "The path from parcel to construction loan",
         paragraphs: [
           "Most people buying a parcel intend to build, and the financing world is organized around that intention. Fannie Mae's selling guide, for example, lets a single-closing construction-to-permanent transaction treat the borrower's existing equity in the lot as part of the transaction, which is why buying the lot first and building second is a workable sequence rather than a penalty.",
-          "In eligible rural areas, USDA Rural Development operates single-family housing programs that can finance building a home, which changes the calculus for acreage outside Florida's metro cores. Program eligibility is address-specific, so the maps and income limits on the USDA site are the authority."
+          "In eligible rural areas, USDA Rural Development operates single-family housing programs that can finance building a home, which changes the calculus for acreage outside Florida's metro cores. Program eligibility is address-specific, so the maps and income limits on the USDA site are the authority; our [USDA loan overview](/mortgage/usda) covers how the program works."
         ]
       },
       {

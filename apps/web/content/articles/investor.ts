@@ -315,7 +315,7 @@ export const INVESTOR_ARTICLES: Article[] = [
         heading: "Why projected STR income is not lease income",
         paragraphs: [
           "A twelve-month lease is a contract producing documented, continuing income, and agency guidelines have a defined process for counting it. Projected short-term rental revenue is a forecast: seasonal, weather-exposed, platform-dependent, and regulation-sensitive. Conventional underwriting counts rental income per the Selling Guide's documentation rules — typically leases or the property's tax return history — so a projection from a listing platform generally cannot qualify you the way a lease can.",
-          "This is where DSCR lenders diverge among themselves. Some will underwrite short-term rental income using market-rent appraisals or documented booking history; others use long-term market rent even for an STR, which can dramatically change the ratio. If the deal only works at nightly rates, the choice of lender and their income methodology is the whole ballgame — surface that before you contract, not at underwriting."
+          "This is where DSCR lenders diverge among themselves. Some will underwrite short-term rental income using market-rent appraisals or documented booking history; others use long-term market rent even for an STR, which can dramatically change the ratio. If the deal only works at nightly rates, the choice of lender and their income methodology is the whole ballgame. [Run the coverage ratio at both rent figures](/calculators/dscr) and surface the gap before you contract, not at underwriting."
         ]
       },
       {
@@ -335,7 +335,7 @@ export const INVESTOR_ARTICLES: Article[] = [
       {
         heading: "How we fit in",
         paragraphs: [
-          "Wholesale Mortgage Lending is a Florida mortgage broker. We arrange financing for second homes, investment properties, and short-term rental projects across conventional and DSCR programs, and we can tell you precisely how each lender on our panel treats STR income — which ones count it, how they document it, and what that does to your ratio. We are not attorneys, tax advisers, or licensing consultants: the local-ordinance research, state licensing, and tax registration belong with the appropriate professionals before closing, not after."
+          "Wholesale Mortgage Lending is a Florida mortgage broker. We arrange financing for second homes, [investment properties](/mortgage/investment-property), and short-term rental projects across conventional and DSCR programs, and we can tell you precisely how each lender on our panel treats STR income — which ones count it, how they document it, and what that does to your ratio. We are not attorneys, tax advisers, or licensing consultants: the local-ordinance research, state licensing, and tax registration belong with the appropriate professionals before closing, not after."
         ]
       }
     ],
@@ -525,7 +525,7 @@ export const INVESTOR_ARTICLES: Article[] = [
       {
         heading: "Rate reality: you are borrowing at a future price",
         paragraphs: [
-          "The refinance happens months after the purchase, at whatever the market charges then. Nobody — not us, not any lender — can tell you what that price will be. A rate shift between purchase and refinance changes the payment on the new loan, which changes the property's cash flow, which for a DSCR refinance changes the qualifying ratio itself: the same rent covers less payment at a higher rate, so the loan the ratio supports shrinks just when you need it. Rate risk and proceeds risk are the same risk wearing two coats.",
+          "The refinance happens months after the purchase, at whatever the market charges then. Nobody — not us, not any lender — can tell you what that price will be. A rate shift between purchase and refinance changes the payment on the new loan, which changes [the property's monthly cash flow](/calculators/investment-property-cash-flow), which for a DSCR refinance changes the qualifying ratio itself: the same rent covers less payment at a higher rate, so the loan the ratio supports shrinks just when you need it. Rate risk and proceeds risk are the same risk wearing two coats.",
           "Model the refinance at a range of rates above your assumption, and decide in advance what you will do if the cash-out proceeds come back smaller: hold with capital in the deal, take the smaller loan, or wait. All three are survivable if they were planned for."
         ]
       },
@@ -885,7 +885,7 @@ export const INVESTOR_ARTICLES: Article[] = [
         bullets: [
           "Financed-property limits: Fannie Mae's Selling Guide caps the number of financed one- to four-unit residential properties a borrower may have when the new loan is on a second home or investment property, with eligibility rules tightening above a lower count. The specific counts are in the guide — check the current table rather than folklore.",
           "Stacking reserves: agency reserve requirements are computed not just on the subject property but across your other financed properties, so each acquisition raises the liquidity bar for the next.",
-          "DTI drag: every mortgage payment enters your debt-to-income ratio, while the Selling Guide's rental income rules count only an adjusted portion of each property's rent — well-performing rentals can still consume qualifying capacity on paper."
+          "DTI drag: every mortgage payment enters [your debt-to-income ratio](/calculators/debt-to-income), while the Selling Guide's rental income rules count only an adjusted portion of each property's rent — well-performing rentals can still consume qualifying capacity on paper."
         ]
       },
       {

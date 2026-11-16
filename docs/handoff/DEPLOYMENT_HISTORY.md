@@ -105,3 +105,13 @@ The live build itself does not match `789aaa2`: on 2026-11-12 it showed company
 NMLS ID 2898263, Florida licence MBR8794 and no pre-launch banner, none of which
 any commit contains. It was deployed from a working tree with uncommitted
 changes.
+
+---
+
+## 2026-11-16 — internal links and broker page, prepared, not deployed
+
+Live before this release: commit `26987fd` (market-rates page public, ADR-015)
+as Worker version `5d568e0d-6c9b-43ef-9762-61f9bbf69909`. This release is
+merged to `main` for the owner to deploy with
+`deploy-wml-seo-20261116.sh`, which stops unless that is still exactly what is
+live. Record the new Worker version id here after the deploy.

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ButtonLink, Card, Disclosure, Prose, Section, SectionHeading } from "@/components/ui";
 import { MarketRates } from "@/components/rates/market-rates";
@@ -56,11 +57,13 @@ export default async function MortgageRatesPage() {
           weekly reading published every Thursday. It is useful for seeing the trend — whether rates
           are drifting up or down — but it is not the rate you would be offered. Your rate depends
           on your credit, your down payment, the property, the loan type, and the points and fees on
-          the specific loan, and it is quoted as an APR. Two people reading this page on the same
-          day can be offered very different rates.
+          the specific loan, and it is{" "}
+          <Link href="/resources/apr-vs-interest-rate">quoted as an APR</Link>. Two people reading
+          this page on the same day can be offered very different rates.
         </p>
         <p>
-          Rates move on the market, not on the calendar, so the best time to lock is a conversation
+          Rates move on the market, not on the calendar, so{" "}
+          <Link href="/resources/rate-lock-explained">the best time to lock</Link> is a conversation
           about your situation, not a number on a page. Use this as a signal to check in — not as a
           promise of what you&apos;ll get.
         </p>

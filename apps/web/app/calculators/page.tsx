@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Card, CtaPanel, Disclosure, Section, SectionHeading } from "@/components/ui";
+import { LinkedText } from "@/components/linked-text";
 import { pageMetadata } from "@/lib/metadata";
 import { publicFeatures } from "@/lib/env";
 
@@ -113,6 +114,9 @@ export default function CalculatorsIndexPage() {
             </Card>
           ))}
         </ul>
+        <p className="mt-6 text-sm leading-relaxed text-[var(--text-muted)]">
+          <LinkedText text="Most of these calculators ask for an interest rate. If you don't have a quote yet, [this week's national average rates](/mortgage-rates) give you a reasonable number to start from. Your own rate will be different." />
+        </p>
         <Disclosure
           headline="These are illustrations, not quotes."
           body="Results come from values you enter. They are not an offer of credit, a rate quote, a preapproval, or a statement that any lender will approve a scenario. Your actual figures come from a lender's Loan Estimate."

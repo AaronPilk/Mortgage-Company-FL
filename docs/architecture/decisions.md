@@ -461,3 +461,50 @@ What did not change, and why it matters:
 To revisit: if the owner wants a lender pricing feed (our own rates) instead of
 the national average, that is a different surface with APR disclosures and a
 fresh review, not a change to this one.
+
+**Amended 2026-11-16, later the same day: in-sentence links.** Eleven pages now
+link to `/mortgage-rates` from a sentence about rates, locks or refinance timing
+(the calculators hub, the payment calculator, the refinance program page, two
+glossary terms and six guides; the list is in
+`docs/handoff/2026-11-16_SEO_LINKS.md`). Every one is written as
+`[anchor](/mortgage-rates)` in a content string and rendered by
+`components/linked-text.tsx`, which links it only while `rateWatchAvailable()`
+is true and the route is indexable. Turn the feed off and each of those
+sentences renders as plain text instead of a link to a 404, with no copy edit.
+The homepage hub still leaves the page out (`home-hub.test.ts`); it is two
+clicks from the homepage through `/calculators`.
+
+## ADR-016 — In-sentence links in content strings
+
+**Date:** 2026-11-16 · **Status:** accepted · **Owner:** Aaron Pilkington
+
+Articles, glossary terms and program pages are typed data whose paragraphs are
+plain strings, so the only internal links they could carry were the "Keep
+going" and "Related" chips at the bottom. The owner asked for contextual links
+inside the sentences that discuss a topic, the way a `site:` search finds them.
+
+The markup is the Markdown link limited to on-site paths, `[anchor](/path)`,
+parsed by `lib/inline-links.ts` and rendered by `components/linked-text.tsx`
+in article paragraphs and bullets, glossary bodies, and program "How it works"
+and "What moves the outcome" text. Why this shape:
+
+- **Copy stays reviewable as copy.** A link is visible in the sentence it sits
+  in, in the same diff, rather than an offset table next to the text.
+- **It cannot leave the site.** Only a root-relative path parses; `https://`,
+  `//host` and relative paths stay literal text. Outbound references stay in
+  `sources`, where they are labelled as sources.
+- **It cannot point at a dead page.** The content linter and
+  `tests/unit/inline-links.test.ts` fail on an unregistered target. At render
+  time a target outside the sitemap, or behind a flag that is off, renders as
+  plain text.
+- **Schema strings stay clean.** Titles, descriptions, answer summaries, FAQ
+  questions and answers, glossary short definitions and program summaries feed
+  metadata or JSON-LD, so the test forbids the markup there.
+- **No link dumps.** The test caps a page at four inline links, forbids the
+  same target twice on a page, a link to the page itself, a link to `/`, and
+  generic anchors such as "here" or "read more". The editorial rule is one or
+  two, only where the sentence is about the page linked.
+
+Consequence: the template change touches the article, glossary and program page
+modules, so `pnpm seo:lastmod` dates every URL those modules render to the day
+of this change, including the articles whose text did not change.

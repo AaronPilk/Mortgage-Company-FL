@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Card, Disclosure, Section, SectionHeading } from "@/components/ui";
 import { LeadForm } from "@/components/lead-form";
 import { pageMetadata } from "@/lib/metadata";
@@ -45,8 +46,16 @@ export default function ContactPage() {
                 is taken at this stage.
               </li>
               <li>
-                If it makes sense to move forward, you receive a secure link to apply. Documents and
-                sensitive information go there, never through this form or by email.
+                If it makes sense to move forward, you receive a secure link to apply (see{" "}
+                <Link
+                  href="/apply"
+                  className="font-medium underline underline-offset-4"
+                  style={{ color: "var(--purple)" }}
+                >
+                  how the secure application works
+                </Link>
+                ). Documents and sensitive information go there, never through this form or by
+                email.
               </li>
             </ol>
           </Card>

@@ -147,3 +147,27 @@ tests); `pnpm test:e2e` 108 passed, the same 2 pre-existing failures; the
 updated "licence identifiers and no pre-launch notice" and structured-data tests
 pass on desktop and mobile. `pnpm db:verify` not re-run: no SQL or migration
 changed.
+
+---
+
+## 2026-11-16 — internal links and broker page (`claude/seo-links-20261116`)
+
+- `pnpm check`: pass. Vitest 73 files, 2680 tests (new
+  `inline-links.test.ts`); content lint clean, 70 pages, 195 registered routes;
+  production build.
+- `pnpm db:verify`: pass on local PostgreSQL 16 ("ALL RLS TESTS PASSED"). No
+  SQL or migration changed.
+- `pnpm test:e2e`: 126 passed, 2 failed, both Turnstile. `[mobile]` "fails
+  honestly when durable lead storage is unavailable" is the known failure.
+  `[desktop]` "keeps one submission id and all attribution touches across an
+  exact retry" failed because the two submissions carried different
+  `turnstileToken` values ("" and "no-challenge-configured"). It is
+  intermittent and not from this change: the same test failed 1 run in 4 on an
+  untouched `26987fd` build, and in reruns here both lead-form tests flip
+  between pass and fail on desktop. Same root cause as the known failure, the
+  real Turnstile site key in `apps/web/.env.production`.
+- Crawl of a local production build from the landing: 207 sitemap URLs, all
+  reached within two clicks, none orphaned (baseline at `26987fd`: `/apply`
+  and `/mortgage-rates` unreached).
+- Not run: any deploy, any IndexNow submission. Read-only GETs to
+  wsmlending.com only, to confirm what the deploy kit's guard expects.

@@ -79,11 +79,12 @@ export default function FloridaBuyersGuideLandingPage() {
 
         <Prose>
           <p>
-            This is a genuine, no-pressure walkthrough of buying your first home in Florida: how
-            much you can really afford once insurance and taxes are in the picture, which loan and
-            assistance options exist, and what actually happens between your offer and your keys. It
-            is education, not an application — you can read the whole thing, and nothing here pulls
-            your credit or commits you to anything.
+            This is a genuine, no-pressure walkthrough of buying your first home in Florida:{" "}
+            <Link href="/calculators/affordability">how much you can really afford</Link> once
+            insurance and taxes are in the picture, which loan and assistance options exist, and
+            what actually happens between your offer and your keys. It is education, not an
+            application — you can read the whole thing, and nothing here pulls your credit or
+            commits you to anything.
           </p>
         </Prose>
 
