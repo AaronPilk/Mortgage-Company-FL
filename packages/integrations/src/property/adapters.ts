@@ -8,6 +8,7 @@ import {
   type PropertyFactsPort,
   makeProvenance
 } from "./ports";
+import { defaultFetch } from "../http";
 
 /**
  * Property-facts adapters.
@@ -131,7 +132,7 @@ export class AttomPropertyFactsPort implements PropertyFactsPort {
   constructor(config: AttomConfig) {
     this.apiKey = config.apiKey;
     this.baseUrl = config.baseUrl ?? "https://api.gateway.attomdata.com/propertyapi/v1.0.0";
-    this.fetchImpl = config.fetchImpl ?? fetch;
+    this.fetchImpl = defaultFetch(config.fetchImpl);
     this.timeoutMs = config.timeoutMs ?? 12_000;
   }
 
@@ -266,7 +267,7 @@ export class FemaFloodPort implements FloodPort {
   constructor(config: FemaFloodConfig = {}) {
     this.baseUrl =
       config.baseUrl ?? "https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer";
-    this.fetchImpl = config.fetchImpl ?? fetch;
+    this.fetchImpl = defaultFetch(config.fetchImpl);
     this.timeoutMs = config.timeoutMs ?? 8_000;
   }
 

@@ -2,6 +2,7 @@ import { sourced } from "@tract/domain";
 import type { SourcedValue } from "@tract/domain";
 import { makeProvenance } from "../property/ports";
 import type { MarketRates, RateFeedPort } from "./ports";
+import { defaultFetch } from "../http";
 
 /**
  * Market-rate adapters.
@@ -80,7 +81,7 @@ export class FredRateFeedPort implements RateFeedPort {
   constructor(config: FredConfig) {
     this.apiKey = config.apiKey;
     this.baseUrl = config.baseUrl ?? "https://api.stlouisfed.org/fred";
-    this.fetchImpl = config.fetchImpl ?? fetch;
+    this.fetchImpl = defaultFetch(config.fetchImpl);
     this.timeoutMs = config.timeoutMs ?? 8_000;
     this.historyWeeks = config.historyWeeks ?? 13;
   }

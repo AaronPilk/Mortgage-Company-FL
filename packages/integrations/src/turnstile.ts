@@ -6,6 +6,7 @@
  */
 
 export type TurnstileMode = "disabled" | "fixture" | "sandbox" | "production";
+import { defaultFetch } from "./http";
 
 export type TurnstileResult =
   | { ok: true; mode: TurnstileMode }
@@ -54,7 +55,7 @@ export async function verifyTurnstile(
     const body = new URLSearchParams({ secret: config.secretKey, response: token });
     if (remoteIp !== undefined) body.set("remoteip", remoteIp);
 
-    const response = await (config.fetchImpl ?? fetch)(
+    const response = await defaultFetch(config.fetchImpl)(
       config.verifyUrl ?? "https://challenges.cloudflare.com/turnstile/v0/siteverify",
       {
         method: "POST",

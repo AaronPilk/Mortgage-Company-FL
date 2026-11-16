@@ -5,6 +5,7 @@ import {
   type AiResult,
   AiPolicyError
 } from "./port";
+import { defaultFetch } from "../http";
 
 /** Default provider. Refuses every request so a misconfiguration cannot spend money. */
 export class DisabledAiProvider implements AiProvider {
@@ -176,7 +177,7 @@ export class AnthropicAiProvider implements AiProvider {
     this.baseUrl = (options.baseUrl ?? "https://api.anthropic.com").replace(/\/$/, "");
     this.inputCentsPerMTok = options.inputCentsPerMillionTokens ?? DEFAULT_INPUT_CENTS_PER_MTOK;
     this.outputCentsPerMTok = options.outputCentsPerMillionTokens ?? DEFAULT_OUTPUT_CENTS_PER_MTOK;
-    this.fetchImpl = options.fetchImpl ?? fetch;
+    this.fetchImpl = defaultFetch(options.fetchImpl);
   }
 
   private costCents(inputTokens: number, outputTokens: number): number {
@@ -342,7 +343,7 @@ export class OpenAiAiProvider implements AiProvider {
       options.inputCentsPerMillionTokens ?? DEFAULT_OPENAI_INPUT_CENTS_PER_MTOK;
     this.outputCentsPerMTok =
       options.outputCentsPerMillionTokens ?? DEFAULT_OPENAI_OUTPUT_CENTS_PER_MTOK;
-    this.fetchImpl = options.fetchImpl ?? fetch;
+    this.fetchImpl = defaultFetch(options.fetchImpl);
   }
 
   private costCents(inputTokens: number, outputTokens: number): number {

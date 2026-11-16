@@ -15,6 +15,7 @@ import type {
   MetaLeadSource,
   MetaUserData
 } from "./ports";
+import { defaultFetch } from "../http";
 
 /**
  * Meta Conversions API adapters and the mapping that feeds them.
@@ -485,7 +486,7 @@ export class RealMetaCapiAdapter implements MetaCapiPort {
   constructor(private readonly config: MetaCapiConfig) {}
 
   private get fetchImpl(): typeof fetch {
-    return this.config.fetchImpl ?? fetch;
+    return defaultFetch(this.config.fetchImpl);
   }
 
   async send(event: MetaConversionEvent): Promise<MetaCapiResult> {

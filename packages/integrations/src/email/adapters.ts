@@ -1,5 +1,6 @@
 import { classifyHttpFailure } from "../crm/port";
 import type { EmailHealth, EmailMessage, EmailPort, EmailSendOutcome } from "./ports";
+import { defaultFetch } from "../http";
 
 /**
  * Email adapters.
@@ -119,7 +120,7 @@ export class ResendEmailPort implements EmailPort {
   constructor(private readonly config: ResendConfig) {}
 
   private get fetchImpl(): typeof fetch {
-    return this.config.fetchImpl ?? fetch;
+    return defaultFetch(this.config.fetchImpl);
   }
 
   async send(message: EmailMessage, idempotencyKey: string): Promise<EmailSendOutcome> {
