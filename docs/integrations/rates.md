@@ -32,15 +32,16 @@ fixture average cannot publish just because `FEATURE_RATE_WATCH` was left on.
 ## Compliance posture
 
 Displaying market rates is an advertising-adjacent surface for a mortgage broker.
-It ships **dark by default and noindex**: `/mortgage-rates` renders only where
-`rateWatchAvailable()` permits and stays off the sitemap until a live feed is set
-and advertising review has cleared the public display (tracked as a gate on the
-readiness board). The copy everywhere states it is a national survey average, not
+It ships **dark by default**: `/mortgage-rates` renders only where
+`rateWatchAvailable()` permits. On 2026-11-16 Dan Cuesta, the licensed loan
+originator (NMLS 132852), approved the public display of the weekly national
+average, so the page is indexable and in the sitemap (ADR-015; the readiness-board
+gate reads approved while the live feed is on). The copy everywhere states it is a national survey average, not
 an APR, not an advertisement of our own rates, and not a commitment to lend.
 
 ## What ships now vs. later
 
-- **Now:** the feed integration, the noindex `/mortgage-rates` page, and the
+- **Now:** the feed integration, the indexable `/mortgage-rates` page, and the
   `rate_watches` account table + RLS + API + card (a signed-in visitor picks a
   term, an optional target they'd like to see, and an email toggle).
 - **Later:** the scheduled job that reads the feed and emails a watcher when the

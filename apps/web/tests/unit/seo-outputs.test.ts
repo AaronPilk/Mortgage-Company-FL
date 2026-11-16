@@ -127,11 +127,15 @@ describe("sitemap.xml", () => {
       "/account",
       "/loan",
       "/admin",
-      "/vision",
-      "/mortgage-rates"
+      "/vision"
     ]) {
       expect(urls.has(m.seo.absoluteUrl(ORIGIN, path)), path).toBe(false);
     }
+  });
+
+  it("lists the market-rates page now that its public display is approved", () => {
+    const urls = new Set(m.sitemap().map((entry) => entry.url));
+    expect(urls.has(m.seo.absoluteUrl(ORIGIN, "/mortgage-rates"))).toBe(true);
   });
 
   it("dates every URL with a real calendar day, never in the future", () => {

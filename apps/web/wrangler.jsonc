@@ -89,10 +89,10 @@
     "FEATURE_HOME_VALUE": "true",
     // Rate watch (/mortgage-rates + /account): shows the Freddie Mac PMMS weekly
     // national average via FRED — market info, never a quote — and lets a signed-in
-    // visitor watch it. DELIBERATELY DARK: displaying market rates is advertising-
-    // adjacent, so it stays off until (1) `wrangler secret put FRED_API_KEY`,
-    // (2) RATE_FEED_MODE="production", (3) FEATURE_RATE_WATCH="true", after legal
-    // clears the public display. The /mortgage-rates page is noindex until then.
+    // visitor watch it. Displaying market rates is advertising-adjacent, so it
+    // needs (1) `wrangler secret put FRED_API_KEY`, (2) RATE_FEED_MODE="production",
+    // (3) FEATURE_RATE_WATCH="true". The licensee approved the public display on
+    // 2026-11-16 (ADR-015), so /mortgage-rates is indexable.
     "RATE_FEED_MODE": "production",
     "FEATURE_RATE_WATCH": "true",
     // Site assistant (floating chat): educates and routes, never quotes. Runs on

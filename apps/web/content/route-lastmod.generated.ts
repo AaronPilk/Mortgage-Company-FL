@@ -210,6 +210,7 @@ export const ROUTE_LASTMOD: Readonly<Record<string, string>> = {
   "/sms-terms": "2026-08-26",
   "/do-not-sell-or-share": "2026-08-17",
   "/security": "2026-08-17",
+  "/mortgage-rates": "2026-11-16",
   "/agents": "2026-11-13",
   "/agents/join": "2026-11-13"
 };

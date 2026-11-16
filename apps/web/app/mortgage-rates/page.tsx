@@ -9,8 +9,7 @@ export const metadata: Metadata = pageMetadata({
   title: "Today's mortgage rates",
   description:
     "The national weekly average 30- and 15-year fixed rates from Freddie Mac's survey, and how they've moved — market information, never a quote.",
-  path: "/mortgage-rates",
-  noIndex: true
+  path: "/mortgage-rates"
 });
 
 export const dynamic = "force-dynamic";
@@ -18,10 +17,11 @@ export const dynamic = "force-dynamic";
 /**
  * Market-rate page.
  *
- * Noindex and gated: it renders only where `rateWatchAvailable()` permits, so it
- * stays dark (and off search) until a live feed is configured and reviewed. It
- * shows a published national weekly average — never a personalized quote, an
- * offer, or "your rate" — and funnels the alert signup into the account.
+ * Indexable since the licensee approved the public display (ADR-015), and still
+ * gated: it renders only where `rateWatchAvailable()` permits, so it stays dark
+ * without a live feed. It shows a published national weekly average — never a
+ * personalized quote, an offer, or "your rate" — and funnels the alert signup
+ * into the account.
  */
 export default async function MortgageRatesPage() {
   if (!rateWatchAvailable()) notFound();
