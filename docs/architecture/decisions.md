@@ -508,3 +508,48 @@ and "What moves the outcome" text. Why this shape:
 Consequence: the template change touches the article, glossary and program page
 modules, so `pnpm seo:lastmod` dates every URL those modules render to the day
 of this change, including the articles whose text did not change.
+
+---
+
+## ADR-017 — The security gate tells public keys from secrets by file and prefix, and e2e builds use Cloudflare's test sitekey
+
+**Date:** 2026-11-16 · **Status:** proposed, awaiting owner approval · **Owner:** Aaron Pilkington
+
+CI on `main` had been red since 2026-11-13 for two reasons that look like
+security findings and are not.
+
+**The secret scan flagged the Supabase anon key.** It is a JWT, so it matches
+the credential pattern, and it lives in the committed `apps/web/.env.production`.
+That key is public by design: Next compiles every `NEXT_PUBLIC_*` value into the
+browser bundle, and Row Level Security is what protects the data behind it.
+The scan now lives in `scripts/secret-scan.sh` and allows exactly one shape:
+a `NEXT_PUBLIC_*=` line in that one file. It does not exclude the file.
+`scripts/check-site-url.mjs` already fails the build if a non-`NEXT_PUBLIC_` key
+is added there, so the two checks close the loop: a secret pasted into that file
+is caught by the scan if it is credential-shaped and by the build if it is not
+prefixed. The alternative, excluding the file from the scan, would have hidden a
+real leak in the one place a tired engineer is most likely to put one.
+
+**The contact-form e2e test never got a Turnstile token.** The same committed
+file carries the real production sitekey, which the e2e build inlined; a real
+widget will not issue a token for `127.0.0.1`, so the form stopped at client
+validation and the test could not reach the "storage unavailable" path it
+exists to prove. E2E builds now set `NEXT_PUBLIC_TURNSTILE_SITE_KEY` to
+Cloudflare's published always-pass test key (`1x00000000000000000000AA`), in
+`apps/web/package.json` for local runs and in `.github/workflows/ci.yml`. The
+server stays in `fixture` mode, which accepts the dummy token. Nothing about
+production verification changes: the production key is still the only one in
+`.env.production`, and `TURNSTILE_MODE=production` still verifies every token
+against Cloudflare with the hostname check.
+
+Two things came out of fixing the test rather than skipping it:
+
+- The lead form now stops with a plain message when the widget has not issued a
+  token yet, instead of posting an empty token for the server to reject with a
+  schema message the visitor cannot act on.
+- The retry test waits for a fresh token before the second submit, because a
+  token is single-use and the form resets the widget on error.
+
+To revisit: if `.env.production` ever stops being the only committed env file,
+the allowance must be widened deliberately, not by adding paths to the exclude
+list.
