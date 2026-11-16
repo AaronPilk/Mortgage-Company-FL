@@ -62,6 +62,11 @@ const CALCULATORS = [
     href: "/calculators/dscr",
     title: "DSCR — rental coverage",
     body: "Whether a rental's income covers its debt: the debt-service-coverage ratio lenders use for investor loans."
+  },
+  {
+    href: "/calculators/short-term-rental",
+    title: "Short-term rental vs long-term",
+    body: "Nightly rate and occupancy, or a monthly lease: cash flow, coverage, cap rate and gross rent multiplier for the same home either way."
   }
 ];
 

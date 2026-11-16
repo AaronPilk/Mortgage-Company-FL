@@ -262,6 +262,13 @@ export const ROUTE_REGISTRY: RouteEntry[] = [
     contentGroup: "calculators"
   },
   {
+    path: "/calculators/short-term-rental",
+    priority: 0.8,
+    changeFrequency: "monthly",
+    indexable: true,
+    contentGroup: "calculators"
+  },
+  {
     path: "/calculators/rate-impact",
     priority: 0.8,
     changeFrequency: "monthly",

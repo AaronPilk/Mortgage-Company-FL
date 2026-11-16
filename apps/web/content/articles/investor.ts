@@ -385,6 +385,7 @@ export const INVESTOR_ARTICLES: Article[] = [
     ],
     related: [
       { href: "/mortgage/dscr", label: "DSCR loans" },
+      { href: "/calculators/short-term-rental", label: "Short-term rental calculator" },
       {
         href: "/calculators/investment-property-cash-flow",
         label: "Investment property cash flow calculator"
