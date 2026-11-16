@@ -137,7 +137,7 @@ export const REFINANCE_ARTICLES: Article[] = [
         heading: "Closing costs apply to the whole loan — and Florida adds taxes",
         paragraphs: [
           "This is the part that surprises people. The CFPB's inventory of mortgage costs — origination, points, appraisal, title insurance, recording — is calculated on or scaled to the full new loan amount, not the cash portion. Take $50,000 out of a home with a $250,000 balance and you are paying transaction costs on a roughly $300,000 loan.",
-          "Florida then adds two state taxes on the new financing: documentary stamp tax on the promissory note and nonrecurring intangible tax on the recorded mortgage, both levied per dollar of the new obligation. The Florida Department of Revenue publishes the rates. Because both scale with the whole new balance, extracting a small amount of cash through a full refinance can be an expensive way to borrow — which is exactly the comparison a home equity line deserves to win or lose on paper, not by default."
+          "Florida then adds two state taxes on the new financing: documentary stamp tax on the promissory note and nonrecurring intangible tax on the recorded mortgage, both levied per dollar of the new obligation. The Florida Department of Revenue publishes the rates. Because both scale with the whole new balance, extracting a small amount of cash through a full refinance can be an expensive way to borrow — which is exactly the comparison [a home equity line](/mortgage/home-equity) deserves to win or lose on paper, not by default."
         ],
         bullets: [
           "Cash received = (appraised value × program LTV cap) − current payoff − financed costs",
@@ -258,7 +258,7 @@ export const REFINANCE_ARTICLES: Article[] = [
       {
         heading: "Planning around the line",
         paragraphs: [
-          "If you need cash and a better first-mortgage structure, run the alternatives explicitly: one cash-out refinance versus a rate-and-term refinance paired with a separate home equity line, versus leaving the first mortgage alone entirely. The delayed-financing exception in Fannie Mae's guide — for owners who recently paid cash for a property — is another example of a structural rule worth knowing before you close, not after.",
+          "If you need cash and a better first-mortgage structure, run the alternatives explicitly: one cash-out refinance versus a rate-and-term refinance paired with [a separate home equity line](/mortgage/home-equity), versus leaving the first mortgage alone entirely. The delayed-financing exception in Fannie Mae's guide — for owners who recently paid cash for a property — is another example of a structural rule worth knowing before you close, not after.",
           "Wholesale Mortgage Lending arranges loans through multiple wholesale lenders; we do not set these classifications or their prices. What a broker can do is price your actual scenario both ways where both are possible, so the cost of the cash-out label is a number on paper instead of a surprise in a quote. Start with the break-even calculator, then get the classifications priced."
         ]
       }
@@ -515,7 +515,7 @@ export const REFINANCE_ARTICLES: Article[] = [
         heading: "What PMI is, and why it has an expiration built in",
         paragraphs: [
           "Private mortgage insurance protects the lender — not you — when a conventional loan closes with a small down payment, as the CFPB's explainer puts it plainly. It exists because low-equity loans are riskier, which contains its own logic for removal: once the equity gap closes, the insurance has done its job and the premium is pure cost.",
-          "The Homeowners Protection Act of 1998 turned that logic into enforceable rights for most conventional loans on single-family homes. Before it, borrowers routinely paid PMI for years after the risk it covered had evaporated, because nothing obliged anyone to turn it off. FHA loans play by different rules entirely — their premiums follow HUD's schedule, not the HPA — which is why 'remove my PMI' conversations start with what kind of loan you have."
+          "The Homeowners Protection Act of 1998 turned that logic into enforceable rights for most conventional loans on single-family homes. Before it, borrowers routinely paid PMI for years after the risk it covered had evaporated, because nothing obliged anyone to turn it off. [FHA loans](/mortgage/fha) play by different rules entirely — their premiums follow HUD's schedule, not the HPA — which is why 'remove my PMI' conversations start with what kind of loan you have."
         ]
       },
       {
@@ -547,7 +547,7 @@ export const REFINANCE_ARTICLES: Article[] = [
       {
         heading: "When refinancing beats waiting",
         paragraphs: [
-          "A refinance replaces the loan, and the new loan's PMI question is answered fresh at closing based on the new appraisal: enough equity and there is simply no PMI. When the servicer's current-value path is blocked or slow and substantial equity exists, refinancing can be the faster exit — but it buys that exit with full closing costs and a new rate, so it has to clear the same break-even test as any refinance, with the vanished premium counted as part of the monthly savings.",
+          "A refinance replaces the loan, and the new loan's PMI question is answered fresh at closing based on the new appraisal: enough equity and there is simply no PMI. When the servicer's current-value path is blocked or slow and substantial equity exists, [refinancing into a new loan](/mortgage/refinance) can be the faster exit — but it buys that exit with full closing costs and a new rate, so it has to clear the same break-even test as any refinance, with the vanished premium counted as part of the monthly savings.",
           "Wholesale Mortgage Lending arranges loans and does not make, approve, or price them — and PMI cancellation itself involves no loan at all, just your servicer. Where we help is the comparison: what the premium removal is worth per month, what a refinance would cost, and which path the arithmetic favors. Run it before paying for either an appraisal or an application."
         ]
       }
@@ -640,7 +640,7 @@ export const REFINANCE_ARTICLES: Article[] = [
         heading: "The cost comparison is lopsided — and that's the point",
         paragraphs: [
           "A recast costs a processing fee. A refinance costs the full origination stack — lender charges, appraisal, title, recording, and in Florida documentary stamp and intangible taxes on a brand-new mortgage — which Freddie Mac's consumer guidance on refinancing costs describes as commonly running a meaningful percentage of the loan amount. On cost alone, recast wins by a mile.",
-          "But cost alone is the wrong frame, because the refinance buys something the recast cannot: a different rate and term. If market rates sit meaningfully under your note rate, the refinance's interest savings can dwarf the fee difference. If your note rate beats the market, the recast preserves it — and the comparison is over before it starts. The deciding input is the spread between your rate and today's quotes, which is a number to obtain fresh, not assume."
+          "But cost alone is the wrong frame, because the refinance buys something the recast cannot: a different rate and term. If market rates sit meaningfully under your note rate, the refinance's interest savings can dwarf the fee difference. If your note rate beats the market, the recast preserves it — and the comparison is over before it starts. The deciding input is the spread between your rate and today's quotes, which is a number to obtain fresh, not assume. [National average rates](/mortgage-rates) can tell you whether that gap is worth a phone call; only a quote on your own file can measure it."
         ]
       },
       {
@@ -707,8 +707,8 @@ export const REFINANCE_ARTICLES: Article[] = [
       {
         heading: "Two structures, not two flavors",
         paragraphs: [
-          "A cash-out refinance is one loan: your old first mortgage is paid off and replaced by a larger one, and the equity you tapped becomes part of a single fixed payment. A home equity line of credit is a second, separate loan that sits behind your first mortgage in lien position. The first mortgage — its rate, payment, and payoff schedule — continues untouched.",
-          "That structural difference drives everything else. The refinance reprices all of your mortgage debt to reach some of your equity; the HELOC prices only the new borrowing. When your existing first-mortgage rate is better than today's market, that distinction is usually decisive — repricing a large, cheap loan to extract a small amount of cash means paying the new rate on every dollar, not just the new ones."
+          "A cash-out refinance is one loan: your old first mortgage is paid off and replaced by a larger one, and the equity you tapped becomes part of a single fixed payment. [A home equity line of credit](/mortgage/home-equity) is a second, separate loan that sits behind your first mortgage in lien position. The first mortgage — its rate, payment, and payoff schedule — continues untouched.",
+          "That structural difference drives everything else. The refinance reprices all of your mortgage debt to reach some of your equity; the HELOC prices only the new borrowing. When your existing first-mortgage rate is better than [today's average rates](/mortgage-rates), that distinction is usually decisive — repricing a large, cheap loan to extract a small amount of cash means paying the new rate on every dollar, not just the new ones."
         ]
       },
       {
@@ -813,7 +813,7 @@ export const REFINANCE_ARTICLES: Article[] = [
         heading: "Where the money actually comes from",
         paragraphs: [
           "Every refinance generates real third-party bills — appraiser, title agent, county recorder, and in Florida the state's taxes on the new note and mortgage. Someone pays them. In a 'no-closing-cost' loan, the lender pays them on your behalf using a lender credit, and funds that credit by giving you a higher interest rate than your scenario would otherwise price at. The CFPB's explainer on points and lender credits describes the machine plainly: credits lower what you pay at closing in exchange for paying more over time.",
-          "This is the same pricing dial as discount points, turned the other direction. Points: pay more today, get a lower rate. Credits: accept a higher rate, pay less today. Rate and upfront cost are two ends of one lever, and 'no closing costs' is simply a marketing name for one end of it."
+          "This is the same pricing dial as discount points, turned the other direction. Points: pay more today, get a lower rate. Credits: accept a higher rate, pay less today. Rate and upfront cost are two ends of one lever, and 'no closing costs' is simply a marketing name for one end of it. You can [compare the payment at each rate](/calculators/rate-impact) to see what each step along that lever costs per month and over the life of the loan."
         ]
       },
       {

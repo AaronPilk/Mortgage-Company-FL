@@ -1,6 +1,6 @@
 # SEO: wsmlending.com
 
-**As of 2026-11-13.** Wholesale Mortgage Lending (WML) only. Nothing here
+**As of 2026-11-16.** Wholesale Mortgage Lending (WML) only. Nothing here
 applies to any other company or product.
 
 ## One brand
@@ -87,8 +87,22 @@ The routing table is `apps/web/lib/host-routing.ts` (pure, unit-tested in
   The lists live in `apps/web/content/home-hub.ts`;
   `apps/web/tests/unit/home-hub.test.ts` fails if any of them points at a page
   that is unregistered, noindex or missing from the sitemap. Left out on
-  purpose: `/mortgage-rates` (noindex) and `/what-is-my-home-worth` (noindex,
-  and it 404s while `FEATURE_SELLER_TOOLS` is off in production).
+  purpose: `/mortgage-rates` (indexable since ADR-015, but it 404s whenever the
+  rate feed is off) and `/what-is-my-home-worth` (noindex, and it 404s while
+  `FEATURE_SELLER_TOOLS` is off in production).
+- **In-sentence links** (ADR-016): content strings link with
+  `[anchor](/path)`; `components/linked-text.tsx` renders them and drops the
+  link, keeping the words, when the target is outside the sitemap or behind a
+  flag that is off. The 2026-11-16 pass added 59 links on 49 pages, 16 of
+  them from one sentence in the county template (table in
+  `docs/handoff/2026-11-16_SEO_LINKS.md`). A crawl of a local build from the
+  landing reached all 207 sitemap URLs within two clicks, with no orphans.
+  To repeat the pass, look for pages that mention a topic without linking its
+  page, add at most one or two links per page in a sentence that is about it,
+  and vary the anchor.
+- **Broker objections page**: `/resources/how-mortgage-brokers-work` answers
+  the doubts people raise about brokers, from the research in
+  `docs/seo/objections-20261116.md`.
 
 ## Licensing values
 

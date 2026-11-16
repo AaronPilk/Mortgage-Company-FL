@@ -188,6 +188,39 @@ for (const file of componentFiles) {
 }
 
 /* ------------------------------------------------------------------ *
+ * 4b. In-sentence links in content strings resolve too
+ *
+ * Content strings carry links as `[anchor](/path)` (apps/web/lib/inline-links.ts).
+ * The same registration rule applies to them as to an href attribute, so a typo
+ * in a paragraph fails here instead of rendering as dead text.
+ * ------------------------------------------------------------------ */
+
+const INLINE_LINK = /\[([^[\]]+)\]\((\/(?!\/)[^()\s]*)\)/g;
+const inlineSources = [
+  ...walk(join(ROOT, "apps/web/content"), [".ts"]),
+  ...walk(join(ROOT, "apps/web/lib"), [".ts"]),
+  ...componentFiles
+];
+
+for (const file of inlineSources) {
+  const source = stripComments(readFileSync(file, "utf8"));
+  const relativeFile = relative(ROOT, file);
+  for (const match of source.matchAll(INLINE_LINK)) {
+    const href = (match[2] ?? "").replace(/[#?].*$/, "");
+    const registered =
+      registeredPaths.includes(href) ||
+      knownPrefixes.some((prefix) => href.startsWith(`${prefix}/`));
+    if (href === "/" || !registered) {
+      report(
+        relativeFile,
+        "broken-inline-link",
+        `[${match[1]}](${href}) is not a registered route`
+      );
+    }
+  }
+}
+
+/* ------------------------------------------------------------------ *
  * 5. Legal drafts are labelled as drafts
  * ------------------------------------------------------------------ */
 

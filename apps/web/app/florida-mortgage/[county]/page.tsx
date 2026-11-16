@@ -64,10 +64,11 @@ export default async function CountyMortgagePage({
       <Prose>
         <p>
           The loan is usually the ordinary part of buying in {data.seat} and the rest of{" "}
-          {data.county}. What varies — and what moves the monthly payment more than the rate often
-          does — is the carrying cost: insurance, flood exposure, and how the property tax resets
-          after a sale. Here is what to check before you're under contract, and the local help worth
-          asking about.
+          {data.county}. What varies — and what moves{" "}
+          <Link href="/calculators/mortgage-payment">your full monthly payment</Link> more than the
+          rate often does — is the carrying cost: insurance, flood exposure, and how the property
+          tax resets after a sale. Here is what to check before you're under contract, and the local
+          help worth asking about.
         </p>
       </Prose>
 

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Prose, Section, SectionHeading } from "@/components/ui";
 import { PaymentCalculator } from "@/components/calculators/payment-calculator";
+import { LinkedText } from "@/components/linked-text";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = pageMetadata({
@@ -49,6 +50,9 @@ export default function PaymentCalculatorPage() {
             county, construction type, roof age, and carrier, and an assumed premium can move your
             qualifying payment materially. For the rate and mortgage insurance, those come from a
             lender after a review of your situation.
+          </p>
+          <p>
+            <LinkedText text="Until you have a quote, [today's national averages](/mortgage-rates) are a fair starting point for the rate field. Treat them as a survey figure, not as your rate." />
           </p>
         </Prose>
       </div>

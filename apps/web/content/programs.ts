@@ -131,7 +131,7 @@ export const PROGRAMS: Program[] = [
       },
       {
         heading: "You apply through a secure system",
-        body: "The application itself happens in the approved secure system, not on a marketing form. That is where documents belong, and it is where the required disclosures are issued and tracked."
+        body: "The application itself happens in the approved secure system, not on a marketing form. That is where documents belong, and it is where the required disclosures are issued and tracked. [Our application page](/apply) explains how that handoff works."
       },
       {
         heading: "The lender underwrites and you close",
@@ -236,7 +236,11 @@ export const PROGRAMS: Program[] = [
         label: "Mortgage insurance",
         body: "Removing it can change the math even when the rate improvement is modest."
       },
-      { label: "Cash-out amount", body: "Increases the balance and usually affects pricing." }
+      { label: "Cash-out amount", body: "Increases the balance and usually affects pricing." },
+      {
+        label: "Market rates",
+        body: "[Freddie Mac's weekly survey average](/mortgage-rates) shows which way rates are moving. Your own quote still depends on your credit, equity, loan amount and costs."
+      }
     ],
     faqs: [
       {
@@ -320,7 +324,8 @@ export const PROGRAMS: Program[] = [
     ],
     relatedCalculators: [
       { href: "/calculators/affordability", label: "See an affordability range" },
-      { href: "/calculators/closing-cost", label: "Plan your cash to close" }
+      { href: "/calculators/closing-cost", label: "Plan your cash to close" },
+      { href: "/calculators/rent-vs-buy", label: "Compare renting with buying" }
     ],
     relatedPrograms: ["fha", "conventional", "purchase"],
     sources: [
@@ -860,7 +865,10 @@ export const PROGRAMS: Program[] = [
           "Often yes, but the timing and your representations at application matter. Discuss it before you close, not after."
       }
     ],
-    relatedCalculators: [{ href: "/calculators/mortgage-payment", label: "Estimate a payment" }],
+    relatedCalculators: [
+      { href: "/calculators/investment-property-cash-flow", label: "Run a rental's cash flow" },
+      { href: "/calculators/mortgage-payment", label: "Estimate a payment" }
+    ],
     relatedPrograms: ["conventional", "jumbo"],
     sources: [CFPB_MORTGAGE],
     requiresLenderPath: true,
@@ -1087,7 +1095,10 @@ export const PROGRAMS: Program[] = [
           "Some lenders will, some will use only long-term market rent, and some will not finance a short-term rental at all. Local rules add a second layer: Florida municipalities regulate short-term rentals differently and those rules change. Verify the rules for the specific address before you underwrite a strategy that depends on them."
       }
     ],
-    relatedCalculators: [{ href: "/calculators/mortgage-payment", label: "Estimate a payment" }],
+    relatedCalculators: [
+      { href: "/calculators/dscr", label: "Check a rental's DSCR" },
+      { href: "/calculators/mortgage-payment", label: "Estimate a payment" }
+    ],
     relatedPrograms: ["investment-property", "bank-statement", "conventional"],
     sources: [
       {

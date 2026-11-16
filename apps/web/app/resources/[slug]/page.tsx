@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CtaPanel, Disclosure, Eyebrow, Faq, Section } from "@/components/ui";
 import { JsonLd } from "@/components/json-ld";
+import { LinkedText } from "@/components/linked-text";
 import { pageMetadata } from "@/lib/metadata";
 import { businessIdentity, SITE_URL } from "@/lib/site";
 import { ALL_ARTICLES, articleBySlug } from "@/content/articles";
@@ -125,13 +126,15 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                   key={paragraph.slice(0, 40)}
                   className="mt-4 text-[1.06rem] leading-[1.75] text-[var(--text-muted)]"
                 >
-                  {paragraph}
+                  <LinkedText text={paragraph} />
                 </p>
               ))}
               {section.bullets !== undefined && (
                 <ul className="mt-4 list-disc space-y-2 pl-6 text-[1.02rem] text-[var(--text-muted)]">
                   {section.bullets.map((bullet) => (
-                    <li key={bullet.slice(0, 40)}>{bullet}</li>
+                    <li key={bullet.slice(0, 40)}>
+                      <LinkedText text={bullet} />
+                    </li>
                   ))}
                 </ul>
               )}

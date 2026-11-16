@@ -26,7 +26,7 @@ export const BASICS_ARTICLES: Article[] = [
       {
         heading: "The four letters, defined",
         paragraphs: [
-          "Principal is the portion of each payment that reduces what you owe. Interest is what the lender charges for the money, calculated on the remaining balance. Together they make up the loan payment itself — the amount an amortization schedule describes.",
+          "Principal is the portion of each payment that reduces what you owe. Interest is what the lender charges for the money, calculated on the remaining balance. Together they make up the loan payment itself — the amount [an amortization schedule](/calculators/amortization) describes.",
           "Taxes and insurance are not part of the loan, but your lender cares about them anyway, because unpaid property taxes and a lapsed insurance policy both threaten the collateral. That is why most loans collect one-twelfth of the annual property tax bill and homeowners insurance premium each month into an escrow account, and the servicer pays those bills when they come due. The CFPB explains escrow accounts in plain terms: the account exists to make sure property-related bills get paid on time.",
           "When a lender quotes your housing payment, or a preapproval letter states what you can carry, PITI is the number being discussed — not just principal and interest. A payment quote that shows only principal and interest is an incomplete picture everywhere, and in Florida it can be a badly incomplete one."
         ]
@@ -49,7 +49,7 @@ export const BASICS_ARTICLES: Article[] = [
       {
         heading: "How lenders use PITI to qualify you",
         paragraphs: [
-          "Underwriting compares your full monthly housing expense — PITI plus association dues — against your gross income to produce a housing ratio, and adds your other debts to produce a total debt-to-income ratio. Because taxes, insurance, and dues all count, two identical loan amounts can produce very different qualifying pictures in Florida depending on the property. A buyer who qualifies comfortably for an inland single-family home may not qualify for a coastal condo at the same price once wind, flood, and dues enter the math.",
+          "Underwriting compares your full monthly housing expense — PITI plus association dues — against your gross income to produce a housing ratio, and adds your other debts to produce a [total debt-to-income ratio](/calculators/debt-to-income). Because taxes, insurance, and dues all count, two identical loan amounts can produce very different qualifying pictures in Florida depending on the property. A buyer who qualifies comfortably for an inland single-family home may not qualify for a coastal condo at the same price once wind, flood, and dues enter the math.",
           "This is why an experienced Florida broker builds the payment from the property outward: pull the county's millage, price the insurance stack for that address, confirm the association dues, and only then talk about what loan size fits. Wholesale Mortgage Lending arranges loans through wholesale lenders and does not set taxes or insurance premiums, but structuring the full payment honestly at the start is the difference between a preapproval that survives underwriting and one that does not."
         ]
       },
@@ -154,8 +154,8 @@ export const BASICS_ARTICLES: Article[] = [
         heading: "How to actually compare offers",
         paragraphs: [
           "Get Loan Estimates for the same loan type, term, and rate-lock period, generated in the same narrow time window — pricing moves day to day, so quotes from different days are not comparable. Then read them side by side. Focus on two lines: the interest rate, which sets your payment, and the origination charges in Section A of page 2, which are the cost of obtaining that rate from that lender. Third-party costs like appraisal and title will appear on every estimate and largely wash out of the comparison; the loan costs are where offers genuinely differ.",
-          "Be equally careful about what is not a Loan Estimate. Rate advertisements, prequalification worksheets, and emailed quotes carry no accountability — an advertised rate may assume a pristine credit profile, a low loan-to-value ratio, and points that are only mentioned in a footnote. The Loan Estimate exists precisely because informal quotes were unauditable; insist on it before treating any number as an offer.",
-          "That comparison is our job as a broker: we shop your one file across multiple wholesale lenders and put the resulting offers next to each other on equal assumptions. We arrange the loan; the lender prices and makes it — which is why insisting on comparable disclosures, rather than a single quoted rate, is the discipline that protects you."
+          "Be equally careful about what is not a Loan Estimate. Rate advertisements, prequalification worksheets, and emailed quotes carry no accountability — an advertised rate may assume a pristine credit profile, a low loan-to-value ratio, and points that are only mentioned in a footnote. The Loan Estimate exists precisely because informal quotes were unauditable; insist on it before treating any number as an offer. A survey figure such as [Freddie Mac's weekly national average rate](/mortgage-rates) is useful for seeing the trend, but it isn't an offer either.",
+          "That comparison is [what a mortgage broker is for](/resources/how-mortgage-brokers-work): we shop your one file across multiple wholesale lenders and put the resulting offers next to each other on equal assumptions. We arrange the loan; the lender prices and makes it — which is why insisting on comparable disclosures, rather than a single quoted rate, is the discipline that protects you."
         ],
         bullets: [
           "Match the assumptions: same program, same term, same lock period, same day",
@@ -258,7 +258,7 @@ export const BASICS_ARTICLES: Article[] = [
         heading: "Points on a purchase vs. a refinance",
         paragraphs: [
           "On a purchase, points compete with your down payment and reserves for the same closing-table dollars, and sellers or builders sometimes offer credits that can fund a buydown — worth evaluating with the same break-even math, since a credit spent on points is a credit not spent on other closing costs. On a refinance, points raise the very cost hurdle the refinance must clear to make sense, so they demand a longer expected hold to justify themselves.",
-          "There is also a portfolio-level consideration people miss: points concentrate your bet on the current pricing environment. If market pricing improves substantially after you buy points, the natural move — refinancing — is exactly the move that forfeits the unrecovered portion of what you paid. Borrowers who would refinance eagerly at the first opportunity should be structurally skeptical of points; borrowers at a rate they would keep through most plausible futures are the ones for whom points genuinely pay.",
+          "There is also a portfolio-level consideration people miss: points concentrate your bet on the current pricing environment, which you can follow loosely through [where average mortgage rates stand each week](/mortgage-rates). If market pricing improves substantially after you buy points, the natural move — refinancing — is exactly the move that forfeits the unrecovered portion of what you paid. Borrowers who would refinance eagerly at the first opportunity should be structurally skeptical of points; borrowers at a rate they would keep through most plausible futures are the ones for whom points genuinely pay.",
           "As a broker, Wholesale Mortgage Lending arranges loans across multiple wholesale lenders, which means we can show you the same rate-versus-points slider from several sources at once. We do not set the pricing — each lender does — but putting the structures side by side is precisely how a fee in costume gets recognized before you pay it."
         ]
       }
@@ -348,7 +348,7 @@ export const BASICS_ARTICLES: Article[] = [
       {
         heading: "When to lock",
         paragraphs: [
-          "There is no reliable way to time the market, so the defensible framework is personal: lock when you have a rate at which the deal works for your budget and an accurate view of your closing timeline. Locking early buys certainty for the entire escrow period; floating chases improvement while carrying the risk of the opposite. Borrowers who cannot afford the payment at a worse rate have no business floating — the downside is a deal that dies, and that asymmetry is the whole analysis.",
+          "There is no reliable way to time the market, so the defensible framework is personal: lock when you have a rate at which the deal works for your budget and an accurate view of your closing timeline. Watching [the weekly national average](/mortgage-rates) tells you which way rates have been drifting, not where they go next or what your own file will price at. Locking early buys certainty for the entire escrow period; floating chases improvement while carrying the risk of the opposite. Borrowers who cannot afford the payment at a worse rate have no business floating — the downside is a deal that dies, and that asymmetry is the whole analysis.",
           "Refinances deserve one extra note: with no purchase contract forcing a date, refinance timelines drift, and drifting is how refinance locks expire. Decide your acceptable pricing before you apply, lock when it appears, and then treat the closing like it has a contract deadline even though it does not. A refinance that saves money at the locked terms and then leaks it back through extension fees has defeated its own purpose.",
           "Our role is the mechanics: as a broker, we arrange your loan and lock your rate with the wholesale lender you choose — we do not set the pricing behind the lock. What we control is matching the lock period to the real calendar, monitoring the expiration date, and raising extensions before they become emergencies. Rate locks fail far more often on logistics than on markets."
         ]
@@ -519,7 +519,7 @@ export const BASICS_ARTICLES: Article[] = [
         heading: "LTV and mortgage insurance",
         paragraphs: [
           "On conventional loans, the well-known threshold is 80 percent. Finance more than 80 percent of the value and the lender will generally require private mortgage insurance, which protects the lender — not you — if the loan defaults. PMI cost varies with LTV, credit score, and other factors, and it is not permanent: under the Homeowners Protection Act you can request cancellation when the balance reaches 80 percent of the original value, and servicers must terminate it automatically at 78 percent for loans in good standing, as the CFPB outlines.",
-          "Government-backed programs run different machinery worth naming precisely: FHA loans carry their own mortgage insurance premiums with their own duration rules regardless of a conventional-style 80 percent line, and VA loans carry no monthly mortgage insurance at all, substituting an upfront funding fee for most borrowers. The 80 percent rule is a conventional-loan fact, not a law of nature."
+          "Government-backed programs run different machinery worth naming precisely: FHA loans carry their own mortgage insurance premiums with their own duration rules regardless of a conventional-style 80 percent line, and [VA loans](/mortgage/va) carry no monthly mortgage insurance at all, substituting an upfront funding fee for most borrowers. The 80 percent rule is a conventional-loan fact, not a law of nature."
         ]
       },
       {
@@ -538,7 +538,7 @@ export const BASICS_ARTICLES: Article[] = [
       {
         heading: "Managing your LTV",
         paragraphs: [
-          "Your levers are the numerator and the denominator. Down payment size sets your starting LTV; amortization and extra principal payments lower it over time; and appreciation lowers it without your help, though only an appraisal or valuation the lender accepts makes appreciation official for purposes like PMI removal. Before choosing a down payment, it is worth mapping where the pricing tiers and the mortgage insurance line sit for your scenario — our affordability and mortgage payment calculators frame the tradeoff, and a conversation can pin down the tier boundaries for your actual file.",
+          "Your levers are the numerator and the denominator. Down payment size sets your starting LTV; [amortization and extra principal payments](/calculators/amortization) lower it over time; and appreciation lowers it without your help, though only an appraisal or valuation the lender accepts makes appreciation official for purposes like PMI removal. Before choosing a down payment, it is worth mapping where the pricing tiers and the mortgage insurance line sit for your scenario — our affordability and mortgage payment calculators frame the tradeoff, and a conversation can pin down the tier boundaries for your actual file.",
           "A Florida-specific footnote: LTV measures the loan against the property's value, not against your total monthly cost. Two properties at identical prices and identical LTVs can carry wildly different insurance and association expenses, so a strong LTV does not by itself mean a comfortable loan. Underwriting will check both — the ratio for collateral risk, and your debt-to-income for payment risk — and a well-structured Florida file respects both constraints from the first conversation."
         ]
       }
@@ -792,7 +792,7 @@ export const BASICS_ARTICLES: Article[] = [
         heading: "The fixed-rate baseline",
         paragraphs: [
           "A fixed-rate mortgage is the simplest financial product most people will ever own: one rate, one principal-and-interest payment, for the whole term. Its virtue is that all interest-rate risk sits with the lender and the investor — if market pricing rises for the next thirty years, your loan does not care, and if it falls, you can refinance. That one-way option is a large part of what you are paying for.",
-          "The cost of that certainty is that the fixed rate on a long loan is typically priced above the introductory rate on an ARM in ordinary market conditions, though the relationship between the two varies with the yield curve and there have been periods when the gap was thin or absent. Whether the certainty is worth the price is precisely the fixed-versus-ARM question, and it cannot be answered without knowing how long you expect to keep the loan."
+          "The cost of that certainty is that the fixed rate on a long loan is typically priced above the introductory rate on an ARM in ordinary market conditions, though the relationship between the two varies with the yield curve and there have been periods when the gap was thin or absent. Whether the certainty is worth the price is precisely the fixed-versus-ARM question, and it cannot be answered without knowing how long you expect to keep the loan. Our [weekly rate snapshot](/mortgage-rates) tracks only the 30- and 15-year fixed averages, so it shows the fixed side of that comparison, not ARM pricing."
         ]
       },
       {
@@ -800,7 +800,7 @@ export const BASICS_ARTICLES: Article[] = [
         paragraphs: [
           "Today's typical ARM is a hybrid, described by two numbers like 5/6 or 7/6: a fixed period of five or seven years, then adjustments every six months for the remainder of the term. When the fixed period ends, the new rate is not chosen by anyone — it is computed. The lender takes a published index, most commonly SOFR-based since the industry's move away from LIBOR, and adds the margin: a fixed number of percentage points written into your note at closing that never changes. Index plus margin, rounded per the note, subject to the caps, is your new rate.",
           "The caps are the safety architecture, and the CFPB's breakdown matches what you will see in a note: an initial adjustment cap limiting the first reset, a subsequent (periodic) cap limiting each adjustment after that, and a lifetime cap limiting how far the rate can ever rise above the starting rate. Cap structures are quoted as a triple — the note spells out each number — and they differ across lenders and programs, which makes them a genuine comparison point rather than boilerplate. Many notes also set a floor, so the rate cannot fall without limit either.",
-          "At each adjustment, the loan re-amortizes: the payment is recalculated to retire the remaining balance over the remaining term at the new rate. The worst-case arithmetic is knowable in advance — apply the caps to your starting rate and compute the payment at the maximums. A borrower who cannot absorb the fully-capped payment is not a borrower with a risk tolerance question; they are a borrower for whom the ARM is mispriced insurance."
+          "At each adjustment, the loan re-amortizes: the payment is recalculated to retire the remaining balance over the remaining term at the new rate. The worst-case arithmetic is knowable in advance — apply the caps to your starting rate and compute the payment at the maximums; the [rate impact calculator](/calculators/rate-impact) gives a quick first look at the same loan priced at a higher rate. A borrower who cannot absorb the fully-capped payment is not a borrower with a risk tolerance question; they are a borrower for whom the ARM is mispriced insurance."
         ],
         bullets: [
           "Index: a published market rate, commonly SOFR-based, that moves over time",
@@ -872,49 +872,94 @@ export const BASICS_ARTICLES: Article[] = [
   {
     slug: "how-mortgage-brokers-work",
     category: "basics",
-    title: "How Mortgage Brokers Work: Broker vs Banker vs Lender",
+    title: "Is a Mortgage Broker Worth It? How Brokers Work and Get Paid",
     description:
-      "Brokers arrange loans from many wholesale lenders; bankers and direct lenders fund their own. Who does what, how brokers are paid, and honest tradeoffs.",
-    h1: "How mortgage brokers work: broker vs. banker vs. direct lender, honestly",
+      "When a broker helps, when a bank or credit union is the better call, how brokers get paid under federal rules, and how to test any offer with a Loan Estimate.",
+    h1: "Is a mortgage broker worth it? How brokers work, how they get paid, and when to skip one",
     answerSummary:
-      "A mortgage broker arranges loans but does not lend: the broker takes one application, shops it across multiple wholesale lenders, and manages the file to closing, while the lender underwrites and funds the loan. Mortgage bankers and direct lenders fund loans themselves. Brokers are compensated by either the lender or the borrower — never both on one loan — under federal rules barring compensation tied to loan terms.",
+      "A mortgage broker is worth it when you want several lenders to compete for one application, or when your file is unusual enough that one lender's menu may not fit. Brokers don't lend; the lender approves and funds the loan. Federal rules say the broker is paid by you or by the lender, never both, and the pay can't depend on your rate. A competing Loan Estimate is the honest test.",
     sections: [
       {
-        heading: "Three channels, and who actually does what",
+        heading: "What does a mortgage broker actually do?",
         paragraphs: [
-          "The CFPB's distinction is the place to start: a lender is a financial institution that makes loans directly to you; a broker does not lend money. A broker's product is access and process — one application and one credit file, presented to multiple wholesale lenders, with the broker structuring the file, comparing the resulting pricing and programs, and shepherding the chosen loan through underwriting to closing. The lender behind the scenes makes the credit decision and funds the money.",
-          "A mortgage banker originates and funds loans with its own or borrowed capital, then typically sells them into the secondary market. A direct lender — the umbrella term covering banks, credit unions, and non-bank lenders — funds from its own accounts and may keep the servicing or sell it. A retail loan officer at any of these institutions offers that institution's programs and pricing; the menu is the house menu.",
-          "No channel is inherently virtuous. All three close loans every day, all three are subject to the same federal consumer protections on disclosures and ability-to-repay, and the same standardized Loan Estimate makes their offers directly comparable. The differences are structural: whose menu, whose pipeline, and who gets paid how."
+          "A broker takes your application and credit file, sends it to the wholesale lenders it works with, compares what comes back, and manages the loan through to closing. The lender underwrites the file, makes the credit decision and funds the money. The CFPB puts the difference in one line: a lender makes loans directly, and a broker does not lend money.",
+          "A direct lender, whether a bank, a credit union or a non-bank mortgage company, funds loans itself, and its loan officers offer that institution's own programs and pricing. Some companies act as both lender and broker, which is why the CFPB suggests asking whether a broker is involved in your loan.",
+          "No channel is automatically the better one. Every lender has to give you the same standard Loan Estimate form, and that shared format is what lets you put a broker's offer next to a bank's and see which is cheaper for you."
         ]
       },
       {
-        heading: "How brokers are compensated",
+        heading: "How do mortgage brokers get paid?",
         paragraphs: [
-          "Broker compensation is federally regulated under Regulation Z's loan originator compensation rules, and three features of those rules are worth knowing. First, on any given loan the broker is paid either by the lender or by the borrower — not both. Second, compensation may not be based on the loan's terms: a broker cannot legally earn more for placing you in a higher rate or a costlier product, a rule written specifically to kill the steering incentives of the pre-2008 era. Third, the compensation appears on your Loan Estimate and Closing Disclosure, in dollars, where you can read it.",
-          "In lender-paid arrangements the wholesale lender pays the broker a pre-set percentage of the loan amount, fixed by agreement in advance rather than negotiated deal by deal. In borrower-paid arrangements you pay the broker's fee directly and the lender pays nothing. Each structure interacts differently with pricing on a given file, which is a legitimate question to ask your broker to walk through on your actual numbers.",
-          "Loan officers at banks and direct lenders are compensated under the same anti-steering rules; their pay is internal to the lender's pricing rather than a separate disclosed line. Neither arrangement is hidden money — but the broker's is the more visible of the two on your disclosures."
-        ]
-      },
-      {
-        heading: "Honest pros and cons of each channel",
-        paragraphs: [
-          "The broker's advantages are breadth and portability. One file shops many lenders, which matters most when your scenario is not vanilla — self-employment income, condos with association complexities, investor property, recent credit events — because program niches differ across wholesale lenders, and a file declined or priced poorly at one can be strong at another without starting over. The broker's limits are real too: brokers do not control underwriting or funding timelines, they cannot make exceptions on another company's credit policy, and broker access does not include every lender — some institutions do not operate a wholesale channel at all.",
-          "The direct lender's advantages are control and integration. Underwriting, closing, and funding live under one roof, which can mean speed and accountability in one place; an established banking relationship sometimes carries pricing or process benefits; and some portfolio lenders can hold unusual loans on their own balance sheet that fit no agency box. The limits mirror the strengths: the menu is one institution's programs and pricing, and if your file hits a policy wall, the answer is a new application somewhere else — often with a retail cost structure priced above the same lender's wholesale channel, though not universally.",
-          "The mortgage banker sits between: funds its own loans like a direct lender, sells them like a broker's wholesale partners, and offers a menu wider than a single portfolio but narrower than a brokered marketplace."
+          "Usually through a fee or commission on each loan, paid either by you or by the lender. The CFPB notes that lenders can pay loan officers and brokers a salary, a fixed amount per loan, a fixed percentage of the loan amount, or a combination, and can set a minimum or maximum per loan.",
+          "Regulation Z's loan originator compensation rules then set three limits that matter to you as a borrower."
         ],
         bullets: [
-          "Broker: widest menu, one credit file shopped broadly, disclosed compensation; does not control underwriting or funding",
-          "Direct lender / bank: one-roof control and accountability; one institution's menu and credit policy",
-          "Mortgage banker: funds its own loans, resells them; menu in between",
-          "All channels: same federal disclosures, same Loan Estimate, directly comparable offers"
+          "The pay can't be based on your loan's terms, so a broker can't earn more by putting you in a higher rate. A fixed percentage of the loan amount is allowed.",
+          "If you pay the broker directly, nobody else, the lender included, may also pay the broker on that loan.",
+          "A broker can't steer you into a loan because it pays the broker more, unless that loan is in your interest."
         ]
       },
       {
-        heading: "How to choose — and how to verify anyone",
+        heading: "Where does the broker's pay show up on my paperwork?",
         paragraphs: [
-          "Match the channel to the file. A straightforward W-2 purchase may close well through any channel, and the deciding factors are pricing and the person handling it. A complex file benefits from breadth — that is the brokered channel's home turf. Whichever channel you use, get a Loan Estimate on the same assumptions from more than one source at least once; it is the only comparison that is standardized by design, and it costs you nothing but an hour.",
-          "Verify the humans. Every mortgage loan originator — broker or retail — carries a unique NMLS identifier, and the NMLS Consumer Access database lets you confirm licensure, employment history, and any regulatory actions for both individuals and companies, free. In Florida, mortgage brokers and lenders are licensed under Chapter 494, Florida Statutes, administered by the Office of Financial Regulation.",
-          "For transparency: Wholesale Mortgage Lending is a mortgage brokerage. We arrange loans through wholesale lenders; we do not make loans, approve them, or set their prices, and our compensation is disclosed on your Loan Estimate. We think the brokered channel's breadth earns its place for most Florida files — and when a specific file would be better served elsewhere, saying so is part of the job."
+          "It depends on who pays it. If you pay the broker, the fee is in the Origination Charges section of your Loan Estimate, which lists what you will pay each lender and loan originator.",
+          "If the lender pays the broker, it isn't one of your charges on the Loan Estimate. The Closing Disclosure still has to show the amount the lender paid and the name of the loan originator who received it.",
+          "Loan officers employed by banks and direct lenders are covered by the same pay rules. Their pay just isn't itemized for you, because the Closing Disclosure rule covers what a lender pays a third-party originator, such as a broker."
+        ]
+      },
+      {
+        heading: "Isn't a broker just a middleman adding a fee?",
+        paragraphs: [
+          "A broker is paid, and that cost is real. Whether a brokered loan ends up costing you more or less than going direct is something you find out by comparing, not by assuming either way.",
+          "Get a Loan Estimate from the broker and one from a bank or credit union for the same loan type, term and lock period, issued as close to the same day as you can manage. Then compare the interest rate and the origination charges side by side. If the direct lender wins, take it."
+        ]
+      },
+      {
+        heading: "Will the broker's pay push my rate up?",
+        paragraphs: [
+          "It can't legally be tied to your rate. Under Regulation Z, a broker's pay can't be based on the terms of your loan, and the interest rate is one of those terms.",
+          "What you can still do is ask how the broker is being paid on your loan, by you or by the lender, and have it walk you through how that choice shows up in your numbers. Then check those numbers against another lender's Loan Estimate."
+        ]
+      },
+      {
+        heading: "What if the fees weren't explained up front?",
+        paragraphs: [
+          "That is what the Loan Estimate is for. The lender has to send it within three business days of your application, and until you have it and have said you want to go ahead, nobody can charge you a fee except a reasonable one for pulling your credit report.",
+          "A Loan Estimate shows what the lender expects to offer if you decide to move forward; it doesn't commit you. If the origination charges look high, ask what each one is for, ask whether a different pricing option exists, and get a competing estimate before you say yes."
+        ]
+      },
+      {
+        heading: "My broker doesn't want me to shop around. Is that a red flag?",
+        paragraphs: [
+          "Treat it as one. The CFPB's advice is the same whether you use a broker or a direct lender: shop around and compare loan terms, interest rates and fees. Your credit isn't the obstacle people fear, either. The CFPB says multiple credit checks from mortgage lenders within a 45-day window are recorded as a single inquiry.",
+          "The federal anti-steering rule also describes what a broker's comparison should include. A broker has a safe harbor when it gets options from a significant number of the lenders it regularly works with and shows you, for each type of loan you're interested in, the loan with the lowest interest rate, the lowest interest rate without features such as a prepayment penalty, interest-only payments or a balloon payment in the first seven years, and the lowest total points and origination fees. Asking to see that spread is a fair request."
+        ]
+      },
+      {
+        heading: "Am I stuck once a broker has pulled my credit?",
+        paragraphs: [
+          "No. A credit pull doesn't bind you to anyone. You can apply with a bank, a credit union or another broker, and mortgage credit checks within 45 days of the first one are recorded as a single inquiry, so a second application in that window doesn't add to the effect on your score.",
+          "And until you've received a Loan Estimate and told a lender you intend to proceed, the only fee anyone can charge you is a reasonable credit report fee."
+        ]
+      },
+      {
+        heading: "When is a broker not the right choice?",
+        paragraphs: [
+          "A broker earns its place when you would rather have one person collect and compare offers from several lenders, or when your file has something unusual in it, such as self-employment income, a condo with association issues, an investment property or a recent credit event, where lenders' programs can differ.",
+          "Plenty of borrowers do fine without one, though. A broker probably isn't worth it for you if any of these apply."
+        ],
+        bullets: [
+          "Your loan is straightforward and you're happy to collect two or three Loan Estimates yourself and compare them line by line",
+          "A bank or credit union offers you something specific, such as a discount for existing customers, or your employer's relocation package only covers costs with certain lenders",
+          "The lender you want to use doesn't accept loans through brokers",
+          "The broker you're talking to rushes you, won't explain its fees, or discourages you from getting a second estimate"
+        ]
+      },
+      {
+        heading: "How do I check a broker before I start?",
+        paragraphs: [
+          "Look up both the company and the loan officer on NMLS Consumer Access. It's free and shows whether a company or a person is authorized to do business in your state, and the CFPB points to your state regulator for any disciplinary orders. In Florida, loan originators and mortgage brokers are licensed under Chapter 494 of the Florida Statutes, and the regulator is the Office of Financial Regulation.",
+          "Wholesale Mortgage Lending is a Florida mortgage brokerage. We arrange loans through wholesale lenders; we don't make loans, approve them or set their prices. Our license numbers are on every page, so you can check us the same way. If a bank or credit union would serve your file better, we'll tell you."
         ]
       }
     ],
@@ -922,48 +967,94 @@ export const BASICS_ARTICLES: Article[] = [
       {
         question: "Does using a mortgage broker cost more?",
         answer:
-          "Not inherently. Broker compensation is paid by either the lender or the borrower, is disclosed in dollars on the Loan Estimate, and cannot legally be based on your loan's terms. Whether a brokered offer beats a retail offer varies file by file — which is exactly why comparing Loan Estimates on identical assumptions is the honest test."
+          "Not necessarily. The broker is paid by you or by the lender, never both on one loan, and federal rules bar that pay from varying with your loan's terms. Whether a brokered offer beats a bank's changes from file to file, so compare Loan Estimates for the same loan type, term and lock period."
       },
       {
         question: "Do brokers approve loans?",
         answer:
-          "No. Brokers arrange loans: they structure the application, shop it to wholesale lenders, and manage the process. The lender underwrites the file, makes the credit decision, and funds the loan. A broker's value is access, structuring, and comparison — not the approval itself, which always belongs to the lender."
+          "No. Brokers arrange loans: they structure the application, send it to wholesale lenders and manage the process. The lender underwrites the file, makes the credit decision and funds the loan. A broker's value is access, structuring and comparison, never the approval itself."
       },
       {
-        question: "Is a mortgage banker the same as a broker?",
+        question: "Can I get a Loan Estimate from a bank while I work with a broker?",
         answer:
-          "No. A mortgage banker funds loans with its own or borrowed capital and typically sells them after closing; it is a lender. A broker never funds the loan. The distinction matters because it determines whose credit policy governs your file and how the originator's compensation is structured and disclosed."
+          "Yes. Nothing stops you from applying in more than one place, and the CFPB says mortgage credit checks within a 45-day window count as a single inquiry. Until you tell a lender you intend to proceed, the only fee it can charge is a reasonable credit report fee."
       },
       {
         question: "How do I check whether a broker or loan officer is licensed?",
         answer:
-          "Look them up on NMLS Consumer Access, the free national database, using their name or NMLS ID — every legitimate originator has one and must provide it. The record shows licensure status, employers, and regulatory history. Florida licensing for mortgage brokers and lenders is administered by the state's Office of Financial Regulation."
+          "Look them up on NMLS Consumer Access, the free national database, by name or NMLS ID. Your state regulator handles disciplinary orders; in Florida, mortgage brokers and loan originators are licensed under Chapter 494 of the Florida Statutes and regulated by the Office of Financial Regulation."
       }
     ],
     sources: [
       {
         publisher: "Consumer Financial Protection Bureau",
-        title: "What's the difference between a mortgage broker and a mortgage lender?",
-        url: "https://www.consumerfinance.gov/ask-cfpb/whats-the-difference-between-a-mortgage-broker-and-a-mortgage-lender-en-130/"
+        title: "What is the difference between a mortgage lender and a mortgage broker?",
+        url: "https://www.consumerfinance.gov/ask-cfpb/what-is-the-difference-between-a-mortgage-lender-and-a-mortgage-broker-en-130/"
+      },
+      {
+        publisher: "Consumer Financial Protection Bureau",
+        title: "How does a mortgage loan officer or broker get paid?",
+        url: "https://www.consumerfinance.gov/ask-cfpb/how-does-a-mortgage-loan-officer-or-broker-get-paid-en-132/"
+      },
+      {
+        publisher: "Consumer Financial Protection Bureau",
+        title: "What is a Loan Estimate?",
+        url: "https://www.consumerfinance.gov/ask-cfpb/what-is-a-loan-estimate-en-1995/"
+      },
+      {
+        publisher: "Consumer Financial Protection Bureau",
+        title: "What happens when a mortgage lender checks my credit?",
+        url: "https://www.consumerfinance.gov/ask-cfpb/what-exactly-happens-when-a-mortgage-lender-checks-my-credit-en-2005/"
+      },
+      {
+        publisher: "Consumer Financial Protection Bureau",
+        title:
+          "Is there any way I can check to see if the company or person I contact is permitted to make or broker mortgage loans?",
+        url: "https://www.consumerfinance.gov/ask-cfpb/is-there-any-way-i-can-check-to-see-if-the-company-or-person-i-contact-is-permitted-to-make-or-broker-mortgage-loans-en-133/"
       },
       {
         publisher: "eCFR",
-        title: "12 CFR 1026.36 — Loan originator compensation (Regulation Z)",
+        title: "12 CFR 1026.36 — Loan originator compensation and anti-steering (Regulation Z)",
         url: "https://www.ecfr.gov/current/title-12/chapter-X/part-1026/subpart-E/section-1026.36"
+      },
+      {
+        publisher: "eCFR",
+        title: "12 CFR 1026.19(e) — Loan Estimate timing and fee limits (Regulation Z)",
+        url: "https://www.ecfr.gov/current/title-12/chapter-X/part-1026/subpart-C/section-1026.19"
+      },
+      {
+        publisher: "eCFR",
+        title: "12 CFR 1026.37(f) — Loan Estimate origination charges (Regulation Z)",
+        url: "https://www.ecfr.gov/current/title-12/chapter-X/part-1026/subpart-E/section-1026.37"
+      },
+      {
+        publisher: "eCFR",
+        title: "12 CFR 1026.38(f) — Closing Disclosure loan costs (Regulation Z)",
+        url: "https://www.ecfr.gov/current/title-12/chapter-X/part-1026/subpart-E/section-1026.38"
       },
       {
         publisher: "NMLS",
         title: "NMLS Consumer Access",
         url: "https://www.nmlsconsumeraccess.org/"
+      },
+      {
+        publisher: "Florida Senate",
+        title: "Florida Statutes, Chapter 494 — Loan Originators and Mortgage Brokers",
+        url: "https://www.flsenate.gov/Laws/Statutes/2026/Chapter494"
       }
     ],
     related: [
-      { href: "/plan", label: "Build your mortgage plan" },
-      { href: "/contact", label: "Talk to us" },
+      { href: "/resources/loan-estimate-explained", label: "How to read a Loan Estimate" },
+      {
+        href: "/resources/mortgage-credit-inquiries",
+        label: "Does rate shopping hurt your credit?"
+      },
       { href: "/resources/apr-vs-interest-rate", label: "APR vs. interest rate" },
-      { href: "/mortgage/self-employed", label: "Self-employed borrowers" }
+      { href: "/mortgage/self-employed", label: "Self-employed borrowers" },
+      { href: "/plan", label: "Build your mortgage plan" },
+      { href: "/contact", label: "Talk to us" }
     ],
     publishedAt: PUBLISHED,
-    lastReviewed: REVIEWED
+    lastReviewed: "2026-11-16"
   }
 ];

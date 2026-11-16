@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Disclosure, Eyebrow, Prose, Section } from "@/components/ui";
 import { JsonLd } from "@/components/json-ld";
+import { LinkedText } from "@/components/linked-text";
 import { pageMetadata } from "@/lib/metadata";
 import { businessIdentity, SITE_URL } from "@/lib/site";
 import {
@@ -118,7 +119,9 @@ export default async function GlossaryTermPage({ params }: { params: Promise<{ t
       <Section width="narrow" pad="tight">
         <Prose>
           {term.body.map((paragraph) => (
-            <p key={paragraph.slice(0, 48)}>{paragraph}</p>
+            <p key={paragraph.slice(0, 48)}>
+              <LinkedText text={paragraph} />
+            </p>
           ))}
         </Prose>
       </Section>

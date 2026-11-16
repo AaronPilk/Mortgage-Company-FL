@@ -112,7 +112,7 @@ export const FIRST_TIME_ARTICLES: Article[] = [
       {
         heading: "Where the 20 percent myth comes from",
         paragraphs: [
-          "Twenty percent was never the entry price of homeownership. It is the threshold at which a conventional loan no longer requires private mortgage insurance — the point where the lender's exposure drops enough that the extra insurance policy on the loan becomes unnecessary. Somewhere along the way, a pricing boundary got repeated into a prerequisite, and it now stops renters who could buy from ever asking a lender the question.",
+          "Twenty percent was never the entry price of homeownership. It is the threshold at which [a conventional loan](/mortgage/conventional) no longer requires private mortgage insurance — the point where the lender's exposure drops enough that the extra insurance policy on the loan becomes unnecessary. Somewhere along the way, a pricing boundary got repeated into a prerequisite, and it now stops renters who could buy from ever asking a lender the question.",
           "The Consumer Financial Protection Bureau, which regulates mortgage disclosures, describes PMI as insurance a lender may require on a conventional loan when the down payment is under 20 percent of the purchase price. That is the entire fact behind the myth. It says nothing about whether you can get a loan with less down — you can — only about whether that loan carries mortgage insurance."
         ]
       },
@@ -140,7 +140,7 @@ export const FIRST_TIME_ARTICLES: Article[] = [
       {
         heading: "Down payment is not the same as cash to close",
         paragraphs: [
-          "First-time buyers routinely conflate the down payment with the total cash they need. They are different numbers. On top of the down payment, you will pay closing costs — lender fees, title charges, Florida documentary stamp taxes, prepaid insurance and property taxes for the escrow account — and in Florida the insurance line deserves particular respect, since a full year of homeowners premium (plus flood insurance, if required) is typically collected at closing.",
+          "First-time buyers routinely conflate the down payment with [the total cash they need to close](/calculators/closing-cost). They are different numbers. On top of the down payment, you will pay closing costs — lender fees, title charges, Florida documentary stamp taxes, prepaid insurance and property taxes for the escrow account — and in Florida the insurance line deserves particular respect, since a full year of homeowners premium (plus flood insurance, if required) is typically collected at closing.",
           "Your Loan Estimate will show the full cash-to-close figure within three business days of applying, which is why applying early beats guessing. If your cash is thin, remember that gift funds from family are allowed under documented rules, and that seller credits toward closing costs can be negotiated into a Florida contract. Wholesale Mortgage Lending arranges loans across all of these program families and can model the same purchase under each, so the comparison is concrete rather than conceptual."
         ]
       }
@@ -412,7 +412,7 @@ export const FIRST_TIME_ARTICLES: Article[] = [
         heading: "What the Loan Estimate is and when you get it",
         paragraphs: [
           "The Loan Estimate exists because mortgage offers used to be incomparable on purpose. Since the TILA-RESPA integrated disclosure rules took effect, every lender must present its offer on the identical three-page federal form, delivered within three business days of receiving your application. Same layout, same labels, same math — which means two Loan Estimates can be laid side by side and read against each other line for line.",
-          "Receiving one commits you to nothing. It is a disclosure, not a contract, and lenders cannot charge you anything beyond a reasonable credit report fee before you receive it and tell them you intend to proceed. That design is deliberate: the form is meant to be collected from multiple lenders and compared. Not collecting more than one is leaving the entire point of the document unused."
+          "Receiving one commits you to nothing. It is a disclosure, not a contract, and lenders cannot charge you anything beyond a reasonable credit report fee before you receive it and tell them you intend to proceed. That design is deliberate: the form is meant to be collected from multiple lenders and compared, whether you shop lenders yourself or [use a mortgage broker to do it](/resources/how-mortgage-brokers-work). Not collecting more than one is leaving the entire point of the document unused."
         ]
       },
       {
