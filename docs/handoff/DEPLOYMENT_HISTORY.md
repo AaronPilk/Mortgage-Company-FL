@@ -108,6 +108,31 @@ changes.
 
 ---
 
+## 2026-11-13 — WML SEO and brand release deployed
+
+The owner ran the deploy kit. Commit `3cbf071` (branch
+`claude/seo-sop-20261112`) went live as Worker version
+`595cfc3b-c906-45e7-b039-09a87e87de50` (created 2026-11-13T18:10:42Z).
+`pnpm check` and `pnpm cf:build` passed. One live check failed: `/tract`
+returned 308, which the 2026-11-13 brand change (ADR-014) intended; the kit's
+check predated it. Because of that failure the kit did not submit IndexNow.
+PR #1 merged this work to `main` as `54d23c5` the same day.
+
+## 2026-11-16 — Market-rates page public (PR #9) deployed
+
+The owner ran the re-pinned deploy kit. Commit `26987fd` (`main`) went live as
+Worker version `5d568e0d-6c9b-43ef-9762-61f9bbf69909`, about 18:56 UTC.
+
+- `pnpm check`: pass, 72 test files, 2205 tests.
+- `pnpm cf:build` and `pnpm cf:deploy`: pass.
+- Live checks: all 23 passed, including the 207-URL sitemap, the
+  tractrealestate.com and `/tract` redirects, the footer licensing display and
+  `/mortgage-rates` without `noindex`.
+- IndexNow: 200 for all 207 sitemap URLs.
+- Rollback: `595cfc3b-c906-45e7-b039-09a87e87de50` (commit `3cbf071`).
+
+The kit is pinned to `26987fd`. Re-pin it before the next deploy.
+
 ## 2026-11-16 — internal links and broker page, prepared, not deployed
 
 Live before this release: commit `26987fd` (market-rates page public, ADR-015)

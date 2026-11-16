@@ -1,98 +1,94 @@
 # Blockers
 
-**As of 2026-08-18.** Local implementation gates are green. The blockers below
-are external configuration, authority, vendor or regulatory gates; none permits
-weakening a test or inventing a production claim.
+**As of 2026-11-16.** The site is live and nothing here takes it down. Each item
+blocks one feature, a green CI or a listing. None of them permits weakening a
+test or inventing a production claim. The 2026-08-18 blockers (Vercel
+duplicate, missing licensing facts, empty Supabase project, CRM with no
+credentials) no longer describe production.
 
-## 1. Vercel is an active public duplicate
+## 1. ATTOM runs on a free trial key
 
-| Field           | Value                                                                                                                                  |
-| --------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Status          | Active topology blocker; owner explicitly waived it for the combined Git push, not as a canonical-host decision                        |
-| Evidence        | One Vercel project with public production aliases; combined application build from GitHub `main` at `7d948e7` is verified              |
-| Risk            | A push to `main` automatically publishes Vercel while Cloudflare remains canonical, creating two public runtimes for a regulated site  |
-| Smallest action | Disable the Vercel Git production deployment or make the Vercel aliases non-public, then verify Cloudflare is the sole production host |
-| Owner           | Vercel/GitHub account owner                                                                                                            |
+| Field                | Value                                                                                                                                                                        |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Status               | Owner decision. Production home lookup and homeowner value dashboard use a 30-day free trial key (500 calls a day)                                                           |
+| Risk                 | When the trial ends those features will probably stop returning property data                                                                                                |
+| Not blocked by it    | Every other page, the sitemap, lead capture, calculators, `/mortgage-rates`                                                                                                  |
+| Option A             | Paid plan (sales quote, 800-462-5125). Also step 1 of 3 for `/what-is-my-home-worth`                                                                                         |
+| Option B             | Labelled samples: set `ATTOM_MODE=fixture`. `SHOW_SAMPLE_PROPERTY_DATA` is already `true` in `wrangler.jsonc`. One variable plus a deploy                                    |
+| Fixed in this branch | `ATTOM_PLAN=trial` in `wrangler.jsonc`; the readiness board now reads "in progress" until it is `paid`. A refused key logs `AttomAuthError`, a spent quota `AttomQuotaError` |
+| Owner                | Aaron                                                                                                                                                                        |
 
-Do not migrate TRACT to Vercel and do not create another deployment architecture.
-The current Vercel page points its canonical tag to Cloudflare, but canonical
-metadata does not make a publicly served duplicate disappear.
+## 2. CI on `main` was red; the fix is in this branch (ADR-016)
 
-## 2. No proven or migrated TRACT Supabase project
+Red since 2026-11-13 for two reasons: the secret scan matched the public
+Supabase anon key in `apps/web/.env.production`, and the contact-form e2e test
+never got a Turnstile token because the e2e build inlined the production
+sitekey. Both are fixed on `claude/wml-fixes-20261116`: `scripts/secret-scan.sh`
+allows only `NEXT_PUBLIC_*` lines in that one file, and e2e builds use
+Cloudflare's test sitekey. Local run: `pnpm check` green (2217 tests),
+`pnpm test:e2e` 128 of 128 on desktop and mobile. ADR-016 records the reasoning
+and is marked proposed until the owner approves the PR, because it touches the
+security gate. Owner: Aaron.
 
-| Field           | Value                                                                                                                                              |
-| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Status          | Blocks durable production leads, Vision reports, accounts, admin state and outbox delivery                                                         |
-| Evidence        | Connector-visible candidate is healthy but has zero repository migrations, public tables, policies, buckets, objects, Edge Functions or Auth users |
-| Smallest action | Owner confirms the candidate project is TRACT and explicitly approves the reviewed 14-migration additive plan                                      |
-| Owner           | Supabase project owner plus engineering reviewer                                                                                                   |
+## 3. Seven Dependabot pull requests
 
-The candidate also has two security-advisor warnings on the default
-`rls_auto_enable` helper. Those must be reviewed before treating the project as a
-production boundary. No migration, Auth setting, RLS policy or data was changed.
+Open since 2026-11-13. Disposition:
 
-## 3. Production preflight is red
+| PRs                                                      | What                                                           | Do                                                                                    |
+| -------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| checkout, setup-node, upload-artifact, pnpm/action-setup | Runner action majors                                           | Already applied in this branch's `ci.yml`; close them after merge (or let Dependabot) |
+| minor-and-patch group (20 packages)                      | Next 16.4, React 19.3, zod 4.6, wrangler, opennextjs, Supabase | Merge after this PR, once its CI is green on the rebase; it is the routine group      |
+| typescript 6.0.3                                         | Major                                                          | Close. ADR-010 holds 5.9; `dependabot.yml` now ignores TypeScript majors              |
+| vitest 5.1.0                                             | Major                                                          | Leave for a separate, deliberate bump; not security-relevant                          |
 
-The current local environment reports four blocking names:
+Owner: Aaron.
 
-- `HASH_PEPPER`
-- `SUPABASE_SERVICE_ROLE_KEY`
-- `TURNSTILE_MODE`
-- `NEXT_PUBLIC_TURNSTILE_SITE_KEY`
+## 4. Listing verifications
 
-Provision values only through approved Cloudflare secret/public-variable paths.
-Do not put values in source, docs, chat or Vercel. Re-run preflight before any
-combined Cloudflare deploy.
+| Listing                 | Waiting on                                              |
+| ----------------------- | ------------------------------------------------------- |
+| Google Business Profile | Dan: phone code or verification video                   |
+| Bing Places             | Dan: PIN from the postcard due 2026-11-20 to 2026-11-23 |
+| Yelp                    | Yelp moderation                                         |
+| BBB                     | BBB review; they email Dan                              |
 
-## 4. Licensing and legal launch facts are incomplete
+Not started, owner to choose: Foursquare (CAPTCHA and login wall), Data Axle
+(would spread the street address), Apple Maps (needs a walk-in location, cannot
+hide the address), Nextdoor (not looked at).
 
-`businessIdentity.nmlsId` and `companyLicenseId` remain null. The application
-shows a pending state and never renders a plausible placeholder. Until every
-licensing gate in `docs/compliance/launch-gates.md` is cleared, do not accept an
-application, pull credit, quote or negotiate a rate/term, or issue a
-prequalification/preapproval.
+## 5. `/what-is-my-home-worth` stays off
 
-Owner: principal loan originator with counsel/compliance.
+Three steps, in order: paid ATTOM plan; sign-off from Dan or counsel on the
+page; set `FEATURE_SELLER_TOOLS`. Until then it 404s and is noindex.
 
-## 5. No contracted MLS/display provider
+## 6. Dashboard settings not confirmed since 2026-11-12
 
-The marketplace is a labelled synthetic demonstration. Nineteen invented records
-exist; one closed record is excluded from the 18 displayable samples. Routes stay
-noindex and fixture detail pages emit no listing JSON-LD.
+From `2026-11-12_SEO_DOMAIN.md`. Nobody has recorded these as done:
 
-Real listings require a data and display agreement, provider credentials,
-required attribution, a contracted adapter and field-by-field display review.
-Never publish fixture data as live MLS content.
+- Supabase Auth: Site URL `https://wsmlending.com`, and
+  `https://wsmlending.com/**` in Redirect URLs.
+- Turnstile: the widget's allowed hostnames include `wsmlending.com`. (Separate
+  from item 2.)
 
-## 6. CRM delivery has no credentials or scheduler
+## 7. CRM delivery not proven end to end
 
-First-party lead/outbox code is complete locally, but GoHighLevel is disabled.
-Real delivery requires reviewed credentials/maps plus a Cloudflare Queue or cron
-trigger for the protected drain route. Credential provisioning alone does not
-drain the outbox.
+GoHighLevel is in `production` mode and points at the WML sub-account, with
+`GHL_CUSTOM_FIELD_MAP` set to `{}`. No consented test lead has been confirmed
+landing there. Smallest action: one approved test lead through `/contact`, then
+check the WML sub-account and `/admin/jobs` for dead letters. Rebuild the
+custom-field map against the WML location afterwards.
 
-Relevant names only: `GHL_MODE`, `GHL_PRIVATE_INTEGRATION_TOKEN`,
-`GHL_LOCATION_ID`, `GHL_CUSTOM_FIELD_MAP`, `GHL_PIPELINE_MAP`,
-`GHL_WEBHOOK_PUBLIC_KEY`, `OUTBOX_DRAIN_TOKEN`.
+## 8. Licensing, people side
 
-## 7. Provider and operational decisions
+Confirm with OFR that Dan Cuesta (NMLS ID 132852) is the designated principal
+loan originator. `/apply` still fails closed with no approved POS/LOS URL; keep
+it that way until a secure application system is approved.
 
-| Item             | What remains                                                                                                               |
-| ---------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| POS/LOS          | Select and approve the secure application system; `SECURE_APPLICATION_URL` is unset                                        |
-| AI/media         | Approve provider, data map, retention and cost policy before enabling RendProp transformations or Vision narrative/imagery |
-| Email            | Select/configure transactional delivery and reviewed templates                                                             |
-| Storage          | Define buckets, object policies, upload scanning, retention and deletion before production media upload                    |
-| Privacy requests | Define identity confirmation, retention exceptions, export/deletion execution and completion audit process                 |
+## Carried over from 2026-08-18, not re-checked
 
-The deterministic Vision arithmetic is not blocked by AI. Public calculators,
-planner, synthetic marketplace, Vision preview and RendProp illustration all work
-without paid providers.
-
-## Engineering follow-ups, not release authority
-
-- Replace per-instance rate limiting with a shared store before scale.
-- Design a nonce-based CSP to remove the documented inline-script exception.
-- Expand audit-event emission around privileged operational actions.
-- Run and record a full accessibility audit and measured Lighthouse pass.
-- Complete reviewed content, SEO/AEO, feed/schema and analytics work in Phase 6.
+- No contracted MLS/display provider; listings remain labelled fixtures.
+- POS/LOS selection, transactional email, storage policy and privacy-request
+  execution are undecided.
+- Engineering follow-ups: shared rate-limit store before scale, nonce-based
+  CSP, broader audit-event emission, a recorded accessibility and Lighthouse
+  pass.
