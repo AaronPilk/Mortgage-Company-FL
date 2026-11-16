@@ -28,7 +28,7 @@ export const ROUTE_LASTMOD: Readonly<Record<string, string>> = {
   "/mortgage/construction": "2026-11-16",
   "/mortgage/land": "2026-11-16",
   "/calculators": "2026-11-16",
-  "/calculators/mortgage-payment": "2026-08-17",
+  "/calculators/mortgage-payment": "2026-11-16",
   "/calculators/affordability": "2026-08-17",
   "/calculators/refinance-break-even": "2026-08-17",
   "/calculators/rent-vs-buy": "2026-08-17",

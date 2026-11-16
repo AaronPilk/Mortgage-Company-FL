@@ -48,9 +48,17 @@ if (git(["rev-parse", "--is-shallow-repository"]) === "true") {
 
 const today = utcDay(new Date());
 
-/** Paths with uncommitted changes, staged or not, including untracked files. */
+/**
+ * Paths with uncommitted changes, staged or not, including untracked files.
+ * Read untrimmed: each porcelain line starts with a two-letter status that is
+ * often a space (" M path"), and git()'s trim would eat the first line's space,
+ * shift its path by one character and leave that file looking unchanged.
+ */
 const dirty = new Set(
-  git(["status", "--porcelain", "--untracked-files=all"])
+  execFileSync("git", ["status", "--porcelain", "--untracked-files=all"], {
+    cwd: ROOT,
+    encoding: "utf8"
+  })
     .split("\n")
     .filter((line) => line.length > 3)
     .map((line) => line.slice(3).split(" -> ").pop() ?? "")
