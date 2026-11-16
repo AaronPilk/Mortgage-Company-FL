@@ -1312,14 +1312,15 @@ export const ROUTE_REGISTRY: RouteEntry[] = [
     contentGroup: "properties"
   },
   // Market rates. Shows a published national weekly average (Freddie Mac PMMS via
-  // FRED), never a quote. Noindex and gated behind the rate-feed flag: it stays
-  // dark and off the sitemap until a live feed is configured and legal has
-  // reviewed the public display of market rates — then flip indexable to true.
+  // FRED), never a quote. Indexable since 2026-11-16 (ADR-015): the live feed is
+  // configured and Dan Cuesta, the licensed loan originator, approved the public
+  // display of the weekly national average. The page still renders only where the
+  // rate-feed flag permits.
   {
     path: "/mortgage-rates",
     priority: 0.5,
-    changeFrequency: "daily",
-    indexable: false,
+    changeFrequency: "weekly",
+    indexable: true,
     contentGroup: "mortgage"
   },
 

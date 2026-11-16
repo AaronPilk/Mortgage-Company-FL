@@ -88,10 +88,9 @@ function technicalGates(): Gate[] {
     {
       area: "Platform",
       item: "Rate feed live and market-rate display reviewed",
-      state:
-        state.rateFeed === "fixture" || state.rateFeed === "disabled" ? "blocked" : "in_progress",
+      state: state.rateFeed === "fixture" || state.rateFeed === "disabled" ? "blocked" : "approved",
       owner: "compliance",
-      note: "The rate-watch surface shows a published national weekly average (Freddie Mac PMMS via FRED), never a quote. It stays dark until a live feed is set and advertising review clears the public display of market rates."
+      note: "The rate-watch surface shows a published national weekly average (Freddie Mac PMMS via FRED), never a quote. Dan Cuesta (NMLS 132852) approved the public display on 2026-11-16 (ADR-015); it stays dark whenever the live feed is off."
     },
     {
       area: "Platform",

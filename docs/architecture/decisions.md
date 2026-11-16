@@ -428,3 +428,36 @@ Consequences:
   `components`, `content` or `lib`, fails `tests/unit/brand.test.ts`, and the
   browser suite checks the visible text and JSON-LD of the landing, a program
   page, two articles and the calculators hub.
+
+## ADR-015 — The market-rates page is public and indexable
+
+**Date:** 2026-11-16 · **Status:** accepted · **Owner:** Aaron Pilkington
+
+`/mortgage-rates` shows the Freddie Mac Primary Mortgage Market Survey weekly
+national averages (30- and 15-year fixed) from FRED, with the week-over-week
+move. It shipped dark and noindex because displaying rates is
+advertising-adjacent for a licensed broker, and the readiness board held it
+behind an advertising review.
+
+The feed is live in production (`FRED_API_KEY` set, `RATE_FEED_MODE=production`,
+`FEATURE_RATE_WATCH=true`). On 2026-11-16 the owner relayed that Dan Cuesta, the
+licensed loan originator (NMLS 132852), approved showing the weekly national
+average publicly. The route is now `indexable: true`, the page drops its
+`noindex`, and the readiness item reads approved while the feed is on.
+
+What did not change, and why it matters:
+
+- **It is still market information, never an offer.** Every surface says it is
+  a national survey average, not a quote, not an APR and not our rate. Showing a
+  rate we offer would bring the APR and trigger-term rules for credit
+  advertising; this page never states one.
+- **It still renders only behind the flag.** `rateWatchAvailable()` gates the
+  page, so turning the feed off returns it to a 404. The sitemap lists every
+  indexable route, so if the feed is turned off for long, flip `indexable` back
+  too.
+- **The homepage hub still leaves it out**, because a flag can 404 it
+  (`home-hub.test.ts`).
+
+To revisit: if the owner wants a lender pricing feed (our own rates) instead of
+the national average, that is a different surface with APR disclosures and a
+fresh review, not a change to this one.
