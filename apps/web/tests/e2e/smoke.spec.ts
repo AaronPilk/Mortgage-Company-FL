@@ -414,13 +414,28 @@ test.describe("calculators", () => {
       "/calculators/affordability",
       "/calculators/refinance-break-even",
       "/calculators/rent-vs-buy",
-      "/calculators/closing-cost"
+      "/calculators/closing-cost",
+      "/calculators/short-term-rental"
     ]) {
       await page.goto(path);
       const body = (await page.locator("body").innerText()).toLowerCase();
       expect(body, `${path} is missing an estimate disclosure`).toContain("estimate");
       expect(body, `${path} is missing a disclosure version`).toContain("disclosure version");
     }
+  });
+
+  test("the short-term rental calculator switches strategy and recomputes", async ({ page }) => {
+    await page.goto("/calculators/short-term-rental");
+    const results = page.getByTestId("str-results");
+    await expect(results).toContainText("short-term");
+    const before = await results.innerText();
+    await page.getByRole("button", { name: "Long-term rental" }).click();
+    await expect(results).toContainText("long-term");
+    await expect(page.locator("#str-rent")).toBeVisible();
+    await expect(page.locator("#str-adr")).toHaveCount(0);
+    expect(await results.innerText()).not.toBe(before);
+    // Never a quote: the rate field is an assumption the visitor chooses.
+    await expect(page.locator("body")).toContainText("No rate is being quoted or offered");
   });
 
   test("is reachable and operable by keyboard", async ({ page }) => {

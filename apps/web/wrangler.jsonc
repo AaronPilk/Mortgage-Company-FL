@@ -79,6 +79,10 @@
     // ATTOM_API_KEY secret — SHOW_SAMPLE_PROPERTY_DATA then has no effect.
     "FEATURE_HOME_LOOKUP": "true",
     "ATTOM_MODE": "production",
+    // Which agreement the key belongs to. The key in production is the 30-day
+    // trial (500 calls/day). Set to "paid" once a plan is signed; the readiness
+    // board shows "in progress", not "approved", until then.
+    "ATTOM_PLAN": "trial",
     // FEMA flood zone on the home lookup — free public NFHL, no key. "production"
     // calls FEMA live using the property's coordinates.
     "FLOOD_MODE": "production",

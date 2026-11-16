@@ -169,6 +169,8 @@ test.describe("integrated recovery workflows", () => {
     await page.locator('input[name="email"]').fill("dana@example.com");
     await page.locator('input[name="phone"]').fill("813-555-0147");
     await page.locator('input[name="privacyAccepted"]').check();
+    const gateToken = page.locator('input[name="cf-turnstile-response"]');
+    await expect(gateToken).not.toHaveValue("");
     await page.getByRole("button", { name: "Start planning" }).click();
 
     // The rejection is announced AND focused — the summary renders for the
@@ -179,7 +181,10 @@ test.describe("integrated recovery workflows", () => {
     await expect(gateAlert).toBeFocused();
 
     // An unchanged retry succeeds and reuses the same submissionId, so the
-    // server-side idempotency dedupe holds across the failure.
+    // server-side idempotency dedupe holds across the failure. The token is
+    // single-use and the form resets the widget on error, so wait for the
+    // fresh one; the fixture key issues the same dummy value each time.
+    await expect(gateToken).not.toHaveValue("");
     await page.getByRole("button", { name: "Start planning" }).click();
     await expect.poll(() => payloads.length).toBe(2);
     expect(payloads[1]).toEqual(payloads[0]);
@@ -416,8 +421,13 @@ test.describe("integrated recovery workflows", () => {
     await page.locator('input[name="email"]').fill("dana@example.com");
     await page.locator('input[name="phone"]').fill("813-555-0147");
     await page.locator('input[name="privacyAccepted"]').check();
+    const token = page.locator('input[name="cf-turnstile-response"]');
+    await expect(token).not.toHaveValue("");
     await page.getByRole("button", { name: "Request a call" }).click();
     await expect(page.locator('form [role="alert"]')).toContainText("Test retry response");
+    // A token is single-use, so the form resets the widget on error and the
+    // retry waits for the fresh one, exactly as a visitor would.
+    await expect(token).not.toHaveValue("");
     await page.getByRole("button", { name: "Request a call" }).click();
     await expect.poll(() => payloads.length).toBe(2);
 
@@ -438,6 +448,9 @@ test.describe("integrated recovery workflows", () => {
     await page.locator('input[name="email"]').fill("dana@example.com");
     await page.locator('input[name="phone"]').fill("813-555-0147");
     await page.locator('input[name="privacyAccepted"]').check();
+    // The challenge widget issues its token a beat after mounting; a visitor
+    // reads the form in that time, so the test waits for it the same way.
+    await expect(page.locator('input[name="cf-turnstile-response"]')).not.toHaveValue("");
     await page.getByRole("button", { name: "Request a call" }).click();
     await expect(page.locator('form [role="alert"]')).toContainText("could not save");
     await expect(page.getByText("We have your request")).toHaveCount(0);

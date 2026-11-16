@@ -6,3 +6,4 @@ export * from "./amortization";
 export * from "./dti";
 export * from "./dscr";
 export * from "./rate-impact";
+export * from "./investor";

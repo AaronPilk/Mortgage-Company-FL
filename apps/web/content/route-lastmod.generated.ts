@@ -37,6 +37,7 @@ export const ROUTE_LASTMOD: Readonly<Record<string, string>> = {
   "/calculators/debt-to-income": "2026-08-18",
   "/calculators/investment-property-cash-flow": "2026-08-18",
   "/calculators/dscr": "2026-11-13",
+  "/calculators/short-term-rental": "2026-11-16",
   "/calculators/rate-impact": "2026-08-18",
   "/about": "2026-11-13",
   "/contact": "2026-11-16",

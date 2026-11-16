@@ -1,5 +1,32 @@
 # Changelog
 
+## 2026-11-16 — CI green, ATTOM honesty, short-term rental calculator
+
+### Added
+
+- `/calculators/short-term-rental`: nightly rate and occupancy, or a monthly
+  lease, through the existing cash-flow and coverage engines, with gross rent
+  multiplier and rent-to-price. `@tract/mortgage-math` gains `investor.ts`, a
+  composition layer over `rentalCashFlow` and `debtServiceCoverage`.
+- `ATTOM_PLAN` (`trial` | `paid`). The readiness board reads "in progress", not
+  "approved", while production runs on the trial key.
+- `AttomAuthError` and `AttomQuotaError`, so a lapsed key or spent quota is
+  named in the logs.
+- `scripts/secret-scan.sh`, the CI secret scan as a script you can run locally.
+
+### Changed
+
+- CI: secret scan allows `NEXT_PUBLIC_*` lines in `apps/web/.env.production`
+  only (ADR-016); e2e builds use Cloudflare's test Turnstile sitekey; runner
+  actions bumped (checkout v7, setup-node v7, upload-artifact v7,
+  pnpm/action-setup v6).
+- Dependabot: TypeScript majors ignored per ADR-010; GitHub Actions bumps
+  grouped into one weekly PR.
+- Lead form: stops with a plain message if the Turnstile token has not arrived
+  yet, instead of sending an empty token.
+- `docs/handoff/CURRENT_STATE.md`, `BLOCKERS.md`, `ACTIVE_CHECKPOINT.md` and
+  `DEPLOYMENT_HISTORY.md` refreshed to the 16 Nov state.
+
 ## 2026-08-17 — Initial platform build
 
 ### Added

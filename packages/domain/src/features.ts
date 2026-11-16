@@ -10,6 +10,7 @@ export type ServerFeatures = {
   ai: ServerEnv["AI_MODE"];
   mls: ServerEnv["MLS_PROVIDER"];
   attom: ServerEnv["ATTOM_MODE"];
+  attomPlan: ServerEnv["ATTOM_PLAN"];
   rateFeed: ServerEnv["RATE_FEED_MODE"];
   turnstile: ServerEnv["TURNSTILE_MODE"];
   email: ServerEnv["EMAIL_MODE"];
@@ -39,6 +40,7 @@ export function serverFeatures(env: ServerEnv): ServerFeatures {
     ai: env.AI_MODE,
     mls: env.MLS_PROVIDER,
     attom: env.ATTOM_MODE,
+    attomPlan: env.ATTOM_PLAN,
     rateFeed: env.RATE_FEED_MODE,
     turnstile: env.TURNSTILE_MODE,
     email: env.EMAIL_MODE,

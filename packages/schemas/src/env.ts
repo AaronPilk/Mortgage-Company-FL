@@ -94,6 +94,13 @@ export const ServerEnvSchema = z
     ATTOM_MODE: FeatureModeSchema.default("disabled"),
     ATTOM_API_KEY: optionalString,
     /**
+     * Which ATTOM agreement the live key belongs to. "trial" is the 30-day
+     * evaluation key (500 calls a day, then it stops answering); "paid" is a
+     * signed plan. Operational truth only: it changes nothing about what is
+     * served, but the readiness board refuses to call a trial "approved".
+     */
+    ATTOM_PLAN: z.enum(["trial", "paid"]).default("trial"),
+    /**
      * Flood zone from FEMA's public NFHL (no key needed). A live mode
      * (sandbox/production) calls FEMA; "fixture" is the dev double; "disabled"
      * turns flood off. Safety-relevant, so fixture flood is never served in

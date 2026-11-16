@@ -6,6 +6,7 @@ import {
   assertCrmPayloadSafe,
   classifyHttpFailure
 } from "./port";
+import { defaultFetch } from "../http";
 
 /** Records nothing externally. The default so the site runs with no CRM configured. */
 export class DisabledCrmAdapter implements CrmPort {
@@ -142,7 +143,7 @@ export class GhlCrmAdapter implements CrmPort {
   constructor(private readonly config: GhlConfig) {}
 
   private get fetchImpl(): typeof fetch {
-    return this.config.fetchImpl ?? fetch;
+    return defaultFetch(this.config.fetchImpl);
   }
 
   private async request<T>(

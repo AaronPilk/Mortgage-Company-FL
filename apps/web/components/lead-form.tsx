@@ -32,6 +32,9 @@ type FormState =
   | { kind: "error"; message: string; fields: Record<string, string[]> }
   | { kind: "success"; receiptId: string };
 
+const TURNSTILE_PENDING_MESSAGE =
+  "The security check didn't complete. Please wait a moment and try again.";
+
 export function LeadForm({
   intent,
   formId,
@@ -117,6 +120,21 @@ export function LeadForm({
     }
     const submission = submissionRef.current;
 
+    // The widget issues its token a moment after it mounts, and a visitor on a
+    // slow connection can reach the button first. Stop here with a plain
+    // message rather than sending an empty token the server will reject with
+    // a schema error the visitor cannot act on.
+    const challengeToken = form.get("cf-turnstile-response");
+    if (turnstileSiteKey !== undefined && String(challengeToken ?? "") === "") {
+      setState({
+        kind: "error",
+        message: TURNSTILE_PENDING_MESSAGE,
+        fields: {}
+      });
+      queueMicrotask(() => errorSummaryRef.current?.focus());
+      return;
+    }
+
     const payload = {
       submissionId: submission.id,
       intent,
@@ -154,10 +172,14 @@ export function LeadForm({
         setState({ kind: "success", receiptId: result.data.receiptId });
         return;
       }
+      const fields = { ...(result.error.fields ?? {}) };
+      // The server's own text for a missing token is a schema message; say
+      // what the visitor can do instead.
+      if (fields.turnstileToken !== undefined) fields.turnstileToken = [TURNSTILE_PENDING_MESSAGE];
       setState({
         kind: "error",
         message: result.error.message,
-        fields: result.error.fields ?? {}
+        fields
       });
       resetTurnstile();
       // Move focus to the summary so a screen reader user hears the problem

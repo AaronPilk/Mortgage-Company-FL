@@ -8,6 +8,7 @@ import {
   type PropertyFactsPort,
   makeProvenance
 } from "./ports";
+import { defaultFetch } from "../http";
 
 /**
  * Property-facts adapters.
@@ -43,6 +44,26 @@ export class AttomApiError extends Error {
   ) {
     super(message);
     this.name = "AttomApiError";
+  }
+}
+
+/**
+ * The key was refused (401/403). On a trial key this is what "the trial ended"
+ * looks like, so it gets its own name: the routes log `errorName`, and an
+ * operator reading the logs should see the cause, not a generic status.
+ */
+export class AttomAuthError extends AttomApiError {
+  constructor(status: number) {
+    super(status, `ATTOM refused the API key (${status})`);
+    this.name = "AttomAuthError";
+  }
+}
+
+/** The daily or plan quota is spent (429). Same reasoning as AttomAuthError. */
+export class AttomQuotaError extends AttomApiError {
+  constructor() {
+    super(429, "ATTOM quota exhausted (429)");
+    this.name = "AttomQuotaError";
   }
 }
 
@@ -111,7 +132,7 @@ export class AttomPropertyFactsPort implements PropertyFactsPort {
   constructor(config: AttomConfig) {
     this.apiKey = config.apiKey;
     this.baseUrl = config.baseUrl ?? "https://api.gateway.attomdata.com/propertyapi/v1.0.0";
-    this.fetchImpl = config.fetchImpl ?? fetch;
+    this.fetchImpl = defaultFetch(config.fetchImpl);
     this.timeoutMs = config.timeoutMs ?? 12_000;
   }
 
@@ -196,6 +217,9 @@ export class AttomPropertyFactsPort implements PropertyFactsPort {
 
     // A 400/404 for an unmatched address is a normal "no record", not an outage.
     if (response.status === 400 || response.status === 404) return null;
+    if (response.status === 401 || response.status === 403)
+      throw new AttomAuthError(response.status);
+    if (response.status === 429) throw new AttomQuotaError();
     if (!response.ok)
       throw new AttomApiError(response.status, `ATTOM responded ${response.status}`);
     return (await response.json()) as AttomResponse;
@@ -243,7 +267,7 @@ export class FemaFloodPort implements FloodPort {
   constructor(config: FemaFloodConfig = {}) {
     this.baseUrl =
       config.baseUrl ?? "https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer";
-    this.fetchImpl = config.fetchImpl ?? fetch;
+    this.fetchImpl = defaultFetch(config.fetchImpl);
     this.timeoutMs = config.timeoutMs ?? 8_000;
   }
 
