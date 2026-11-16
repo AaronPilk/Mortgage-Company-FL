@@ -70,13 +70,21 @@ From `2026-11-12_SEO_DOMAIN.md`. Nobody has recorded these as done:
 - Turnstile: the widget's allowed hostnames include `wsmlending.com`. (Separate
   from item 2.)
 
-## 7. CRM delivery not proven end to end
+## 7. CRM delivery was broken on Workers; fixed in this branch
 
-GoHighLevel is in `production` mode and points at the WML sub-account, with
-`GHL_CUSTOM_FIELD_MAP` set to `{}`. No consented test lead has been confirmed
-landing there. Smallest action: one approved test lead through `/contact`, then
-check the WML sub-account and `/admin/jobs` for dead letters. Rebuild the
-custom-field map against the WML location afterwards.
+A consented test lead ("WML TEST / Delete me", example.com email, 555 number)
+was submitted on 2026-11-16 at about 20:17 UTC. The site stored it, but the
+outbox row failed on every drain with `TypeError: Illegal invocation`: every
+adapter called the stored global `fetch` as a method (`this.fetchImpl(...)`),
+which the Workers runtime refuses. The 2026-08-24 lead died the same way, so no
+web lead has ever reached GoHighLevel from the Worker. `defaultFetch()` in
+`packages/integrations/src/http.ts` fixes it for CRM, ATTOM, rates, email,
+Meta CAPI, AI and Turnstile. After deploy: the two `dead` rows in
+`integration_outbox` need requeueing (or submit one fresh test lead), then
+confirm the contact appears in the WML sub-account and delete it there.
+Separately: Supabase Auth (Site URL and redirect) and the Turnstile hostname
+list were checked on 2026-11-16 and already include wsmlending.com; nothing
+to change.
 
 ## 8. Licensing, people side
 
