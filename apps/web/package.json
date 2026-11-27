@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
-    "@supabase/supabase-js": "^2.119.0",
+    "@supabase/supabase-js": "^2.119.2",
     "@tract/analytics": "workspace:*",
     "@tract/database": "workspace:*",
     "@tract/domain": "workspace:*",
@@ -31,12 +31,12 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@opennextjs/cloudflare": "^1.20.17",
-    "@playwright/test": "^1.62.1",
+    "@opennextjs/cloudflare": "^1.20.18",
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/postcss": "^4.3.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "tailwindcss": "^4.3.5",
-    "wrangler": "^4.162.0"
+    "wrangler": "^4.167.0"
   }
 }
